@@ -1,3 +1,18 @@
-::root{
-    --backgroundColor: "red";
+:root{
+    --backgroundColor: red;
+}
+
+body{
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100dvh;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    background: var(--backgroundColor);
 }
