@@ -11,13 +11,14 @@ import { v4 as uuidv4 } from 'uuid';
 
 async function save(key, value) {
     let result = await SecureStore.getItemAsync(key);
-    console.log(`getItem: ${result}`)
-    console.log(`to save: ${key}, ${value}`)
     const nerw = result ? JSON.parse(result) : []
-    const nerx = nerw.filter(item => item.id != value.id)
-    nerx.push(value)
-    console.log(nerx)
-    await SecureStore.setItemAsync(key, JSON.stringify(nerx));
+    const index = nerw.findIndex(item =>{
+        if(value.id === item.id){
+            return true
+        }
+        return false
+     })
+    await SecureStore.setItemAsync(key, JSON.stringify(nerw));
     
   }
 
