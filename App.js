@@ -5,7 +5,7 @@ import GunCollection from "./components/GunCollection"
 import NewGun from "./components/NewGun"
 import Gun from "./components/Gun"
 import * as SecureStore from "expo-secure-store"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import {defaultGridGap, defaultViewPadding} from "./configs"
 
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -23,7 +23,11 @@ export default function App() {
   const [seeGunOpen, setSeeGunOpen] = useState(false)
   const [currentGun, setCurrentGun] = useState(null)
 
-  const guns = getGuns()
+
+  let guns = getGuns()
+  useEffect(()=>{
+    guns = getGuns()
+  },[])
 
   function handleGunCardPress(gun){
     setCurrentGun(gun)
