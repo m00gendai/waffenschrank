@@ -1,10 +1,10 @@
 import { Image, StyleSheet, Text, TouchableNativeFeedback, View, ScrollView, Platform} from 'react-native';
-import { Button, TextInput } from 'react-native-paper';
+import { Button } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as ImagePicker from "expo-image-picker"
 import { useState, useEffect } from 'react';
 import * as SecureStore from "expo-secure-store"
-import { gunDataTemplate } from "../lib/testGun"
+import { gunDataTemplate } from "../lib/gunDataTemplate"
 import NewText from "./NewText"
 import "react-native-get-random-values"
 import { v4 as uuidv4 } from 'uuid';
@@ -21,7 +21,7 @@ async function save(key, value) {
   }
 
 
-export default function NewGun(){
+export default function NewGun({setNewGunOpen}){
 
     const [selectedImage, setSelectedImage] = useState(null)
     const [granted, setGranted] = useState(false)
@@ -47,6 +47,7 @@ export default function NewGun(){
 
     return(
         <SafeAreaView style={styles.container}>
+            <Button mode="contained" onPress={()=>setNewGunOpen(false)}>X</Button>
             <Text style={{
                 width: "100%",
                 fontSize: 30
