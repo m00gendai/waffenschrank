@@ -1,20 +1,46 @@
-import { Image, StyleSheet, Text, TouchableNativeFeedback, View } from 'react-native';
-import { Button } from 'react-native-paper';
+import { Image, StyleSheet, Text, TouchableNativeFeedback, View, ScrollView, Platform} from 'react-native';
+import { Button, TextInput } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as ImagePicker from "expo-image-picker"
-import { useState } from 'react';
-import { testGun } from "../lib/testGun"
+import { useState, useEffect } from 'react';
+import * as SecureStore from "expo-secure-store"
+import { gunDataTemplate } from "../lib/testGun"
+import NewText from "./NewText"
+import "react-native-get-random-values"
+import { v4 as uuidv4 } from 'uuid';
+
+async function save(key, value) {
+    let result = await SecureStore.getItemAsync(key);
+    console.log(`getItem: ${result}`)
+    console.log(`to save: ${key}, ${value}`)
+    const nerw = result ? JSON.parse(result) : []
+    nerw.push(value)
+    console.log(nerw)
+    await SecureStore.setItemAsync(key, JSON.stringify(nerw));
+    
+  }
+
 
 export default function NewGun(){
 
     const [selectedImage, setSelectedImage] = useState(null)
-
+    const [granted, setGranted] = useState(false)
+    const [gunData, setGunData] = useState({})
+    
+  
     const pickImageAsync = async () =>{
+
+        const permission = await ImagePicker.requestMediaLibraryPermissionsAsync()
+
+        if(permission){
+            setGranted(true)
+        }
+
         let result = await ImagePicker.launchImageLibraryAsync({
             allowsEditing: true,
             quality: 1
         })
-        if(!result.canceled){
+        if(!result.canceled && granted){
             setSelectedImage(result.assets[0].uri)
         }
     }   
@@ -31,31 +57,32 @@ export default function NewGun(){
                 
             </View>
             </TouchableNativeFeedback>
-            <View style={{
-                display: "flex",
-                flexWrap: "wrap",
-                flexDirection: "column",
-                width: "100%"
+            <ScrollView style={{
+                height: "100%",
+                width: "100%",
+                
             }}>
-                 {testGun.map(data=>{
+                 {gunDataTemplate.map(data=>{
                         return(
                             <View 
-                            id={data.key}
+                            id={data}
+                            key={data}
                             style={{
                                 display: "flex",
                                 flexWrap: "nowrap",
                                 flexDirection: "row",
                                 width: "100%",
-                                gap: 5
+                                gap: 5,
+                                
                             }}>
-                                <Text style={{flex: 1}}>{data.key}</Text>
-                                <Text style={{flex: 1}}>{data.value}</Text>
+                                <NewText data={data} gunData={gunData} setGunData={setGunData}/>
                             </View>
                         )
                     })}
-                   
+                     
                     
-            </View>
+            </ScrollView>
+            <Button icon="floppy" mode="contained" onPress={() => save("gunx", {...gunData, id: uuidv4()})}></Button>
         </SafeAreaView>
 
         
@@ -67,7 +94,7 @@ const styles = StyleSheet.create({
       display: "flex",
       flex: 1,
       flexWrap: "wrap",
-      flexDirection: "row",
+      flexDirection: "column",
       width: "100%",
       justifyContent: "center",
       alignItems: "flex-start",
@@ -77,7 +104,7 @@ const styles = StyleSheet.create({
     },
     imageContainer: {
         display: "flex",
-        width: "100%",
+        width: "60%",
         aspectRatio: "1/1",
         backgroundColor: "red",
         flexDirection: "column"
