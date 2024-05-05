@@ -1,7 +1,10 @@
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { StyleSheet, Text, View, Modal, Dimensions, ScrollView, TouchableNativeFeedback, Alert } from 'react-native';
+import { StyleSheet, Text, View, Modal, Dimensions, ScrollView, TouchableNativeFeedback, Alert} from 'react-native';
 import { PaperProvider, Button, Card } from 'react-native-paper';
+import { gunDataTemplate } from "../lib/gunDataTemplate"
 import * as SecureStore from "expo-secure-store"
+import { useState} from "react"
+import EditGun from "./EditGun"
 
 async function deleteItem(gun){
     let result = await SecureStore.getItemAsync("gunx");
@@ -25,11 +28,23 @@ function invokeAlert(gun){
 
 export default function Gun({setSeeGunOpen, gun}){
 
+    const [editGunOpen, setEditGunOpen] = useState(false)
+
     return(
         <SafeAreaView style={styles.container}>
             <Button mode="contained" onPress={()=>setSeeGunOpen(false)}>X</Button>
-            <Text>{gun.Modellbezeichnung}</Text>
+            {gunDataTemplate.map(item=>{
+                return(
+                    <View key={item}>
+                        <Text>{`${item}:`}</Text>
+                    <Text>{gun[item]}</Text>
+                    
+                    </View>
+                )
+            })}
             <Button mode="contained" onPress={()=>invokeAlert(gun)}>Del</Button>
+            <Button mode="contained" onPress={()=>setEditGunOpen(true)}>Edit</Button>
+            <Modal visible={editGunOpen}><EditGun setEditGunOpen={setEditGunOpen} gun={gun} /></Modal>
         </SafeAreaView>
     )
 }
