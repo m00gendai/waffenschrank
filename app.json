@@ -25,6 +25,16 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "plugins": [
+      "expo-secure-store",
+      "expo-build-properties"
+    ]
+  },
+  "android": {
+    "permissions": [
+      "android.permission.READ_MEDIA_IMAGES",
+      "android.permission.READ_MEDIA_VISUAL_USER_SELECTED"
+    ]
   }
 }
