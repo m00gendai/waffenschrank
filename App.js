@@ -1,9 +1,14 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
-import { PaperProvider } from 'react-native-paper';
+import { StyleSheet, Text, View, Modal, Dimensions, ScrollView } from 'react-native';
+import { PaperProvider, Button, Card } from 'react-native-paper';
 import GunCollection from "./components/GunCollection"
 import NewGun from "./components/NewGun"
 import * as SecureStore from "expo-secure-store"
+import { useState } from "react"
+import {defaultGridGap, defaultViewPadding} from "./configs"
+
+import { SafeAreaView } from 'react-native-safe-area-context';
+
 
 function getGuns(){
   const guns = SecureStore.getItem("gunx")
@@ -12,30 +17,47 @@ function getGuns(){
 
 export default function App() {
 
+  const [newGunOpen, setNewGunOpen] = useState(false)
+
   const guns = getGuns()
   return (
     <PaperProvider>
-      <View style={styles.container}>
+      <SafeAreaView style={{width: "100%", height: "100%", flex: 1}}>
+        <ScrollView style={{width: "100%", height: "100%", flexDirection: "column", flexWrap: "wrap"}}>
+          <View style={styles.container}>
       {
         guns.map(gun =>{
-          return <View key={gun.id}>
-            {Object.entries(gun).map(a =>{
-              return <Text key={`text_${a[0]}_${gun.id}`}>{`${a[0]}: ${a[1]}`}</Text>
-            })}
-          </View>
+          return (
+            <Card 
+              key={gun.id} 
+              style={{
+                width: (Dimensions.get("window").width / 2) - (defaultGridGap + (defaultViewPadding/2)),
+                aspectRatio: "1/1"
+              }}>
+                <Card.Title title={`${gun.Hersteller} ${gun.Modellbezeichnung}`} />
+            </Card>
+          )
         })
-      }
-    </View>
-      <NewGun />
+      }</View>
+      </ScrollView>
+    </SafeAreaView>
+      <Modal visible={newGunOpen}><NewGun setNewGunOpen={setNewGunOpen}/></Modal>
+      <Button mode="contained" onPress={()=>setNewGunOpen(true)}>New</Button>
     </PaperProvider>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
+    width: "100%",
+    height: "100%",
     flex: 1,
     backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: 'flex-start',
+    justifyContent: 'flex-start',
+    flexWrap: "wrap",
+    flexDirection: "row",
+    gap: defaultGridGap,
+    padding: defaultViewPadding
   },
 });
