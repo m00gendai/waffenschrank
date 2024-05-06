@@ -71,9 +71,15 @@ export default function NewGun({setNewGunOpen}){
 
         if(!result.canceled){
             const newImage = selectedImage
-            newImage.splice(indx, 1, result.assets[0].uri)
-            setSelectedImage(newImage)
-            setGunData({...gunData, images:newImage})
+
+            if(newImage && newImage.length != 0){
+                newImage.splice(indx, 1, result.assets[0].uri)
+                setSelectedImage(newImage)
+                setGunData({...gunData, images:newImage})
+            } else {
+                setSelectedImage([result.assets[0].uri])
+                setGunData({...gunData, images:result.assets[0].uri})
+            }
         }
     }   
 

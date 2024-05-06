@@ -1,5 +1,5 @@
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { StyleSheet, Text, View, Modal, ScrollView, Alert } from 'react-native';
+import { StyleSheet, Text, View, Modal, ScrollView, Alert, TouchableNativeFeedback, TouchableOpacity } from 'react-native';
 import { Button, Appbar, Icon } from 'react-native-paper';
 import { gunDataTemplate } from "../lib/gunDataTemplate"
 import * as SecureStore from "expo-secure-store"
@@ -13,6 +13,15 @@ export default function Gun({setSeeGunOpen, gun}){
 
     const [editGunOpen, setEditGunOpen] = useState(false)
     const [currentGun, setCurrentGun] = useState(gun)
+    const [lightBox, setLightBox] = useState(false);
+    const [lightBoxIndex, setLightBoxIndex] = useState(0)
+
+    const showModal = (index) => {
+        setLightBox(true)
+        setLightBoxIndex(index)
+    }
+
+    const hideModal = () => setLightBox(false);
 
     const styles = StyleSheet.create({
         container: {
@@ -79,9 +88,11 @@ export default function Gun({setSeeGunOpen, gun}){
                         {Array.from(Array(5).keys()).map((_, index) =>{
                             if(currentGun.images && index <= currentGun.images.length-1){
                                 return(
-                                    <View style={styles.imageContainer} key={`slides_${index}`}>
-                                        <ImageViewer selectedImage={currentGun.images && currentGun.images.length != 0 ? currentGun.images[index] : null} />
-                                    </View>
+                                    <TouchableNativeFeedback key={`slides_${index}`} onPress={()=>showModal(index)}>
+                                        <View style={styles.imageContainer} >
+                                            <ImageViewer isLigtBox={false} selectedImage={currentGun.images && currentGun.images.length != 0 ? currentGun.images[index] : null} />
+                                        </View>
+                                    </TouchableNativeFeedback>
                                 )
                             }
                         })}
@@ -100,6 +111,17 @@ export default function Gun({setSeeGunOpen, gun}){
                     <Modal visible={editGunOpen}>
                         <EditGun setEditGunOpen={setEditGunOpen} gun={currentGun} setCurrentGun={setCurrentGun} />
                     </Modal>
+                    
+                    <Modal visible={lightBox} transparent>
+                        <View style={{width: "100%", height: "100%", padding: 0, flex: 1, flexDirection: "column", flexWrap: "wrap"}}>
+                            <View style={{width: "100%", flexDirection: "row", justifyContent:"flex-end", padding: 10, backgroundColor: "black", flex: 1}}>
+                                <TouchableOpacity onPress={hideModal}>
+                                    <Text style={{color: "white", fontSize: 20}}>X</Text>
+                                </TouchableOpacity>
+                            </View>
+                            <ImageViewer isLightBox={true} selectedImage={currentGun.images[lightBoxIndex]}/>       
+                        </View>
+                    </Modal>                    
                     
                     <View style={{width: "100%", display: "flex", flex: 1, flexDirection: "row", justifyContent:"center"}}>
                         <Button mode="contained" style={{width: "20%", backgroundColor: "red", marginTop: 20}} onPress={()=>invokeAlert(currentGun)}>
