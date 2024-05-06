@@ -6,6 +6,7 @@ import * as SecureStore from "expo-secure-store"
 import { useState } from "react"
 import {defaultGridGap, defaultViewPadding} from "./configs"
 import { GUN_DATABASE } from './configs';
+import 'react-native-gesture-handler';
 
 
 import { SafeAreaView } from 'react-native-safe-area-context';
