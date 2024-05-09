@@ -1,37 +1,32 @@
 import { Image, StyleSheet, View } from 'react-native';
 import { useState } from "react"
-import { GestureDetector, Gesture, GestureHandlerRootView } from 'react-native-gesture-handler';
+import { GestureDetector, Gesture, GestureHandlerRootView, PinchGesture, PanGesture, SimultaneousGesture } from 'react-native-gesture-handler';
 import Animated, {
     useSharedValue,
     useAnimatedStyle,
     runOnJS,
     withTiming
   } from 'react-native-reanimated';
-
+import { Icon } from 'react-native-paper';
 
 export default function ImageViewer({selectedImage, isLightBox}){
 
-    const END_POSITION = 200;
-
-    const scale = useSharedValue(1);
-    const savedScale = useSharedValue(1);
-    const onLeft = useSharedValue(true);
-    const onUp = useSharedValue(true);
-    const positionX = useSharedValue(0)
-    const positionY = useSharedValue(0)
-    const barrierX = useSharedValue(0)
-    const barrierY = useSharedValue(0)
-    const [containerWidth, setContainerWidth] = useState(0)
+    const scale = useSharedValue<number>(1);
+    const savedScale = useSharedValue<number>(1);
+    const positionX = useSharedValue<number>(0)
+    const positionY = useSharedValue<number>(0)
+    const barrierX = useSharedValue<number>(0)
+    const barrierY = useSharedValue<number>(0)
   
-    const pinchGesture = Gesture.Pinch()
+    const pinchGesture: PinchGesture = Gesture.Pinch().runOnJS(true)
       .onUpdate((e) => {
-        runOnJS(scale.value = savedScale.value * e.scale > 1 ? savedScale.value * e.scale : 1)
+        scale.value = savedScale.value * e.scale > 1 ? savedScale.value * e.scale : 1
       })
       .onEnd(() => {
-        runOnJS(savedScale.value = scale.value)
+        savedScale.value = scale.value
       });
 
-    const panGesture = Gesture.Pan().runOnJS(true)
+    const panGesture: PanGesture = Gesture.Pan().runOnJS(true)
     .onChange((e) => {
         console.log(`X : ${Math.ceil(positionX.value)}`)
         console.log(`Y : ${Math.ceil(positionY.value)}`)
@@ -63,35 +58,28 @@ export default function ImageViewer({selectedImage, isLightBox}){
       });
   
 
-    const composed = Gesture.Simultaneous(pinchGesture,panGesture)
-
+    const composed:SimultaneousGesture = Gesture.Simultaneous(pinchGesture,panGesture)
     const animatedStyle = useAnimatedStyle(() => ({
+        /*@ts-expect-error*/
         transform: [{ scale: scale.value}, {translateX: positionX.value }, {translateY: positionY.value }],
       }));
 
-      function getContainerSize(layout){
-        console.log(layout)
-        setContainerWidth(layout.width)
-      }
-
-
     return(
-        <View style={{width: "100%", height: "100%", backgroundColor: "black", flex: 29, alignItems: "center", justifyContent: "center", flexDirection: "column", overflow: "hidden"}}>
+        <View style={{width: "100%", height: "100%", backgroundColor: "transparent", flex: 29, alignItems: "center", justifyContent: "center", flexDirection: "column", overflow: "hidden"}}>
         {isLightBox ?
             <View style={styles.container}>
-                <GestureHandlerRootView style={styles.imageContainer2} onLayout={(e)=>getContainerSize(e.nativeEvent.layout)}>
-                    <GestureDetector gesture={composed} style={styles.gesture}>
+                <GestureHandlerRootView style={styles.imageContainer2} >
+                    <GestureDetector gesture={composed}>
                         <Animated.View style={[animatedStyle]} >
-                            <Image resizeMode={isLightBox ? "contain" : "cover"} style={styles.image} source={{uri: selectedImage}} />
+                         <Image resizeMode={isLightBox ? "contain" : "cover"} style={styles.image} source={{uri: selectedImage}} />
                         </Animated.View>
                     </GestureDetector>
                 </GestureHandlerRootView>
             </View>
         :
-            <Image resizeMode={isLightBox ? "contain" : "cover"} style={styles.image} source={{uri: selectedImage}} />
+           selectedImage != null ? <Image resizeMode={isLightBox ? "contain" : "cover"} style={styles.image} source={{uri: selectedImage}} /> : <Icon source={"image"} size={75}/>
         }
         </View>
-        
     ) 
 }
 
