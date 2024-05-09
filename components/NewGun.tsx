@@ -1,8 +1,8 @@
-import { StyleSheet, View, ScrollView } from 'react-native';
-import { Appbar, FAB } from 'react-native-paper';
+import { StyleSheet, View, ScrollView, Alert } from 'react-native';
+import { Appbar, FAB, Snackbar } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as ImagePicker from "expo-image-picker"
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import * as SecureStore from "expo-secure-store"
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { gunDataTemplate } from "../lib/gunDataTemplate"
@@ -19,6 +19,31 @@ export default function NewGun({setNewGunOpen}){
     const [selectedImage, setSelectedImage] = useState<string[]>(null)
     const [granted, setGranted] = useState<boolean>(false)
     const [gunData, setGunData] = useState<GunType>(null)
+    const [visible, setVisible] = useState<boolean>(false);
+    const [snackbarText, setSnackbarText] = useState<string>("")
+    const [saveState, setSaveState] = useState<boolean>(false)
+
+
+    useEffect(()=>{
+        setSaveState(false)
+    },[gunData])
+
+    function invokeAlert(){
+        Alert.alert(`Es hat nicht gespeicherte Änderungen`, `Wirklich zurück?`, [
+            {
+                text: "Ja",
+                onPress: () => setNewGunOpen(false)
+            },
+            {
+                text: "Nein",
+                style: "cancel"
+            }
+        ])
+    }
+
+  const onToggleSnackBar = () => setVisible(!visible);
+
+  const onDismissSnackBar = () => setVisible(false);
 
     async function save(value:GunType) {
 
@@ -35,6 +60,9 @@ export default function NewGun({setNewGunOpen}){
 
         SecureStore.setItem(`${GUN_DATABASE}_${value.id}`, JSON.stringify(value)) // Save the gun
         console.log(`Saved item ${JSON.stringify(value)} with key ${GUN_DATABASE}_${value.id}`)
+        setSaveState(true)
+        setSnackbarText(`${value.Hersteller} ${value.Modellbezeichnung} gespeichert`)
+        onToggleSnackBar()
     }
     
     const pickImageAsync = async (indx:number) =>{
@@ -98,9 +126,9 @@ export default function NewGun({setNewGunOpen}){
         <View style={{width: "100%", height: "100%"}}>
             
             <Appbar.Header style={{width: "100%"}}>
-                <Appbar.BackAction  onPress={() => setNewGunOpen(false)} />
+                <Appbar.BackAction  onPress={() => {saveState ? setNewGunOpen(false) : invokeAlert()}} />
                 <Appbar.Content title={`Neue Waffe`} />
-                <Appbar.Action icon="floppy" onPress={() => save({...gunData, id: uuidv4(), images:selectedImage})} />
+                <Appbar.Action icon="floppy" onPress={() => save({...gunData, id: uuidv4(), images:selectedImage})} color={saveState ? "green" : "red"} />
             </Appbar.Header>
 
             <SafeAreaView style={styles.container}>
@@ -151,6 +179,17 @@ export default function NewGun({setNewGunOpen}){
                     </View>
                 </ScrollView>
             </SafeAreaView>
+            <Snackbar
+                visible={visible}
+                onDismiss={onDismissSnackBar}
+                action={{
+                label: 'OK',
+                onPress: () => {
+                    onDismissSnackBar()
+                },
+                }}>
+                {snackbarText}
+            </Snackbar>
         </View>     
     )
 }
