@@ -3,27 +3,43 @@ import { PaperProvider, Card, FAB } from 'react-native-paper';
 import NewGun from "./components/NewGun"
 import Gun from "./components/Gun"
 import * as SecureStore from "expo-secure-store"
-import { useState } from "react"
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useState, useEffect } from "react"
 import {defaultGridGap, defaultViewPadding} from "./configs"
-import { GUN_DATABASE } from './configs';
+import { GUN_DATABASE, KEY_DATABASE } from './configs';
 import 'react-native-gesture-handler';
+import React from 'react';
+import { GunType } from "./interfaces"
 
 
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-function getGuns(){
-  const guns = SecureStore.getItem(GUN_DATABASE)
-  return guns ? JSON.parse(guns) : []
+async function getKeys(){
+  const keys:string = await AsyncStorage.getItem(KEY_DATABASE)
+  if(keys == null){
+    return []
+  }
+  return JSON.parse(keys)
 }
-
 
 export default function App() {
 
-  const [newGunOpen, setNewGunOpen] = useState(false)
-  const [seeGunOpen, setSeeGunOpen] = useState(false)
-  const [currentGun, setCurrentGun] = useState(null)
+  const [gunCollection, setGunCollection] = useState<GunType[]>([])
+  const [newGunOpen, setNewGunOpen] = useState<boolean>(false)
+  const [seeGunOpen, setSeeGunOpen] = useState<boolean>(false)
+  const [currentGun, setCurrentGun] = useState<GunType>(null)
 
-  const guns = getGuns()
+useEffect(()=>{
+  async function getGuns(){
+    const keys:string[] = await getKeys()
+    const guns:GunType[] = await Promise.all(keys.map(async key =>{
+      const item:string = await SecureStore.getItemAsync(`${GUN_DATABASE}_${key}`)
+      return JSON.parse(item)
+    }))
+    setGunCollection(guns)
+  }
+  getGuns()
+},[newGunOpen, seeGunOpen])
 
   function handleGunCardPress(gun){
     setCurrentGun(gun)
@@ -50,7 +66,7 @@ export default function App() {
           <View 
               style={styles.container}
           >
-            {guns ? guns.map(gun =>{
+            {gunCollection.length != 0 ? gunCollection.map(gun =>{
               return (
                 <TouchableNativeFeedback 
                   key={gun.id} 
@@ -67,7 +83,7 @@ export default function App() {
                   </Card>
                 </TouchableNativeFeedback>
               )
-            }) : null}
+            }) : null }
           </View>
         </ScrollView>
       </SafeAreaView>

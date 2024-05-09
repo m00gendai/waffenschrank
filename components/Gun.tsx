@@ -6,15 +6,22 @@ import * as SecureStore from "expo-secure-store"
 import { useState} from "react"
 import EditGun from "./EditGun"
 import ImageViewer from "./ImageViewer"
-import { GUN_DATABASE } from '../configs';
+import { GUN_DATABASE, KEY_DATABASE } from '../configs';
+import { GunType } from '../interfaces';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+interface Props{
+    setSeeGunOpen: React.Dispatch<React.SetStateAction<boolean>>
+    gun: GunType
+}
 
 
-export default function Gun({setSeeGunOpen, gun}){
+export default function Gun({setSeeGunOpen, gun}:Props){
 
-    const [editGunOpen, setEditGunOpen] = useState(false)
-    const [currentGun, setCurrentGun] = useState(gun)
-    const [lightBox, setLightBox] = useState(false);
-    const [lightBoxIndex, setLightBoxIndex] = useState(0)
+    const [editGunOpen, setEditGunOpen] = useState<boolean>(false)
+    const [currentGun, setCurrentGun] = useState<GunType>(gun)
+    const [lightBox, setLightBox] = useState<boolean>(false);
+    const [lightBoxIndex, setLightBoxIndex] = useState<number>(0)
 
     const showModal = (index) => {
         setLightBox(true)
@@ -53,10 +60,14 @@ export default function Gun({setSeeGunOpen, gun}){
     })
 
     async function deleteItem(gun){
-        let result = await SecureStore.getItemAsync(GUN_DATABASE);
-        const editedResult = result ? JSON.parse(result) : []
-        const filteredResult = editedResult.filter(item => item.id != gun.id)
-        await SecureStore.setItemAsync(GUN_DATABASE, JSON.stringify(filteredResult));
+        // Deletes gun in gun database
+        await SecureStore.deleteItemAsync(`${GUN_DATABASE}_${gun.id}`)
+
+        // retrieves gun ids from key database and removes the to be deleted id
+        const keys:string = await AsyncStorage.getItem(KEY_DATABASE)
+        const keyArray: string[] = JSON.parse(keys)
+        const newKeys: string[] = keyArray.filter(key => key != gun.id)
+        AsyncStorage.setItem(KEY_DATABASE, JSON.stringify(newKeys))
         setSeeGunOpen(false)
     }
     
@@ -90,7 +101,7 @@ export default function Gun({setSeeGunOpen, gun}){
                                 return(
                                     <TouchableNativeFeedback key={`slides_${index}`} onPress={()=>showModal(index)}>
                                         <View style={styles.imageContainer} >
-                                            <ImageViewer isLigtBox={false} selectedImage={currentGun.images && currentGun.images.length != 0 ? currentGun.images[index] : null} />
+                                         <ImageViewer isLightBox={false} selectedImage={currentGun.images[index] != undefined ? currentGun.images[index] : "file:///data/user/0/host.exp.exponent/cache/ExperienceData/%2540anonymous%252Fwaffenschrank-f4802a1e-6ed2-48c0-a27f-996c6c9ffbfe/ImagePicker/d58c87b7-3ff9-483d-87b4-e2a44a27bd8f.jpeg"} /> 
                                         </View>
                                     </TouchableNativeFeedback>
                                 )
@@ -119,7 +130,7 @@ export default function Gun({setSeeGunOpen, gun}){
                                     <Text style={{color: "white", fontSize: 20}}>X</Text>
                                 </TouchableOpacity>
                             </View>
-                            <ImageViewer isLightBox={true} selectedImage={currentGun.images[lightBoxIndex]}/>       
+                          {lightBox ? <ImageViewer isLightBox={true} selectedImage={currentGun.images[lightBoxIndex]}/> : null}
                         </View>
                     </Modal>                    
                     
