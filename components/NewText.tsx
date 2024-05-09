@@ -10,7 +10,7 @@ interface Props{
 
 export default function NewText({data, gunData, setGunData}: Props){
 
-    const [input, setInput] = useState<string>(null)
+    const [input, setInput] = useState<string>(gunData ? gunData[data] : "")
 
     function updateGunData(input:string){
         setInput(input)
