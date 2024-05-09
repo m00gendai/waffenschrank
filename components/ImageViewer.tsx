@@ -65,7 +65,7 @@ export default function ImageViewer({selectedImage, isLightBox}){
       }));
 
     return(
-        <View style={{width: "100%", height: "100%", backgroundColor: "transparent", flex: 29, alignItems: "center", justifyContent: "center", flexDirection: "column", overflow: "hidden"}}>
+        <View style={{width: "100%", height: "100%", backgroundColor: isLightBox ? "black" : "transparent", flex: 29, alignItems: "center", justifyContent: "center", flexDirection: "column", overflow: "hidden"}}>
         {isLightBox ?
             <View style={styles.container}>
                 <GestureHandlerRootView style={styles.imageContainer2} >
