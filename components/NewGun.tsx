@@ -89,7 +89,7 @@ export default function NewGun({setNewGunOpen}){
                 setGunData({...gunData, images:newImage})
             } else {
                 setSelectedImage([result.assets[0].uri])
-                setGunData({...gunData, images:[...gunData.images, result.assets[0].uri]})
+                setGunData({...gunData, images:[result.assets[0].uri]})
             }
         }
     }   
