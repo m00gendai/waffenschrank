@@ -1,5 +1,5 @@
 import { StyleSheet, View, Modal, Dimensions, ScrollView, TouchableNativeFeedback } from 'react-native';
-import { PaperProvider, Card, FAB } from 'react-native-paper';
+import { PaperProvider, Card, FAB, Appbar, useTheme, Menu, Divider } from 'react-native-paper';
 import NewGun from "./components/NewGun"
 import Gun from "./components/Gun"
 import * as SecureStore from "expo-secure-store"
@@ -9,10 +9,11 @@ import {defaultGridGap, defaultViewPadding} from "./configs"
 import { GUN_DATABASE, KEY_DATABASE } from './configs';
 import 'react-native-gesture-handler';
 import React from 'react';
-import { GunType } from "./interfaces"
+import { GunType, MenuVisibility } from "./interfaces"
+import { getIcon, sortBy } from './utils';
 
 
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 async function getKeys(){
   const keys:string = await AsyncStorage.getItem(KEY_DATABASE)
@@ -28,6 +29,27 @@ export default function App() {
   const [newGunOpen, setNewGunOpen] = useState<boolean>(false)
   const [seeGunOpen, setSeeGunOpen] = useState<boolean>(false)
   const [currentGun, setCurrentGun] = useState<GunType>(null)
+  const [menuVisibility, setMenuVisibility] = useState<MenuVisibility>({sortBy: false, filterBy: false});
+  const [sortIcon, setSortIcon] = useState<string>("alphabetical-variant")
+  const [sortAscending, setSortAscending] = useState<boolean>(true)
+  const [sortType, setSortType] = useState<string>("alphabetical")
+
+  function handleMenu(category: string, status: boolean){
+    setMenuVisibility({...menuVisibility, [category]: status})
+  }
+
+  function handleSortBy(type: string){
+    setSortIcon(getIcon(type))
+    setSortType(type)
+    const sortedGuns = sortBy(type, sortAscending, gunCollection) 
+    setGunCollection(sortedGuns)
+  }
+
+function handleSortOrder(){
+  setSortAscending(!sortAscending)
+  const sortedGuns = sortBy(sortType, !sortAscending, gunCollection) // called with !sortAscending due to the useState having still the old value
+  setGunCollection(sortedGuns)
+}
 
 useEffect(()=>{
   async function getGuns(){
@@ -36,7 +58,8 @@ useEffect(()=>{
       const item:string = await SecureStore.getItemAsync(`${GUN_DATABASE}_${key}`)
       return JSON.parse(item)
     }))
-    setGunCollection(guns)
+    const sortedGuns = sortBy(sortType, sortAscending, gunCollection.length  === 0 ? guns : gunCollection)
+    setGunCollection(sortedGuns)
   }
   getGuns()
 },[newGunOpen, seeGunOpen])
@@ -45,6 +68,7 @@ useEffect(()=>{
     setCurrentGun(gun)
     setSeeGunOpen(true)
   }
+
   
   return (
     <PaperProvider>
@@ -55,6 +79,20 @@ useEffect(()=>{
           flex: 1
         }}
       >
+         <Appbar style={{width: "100%"}}>
+<Appbar.Action icon="filter" onPress={() =>{}} />
+                <Menu
+                  visible={menuVisibility.sortBy}
+                  onDismiss={()=>handleMenu("sortBy", false)}
+                  anchor={<Appbar.Action icon={sortIcon} onPress={() => handleMenu("sortBy", true)} />}
+                  anchorPosition='bottom'>
+                  <Menu.Item onPress={() => handleSortBy("alphabetical")} title="Alphabetisch" leadingIcon={getIcon("alphabetical")}/>
+                  <Menu.Item onPress={() => handleSortBy("chronological")} title="Chronologisch" leadingIcon={getIcon("chronological")}/>
+                  <Menu.Item onPress={() => {}} title="Kaliber" leadingIcon={getIcon("caliber")}/>
+                </Menu>
+                <Appbar.Action icon={sortAscending ? "arrow-up" : "arrow-down"} onPress={() => handleSortOrder()} />
+              
+            </Appbar>
         <ScrollView 
           style={{
             width: "100%", 
@@ -101,6 +139,7 @@ useEffect(()=>{
         style={styles.fab}
         onPress={() => setNewGunOpen(true)}
       />
+      
     </PaperProvider>
   );
 }
@@ -124,4 +163,5 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
   },
+
 });
