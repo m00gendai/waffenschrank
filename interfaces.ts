@@ -11,6 +11,8 @@ export interface GunType{
   Erwerbsdatum?: string | null
   Hauptfarbe?: string | null
   images: string[]
+  createdAt: Date
+  lastModifiedAt: Date
 }
 
 export interface MenuVisibility{
