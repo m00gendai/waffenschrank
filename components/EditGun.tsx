@@ -118,11 +118,11 @@ export default function EditGun({setEditGunOpen, gun, setCurrentGun}: Props){
     return(
         <View style={{width: "100%", height: "100%"}}>
             
-            <Appbar.Header style={{width: "100%"}}>
+            <Appbar style={{width: "100%"}}>
                 <Appbar.BackAction  onPress={() => {saveState ? setEditGunOpen(false) : invokeAlert()}} />
                 <Appbar.Content title={`Waffe bearbeiten`} />
-                <Appbar.Action icon="floppy" onPress={() => save(gunData)} color={saveState ? "green" : "red"}/>
-            </Appbar.Header>
+                <Appbar.Action icon="floppy" onPress={() => save({...gunData, lastModifiedAt: new Date()})} color={saveState ? "green" : "red"}/>
+            </Appbar>
         
             <SafeAreaView style={styles.container}>
                 <ScrollView style={{width: "100%"}}>
