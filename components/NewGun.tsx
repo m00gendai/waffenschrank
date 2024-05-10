@@ -1,5 +1,5 @@
 import { StyleSheet, View, ScrollView, Alert } from 'react-native';
-import { Appbar, FAB, Snackbar } from 'react-native-paper';
+import { Appbar, FAB, Snackbar, TextInput } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as ImagePicker from "expo-image-picker"
 import { useEffect, useState } from 'react';
@@ -13,6 +13,7 @@ import ImageViewer from "./ImageViewer"
 import { GUN_DATABASE, KEY_DATABASE } from '../configs';
 import { GunType } from '../interfaces';
 import { gunDataValidation } from '../utils';
+import NewTextArea from './NewTextArea';
 
 
 export default function NewGun({setNewGunOpen}){
@@ -188,6 +189,7 @@ export default function NewGun({setNewGunOpen}){
                                 </View>
                             )
                         })}
+                        <NewTextArea data={"Bemerkungen"} gunData={gunData} setGunData={setGunData}/>
                     </View>
                 </ScrollView>
             </SafeAreaView>
