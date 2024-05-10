@@ -117,6 +117,10 @@ export default function Gun({setSeeGunOpen, gun}:Props){
                                 </View>
                             )
                         })}
+                        <View style={{flex: 1, flexDirection: "column"}} >
+                            <Text style={{width: "100%", fontSize: 12,}}>{`Bemerkungen`}</Text>
+                            <Text style={{width: "100%", fontSize: 18, marginBottom: 5, paddingBottom: 5, borderBottomColor: "black", borderBottomWidth: 0.2}}>{currentGun[`Bemerkungen`]}</Text>
+                        </View>
                     </View>
                     
                     <Modal visible={editGunOpen}>

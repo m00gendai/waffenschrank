@@ -10,6 +10,7 @@ import "react-native-get-random-values"
 import ImageViewer from "./ImageViewer"
 import { GUN_DATABASE } from '../configs';
 import { GunType } from '../interfaces';
+import NewTextArea from './NewTextArea';
 
 interface Props{
     setEditGunOpen: React.Dispatch<React.SetStateAction<boolean>>
@@ -168,6 +169,7 @@ export default function EditGun({setEditGunOpen, gun, setCurrentGun}: Props){
                                 </View>
                             )
                         })}
+                        <NewTextArea data={"Bemerkungen"} gunData={gunData} setGunData={setGunData}/>
                     </View>
                 </ScrollView>
             </SafeAreaView>
