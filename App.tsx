@@ -1,5 +1,5 @@
 import { StyleSheet, View, Modal, Dimensions, ScrollView, TouchableNativeFeedback } from 'react-native';
-import { PaperProvider, Card, FAB, Appbar, useTheme, Menu, Divider } from 'react-native-paper';
+import { PaperProvider, Card, FAB, Appbar, useTheme, Menu, Text } from 'react-native-paper';
 import NewGun from "./components/NewGun"
 import Gun from "./components/Gun"
 import * as SecureStore from "expo-secure-store"
@@ -14,6 +14,7 @@ import { getIcon, sortBy } from './utils';
 
 
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import CardContent from 'react-native-paper/lib/typescript/components/Card/CardContent';
 
 async function getKeys(){
   const keys:string = await AsyncStorage.getItem(KEY_DATABASE)
@@ -113,11 +114,10 @@ useEffect(()=>{
                   <Card 
                     style={{
                       width: (Dimensions.get("window").width / 2) - (defaultGridGap + (defaultViewPadding/2)),
-                      aspectRatio:"1/1"
                     }}
                   >
-                    <Card.Title title={`${gun.Hersteller} ${gun.Modellbezeichnung}`} />
-                    <Card.Cover style={{width: "100%", height: "70%"}} resizeMode="cover" source={{ uri: gun.images && gun.images.length != 0 ? gun.images[0] : null }} /> 
+                    <Card.Title title={`${gun.Hersteller && gun.Hersteller.length != 0 ? gun.Hersteller : ""} ${gun.Modellbezeichnung}`} subtitle={gun.Seriennummer && gun.Seriennummer.length != 0 ? gun.Seriennummer : " "} subtitleVariant='bodySmall' titleVariant='titleSmall' titleNumberOfLines={2} />
+                    <Card.Cover source={{ uri: gun.images && gun.images.length != 0 ? gun.images[0] : null }} /> 
                   </Card>
                 </TouchableNativeFeedback>
               )
