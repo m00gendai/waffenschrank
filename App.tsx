@@ -81,7 +81,7 @@ useEffect(()=>{
         }}
       >
          <Appbar style={{width: "100%"}}>
-<Appbar.Action icon="filter" onPress={() =>{}} />
+{/*<Appbar.Action icon="filter" onPress={() =>{}} />*/}
                 <Menu
                   visible={menuVisibility.sortBy}
                   onDismiss={()=>handleMenu("sortBy", false)}
