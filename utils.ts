@@ -38,3 +38,14 @@ export function getIcon(type:string){
             return "bullet"
     }
 }
+
+export function gunDataValidation(value:GunType){
+    let validationResponse: {field: string, error: string}[] = []
+    const requiredFields: string[] = ["Modellbezeichnung"]
+    for(const entry of requiredFields){
+       if( !(entry in value) || value[entry].length == 0 ){
+        validationResponse = [...validationResponse, {field: entry, error: "Feld darf nicht leer sein"}]
+       }
+    }
+    return validationResponse
+}
