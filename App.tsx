@@ -11,8 +11,6 @@ import 'react-native-gesture-handler';
 import React from 'react';
 import { GunType, MenuVisibility } from "./interfaces"
 import { getIcon, sortBy } from './utils';
-
-
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 async function getKeys(){
@@ -79,20 +77,22 @@ useEffect(()=>{
           flex: 1
         }}
       >
-         <Appbar style={{width: "100%"}}>
-{/*<Appbar.Action icon="filter" onPress={() =>{}} />*/}
-                <Menu
-                  visible={menuVisibility.sortBy}
-                  onDismiss={()=>handleMenu("sortBy", false)}
-                  anchor={<Appbar.Action icon={sortIcon} onPress={() => handleMenu("sortBy", true)} />}
-                  anchorPosition='bottom'>
-                  <Menu.Item onPress={() => handleSortBy("alphabetical")} title="Alphabetisch" leadingIcon={getIcon("alphabetical")}/>
-                  <Menu.Item onPress={() => handleSortBy("chronological")} title="Chronologisch" leadingIcon={getIcon("chronological")}/>
-                  <Menu.Item onPress={() => {}} title="Kaliber" leadingIcon={getIcon("caliber")}/>
-                </Menu>
-                <Appbar.Action icon={sortAscending ? "arrow-up" : "arrow-down"} onPress={() => handleSortOrder()} />
-              
-            </Appbar>
+
+        <Appbar style={{width: "100%"}}>
+          {/*<Appbar.Action icon="filter" onPress={() =>{}} />*/}
+          <Menu
+            visible={menuVisibility.sortBy}
+            onDismiss={()=>handleMenu("sortBy", false)}
+            anchor={<Appbar.Action icon={sortIcon} onPress={() => handleMenu("sortBy", true)} />}
+            anchorPosition='bottom'
+          >
+            <Menu.Item onPress={() => handleSortBy("alphabetical")} title="Alphabetisch" leadingIcon={getIcon("alphabetical")}/>
+            <Menu.Item onPress={() => handleSortBy("chronological")} title="Chronologisch" leadingIcon={getIcon("chronological")}/>
+            <Menu.Item onPress={() => {}} title="Kaliber" leadingIcon={getIcon("caliber")}/>
+          </Menu>
+          <Appbar.Action icon={sortAscending ? "arrow-up" : "arrow-down"} onPress={() => handleSortOrder()} />
+        </Appbar>
+
         <ScrollView 
           style={{
             width: "100%", 
@@ -102,7 +102,7 @@ useEffect(()=>{
           }}
         >
           <View 
-              style={styles.container}
+            style={styles.container}
           >
             {gunCollection.length != 0 ? gunCollection.map(gun =>{
               return (
@@ -162,5 +162,4 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
   },
-
 });
