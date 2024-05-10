@@ -12,3 +12,8 @@ export interface GunType{
   Hauptfarbe?: string | null
   images: string[]
 }
+
+export interface MenuVisibility{
+  sortBy: boolean
+  filterBy: boolean
+}
