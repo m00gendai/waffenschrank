@@ -10,6 +10,7 @@ export interface GunType{
   Bewilligung?: string | null
   Erwerbsdatum?: string | null
   Hauptfarbe?: string | null
+  Bemerkungen? : string | null
   images: string[]
   createdAt: Date
   lastModifiedAt: Date
