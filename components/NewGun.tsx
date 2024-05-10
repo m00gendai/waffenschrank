@@ -125,11 +125,11 @@ export default function NewGun({setNewGunOpen}){
     return(
         <View style={{width: "100%", height: "100%"}}>
             
-            <Appbar.Header style={{width: "100%"}}>
+            <Appbar style={{width: "100%"}}>
                 <Appbar.BackAction  onPress={() => {saveState ? setNewGunOpen(false) : invokeAlert()}} />
                 <Appbar.Content title={`Neue Waffe`} />
-                <Appbar.Action icon="floppy" onPress={() => save({...gunData, id: uuidv4(), images:selectedImage})} color={saveState ? "green" : "red"} />
-            </Appbar.Header>
+                <Appbar.Action icon="floppy" onPress={() => save({...gunData, id: uuidv4(), images:selectedImage, createdAt: new Date(), lastModifiedAt: new Date()})} color={saveState ? "green" : "red"} />
+            </Appbar>
 
             <SafeAreaView style={styles.container}>
                 <ScrollView style={{width: "100%"}}>
