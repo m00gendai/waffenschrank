@@ -1,5 +1,5 @@
 import { StyleSheet, View, Modal, Dimensions, ScrollView, TouchableNativeFeedback } from 'react-native';
-import { PaperProvider, Card, FAB, Appbar, useTheme, Menu, Text } from 'react-native-paper';
+import { PaperProvider, Card, FAB, Appbar, Menu } from 'react-native-paper';
 import NewGun from "./components/NewGun"
 import Gun from "./components/Gun"
 import * as SecureStore from "expo-secure-store"
@@ -13,8 +13,7 @@ import { GunType, MenuVisibility } from "./interfaces"
 import { getIcon, sortBy } from './utils';
 
 
-import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
-import CardContent from 'react-native-paper/lib/typescript/components/Card/CardContent';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 async function getKeys(){
   const keys:string = await AsyncStorage.getItem(KEY_DATABASE)
