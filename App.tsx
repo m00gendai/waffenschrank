@@ -58,7 +58,7 @@ useEffect(()=>{
       const item:string = await SecureStore.getItemAsync(`${GUN_DATABASE}_${key}`)
       return JSON.parse(item)
     }))
-    const sortedGuns = sortBy(sortType, sortAscending, gunCollection.length  === 0 ? guns : gunCollection)
+    const sortedGuns = sortBy(sortType, sortAscending, guns)
     setGunCollection(sortedGuns)
   }
   getGuns()
