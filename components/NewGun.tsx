@@ -12,6 +12,7 @@ import { v4 as uuidv4 } from 'uuid';
 import ImageViewer from "./ImageViewer"
 import { GUN_DATABASE, KEY_DATABASE } from '../configs';
 import { GunType } from '../interfaces';
+import { gunDataValidation } from '../utils';
 
 
 export default function NewGun({setNewGunOpen}){
@@ -46,12 +47,23 @@ export default function NewGun({setNewGunOpen}){
   const onDismissSnackBar = () => setVisible(false);
 
     async function save(value:GunType) {
-
+        const validationResult:{field: string, error: string}[] = gunDataValidation(value)
+        if(validationResult.length != 0){
+            Alert.alert(`Validierung fehlgeschlagen`, `${validationResult.map(result => `Feld ${result.field}: ${result.error}`)}`, [
+                {
+                    text: "OK",
+                    style: "cancel"
+                }
+            ])
+            return
+        }
         /* 
             Saving a gun is a two-step process:
             1. Save the key of the gun to the key database
             2. Save the gun object as a separate key/value pair in the gun database
         */
+
+        
             
 
         const allKeys:string = await AsyncStorage.getItem(KEY_DATABASE) // gets the object that holds all key values
