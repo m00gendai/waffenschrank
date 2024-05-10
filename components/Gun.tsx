@@ -87,11 +87,11 @@ export default function Gun({setSeeGunOpen, gun}:Props){
     return(
         <View style={{width: "100%", height: "100%"}}>
             
-            <Appbar.Header style={{width: "100%"}}>
+            <Appbar style={{width: "100%"}}>
                 <Appbar.BackAction  onPress={() => setSeeGunOpen(false)} />
                 <Appbar.Content title={`${currentGun.Hersteller} ${currentGun.Modellbezeichnung}`} />
                 <Appbar.Action icon="pencil" onPress={() => setEditGunOpen(true)} />
-            </Appbar.Header>
+            </Appbar>
         
             <SafeAreaView style={styles.container}>   
                 <ScrollView style={{width: "100%"}}>
