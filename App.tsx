@@ -116,7 +116,12 @@ useEffect(()=>{
                     }}
                   >
                     <Card.Title title={`${gun.Hersteller && gun.Hersteller.length != 0 ? gun.Hersteller : ""} ${gun.Modellbezeichnung}`} subtitle={gun.Seriennummer && gun.Seriennummer.length != 0 ? gun.Seriennummer : " "} subtitleVariant='bodySmall' titleVariant='titleSmall' titleNumberOfLines={2} />
-                    <Card.Cover source={{ uri: gun.images && gun.images.length != 0 ? gun.images[0] : null }} /> 
+                    <Card.Cover 
+                      source={gun.images && gun.images.length != 0 ? { uri: gun.images[0] } : require(`./assets//775788_several different realistic rifles and pistols on _xl-1024-v1-0.png`)} 
+                      style={{
+                        height: 100
+                      }}
+                    /> 
                   </Card>
                 </TouchableNativeFeedback>
               )
