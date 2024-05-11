@@ -14,6 +14,7 @@ import { GUN_DATABASE, KEY_DATABASE } from '../configs';
 import { GunType } from '../interfaces';
 import { gunDataValidation } from '../utils';
 import NewTextArea from './NewTextArea';
+import NewCheckboxArea from './NewCheckboxArea';
 
 
 export default function NewGun({setNewGunOpen}){
@@ -189,6 +190,7 @@ export default function NewGun({setNewGunOpen}){
                                 </View>
                             )
                         })}
+                        <NewCheckboxArea data={"Status"} gunData={gunData} setGunData={setGunData}/>
                         <NewTextArea data={"Bemerkungen"} gunData={gunData} setGunData={setGunData}/>
                     </View>
                 </ScrollView>

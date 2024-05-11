@@ -1,7 +1,7 @@
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StyleSheet, Text, View, Modal, ScrollView, Alert, TouchableNativeFeedback, TouchableOpacity } from 'react-native';
-import { Button, Appbar, Icon } from 'react-native-paper';
-import { gunDataTemplate } from "../lib/gunDataTemplate"
+import { Button, Appbar, Icon, Checkbox } from 'react-native-paper';
+import { checkBoxes, gunDataTemplate } from "../lib/gunDataTemplate"
 import * as SecureStore from "expo-secure-store"
 import { useState} from "react"
 import EditGun from "./EditGun"
@@ -95,19 +95,31 @@ export default function Gun({setSeeGunOpen, gun}:Props){
         
             <SafeAreaView style={styles.container}>   
                 <ScrollView style={{width: "100%"}}>
-                    <ScrollView horizontal style={{width:"100%", aspectRatio: "21/10"}}>
+                    <View style={{backgroundColor: currentGun.Hauptfarbe}}>
+                    <ScrollView horizontal style={{width:"100%", aspectRatio: "21/10", marginTop: 10, marginBottom: 10}}>
                         {Array.from(Array(5).keys()).map((_, index) =>{
+                        
                             if(currentGun.images && index <= currentGun.images.length-1){
                                 return(
                                     <TouchableNativeFeedback key={`slides_${index}`} onPress={()=>showModal(index)}>
                                         <View style={styles.imageContainer} >
-                                         <ImageViewer isLightBox={false} selectedImage={currentGun.images[index] != undefined ? currentGun.images[index] : "file:///data/user/0/host.exp.exponent/cache/ExperienceData/%2540anonymous%252Fwaffenschrank-f4802a1e-6ed2-48c0-a27f-996c6c9ffbfe/ImagePicker/d58c87b7-3ff9-483d-87b4-e2a44a27bd8f.jpeg"} /> 
+                                         <ImageViewer isLightBox={false} selectedImage={currentGun.images[index]} /> 
                                         </View>
                                     </TouchableNativeFeedback>
                                 )
-                            }
+                            }      
+                            if(!currentGun.images || currentGun.images.length === 0){
+                                return(
+                                    <TouchableNativeFeedback key={`slides_${index}`} onPress={()=>showModal(index)}>
+                                        <View style={styles.imageContainer} >
+                                         <ImageViewer isLightBox={false} selectedImage={null} /> 
+                                        </View>
+                                    </TouchableNativeFeedback>
+                                )
+                            }                   
                         })}
                     </ScrollView>
+                    </View>
                     <View style={styles.data}>
                         {gunDataTemplate.map(item=>{
                             return(
@@ -117,6 +129,13 @@ export default function Gun({setSeeGunOpen, gun}:Props){
                                 </View>
                             )
                         })}
+                        <View style={{flex: 1, flexDirection: "column"}} >
+                        {checkBoxes.map(checkBox=>{
+                            return(
+                                <Checkbox.Item key={checkBox} label={checkBox} status={gun.Status && gun.Status[checkBox] ? "checked" : "unchecked"}/>
+                            )
+                        })}
+                        </View>
                         <View style={{flex: 1, flexDirection: "column"}} >
                             <Text style={{width: "100%", fontSize: 12,}}>{`Bemerkungen`}</Text>
                             <Text style={{width: "100%", fontSize: 18, marginBottom: 5, paddingBottom: 5, borderBottomColor: "black", borderBottomWidth: 0.2}}>{currentGun[`Bemerkungen`]}</Text>
@@ -129,10 +148,12 @@ export default function Gun({setSeeGunOpen, gun}:Props){
                     
                     <Modal visible={lightBox} transparent>
                         <View style={{width: "100%", height: "100%", padding: 0, flex: 1, flexDirection: "column", flexWrap: "wrap"}}>
-                            <View style={{width: "100%", flexDirection: "row", justifyContent:"flex-end", padding: 10, backgroundColor: "black", flex: 1}}>
-                                <TouchableOpacity onPress={hideModal}>
-                                    <Text style={{color: "white", fontSize: 20}}>X</Text>
-                                </TouchableOpacity>
+                            <View style={{width: "100%", flexDirection: "row", justifyContent:"flex-end", alignItems: "center", alignContent: "center", backgroundColor: "black", flex: 2}}>
+                                <View style={{backgroundColor: "black", padding: 0}}>
+                                    <TouchableOpacity onPress={hideModal} style={{padding: 10}}>
+                                        <Icon source="close-circle-outline" size={25} color='white'/>
+                                    </TouchableOpacity>
+                                </View>
                             </View>
                           {lightBox ? <ImageViewer isLightBox={true} selectedImage={currentGun.images[lightBoxIndex]}/> : null}
                         </View>
