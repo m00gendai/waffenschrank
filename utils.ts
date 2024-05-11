@@ -3,8 +3,8 @@ import { GunType } from "./interfaces";
 export function sortBy(value: string, ascending: boolean, guns: GunType[]){
     if(value === "alphabetical"){
         const sorted = guns.sort((a, b) =>{
-            const x = a.Hersteller
-            const y = b.Hersteller
+            const x = `${a.Hersteller} ${a.Modellbezeichnung}`
+            const y = `${b.Hersteller} ${b.Modellbezeichnung}`
             if(ascending){
                 return x > y ? 1 : x < y ? -1 : 0
             } else {
@@ -14,8 +14,8 @@ export function sortBy(value: string, ascending: boolean, guns: GunType[]){
     }
     if(value === "chronological"){
         const sorted = guns.sort((a, b) =>{
-            const x = a.Modellbezeichnung
-            const y = b.Modellbezeichnung
+            const x = a.createdAt
+            const y = b.createdAt
             if(ascending){
                 return x > y ? 1 : x < y ? -1 : 0
             } else {
