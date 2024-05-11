@@ -1,7 +1,8 @@
 export const gunDataTemplate:string[] = [
     "Hersteller",
     "Modellbezeichnung",
-    "HerstellungsDatum",
+    "Herstellungszeitraum",
+    "Ursprungsland",
     "Waffentyp",
     "Funktionsweise",
     "Kaliber", 
@@ -9,4 +10,13 @@ export const gunDataTemplate:string[] = [
     "Bewilligung",
     "Erwerbsdatum", 
     "Hauptfarbe",
+]
+
+export const checkBoxes:string[] = [
+    "Occasionswaffe",
+    "Ex-Vollautomat",
+    "Ladevorrichtung mit hoher Kapazität",
+    "Kürzbar auf unter 60cm",
+    "Persönliche Ordonnanzwaffe",
+    "Leihwaffe"
 ]
