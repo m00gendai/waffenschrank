@@ -14,6 +14,7 @@ export interface GunType{
   images: string[]
   createdAt: Date
   lastModifiedAt: Date
+  Status?: {key: boolean}
 }
 
 export interface MenuVisibility{
