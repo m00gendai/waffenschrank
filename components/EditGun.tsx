@@ -1,8 +1,8 @@
 import { StyleSheet, View, ScrollView, Alert} from 'react-native';
-import { Appbar, FAB, Snackbar } from 'react-native-paper';
+import { Appbar, SegmentedButtons, Snackbar } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as ImagePicker from "expo-image-picker"
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import * as SecureStore from "expo-secure-store"
 import { gunDataTemplate } from "../lib/gunDataTemplate"
 import NewText from "./NewText"
@@ -11,6 +11,7 @@ import ImageViewer from "./ImageViewer"
 import { GUN_DATABASE } from '../configs';
 import { GunType } from '../interfaces';
 import NewTextArea from './NewTextArea';
+import NewCheckboxArea from './NewCheckboxArea';
 
 interface Props{
     setEditGunOpen: React.Dispatch<React.SetStateAction<boolean>>
@@ -26,11 +27,7 @@ export default function EditGun({setEditGunOpen, gun, setCurrentGun}: Props){
     const [gunData, setGunData] = useState<GunType>(gun)
     const [visible, setVisible] = useState<boolean>(false);
     const [snackbarText, setSnackbarText] = useState<string>("")
-    const [saveState, setSaveState] = useState<boolean>(false)
-
-    useEffect(()=>{
-        setSaveState(false)
-    },[gunData])
+    const [saveState, setSaveState] = useState<boolean | null>(null)
 
   const onToggleSnackBar = () => setVisible(!visible);
 
@@ -47,9 +44,24 @@ export default function EditGun({setEditGunOpen, gun, setCurrentGun}: Props){
             style: "cancel"
         }
     ])
-}
+    }
+
+
+  function deleteImagePrompt(index:number){
+    Alert.alert(`Bild löschen?`, ``, [
+        {
+            text: "Ja",
+            onPress: () => deleteImage(index)
+        },
+        {
+            text: "Nein",
+            style: "cancel"
+        }
+    ])
+    }
 
     async function save(value: GunType) {
+        console.log(value)
         await SecureStore.setItemAsync(`${GUN_DATABASE}_${value.id}`, JSON.stringify(value)) // Save the gun
         console.log(`Saved item ${JSON.stringify(value)} with key ${GUN_DATABASE}_${value.id}`)
         setCurrentGun({...value, images:selectedImage})
@@ -57,6 +69,13 @@ export default function EditGun({setEditGunOpen, gun, setCurrentGun}: Props){
         setSnackbarText(`${value.Hersteller} ${value.Modellbezeichnung} geändert`)
         onToggleSnackBar()
       }
+
+    function deleteImage(indx:number){
+        const currentImages: string[] = selectedImage
+        currentImages.splice(indx, 1)
+        setSelectedImage(currentImages)
+        setGunData({...gunData, images: currentImages})
+    }
   
     const pickImageAsync = async (indx:number) =>{
         const permission: ImagePicker.MediaLibraryPermissionResponse = await ImagePicker.requestMediaLibraryPermissionsAsync()
@@ -83,7 +102,7 @@ export default function EditGun({setEditGunOpen, gun, setCurrentGun}: Props){
                 setSelectedImage([result.assets[0].uri])
                 setGunData({...gunData, images:[result.assets[0].uri]})
             }
-
+            setSaveState(false)
         }
     }   
 
@@ -113,6 +132,7 @@ export default function EditGun({setEditGunOpen, gun, setCurrentGun}: Props){
                 setSelectedImage([result.assets[0].uri])
                 setGunData({...gunData, images:[...gunData.images, result.assets[0].uri]})
             }
+            setSaveState(false)
         }
     }   
 
@@ -120,9 +140,9 @@ export default function EditGun({setEditGunOpen, gun, setCurrentGun}: Props){
         <View style={{width: "100%", height: "100%"}}>
             
             <Appbar style={{width: "100%"}}>
-                <Appbar.BackAction  onPress={() => {saveState ? setEditGunOpen(false) : invokeAlert()}} />
+                <Appbar.BackAction  onPress={() => {saveState == true ? setEditGunOpen(false) : saveState === false ? invokeAlert() : setEditGunOpen(false)}} />
                 <Appbar.Content title={`Waffe bearbeiten`} />
-                <Appbar.Action icon="floppy" onPress={() => save({...gunData, lastModifiedAt: new Date()})} color={saveState ? "green" : "red"}/>
+                <Appbar.Action icon="floppy" onPress={() => save({...gunData, lastModifiedAt: new Date()})} color={saveState  == true ? "green" : saveState == false ? "red" : "black"}/>
             </Appbar>
         
             <SafeAreaView style={styles.container}>
@@ -133,16 +153,44 @@ export default function EditGun({setEditGunOpen, gun, setCurrentGun}: Props){
                                 return(
                                     <View style={styles.imageContainer} key={`slide_${index}`}>
                                         <ImageViewer isLightBox={false} selectedImage={selectedImage[index] != undefined ? selectedImage[index] : null} />
-                                            <FAB
-                                                icon="camera"
-                                                style={styles.fab2}
-                                                onPress={()=>pickCameraAsync(index)}
+                                        <View style={{
+                                            position: "absolute",
+                                            bottom: 10,
+                                            display: "flex",
+                                            flexDirection: "row",
+                                            justifyContent: "center",
+                                            alignItems: "center"
+                                        }}>
+                                            <SegmentedButtons
+                                                value={""}
+                                                onValueChange={()=>console.log("")}
+                                                style={{
+                                                    width: "75%"
+                                                }}
+                                                buttons={[
+                                                    {
+                                                        value: 'camera',
+                                                        icon: "camera",
+                                                        style: styles.button,
+                                                        onPress: ()=>pickCameraAsync(index)
+                                                        
+                                                    },
+                                                    {
+                                                        value: 'gallery',
+                                                        icon: 'image-multiple-outline',
+                                                        style: styles.button,
+                                                        onPress: ()=>pickImageAsync(index)
+                                                    },
+                                                    {   value: 'delete', 
+                                                        icon: 'delete',
+                                                        style: styles.buttonDelete,
+                                                        uncheckedColor: "red",
+                                                        onPress: ()=>deleteImagePrompt(index),
+                                                        disabled: selectedImage[index] ? false : true
+                                                    },
+                                                ]}
                                             />
-                                            <FAB
-                                                icon="image-multiple-outline"
-                                                style={styles.fab}
-                                                onPress={()=>pickImageAsync(index)}
-                                            />
+                                        </View>
                                     </View>
                                 )
                             })}                  
@@ -169,7 +217,9 @@ export default function EditGun({setEditGunOpen, gun, setCurrentGun}: Props){
                                 </View>
                             )
                         })}
+                         <NewCheckboxArea data={"Status"} gunData={gunData} setGunData={setGunData}/>
                         <NewTextArea data={"Bemerkungen"} gunData={gunData} setGunData={setGunData}/>
+                       
                     </View>
                 </ScrollView>
             </SafeAreaView>
@@ -212,7 +262,14 @@ const styles = StyleSheet.create({
     button: {
         display: "flex",
         justifyContent: "center",
-        alignItems: "center"
+        alignItems: "center",
+        backgroundColor: "white"
+    },
+    buttonDelete: {
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        backgroundColor: "white"
     },
     fab: {
         position: 'absolute',
