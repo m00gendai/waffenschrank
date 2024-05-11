@@ -4,8 +4,6 @@ import { GestureDetector, Gesture, GestureHandlerRootView, PinchGesture, PanGest
 import Animated, {
     useSharedValue,
     useAnimatedStyle,
-    runOnJS,
-    withTiming
   } from 'react-native-reanimated';
 import { Icon } from 'react-native-paper';
 
@@ -71,13 +69,14 @@ export default function ImageViewer({selectedImage, isLightBox}){
                 <GestureHandlerRootView style={styles.imageContainer2} >
                     <GestureDetector gesture={composed}>
                         <Animated.View style={[animatedStyle]} >
-                         <Image resizeMode={isLightBox ? "contain" : "cover"} style={styles.image} source={{uri: selectedImage}} />
+                         <Image resizeMode={isLightBox ? "contain" : "cover"} style={styles.image} source={selectedImage ? {uri: selectedImage} : require(`../assets//775788_several different realistic rifles and pistols on _xl-1024-v1-0.png`)} />
                         </Animated.View>
                     </GestureDetector>
                 </GestureHandlerRootView>
             </View>
         :
-           selectedImage != null ? <Image resizeMode={isLightBox ? "contain" : "cover"} style={styles.image} source={{uri: selectedImage}} /> : <Icon source={"image"} size={75}/>
+           selectedImage != null ? <Image resizeMode={isLightBox ? "contain" : "cover"} style={styles.image} source={{uri: selectedImage} } /> 
+        :  <Image resizeMode={isLightBox ? "contain" : "cover"} style={styles.image} source={selectedImage ? {uri: selectedImage} : require(`../assets//775788_several different realistic rifles and pistols on _xl-1024-v1-0.png`)} />
         }
         </View>
     ) 
