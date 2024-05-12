@@ -87,8 +87,8 @@ export const toastMessages:{[key: string]: {de:string, en:string, fr:string}} = 
 
 export const preferenceTitles:{[key:string]: {de: string, en: string, fr: string}} = {
     language: {
-        de: "Sprache ändern",
-        en: "Change language",
-        fr: "changer de langue"
+        de: "Grüezi wohl!",
+        en: "Tally ho!",
+        fr: "Bonjour!"
     }
 }
