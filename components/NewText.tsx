@@ -102,6 +102,7 @@ export default function NewText({data, gunData, setGunData, lang, label}: Props)
                         showSoftInputOnFocus={data === "acquisitionDate" ? false : true}
                         onChangeText={input => updateGunData(input)}
                         onKeyPress={(e) => data === "acquisitionDate" ? e.preventDefault() : null}
+                        left={data === "paidPrice" ? <TextInput.Affix text="CHF " /> : null}
                     />
                 </View>
             </TouchableNativeFeedback>
