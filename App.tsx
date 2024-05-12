@@ -67,11 +67,11 @@ useEffect(()=>{
   async function getPreferences(){
     const preferences:string = await AsyncStorage.getItem(PREFERENCES)
     const isPreferences = preferences === null ? null : JSON.parse(preferences)
-    setLanguage(isPreferences.language === null ? "de" : isPreferences.language)
-    setDisplayGrid(isPreferences.display === null ? true : isPreferences.display)
-    setSortType(isPreferences.sortBy === null ? "alphabetical" : isPreferences.sortBy)
-    setSortIcon(getIcon(isPreferences.sortBy))
-    setSortAscending(isPreferences.sortOrder === null ? true : isPreferences.sortOrder)
+    setLanguage(isPreferences === null ? "de" : isPreferences.language === null ? "de" : isPreferences.language)
+    setDisplayGrid(isPreferences === null ? true : isPreferences.display === null ? true : isPreferences.display)
+    setSortType(isPreferences == null ? "alphabetical" : isPreferences.sortBy === null ? "alphabetical" : isPreferences.sortBy)
+    setSortIcon(getIcon(isPreferences === null ? "alphabetical" : isPreferences.sortBy === null ? "alphabetical" : isPreferences.sortBy))
+    setSortAscending(isPreferences === null ? true : isPreferences.sortOrder === null ? true : isPreferences.sortOrder)
   }
   getPreferences()
 },[])
@@ -85,7 +85,7 @@ useEffect(()=>{
     }))
     const preferences:string = await AsyncStorage.getItem(PREFERENCES)
     const isPreferences = preferences === null ? null : JSON.parse(preferences)
-    const sortedGuns = sortBy(isPreferences.sortBy === null ? "alphabetical" : isPreferences.sortBy, isPreferences.sortOrder === null ? true : isPreferences.sortOrder, guns)
+    const sortedGuns = sortBy(isPreferences === null ? "alphabetical" : isPreferences.sortBy === null ? "alphabetical" : isPreferences.sortBy, isPreferences == null? true : isPreferences.sortOrder === null ? true : isPreferences.sortOrder, guns)
     setGunCollection(sortedGuns)
   }
   getGuns()
