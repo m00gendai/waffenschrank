@@ -44,18 +44,37 @@ export default function App() {
     setMenuVisibility({...menuVisibility, [category]: status})
   }
 
-  function handleSortBy(type: string){
+async function handleSortBy(type: string){
     setSortIcon(getIcon(type))
     setSortType(type)
     const sortedGuns = sortBy(type, sortAscending, gunCollection) 
     setGunCollection(sortedGuns)
+    const preferences:string = await AsyncStorage.getItem(PREFERENCES)
+    const newPreferences:{[key:string] : string} = preferences == null ? {"sortBy": type} : {...JSON.parse(preferences), "sortBy":type} 
+    await AsyncStorage.setItem(PREFERENCES, JSON.stringify(newPreferences))
   }
 
-function handleSortOrder(){
+async function handleSortOrder(){
   setSortAscending(!sortAscending)
   const sortedGuns = sortBy(sortType, !sortAscending, gunCollection) // called with !sortAscending due to the useState having still the old value
   setGunCollection(sortedGuns)
+  const preferences:string = await AsyncStorage.getItem(PREFERENCES)
+  const newPreferences:{[key:string] : string} = preferences == null ? {"sortOrder": !sortAscending} : {...JSON.parse(preferences), "sortOrder":!sortAscending} 
+  await AsyncStorage.setItem(PREFERENCES, JSON.stringify(newPreferences))
 }
+
+useEffect(()=>{
+  async function getPreferences(){
+    const preferences:string = await AsyncStorage.getItem(PREFERENCES)
+    const isPreferences = preferences === null ? null : JSON.parse(preferences)
+    setLanguage(isPreferences.language === null ? "de" : isPreferences.language)
+    setDisplayGrid(isPreferences.display === null ? true : isPreferences.display)
+    setSortType(isPreferences.sortBy === null ? "alphabetical" : isPreferences.sortBy)
+    setSortIcon(getIcon(isPreferences.sortBy))
+    setSortAscending(isPreferences.sortOrder === null ? true : isPreferences.sortOrder)
+  }
+  getPreferences()
+},[])
 
 useEffect(()=>{
   async function getGuns(){
@@ -64,20 +83,13 @@ useEffect(()=>{
       const item:string = await SecureStore.getItemAsync(`${GUN_DATABASE}_${key}`)
       return JSON.parse(item)
     }))
-    const sortedGuns = sortBy(sortType, sortAscending, guns)
+    const preferences:string = await AsyncStorage.getItem(PREFERENCES)
+    const isPreferences = preferences === null ? null : JSON.parse(preferences)
+    const sortedGuns = sortBy(isPreferences.sortBy === null ? "alphabetical" : isPreferences.sortBy, isPreferences.sortOrder === null ? true : isPreferences.sortOrder, guns)
     setGunCollection(sortedGuns)
   }
   getGuns()
 },[newGunOpen, seeGunOpen])
-
-useEffect(()=>{
-  async function getPreferences(){
-    const preferences:string = await AsyncStorage.getItem(PREFERENCES)
-    const isPreferences = preferences === null ? null : JSON.parse(preferences)
-    setLanguage(isPreferences === null ? "de" : isPreferences.language)
-  }
-  getPreferences()
-},[])
 
   function handleGunCardPress(gun){
     setCurrentGun(gun)
@@ -86,14 +98,17 @@ useEffect(()=>{
 
 async function handleLanguageSwitch(lng:string){
   setLanguage(lng)
-
-  console.log(lng)
   const preferences:string = await AsyncStorage.getItem(PREFERENCES)
-  console.log(preferences)
   const newPreferences:{[key:string] : string} = preferences == null ? {"language": lng} : {...JSON.parse(preferences), "language":lng} 
   await AsyncStorage.setItem(PREFERENCES, JSON.stringify(newPreferences))
 }
-console.log(language)
+
+async function handleDisplaySwitch(){
+  setDisplayGrid(!displayGrid)
+  const preferences:string = await AsyncStorage.getItem(PREFERENCES)
+  const newPreferences:{[key:string] : string} = preferences == null ? {"display": !displayGrid} : {...JSON.parse(preferences), "display":!displayGrid} 
+  await AsyncStorage.setItem(PREFERENCES, JSON.stringify(newPreferences))
+}
   
   return (
     <PaperProvider>
@@ -111,7 +126,7 @@ console.log(language)
             <Appbar.Action icon={"menu"} onPress={() => setMenuOpen(!menuOpen)} />
           </View>
           <View  style={{display: "flex", flexDirection: "row", justifyContent: "flex-end"}}>
-            <Appbar.Action icon={displayGrid ? "view-grid" : "format-list-bulleted-type"} onPress={()=>setDisplayGrid(!displayGrid)} />
+            <Appbar.Action icon={displayGrid ? "view-grid" : "format-list-bulleted-type"} onPress={handleDisplaySwitch} />
             <Menu
               visible={menuVisibility.sortBy}
               onDismiss={()=>handleMenu("sortBy", false)}
