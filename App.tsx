@@ -5,7 +5,7 @@ import Gun from "./components/Gun"
 import * as SecureStore from "expo-secure-store"
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useState, useEffect } from "react"
-import {defaultGridGap, defaultViewPadding} from "./configs"
+import {PREFERENCES, defaultGridGap, defaultViewPadding} from "./configs"
 import { GUN_DATABASE, KEY_DATABASE } from './configs';
 import 'react-native-gesture-handler';
 import React from 'react';
@@ -70,11 +70,30 @@ useEffect(()=>{
   getGuns()
 },[newGunOpen, seeGunOpen])
 
+useEffect(()=>{
+  async function getPreferences(){
+    const preferences:string = await AsyncStorage.getItem(PREFERENCES)
+    const isPreferences = preferences === null ? null : JSON.parse(preferences)
+    setLanguage(isPreferences === null ? "de" : isPreferences.language)
+  }
+  getPreferences()
+},[])
+
   function handleGunCardPress(gun){
     setCurrentGun(gun)
     setSeeGunOpen(true)
   }
 
+async function handleLanguageSwitch(lng:string){
+  setLanguage(lng)
+
+  console.log(lng)
+  const preferences:string = await AsyncStorage.getItem(PREFERENCES)
+  console.log(preferences)
+  const newPreferences:{[key:string] : string} = preferences == null ? {"language": lng} : {...JSON.parse(preferences), "language":lng} 
+  await AsyncStorage.setItem(PREFERENCES, JSON.stringify(newPreferences))
+}
+console.log(language)
   
   return (
     <PaperProvider>
@@ -185,7 +204,7 @@ useEffect(()=>{
                     <Text style={{marginBottom: 10}}>{preferenceTitles.language[language]}</Text>
                   <SegmentedButtons
                     value={language}
-                    onValueChange={setLanguage}
+                    onValueChange={handleLanguageSwitch}
 
                     buttons={[
                       {
