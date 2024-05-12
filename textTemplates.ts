@@ -1,25 +1,25 @@
 export const editGunTitle:{de:string, en:string, fr:string} = {
     de: "Waffe bearbeiten",
     en: "Edit Gun",
-    fr: "Editer le Gun",
+    fr: "Modifier l'arme",
 }
 
 export const newGunTitle:{de:string, en:string, fr:string} = {
     de: "Neue Waffe",
     en: "New Gun",
-    fr: "Nouveau Gun"
+    fr: "Nouvelle arme"
 }
 
 export const unsavedChangesAlert:{[key: string]: {de:string, en:string, fr:string}} = {
     title: {
         de: "Es hat nicht gespeicherte Änderungen",
         en: "Unsaved changes",
-        fr: "Il y a des unsaved changes",
+        fr: "Il a des modifications non sauvegardées",
     },
     subtitle: {
         de: "Wirklich zurück?",
         en: "Continue?",
-        fr: "Continuer?",
+        fr: "vraiment revenir?",
     },
     yes: {
         de: "Ja",
@@ -37,7 +37,7 @@ export const imageDeleteAlert:{[key: string]: {de:string, en:string, fr:string}}
     title: {
         de: "Bild wirklich löschen?",
         en: "Delete image?",
-        fr: "Deleter le image?",
+        fr: "Supprimer vraiment l'image?",
     },
     yes: {
         de: "Ja",
@@ -55,7 +55,7 @@ export const validationFailedAlert:{[key: string]: {de:string, en:string, fr:str
     title: {
         de: "Validierung fehlgeschlagen",
         en: "Validation failed",
-        fr: "Le validation a failer",
+        fr: "Echec de la validation",
     },
     no: {
         de: "OK",
@@ -68,7 +68,7 @@ export const validationErros:{[key: string]: {de:string, en:string, fr:string}} 
     requiredFieldEmpty: {
         de: "Feld darf nicht leer sein",
         en: "Field can not be empty",
-        fr: "Le field ne can pas be empty",
+        fr: "Le champ ne doit pas être vide",
     },
 }
 
@@ -76,12 +76,12 @@ export const toastMessages:{[key: string]: {de:string, en:string, fr:string}} = 
     saved: {
         de: "gespeichert",
         en: "saved",
-        fr: "le saved"
+        fr: "enregistré"
     },
     changed: {
         de: "geändert",
         en: "changed",
-        fr: "le changed"
+        fr: "modifié"
     }
 }
 
@@ -89,6 +89,6 @@ export const preferenceTitles:{[key:string]: {de: string, en: string, fr: string
     language: {
         de: "Sprache ändern",
         en: "Change language",
-        fr: "Changer le language"
+        fr: "changer de langue"
     }
 }
