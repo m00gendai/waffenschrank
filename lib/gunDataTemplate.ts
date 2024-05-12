@@ -62,6 +62,13 @@ export const gunDataTemplate:{name:string, de:string, en:string, fr:string}[] = 
         
     },
     {
+        name: "paidPrice",
+        de: "Kaufpreis",     
+        en: "Price",
+        fr: "Prix d'achat",
+    
+    },
+    {
             name: "mainColor",
             de: "Hauptfarbe",
             en: "Main Color",
