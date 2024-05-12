@@ -85,7 +85,7 @@ export default function Gun({setSeeGunOpen, gun}:Props){
     }
 
     return(
-        <View style={{width: "100%", height: "100%"}}>
+        <View style={{width: "100%", height: "100%", backgroundColor: "white"}}>
             
             <Appbar style={{width: "100%"}}>
                 <Appbar.BackAction  onPress={() => setSeeGunOpen(false)} />
@@ -93,32 +93,32 @@ export default function Gun({setSeeGunOpen, gun}:Props){
                 <Appbar.Action icon="pencil" onPress={() => setEditGunOpen(true)} />
             </Appbar>
         
-            <SafeAreaView style={styles.container}>   
+            <View style={styles.container}>   
                 <ScrollView style={{width: "100%"}}>
                     <View style={{backgroundColor: currentGun.Hauptfarbe}}>
-                    <ScrollView horizontal style={{width:"100%", aspectRatio: "21/10", marginTop: 10, marginBottom: 10}}>
-                        {Array.from(Array(5).keys()).map((_, index) =>{
-                        
-                            if(currentGun.images && index <= currentGun.images.length-1){
-                                return(
-                                    <TouchableNativeFeedback key={`slides_${index}`} onPress={()=>showModal(index)}>
-                                        <View style={styles.imageContainer} >
-                                         <ImageViewer isLightBox={false} selectedImage={currentGun.images[index]} /> 
-                                        </View>
-                                    </TouchableNativeFeedback>
-                                )
-                            }      
-                            if(!currentGun.images || currentGun.images.length === 0){
-                                return(
-                                    <TouchableNativeFeedback key={`slides_${index}`} onPress={()=>showModal(index)}>
-                                        <View style={styles.imageContainer} >
-                                         <ImageViewer isLightBox={false} selectedImage={null} /> 
-                                        </View>
-                                    </TouchableNativeFeedback>
-                                )
-                            }                   
-                        })}
-                    </ScrollView>
+                        <ScrollView horizontal style={{width:"100%", aspectRatio: "21/10", marginTop: 10, marginBottom: 10}}>
+                            {Array.from(Array(5).keys()).map((_, index) =>{
+                            
+                                if(currentGun.images && index <= currentGun.images.length-1){
+                                    return(
+                                        <TouchableNativeFeedback key={`slides_${index}`} onPress={()=>showModal(index)}>
+                                            <View style={styles.imageContainer} >
+                                            <ImageViewer isLightBox={false} selectedImage={currentGun.images[index]} /> 
+                                            </View>
+                                        </TouchableNativeFeedback>
+                                    )
+                                }      
+                                if(!currentGun.images || currentGun.images.length === 0){
+                                    return(
+                                        <TouchableNativeFeedback key={`slides_${index}`} onPress={()=>showModal(index)}>
+                                            <View style={styles.imageContainer} >
+                                            <ImageViewer isLightBox={false} selectedImage={null} /> 
+                                            </View>
+                                        </TouchableNativeFeedback>
+                                    )
+                                }                   
+                            })}
+                        </ScrollView>
                     </View>
                     <View style={styles.data}>
                         {gunDataTemplate.map(item=>{
@@ -165,7 +165,7 @@ export default function Gun({setSeeGunOpen, gun}:Props){
                         </Button>
                     </View>
                 </ScrollView>
-            </SafeAreaView>
+            </View>
         </View>
     )
 }

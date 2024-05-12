@@ -146,16 +146,20 @@ useEffect(()=>{
       </SafeAreaView>
       
       {newGunOpen ? 
-      <Animated.View entering={SlideInDown} exiting={SlideOutDown}>
-        <NewGun setNewGunOpen={setNewGunOpen} />
+      <Animated.View entering={SlideInDown} exiting={SlideOutDown} style={{position: "absolute", left: 0, width: "100%", height: "100%"}}>
+        <SafeAreaView>
+          <NewGun setNewGunOpen={setNewGunOpen} />
+        </SafeAreaView>
       </Animated.View> 
       : 
       null}
         
       {seeGunOpen ? 
-      <Animated.View entering={FadeIn} exiting={FadeOut}>
-        <Gun setSeeGunOpen={setSeeGunOpen} gun={currentGun} />
-      </Animated.View> 
+      <Animated.View entering={FadeIn} exiting={FadeOut} style={{position: "absolute", left: 0, width: "100%", height: "100%"}}>
+        <SafeAreaView>
+          <Gun setSeeGunOpen={setSeeGunOpen} gun={currentGun} />
+        </SafeAreaView>
+      </Animated.View>
       :
       null}
 

@@ -137,7 +137,7 @@ export default function NewGun({setNewGunOpen}){
     }   
 
     return(
-        <View style={{width: "100%", height: "100%"}}>
+        <View style={{width: "100%", height: "100%", backgroundColor: "white"}}>
             
             <Appbar style={{width: "100%"}}>
                 <Appbar.BackAction  onPress={() => {saveState ? setNewGunOpen(false) : invokeAlert()}} />
@@ -145,7 +145,7 @@ export default function NewGun({setNewGunOpen}){
                 <Appbar.Action icon="floppy" onPress={() => save({...gunData, id: uuidv4(), images:selectedImage, createdAt: new Date(), lastModifiedAt: new Date()})} color={saveState ? "green" : "red"} />
             </Appbar>
 
-            <SafeAreaView style={styles.container}>
+            <View style={styles.container}>
                 <ScrollView style={{width: "100%"}}>
                     <View>
                         <ScrollView horizontal style={{width:"100%", aspectRatio: "21/10"}}>  
@@ -194,7 +194,7 @@ export default function NewGun({setNewGunOpen}){
                         <NewTextArea data={"Bemerkungen"} gunData={gunData} setGunData={setGunData}/>
                     </View>
                 </ScrollView>
-            </SafeAreaView>
+            </View>
             <Snackbar
                 visible={visible}
                 onDismiss={onDismissSnackBar}
