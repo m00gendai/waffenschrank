@@ -6,14 +6,17 @@ import DateTimePicker from 'react-native-ui-datepicker';
 import dayjs from 'dayjs';
 import ColorPicker, { Panel1, Swatches, Preview, OpacitySlider, HueSlider } from 'reanimated-color-picker';
 import { calibers } from '../lib/caliberData';
+import { gunDataTemplate } from '../lib/gunDataTemplate';
 
 interface Props{
     data: string
     gunData: GunType
     setGunData: React.Dispatch<React.SetStateAction<GunType>>
+    lang: string
+    label: string
 }
 
-export default function NewText({data, gunData, setGunData}: Props){
+export default function NewText({data, gunData, setGunData, lang, label}: Props){
 
     const [input, setInput] = useState<string>(gunData ? gunData[data] : "")
     const [showDateTime, setShowDateTime] = useState<boolean>(false)
@@ -83,22 +86,22 @@ export default function NewText({data, gunData, setGunData}: Props){
             <TouchableNativeFeedback 
                 style={{flex: 1}} 
                 onPress={()=>{
-                    data === "Erwerbsdatum" ? setShowDateTime(true) : 
-                    data === "Hauptfarbe" ? setShowModal(true) : 
-                    data === "Kaliber" ? setShowModalCaliber(true) : 
+                    data === "acquisitionDate" ? setShowDateTime(true) : 
+                    data === "mainColor" ? setShowModal(true) : 
+                    data === "caliber" ? setShowModalCaliber(true) : 
                     null}}
             >          
                 <View style={{flex: 1}}>
                     <TextInput
-                        label={data} 
+                        label={label} 
                         style={{
                             flex: 1,
                         }}
                         value={input}
-                        editable={data === "Erwerbsdatum" ? false : data === "Hauptfarbe" ? false : data === "Kaliber" ? false : true}
-                        showSoftInputOnFocus={data === "Erwerbsdatum" ? false : true}
+                        editable={data === "acquisitionDate" ? false : data === "mainColor" ? false : data === "caliber" ? false : true}
+                        showSoftInputOnFocus={data === "acquisitionDate" ? false : true}
                         onChangeText={input => updateGunData(input)}
-                        onKeyPress={(e) => data === "Erwerbsdatum" ? e.preventDefault() : null}
+                        onKeyPress={(e) => data === "acquisitionDate" ? e.preventDefault() : null}
                     />
                 </View>
             </TouchableNativeFeedback>

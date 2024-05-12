@@ -1,20 +1,21 @@
 export interface GunType{
   id: string
-  Hersteller: string
-  Modellbezeichnung: string
-  HerstellungsDatum?: string | null
-  Waffentyp?: string | null
-  Funktionsweise?: string | null
-  Kaliber?: string | null
-  Seriennummer?: string | null
-  Bewilligung?: string | null
-  Erwerbsdatum?: string | null
-  Hauptfarbe?: string | null
-  Bemerkungen? : string | null
+  manufacturer?: string | null
+  model: string
+  manufacturingDate?: string | null
+  originCountry?: string | null
+  gunType?: string | null
+  functionType?: string | null
+  caliber?: string | null
+  serial?: string | null
+  permit?: string | null
+  acquisitionDate?: string | null
+  mainColor?: string | null
+  remarks? : string | null
   images: string[]
   createdAt: Date
   lastModifiedAt: Date
-  Status?: {key: boolean}
+  status?: {key: boolean}
 }
 
 export interface MenuVisibility{

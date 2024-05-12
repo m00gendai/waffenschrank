@@ -1,11 +1,10 @@
 import { StyleSheet, View, ScrollView, Alert } from 'react-native';
-import { Appbar, FAB, Snackbar, TextInput } from 'react-native-paper';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { Appbar, FAB, Snackbar } from 'react-native-paper';
 import * as ImagePicker from "expo-image-picker"
 import { useEffect, useState } from 'react';
 import * as SecureStore from "expo-secure-store"
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { gunDataTemplate } from "../lib/gunDataTemplate"
+import { gunDataTemplate, gunRemarks } from "../lib/gunDataTemplate"
 import NewText from "./NewText"
 import "react-native-get-random-values"
 import { v4 as uuidv4 } from 'uuid';
@@ -15,9 +14,15 @@ import { GunType } from '../interfaces';
 import { gunDataValidation } from '../utils';
 import NewTextArea from './NewTextArea';
 import NewCheckboxArea from './NewCheckboxArea';
+import { newGunTitle, toastMessages, unsavedChangesAlert, validationFailedAlert } from '../textTemplates';
+
+interface Props{
+    setNewGunOpen: React.Dispatch<React.SetStateAction<boolean>>
+    lang: string
+}
 
 
-export default function NewGun({setNewGunOpen}){
+export default function NewGun({setNewGunOpen, lang}){
 
     const [selectedImage, setSelectedImage] = useState<string[]>(null)
     const [granted, setGranted] = useState<boolean>(false)
@@ -32,13 +37,13 @@ export default function NewGun({setNewGunOpen}){
     },[gunData])
 
     function invokeAlert(){
-        Alert.alert(`Es hat nicht gespeicherte Änderungen`, `Wirklich zurück?`, [
+        Alert.alert(unsavedChangesAlert.title[lang], unsavedChangesAlert.subtitle[lang], [
             {
-                text: "Ja",
+                text: unsavedChangesAlert.yes[lang],
                 onPress: () => setNewGunOpen(false)
             },
             {
-                text: "Nein",
+                text: unsavedChangesAlert.no[lang],
                 style: "cancel"
             }
         ])
@@ -49,11 +54,11 @@ export default function NewGun({setNewGunOpen}){
   const onDismissSnackBar = () => setVisible(false);
 
     async function save(value:GunType) {
-        const validationResult:{field: string, error: string}[] = gunDataValidation(value)
+        const validationResult:{field: string, error: string}[] = gunDataValidation(value, lang)
         if(validationResult.length != 0){
-            Alert.alert(`Validierung fehlgeschlagen`, `${validationResult.map(result => `Feld ${result.field}: ${result.error}`)}`, [
+            Alert.alert(validationFailedAlert.title[lang], `${validationResult.map(result => `${result.field}: ${result.error}`)}`, [
                 {
-                    text: "OK",
+                    text: validationFailedAlert.no[lang],
                     style: "cancel"
                 }
             ])
@@ -75,7 +80,7 @@ export default function NewGun({setNewGunOpen}){
         SecureStore.setItem(`${GUN_DATABASE}_${value.id}`, JSON.stringify(value)) // Save the gun
         console.log(`Saved item ${JSON.stringify(value)} with key ${GUN_DATABASE}_${value.id}`)
         setSaveState(true)
-        setSnackbarText(`${value.Hersteller} ${value.Modellbezeichnung} gespeichert`)
+        setSnackbarText(`${value.manufacturer ? value.manufacturer : ""} ${value.model} ${toastMessages.saved[lang]}`)
         onToggleSnackBar()
     }
     
@@ -141,7 +146,7 @@ export default function NewGun({setNewGunOpen}){
             
             <Appbar style={{width: "100%"}}>
                 <Appbar.BackAction  onPress={() => {saveState ? setNewGunOpen(false) : invokeAlert()}} />
-                <Appbar.Content title={`Neue Waffe`} />
+                <Appbar.Content title={newGunTitle[lang]} />
                 <Appbar.Action icon="floppy" onPress={() => save({...gunData, id: uuidv4(), images:selectedImage, createdAt: new Date(), lastModifiedAt: new Date()})} color={saveState ? "green" : "red"} />
             </Appbar>
 
@@ -176,8 +181,8 @@ export default function NewGun({setNewGunOpen}){
                         {gunDataTemplate.map(data=>{
                             return(
                                 <View 
-                                    id={data}
-                                    key={data}
+                                    id={data.name}
+                                    key={data.name}
                                     style={{
                                         display: "flex",
                                         flexWrap: "nowrap",
@@ -186,12 +191,13 @@ export default function NewGun({setNewGunOpen}){
                                         gap: 5,
                                         
                                 }}>
-                                    <NewText data={data} gunData={gunData} setGunData={setGunData}/>
+                                    
+                                    <NewText data={data.name} gunData={gunData} setGunData={setGunData} lang={lang} label={data[lang]}/>
                                 </View>
                             )
                         })}
-                        <NewCheckboxArea data={"Status"} gunData={gunData} setGunData={setGunData}/>
-                        <NewTextArea data={"Bemerkungen"} gunData={gunData} setGunData={setGunData}/>
+                        <NewCheckboxArea data={"status"} gunData={gunData} setGunData={setGunData} lang={lang}/>
+                        <NewTextArea data={gunRemarks[lang]} gunData={gunData} setGunData={setGunData}/>
                     </View>
                 </ScrollView>
             </View>

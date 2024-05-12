@@ -4,7 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import * as ImagePicker from "expo-image-picker"
 import { useState } from 'react';
 import * as SecureStore from "expo-secure-store"
-import { gunDataTemplate } from "../lib/gunDataTemplate"
+import { gunDataTemplate, gunRemarks } from "../lib/gunDataTemplate"
 import NewText from "./NewText"
 import "react-native-get-random-values"
 import ImageViewer from "./ImageViewer"
@@ -12,15 +12,17 @@ import { GUN_DATABASE } from '../configs';
 import { GunType } from '../interfaces';
 import NewTextArea from './NewTextArea';
 import NewCheckboxArea from './NewCheckboxArea';
+import { editGunTitle, imageDeleteAlert, toastMessages, unsavedChangesAlert } from '../textTemplates';
 
 interface Props{
     setEditGunOpen: React.Dispatch<React.SetStateAction<boolean>>
     gun: GunType
     setCurrentGun: React.Dispatch<React.SetStateAction<GunType>>
+    lang: string
 }
 
 
-export default function EditGun({setEditGunOpen, gun, setCurrentGun}: Props){
+export default function EditGun({setEditGunOpen, gun, setCurrentGun, lang}: Props){
 
     const [selectedImage, setSelectedImage] = useState<string[]>(gun.images && gun.images.length != 0 ? gun.images : [])
     const [granted, setGranted] = useState<boolean>(false)
@@ -34,13 +36,13 @@ export default function EditGun({setEditGunOpen, gun, setCurrentGun}: Props){
   const onDismissSnackBar = () => setVisible(false);
 
   function invokeAlert(){
-    Alert.alert(`Es hat nicht gespeicherte Änderungen`, `Wirklich zurück?`, [
+    Alert.alert(unsavedChangesAlert.title[lang], unsavedChangesAlert.subtitle[lang], [
         {
-            text: "Ja",
+            text: unsavedChangesAlert.yes[lang],
             onPress: () => setEditGunOpen(false)
         },
         {
-            text: "Nein",
+            text: unsavedChangesAlert.no[lang],
             style: "cancel"
         }
     ])
@@ -48,13 +50,13 @@ export default function EditGun({setEditGunOpen, gun, setCurrentGun}: Props){
 
 
   function deleteImagePrompt(index:number){
-    Alert.alert(`Bild löschen?`, ``, [
+    Alert.alert(imageDeleteAlert.title[lang], ``, [
         {
-            text: "Ja",
+            text: imageDeleteAlert.yes[lang],
             onPress: () => deleteImage(index)
         },
         {
-            text: "Nein",
+            text: imageDeleteAlert.no[lang],
             style: "cancel"
         }
     ])
@@ -66,7 +68,7 @@ export default function EditGun({setEditGunOpen, gun, setCurrentGun}: Props){
         console.log(`Saved item ${JSON.stringify(value)} with key ${GUN_DATABASE}_${value.id}`)
         setCurrentGun({...value, images:selectedImage})
         setSaveState(true)
-        setSnackbarText(`${value.Hersteller} ${value.Modellbezeichnung} geändert`)
+        setSnackbarText(`${value.manufacturer ? value.manufacturer : ""} ${value.model} ${toastMessages.changed[lang]}`)
         onToggleSnackBar()
       }
 
@@ -141,7 +143,7 @@ export default function EditGun({setEditGunOpen, gun, setCurrentGun}: Props){
             
             <Appbar style={{width: "100%"}}>
                 <Appbar.BackAction  onPress={() => {saveState == true ? setEditGunOpen(false) : saveState === false ? invokeAlert() : setEditGunOpen(false)}} />
-                <Appbar.Content title={`Waffe bearbeiten`} />
+                <Appbar.Content title={editGunTitle[lang]} />
                 <Appbar.Action icon="floppy" onPress={() => save({...gunData, lastModifiedAt: new Date()})} color={saveState  == true ? "green" : saveState == false ? "red" : "black"}/>
             </Appbar>
         
@@ -203,8 +205,8 @@ export default function EditGun({setEditGunOpen, gun, setCurrentGun}: Props){
                         {gunDataTemplate.map(data=>{
                             return(
                                 <View 
-                                    id={data}
-                                    key={data}
+                                    id={data.name}
+                                    key={data.name}
                                     style={{
                                         display: "flex",
                                         flexWrap: "nowrap",
@@ -213,12 +215,12 @@ export default function EditGun({setEditGunOpen, gun, setCurrentGun}: Props){
                                         gap: 5,
                                         
                                 }}>
-                                    <NewText data={data} gunData={gunData} setGunData={setGunData}/>
+                                    <NewText data={data.name} gunData={gunData} setGunData={setGunData} lang={lang} label={data[lang]}/>
                                 </View>
                             )
                         })}
-                         <NewCheckboxArea data={"Status"} gunData={gunData} setGunData={setGunData}/>
-                        <NewTextArea data={"Bemerkungen"} gunData={gunData} setGunData={setGunData}/>
+                         <NewCheckboxArea data={"status"} gunData={gunData} setGunData={setGunData} lang={lang}/>
+                        <NewTextArea data={gunRemarks[lang]} gunData={gunData} setGunData={setGunData}/>
                        
                     </View>
                 </ScrollView>

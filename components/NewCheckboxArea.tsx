@@ -8,21 +8,28 @@ interface Props{
     data: string
     gunData: GunType
     setGunData: React.Dispatch<React.SetStateAction<GunType>>
+    lang: string
 }
 
-export default function NewCheckboxArea({data, gunData, setGunData}: Props){
+export default function NewCheckboxArea({data, gunData, setGunData, lang}: Props){
 
-    const convertArrayToObject = (array:string[]) => {
+    const convertArrayToObject = (array:{ name: string; de: string; en: string; fr: string; }[]) => {
         const initialValue = {};
         return array.reduce((obj, item) => {
             return {
                 ...obj,
-                [item]: false,
+                [item.name]: false,
             };
         }, initialValue);
     };
 
     function handleCheckBoxCheck(checkBox:string){
+
+        /*
+            status object should be:
+            { checkboxName: boolean, checboxName: boolean etc}
+        */
+
         const newChecked = checked
         newChecked[checkBox] = !newChecked[checkBox]
         setChecked(newChecked)
@@ -35,7 +42,7 @@ export default function NewCheckboxArea({data, gunData, setGunData}: Props){
         <View>
             {checkBoxes.map(checkBox=>{
                 return(
-                    <Checkbox.Item key={checkBox} label={checkBox} status={checked[checkBox] ? "checked" : "unchecked"} onPress={()=>{handleCheckBoxCheck(checkBox)}}/>
+                    <Checkbox.Item key={checkBox.name} label={checkBox[lang]} status={checked[checkBox.name] ? "checked" : "unchecked"} onPress={()=>{handleCheckBoxCheck(checkBox.name)}}/>
                 )
             })}
             

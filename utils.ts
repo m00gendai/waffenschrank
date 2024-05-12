@@ -1,10 +1,12 @@
 import { GunType } from "./interfaces";
+import { gunDataTemplate } from "./lib/gunDataTemplate";
+import { validationErros } from "./textTemplates";
 
 export function sortBy(value: string, ascending: boolean, guns: GunType[]){
     if(value === "alphabetical"){
         const sorted = guns.sort((a, b) =>{
-            const x = `${a.Hersteller} ${a.Modellbezeichnung}`
-            const y = `${b.Hersteller} ${b.Modellbezeichnung}`
+            const x = `${a.manufacturer} ${a.model}`
+            const y = `${b.manufacturer} ${b.model}`
             if(ascending){
                 return x > y ? 1 : x < y ? -1 : 0
             } else {
@@ -39,12 +41,13 @@ export function getIcon(type:string){
     }
 }
 
-export function gunDataValidation(value:GunType){
+export function gunDataValidation(value:GunType, lang:string){
     let validationResponse: {field: string, error: string}[] = []
-    const requiredFields: string[] = ["Modellbezeichnung"]
+    const requiredFields: string[] = ["model"]
+    const x:{de: string, en: string, fr: string}[] = gunDataTemplate.filter(item => requiredFields.includes(item.name))
     for(const entry of requiredFields){
        if( !(entry in value) || value[entry].length == 0 ){
-        validationResponse = [...validationResponse, {field: entry, error: "Feld darf nicht leer sein"}]
+        validationResponse = [...validationResponse, {field: x[0][lang], error: validationErros.requiredFieldEmpty[lang]}]
        }
     }
     return validationResponse

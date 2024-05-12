@@ -1,7 +1,7 @@
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StyleSheet, Text, View, Modal, ScrollView, Alert, TouchableNativeFeedback, TouchableOpacity } from 'react-native';
 import { Button, Appbar, Icon, Checkbox } from 'react-native-paper';
-import { checkBoxes, gunDataTemplate } from "../lib/gunDataTemplate"
+import { checkBoxes, gunDataTemplate, gunRemarks } from "../lib/gunDataTemplate"
 import * as SecureStore from "expo-secure-store"
 import { useState} from "react"
 import EditGun from "./EditGun"
@@ -13,10 +13,11 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 interface Props{
     setSeeGunOpen: React.Dispatch<React.SetStateAction<boolean>>
     gun: GunType
+    lang: string
 }
 
 
-export default function Gun({setSeeGunOpen, gun}:Props){
+export default function Gun({setSeeGunOpen, gun, lang}:Props){
 
     const [editGunOpen, setEditGunOpen] = useState<boolean>(false)
     const [currentGun, setCurrentGun] = useState<GunType>(gun)
@@ -89,13 +90,13 @@ export default function Gun({setSeeGunOpen, gun}:Props){
             
             <Appbar style={{width: "100%"}}>
                 <Appbar.BackAction  onPress={() => setSeeGunOpen(false)} />
-                <Appbar.Content title={`${currentGun.Hersteller} ${currentGun.Modellbezeichnung}`} />
+                <Appbar.Content title={`${currentGun.manufacturer} ${currentGun.model}`} />
                 <Appbar.Action icon="pencil" onPress={() => setEditGunOpen(true)} />
             </Appbar>
         
             <View style={styles.container}>   
                 <ScrollView style={{width: "100%"}}>
-                    <View style={{backgroundColor: currentGun.Hauptfarbe}}>
+                    <View style={{backgroundColor: currentGun.mainColor}}>
                         <ScrollView horizontal style={{width:"100%", aspectRatio: "21/10", marginTop: 10, marginBottom: 10}}>
                             {Array.from(Array(5).keys()).map((_, index) =>{
                             
@@ -121,29 +122,29 @@ export default function Gun({setSeeGunOpen, gun}:Props){
                         </ScrollView>
                     </View>
                     <View style={styles.data}>
-                        {gunDataTemplate.map(item=>{
+                        {gunDataTemplate.map((item, index)=>{
                             return(
-                                <View key={item} style={{flex: 1, flexDirection: "column"}} >
-                                    <Text style={{width: "100%", fontSize: 12,}}>{`${item}:`}</Text>
-                                    <Text style={{width: "100%", fontSize: 18, marginBottom: 5, paddingBottom: 5, borderBottomColor: "black", borderBottomWidth: 0.2}}>{currentGun[item]}</Text>
+                                <View key={`${item.name}`} style={{flex: 1, flexDirection: "column"}} >
+                                    <Text style={{width: "100%", fontSize: 12,}}>{`${item[lang]}:`}</Text>
+                                    <Text style={{width: "100%", fontSize: 18, marginBottom: 5, paddingBottom: 5, borderBottomColor: "black", borderBottomWidth: 0.2}}>{currentGun[item[lang]]}</Text>
                                 </View>
                             )
                         })}
                         <View style={{flex: 1, flexDirection: "column"}} >
                         {checkBoxes.map(checkBox=>{
                             return(
-                                <Checkbox.Item key={checkBox} label={checkBox} status={gun.Status && gun.Status[checkBox] ? "checked" : "unchecked"}/>
+                                <Checkbox.Item key={checkBox.name} label={checkBox[lang]} status={gun.status && gun.status[checkBox.name] ? "checked" : "unchecked"}/>
                             )
                         })}
                         </View>
                         <View style={{flex: 1, flexDirection: "column"}} >
-                            <Text style={{width: "100%", fontSize: 12,}}>{`Bemerkungen`}</Text>
-                            <Text style={{width: "100%", fontSize: 18, marginBottom: 5, paddingBottom: 5, borderBottomColor: "black", borderBottomWidth: 0.2}}>{currentGun[`Bemerkungen`]}</Text>
+                            <Text style={{width: "100%", fontSize: 12,}}>{gunRemarks[lang]}</Text>
+                            <Text style={{width: "100%", fontSize: 18, marginBottom: 5, paddingBottom: 5, borderBottomColor: "black", borderBottomWidth: 0.2}}>{currentGun.remarks}</Text>
                         </View>
                     </View>
                     
                     <Modal visible={editGunOpen}>
-                        <EditGun setEditGunOpen={setEditGunOpen} gun={currentGun} setCurrentGun={setCurrentGun} />
+                        <EditGun setEditGunOpen={setEditGunOpen} gun={currentGun} setCurrentGun={setCurrentGun} lang={lang} />
                     </Modal>
                     
                     <Modal visible={lightBox} transparent>

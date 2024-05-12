@@ -1,5 +1,5 @@
 import { StyleSheet, View, Modal, Dimensions, ScrollView, TouchableNativeFeedback, Text } from 'react-native';
-import { PaperProvider, Card, FAB, Appbar, Menu, Button, IconButton, Icon } from 'react-native-paper';
+import { PaperProvider, Card, FAB, Appbar, Menu, Button, IconButton, Icon, SegmentedButtons, Surface } from 'react-native-paper';
 import NewGun from "./components/NewGun"
 import Gun from "./components/Gun"
 import * as SecureStore from "expo-secure-store"
@@ -13,6 +13,7 @@ import { GunType, MenuVisibility } from "./interfaces"
 import { getIcon, sortBy } from './utils';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Animated, { FadeIn, FadeOut, LightSpeedInLeft, LightSpeedInRight, LightSpeedOutLeft, SlideInDown, SlideInUp, SlideOutDown } from 'react-native-reanimated';
+import { preferenceTitles } from './textTemplates';
 
 async function getKeys(){
   const keys:string = await AsyncStorage.getItem(KEY_DATABASE)
@@ -34,6 +35,7 @@ export default function App() {
   const [sortType, setSortType] = useState<string>("alphabetical")
   const [menuOpen, setMenuOpen] = useState<boolean>(false)
   const [displayGrid, setDisplayGrid] = useState<boolean>(true)
+  const [language, setLanguage] = useState<string>("de")
 
   const date: Date = new Date()
   const currentYear:number = date.getFullYear()
@@ -127,7 +129,7 @@ useEffect(()=>{
                       width: (Dimensions.get("window").width / (displayGrid ? 2 : 1)) - (defaultGridGap + (defaultViewPadding/2)),
                     }}
                   >
-                    <Card.Title title={`${gun.Hersteller && gun.Hersteller.length != 0 ? gun.Hersteller : ""} ${gun.Modellbezeichnung}`} subtitle={gun.Seriennummer && gun.Seriennummer.length != 0 ? gun.Seriennummer : " "} subtitleVariant='bodySmall' titleVariant='titleSmall' titleNumberOfLines={2} />
+                    <Card.Title title={`${gun.manufacturer && gun.manufacturer.length != 0 ? gun.manufacturer : ""} ${gun.model}`} subtitle={gun.serial && gun.serial.length != 0 ? gun.serial : " "} subtitleVariant='bodySmall' titleVariant='titleSmall' titleNumberOfLines={2} />
                     {displayGrid ? 
                     <Card.Cover 
                       source={gun.images && gun.images.length != 0 ? { uri: gun.images[0] } : require(`./assets//775788_several different realistic rifles and pistols on _xl-1024-v1-0.png`)} 
@@ -148,7 +150,7 @@ useEffect(()=>{
       {newGunOpen ? 
       <Animated.View entering={SlideInDown} exiting={SlideOutDown} style={{position: "absolute", left: 0, width: "100%", height: "100%"}}>
         <SafeAreaView>
-          <NewGun setNewGunOpen={setNewGunOpen} />
+          <NewGun setNewGunOpen={setNewGunOpen} lang={language}/>
         </SafeAreaView>
       </Animated.View> 
       : 
@@ -157,7 +159,7 @@ useEffect(()=>{
       {seeGunOpen ? 
       <Animated.View entering={FadeIn} exiting={FadeOut} style={{position: "absolute", left: 0, width: "100%", height: "100%"}}>
         <SafeAreaView>
-          <Gun setSeeGunOpen={setSeeGunOpen} gun={currentGun} />
+          <Gun setSeeGunOpen={setSeeGunOpen} gun={currentGun} lang={language} />
         </SafeAreaView>
       </Animated.View>
       :
@@ -172,14 +174,39 @@ useEffect(()=>{
                 <Icon source="arrow-left" size={20} color='black'/>
               </View>
             </TouchableNativeFeedback>
-            <View style={{padding: 10, display: "flex", height: "100%", flexDirection: "column", flexWrap: "wrap"}}>
+            <View style={{padding: 0, display: "flex", height: "100%", flexDirection: "column", flexWrap: "wrap"}}>
               <View style={{width: "100%", flex: 10}}>
                 <ScrollView>
+                  <View style={{padding: 10}}>
                   <Text>HELLO IS THIS THE KRUSTY KRAB?</Text>
                   <Text>NO THIS IS MENU!</Text>
+                  </View>
+                  <Surface elevation={4} style={{marginTop: 10, marginBottom: 10, padding: 10, backgroundColor: "white"}}>
+                    <Text style={{marginBottom: 10}}>{preferenceTitles.language[language]}</Text>
+                  <SegmentedButtons
+                    value={language}
+                    onValueChange={setLanguage}
+
+                    buttons={[
+                      {
+                        value: 'de',
+                        label: `🇩🇪`,
+                      },
+                      {
+                        value: 'en',
+                        label: '🇬🇧',
+                      },
+                      { 
+                        value: 'fr', 
+                        label: '🇫🇷' 
+                      },
+                    ]}
+                  />
+                  </Surface>
+                  
                 </ScrollView>
               </View>
-              <View style={{width: "100%", flex: 2}}>
+              <View style={{width: "100%", flex: 2, padding: 10}}>
                 <Text>Version Pre-Alpha</Text>
                 <Text>{`© ${currentYear === 2024 ? currentYear : `2024 - ${currentYear}`} Marcel Weber`} </Text>
               </View>
@@ -223,4 +250,7 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
   },
+  flagButton:{
+    fontSize: 20
+  }
 });
