@@ -4,3 +4,4 @@ export const defaultViewPadding:number = 10
 
 export const KEY_DATABASE:string = "keyR"
 export const GUN_DATABASE:string = "gunR"
+export const PREFERENCES:string = "preR"
