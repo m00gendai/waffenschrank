@@ -230,7 +230,7 @@ async function handleSaveDb(){
       {menuOpen ? 
       <Animated.View entering={LightSpeedInLeft} exiting={LightSpeedOutLeft} style={{position: "absolute", left: 0, width: "100%", height: "100%"}}>
         <SafeAreaView style={{display: "flex", flexDirection: "row", flexWrap: "nowrap"}}>
-          <View style={{width: "80%", height: "100%", backgroundColor: "white"}}>
+          <View style={{width: "100%", height: "100%", backgroundColor: "white"}}>
             <TouchableNativeFeedback onPress={()=>setMenuOpen(!menuOpen)}>
               <View style={{width: "100%", height: 50, display: "flex", flexDirection: "row", justifyContent: "flex-start", alignItems: "center", paddingLeft: 20}}>
                 <Icon source="arrow-left" size={20} color='black'/>
@@ -243,7 +243,7 @@ async function handleSaveDb(){
                     <Text>HELLO IS THIS THE KRUSTY KRAB?</Text>
                     <Text>NO THIS IS MENU!</Text>
                   </View>
-                    <Surface elevation={4} style={{marginTop: 10, marginBottom: 0, padding: 10, backgroundColor: "white"}}>
+                    <Surface elevation={1} style={{marginTop: 10, marginBottom: 0, marginLeft: 5, marginRight: 5, padding: 10, backgroundColor: "white"}}>
                       <Text style={{marginBottom: 10}}>{preferenceTitles.language[language]}</Text>
                       <SegmentedButtons
                         value={language}
@@ -265,7 +265,7 @@ async function handleSaveDb(){
                         ]}
                       />
                     </Surface>
-                    <Surface elevation={4} style={{marginTop: 10, marginBottom: 10, padding: 10, backgroundColor: "white"}}>
+                    <Surface elevation={1} style={{marginTop: 10, marginBottom: 10, marginLeft: 5, marginRight: 5, padding: 10, backgroundColor: "white"}}>
                       <Text style={{marginBottom: 10}}>{preferenceTitles.colors[language]}</Text>
                       <View style={{display: "flex", flexDirection: "row", flexWrap: "wrap", justifyContent: "space-between"}}>
                       {Object.entries(colorThemes).map(colorTheme =>{
@@ -280,7 +280,7 @@ async function handleSaveDb(){
                         )})}
                         </View>
                     </Surface>
-                    <Surface elevation={4} style={{marginTop: 10, marginBottom: 10, padding: 10, backgroundColor: "white"}}>
+                    <Surface elevation={1} style={{marginTop: 10, marginBottom: 10, marginLeft: 5, marginRight: 5, padding: 10, backgroundColor: "white"}}>
                       <View>
                         <Button onPress={()=>handleSaveDb()} mode="contained">Save DB</Button>
                       </View>
@@ -294,8 +294,7 @@ async function handleSaveDb(){
             </View>
             
           </View>
-          <View style={{height: "100%", width: "20%", backgroundColor: "rgba(0,0,0)", opacity: 0.8}}>
-          </View>
+          
           
         </SafeAreaView>
         <Snackbar
@@ -313,7 +312,7 @@ async function handleSaveDb(){
       : 
       null}
       
-      {!seeGunOpen && !newGunOpen ? 
+      {!seeGunOpen && !newGunOpen && !menuOpen? 
       <FAB
         icon="plus"
         style={styles.fab}
