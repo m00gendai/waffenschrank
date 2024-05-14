@@ -28,7 +28,8 @@
     "react-native-ui-datepicker": "^2.0.2",
     "reanimated-color-picker": "^3.0.3",
     "typescript": "~5.3.3",
-    "uuid": "^9.0.1"
+    "uuid": "^9.0.1",
+    "expo-file-system": "~17.0.1"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
