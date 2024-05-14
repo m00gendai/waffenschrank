@@ -1,5 +1,5 @@
-import { StyleSheet, View, Modal, Dimensions, ScrollView, TouchableNativeFeedback, Text } from 'react-native';
-import { PaperProvider, Card, FAB, Appbar, Menu, Button, IconButton, Icon, SegmentedButtons, Surface } from 'react-native-paper';
+import { StyleSheet, View, Dimensions, ScrollView, TouchableNativeFeedback, Text } from 'react-native';
+import { PaperProvider, Card, FAB, Appbar, Menu, Icon, SegmentedButtons, Surface, Button } from 'react-native-paper';
 import NewGun from "./components/NewGun"
 import Gun from "./components/Gun"
 import * as SecureStore from "expo-secure-store"
@@ -9,11 +9,12 @@ import {PREFERENCES, defaultGridGap, defaultViewPadding} from "./configs"
 import { GUN_DATABASE, KEY_DATABASE } from './configs';
 import 'react-native-gesture-handler';
 import React from 'react';
-import { GunType, MenuVisibility } from "./interfaces"
+import { Color, GunType, MenuVisibility } from "./interfaces"
 import { getIcon, sortBy } from './utils';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import Animated, { FadeIn, FadeOut, LightSpeedInLeft, LightSpeedInRight, LightSpeedOutLeft, SlideInDown, SlideInUp, SlideOutDown } from 'react-native-reanimated';
+import Animated, { FadeIn, FadeOut, LightSpeedInLeft, LightSpeedOutLeft, SlideInDown, SlideOutDown } from 'react-native-reanimated';
 import { preferenceTitles } from './textTemplates';
+import { colorThemes } from './colorThemes';
 
 async function getKeys(){
   const keys:string = await AsyncStorage.getItem(KEY_DATABASE)
@@ -36,6 +37,7 @@ export default function App() {
   const [menuOpen, setMenuOpen] = useState<boolean>(false)
   const [displayGrid, setDisplayGrid] = useState<boolean>(true)
   const [language, setLanguage] = useState<string>("de")
+  const [theme, setTheme] = useState<{name: string, colors:Color}>({ name: "blue", colors: colorThemes.blue })
 
   const date: Date = new Date()
   const currentYear:number = date.getFullYear()
@@ -72,6 +74,7 @@ useEffect(()=>{
     setSortType(isPreferences == null ? "alphabetical" : isPreferences.sortBy === null ? "alphabetical" : isPreferences.sortBy)
     setSortIcon(getIcon(isPreferences === null ? "alphabetical" : isPreferences.sortBy === null ? "alphabetical" : isPreferences.sortBy))
     setSortAscending(isPreferences === null ? true : isPreferences.sortOrder === null ? true : isPreferences.sortOrder)
+    setTheme(isPreferences === null ? { name: "blue", colors: colorThemes.blue } : isPreferences.theme === null ? { name: "blue", colors: colorThemes.blue } : { name: isPreferences.theme, colors: colorThemes[isPreferences.theme] })
   }
   getPreferences()
 },[])
@@ -109,9 +112,16 @@ async function handleDisplaySwitch(){
   const newPreferences:{[key:string] : string} = preferences == null ? {"display": !displayGrid} : {...JSON.parse(preferences), "display":!displayGrid} 
   await AsyncStorage.setItem(PREFERENCES, JSON.stringify(newPreferences))
 }
+
+async function handleThemeSwitch(color:string){
+  setTheme({name: color, colors: colorThemes[color]})
+  const preferences:string = await AsyncStorage.getItem(PREFERENCES)
+  const newPreferences:{[key:string] : string} = preferences == null ? {"theme": color} : {...JSON.parse(preferences), "theme":color} 
+  await AsyncStorage.setItem(PREFERENCES, JSON.stringify(newPreferences))
+}
   
   return (
-    <PaperProvider>
+    <PaperProvider theme={theme}>
       <SafeAreaView 
         style={{
           width: "100%", 
@@ -201,7 +211,7 @@ async function handleDisplaySwitch(){
 
       {menuOpen ? 
       <Animated.View entering={LightSpeedInLeft} exiting={LightSpeedOutLeft} style={{position: "absolute", left: 0, width: "100%", height: "100%"}}>
-        <SafeAreaView>
+        <SafeAreaView style={{display: "flex", flexDirection: "row", flexWrap: "nowrap"}}>
           <View style={{width: "80%", height: "100%", backgroundColor: "white"}}>
             <TouchableNativeFeedback onPress={()=>setMenuOpen(!menuOpen)}>
               <View style={{width: "100%", height: 50, display: "flex", flexDirection: "row", justifyContent: "flex-start", alignItems: "center", paddingLeft: 20}}>
@@ -212,32 +222,46 @@ async function handleDisplaySwitch(){
               <View style={{width: "100%", flex: 10}}>
                 <ScrollView>
                   <View style={{padding: 10}}>
-                  <Text>HELLO IS THIS THE KRUSTY KRAB?</Text>
-                  <Text>NO THIS IS MENU!</Text>
+                    <Text>HELLO IS THIS THE KRUSTY KRAB?</Text>
+                    <Text>NO THIS IS MENU!</Text>
                   </View>
-                  <Surface elevation={4} style={{marginTop: 10, marginBottom: 10, padding: 10, backgroundColor: "white"}}>
-                    <Text style={{marginBottom: 10}}>{preferenceTitles.language[language]}</Text>
-                  <SegmentedButtons
-                    value={language}
-                    onValueChange={handleLanguageSwitch}
+                    <Surface elevation={4} style={{marginTop: 10, marginBottom: 0, padding: 10, backgroundColor: "white"}}>
+                      <Text style={{marginBottom: 10}}>{preferenceTitles.language[language]}</Text>
+                      <SegmentedButtons
+                        value={language}
+                        onValueChange={handleLanguageSwitch}
 
-                    buttons={[
-                      {
-                        value: 'de',
-                        label: `🇩🇪`,
-                      },
-                      {
-                        value: 'en',
-                        label: '🇬🇧',
-                      },
-                      { 
-                        value: 'fr', 
-                        label: '🇫🇷' 
-                      },
-                    ]}
-                  />
-                  </Surface>
-                  
+                        buttons={[
+                          {
+                            value: 'de',
+                            label: `🇩🇪`,
+                          },
+                          {
+                            value: 'en',
+                            label: '🇬🇧',
+                          },
+                          { 
+                            value: 'fr', 
+                            label: '🇫🇷' 
+                          },
+                        ]}
+                      />
+                    </Surface>
+                    <Surface elevation={4} style={{marginTop: 10, marginBottom: 10, padding: 10, backgroundColor: "white"}}>
+                      <Text style={{marginBottom: 10}}>{preferenceTitles.colors[language]}</Text>
+                      <View style={{display: "flex", flexDirection: "row", flexWrap: "wrap", justifyContent: "space-between"}}>
+                      {Object.entries(colorThemes).map(colorTheme =>{
+                        return(    
+                          <TouchableNativeFeedback onPress={()=>handleThemeSwitch(colorTheme[0])} key={colorTheme[0]}>
+                            <View style={{borderColor: theme.name === colorTheme[0] ? colorTheme[1].primary : colorTheme[1].primaryContainer, borderWidth: theme.name === colorTheme[0] ? 5 : 1, padding: 5, width: "45%", height: 50, display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-evenly", marginTop: 10, marginBottom: 10}}>
+                              <View style={{height: "100%", width: "30%", backgroundColor: colorTheme[1].primaryContainer}}></View>
+                              <View style={{height: "100%", width: "30%", backgroundColor: colorTheme[1].secondaryContainer}}></View>
+                              <View style={{height: "100%", width: "30%", backgroundColor: colorTheme[1].tertiaryContainer}}></View>
+                            </View>
+                          </TouchableNativeFeedback>
+                        )})}
+                        </View>
+                    </Surface>
                 </ScrollView>
               </View>
               <View style={{width: "100%", flex: 2, padding: 10}}>
@@ -245,6 +269,8 @@ async function handleDisplaySwitch(){
                 <Text>{`© ${currentYear === 2024 ? currentYear : `2024 - ${currentYear}`} Marcel Weber`} </Text>
               </View>
             </View>
+          </View>
+          <View style={{height: "100%", width: "20%", backgroundColor: "rgba(0,0,0)", opacity: 0.8}}>
           </View>
         </SafeAreaView>
       </Animated.View> 
