@@ -90,5 +90,10 @@ export const preferenceTitles:{[key:string]: {de: string, en: string, fr: string
         de: "Grüezi wohl!",
         en: "Tally ho!",
         fr: "Bonjour!"
+    },
+    colors: {
+        de: "Farbschema",
+        en: "Color scheme",
+        fr: "Schéma de couleurs"
     }
 }
