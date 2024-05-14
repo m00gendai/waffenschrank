@@ -37,7 +37,7 @@ export default function App() {
   const [menuOpen, setMenuOpen] = useState<boolean>(false)
   const [displayGrid, setDisplayGrid] = useState<boolean>(true)
   const [language, setLanguage] = useState<string>("de")
-  const [theme, setTheme] = useState<{name: string, colors:Color}>({ name: "blue", colors: colorThemes.blue })
+  const [theme, setTheme] = useState<{name: string, colors:Color}>({ name: "default", colors: colorThemes.default })
 
   const date: Date = new Date()
   const currentYear:number = date.getFullYear()
@@ -74,7 +74,7 @@ useEffect(()=>{
     setSortType(isPreferences == null ? "alphabetical" : isPreferences.sortBy === null ? "alphabetical" : isPreferences.sortBy)
     setSortIcon(getIcon(isPreferences === null ? "alphabetical" : isPreferences.sortBy === null ? "alphabetical" : isPreferences.sortBy))
     setSortAscending(isPreferences === null ? true : isPreferences.sortOrder === null ? true : isPreferences.sortOrder)
-    setTheme(isPreferences === null ? { name: "blue", colors: colorThemes.blue } : isPreferences.theme === null ? { name: "blue", colors: colorThemes.blue } : { name: isPreferences.theme, colors: colorThemes[isPreferences.theme] })
+    setTheme(isPreferences === null ? { name: "default", colors: colorThemes.default } : isPreferences.theme === null ? { name: "default", colors: colorThemes.default } : { name: isPreferences.theme, colors: colorThemes[isPreferences.theme] })
   }
   getPreferences()
 },[])
