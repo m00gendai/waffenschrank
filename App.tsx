@@ -15,6 +15,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import Animated, { FadeIn, FadeOut, LightSpeedInLeft, LightSpeedOutLeft, SlideInDown, SlideOutDown } from 'react-native-reanimated';
 import { preferenceTitles } from './textTemplates';
 import { colorThemes } from './colorThemes';
+import * as FileSystem from 'expo-file-system';
 
 async function getKeys(){
   const keys:string = await AsyncStorage.getItem(KEY_DATABASE)
@@ -120,6 +121,14 @@ async function handleThemeSwitch(color:string){
   await AsyncStorage.setItem(PREFERENCES, JSON.stringify(newPreferences))
 }
   
+async function handleSaveDb(){
+
+  let fileUri = FileSystem.documentDirectory + `gunDB_${new Date().getTime()}`;
+  await FileSystem.writeAsStringAsync(fileUri, JSON.stringify(gunCollection), { encoding: FileSystem.EncodingType.UTF8 })
+  console.log(`DB saved as ${fileUri}`)
+  
+}
+
   return (
     <PaperProvider theme={theme}>
       <SafeAreaView 
@@ -261,6 +270,11 @@ async function handleThemeSwitch(color:string){
                           </TouchableNativeFeedback>
                         )})}
                         </View>
+                    </Surface>
+                    <Surface elevation={4} style={{marginTop: 10, marginBottom: 10, padding: 10, backgroundColor: "white"}}>
+                      <View>
+                        <Button onPress={()=>handleSaveDb()} mode="contained">Save DB</Button>
+                      </View>
                     </Surface>
                 </ScrollView>
               </View>
