@@ -292,7 +292,13 @@ async function handleSaveDb(){
                 <Text>{`© ${currentYear === 2024 ? currentYear : `2024 - ${currentYear}`} Marcel Weber`} </Text>
               </View>
             </View>
-            <Snackbar
+            
+          </View>
+          <View style={{height: "100%", width: "20%", backgroundColor: "rgba(0,0,0)", opacity: 0.8}}>
+          </View>
+          
+        </SafeAreaView>
+        <Snackbar
                 visible={toastVisible}
                 onDismiss={onDismissSnackBar}
                 action={{
@@ -303,11 +309,6 @@ async function handleSaveDb(){
                 }}>
                 {snackbarText}
             </Snackbar>
-          </View>
-          <View style={{height: "100%", width: "20%", backgroundColor: "rgba(0,0,0)", opacity: 0.8}}>
-          </View>
-          
-        </SafeAreaView>
       </Animated.View> 
       : 
       null}
