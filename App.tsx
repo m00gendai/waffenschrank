@@ -1,5 +1,5 @@
 import { StyleSheet, View, Dimensions, ScrollView, TouchableNativeFeedback, Text } from 'react-native';
-import { PaperProvider, Card, FAB, Appbar, Menu, Icon, SegmentedButtons, Surface, Button } from 'react-native-paper';
+import { PaperProvider, Card, FAB, Appbar, Menu, Icon, SegmentedButtons, Surface, Button, Snackbar } from 'react-native-paper';
 import NewGun from "./components/NewGun"
 import Gun from "./components/Gun"
 import * as SecureStore from "expo-secure-store"
@@ -39,6 +39,12 @@ export default function App() {
   const [displayGrid, setDisplayGrid] = useState<boolean>(true)
   const [language, setLanguage] = useState<string>("de")
   const [theme, setTheme] = useState<{name: string, colors:Color}>({ name: "default", colors: colorThemes.default })
+  const [toastVisible, setToastVisible] = useState<boolean>(false)
+  const [snackbarText, setSnackbarText] = useState<string>("")
+  
+  const onToggleSnackBar = () => setToastVisible(!toastVisible);
+
+  const onDismissSnackBar = () => setToastVisible(false);
 
   const date: Date = new Date()
   const currentYear:number = date.getFullYear()
@@ -75,7 +81,7 @@ useEffect(()=>{
     setSortType(isPreferences == null ? "alphabetical" : isPreferences.sortBy === null ? "alphabetical" : isPreferences.sortBy)
     setSortIcon(getIcon(isPreferences === null ? "alphabetical" : isPreferences.sortBy === null ? "alphabetical" : isPreferences.sortBy))
     setSortAscending(isPreferences === null ? true : isPreferences.sortOrder === null ? true : isPreferences.sortOrder)
-    setTheme(isPreferences === null ? { name: "default", colors: colorThemes.default } : isPreferences.theme === null ? { name: "default", colors: colorThemes.default } : { name: isPreferences.theme, colors: colorThemes[isPreferences.theme] })
+    setTheme(isPreferences === null ? { "name": "default", "colors": colorThemes.default } : isPreferences.theme === null ? { "name": "default", "colors": colorThemes.default } : {"name" : isPreferences.theme, "colors" : colorThemes[isPreferences.theme]} )
   }
   getPreferences()
 },[])
@@ -126,6 +132,8 @@ async function handleSaveDb(){
   let fileUri = FileSystem.documentDirectory + `gunDB_${new Date().getTime()}`;
   await FileSystem.writeAsStringAsync(fileUri, JSON.stringify(gunCollection), { encoding: FileSystem.EncodingType.UTF8 })
   console.log(`DB saved as ${fileUri}`)
+  setSnackbarText(`DB saved as ${fileUri}`)
+  onToggleSnackBar()
   
 }
 
@@ -198,6 +206,7 @@ async function handleSaveDb(){
             }) : null }
           </View>
         </ScrollView>
+        
       </SafeAreaView>
       
       {newGunOpen ? 
@@ -283,9 +292,21 @@ async function handleSaveDb(){
                 <Text>{`© ${currentYear === 2024 ? currentYear : `2024 - ${currentYear}`} Marcel Weber`} </Text>
               </View>
             </View>
+            <Snackbar
+                visible={toastVisible}
+                onDismiss={onDismissSnackBar}
+                action={{
+                label: 'OK',
+                onPress: () => {
+                    onDismissSnackBar()
+                },
+                }}>
+                {snackbarText}
+            </Snackbar>
           </View>
           <View style={{height: "100%", width: "20%", backgroundColor: "rgba(0,0,0)", opacity: 0.8}}>
           </View>
+          
         </SafeAreaView>
       </Animated.View> 
       : 
