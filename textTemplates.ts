@@ -95,5 +95,10 @@ export const preferenceTitles:{[key:string]: {de: string, en: string, fr: string
         de: "Farbschema",
         en: "Color scheme",
         fr: "Schéma de couleurs"
+    },
+    saveDb: {
+        de: "Datenbank speichern",
+        en: "Save database",
+        fr: "Enregistrer la base de données"
     }
 }

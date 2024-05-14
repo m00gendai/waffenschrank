@@ -1,5 +1,5 @@
-import { StyleSheet, View, Dimensions, ScrollView, TouchableNativeFeedback, Text } from 'react-native';
-import { PaperProvider, Card, FAB, Appbar, Menu, Icon, SegmentedButtons, Surface, Button, Snackbar } from 'react-native-paper';
+import { StyleSheet, View, Dimensions, ScrollView, TouchableNativeFeedback } from 'react-native';
+import { PaperProvider, Card, FAB, Appbar, Menu, Icon, SegmentedButtons, Text, Button, Snackbar, Divider } from 'react-native-paper';
 import NewGun from "./components/NewGun"
 import Gun from "./components/Gun"
 import * as SecureStore from "expo-secure-store"
@@ -243,8 +243,8 @@ async function handleSaveDb(){
                     <Text>HELLO IS THIS THE KRUSTY KRAB?</Text>
                     <Text>NO THIS IS MENU!</Text>
                   </View>
-                    <Surface elevation={1} style={{marginTop: 10, marginBottom: 0, marginLeft: 5, marginRight: 5, padding: 10, backgroundColor: "white"}}>
-                      <Text style={{marginBottom: 10}}>{preferenceTitles.language[language]}</Text>
+                    <View style={{marginLeft: 5, marginRight: 5, padding: 10, backgroundColor: "white"}}>
+                      <Text variant="titleMedium" style={{marginBottom: 10}}>{preferenceTitles.language[language]}</Text>
                       <SegmentedButtons
                         value={language}
                         onValueChange={handleLanguageSwitch}
@@ -264,9 +264,10 @@ async function handleSaveDb(){
                           },
                         ]}
                       />
-                    </Surface>
-                    <Surface elevation={1} style={{marginTop: 10, marginBottom: 10, marginLeft: 5, marginRight: 5, padding: 10, backgroundColor: "white"}}>
-                      <Text style={{marginBottom: 10}}>{preferenceTitles.colors[language]}</Text>
+                    </View>
+                    <Divider bold/>
+                    <View style={{marginLeft: 5, marginRight: 5, padding: 10, backgroundColor: "white"}}>
+                      <Text variant="titleMedium" style={{marginBottom: 10}}>{preferenceTitles.colors[language]}</Text>
                       <View style={{display: "flex", flexDirection: "row", flexWrap: "wrap", justifyContent: "space-between"}}>
                       {Object.entries(colorThemes).map(colorTheme =>{
                         return(    
@@ -279,12 +280,13 @@ async function handleSaveDb(){
                           </TouchableNativeFeedback>
                         )})}
                         </View>
-                    </Surface>
-                    <Surface elevation={1} style={{marginTop: 10, marginBottom: 10, marginLeft: 5, marginRight: 5, padding: 10, backgroundColor: "white"}}>
+                    </View>
+                    <Divider bold/>
+                    <View style={{ marginLeft: 5, marginRight: 5, padding: 10, backgroundColor: "white"}}>
                       <View>
-                        <Button onPress={()=>handleSaveDb()} mode="contained">Save DB</Button>
+                        <Button onPress={()=>handleSaveDb()} mode="contained">{preferenceTitles.saveDb[language]}</Button>
                       </View>
-                    </Surface>
+                    </View>
                 </ScrollView>
               </View>
               <View style={{width: "100%", flex: 2, padding: 10}}>
