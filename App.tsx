@@ -1,4 +1,4 @@
-import { StyleSheet, View, Dimensions, ScrollView, TouchableNativeFeedback } from 'react-native';
+import { StyleSheet, View, Dimensions, ScrollView, TouchableNativeFeedback, Modal } from 'react-native';
 import { PaperProvider, Card, FAB, Appbar, Menu, Icon, SegmentedButtons, Text, Button, Snackbar, Divider } from 'react-native-paper';
 import NewGun from "./components/NewGun"
 import Gun from "./components/Gun"
@@ -13,9 +13,11 @@ import { Color, GunType, MenuVisibility } from "./interfaces"
 import { getIcon, sortBy } from './utils';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Animated, { FadeIn, FadeOut, LightSpeedInLeft, LightSpeedOutLeft, SlideInDown, SlideOutDown } from 'react-native-reanimated';
-import { preferenceTitles } from './textTemplates';
+import { preferenceTitles, toastMessages } from './textTemplates';
 import { colorThemes } from './colorThemes';
 import * as FileSystem from 'expo-file-system';
+import * as DocumentPicker from 'expo-document-picker';
+import { WebView } from 'react-native-webview';
 
 async function getKeys(){
   const keys:string = await AsyncStorage.getItem(KEY_DATABASE)
@@ -41,6 +43,8 @@ export default function App() {
   const [theme, setTheme] = useState<{name: string, colors:Color}>({ name: "default", colors: colorThemes.default })
   const [toastVisible, setToastVisible] = useState<boolean>(false)
   const [snackbarText, setSnackbarText] = useState<string>("")
+  const [dbImport, setdbImport] = useState<Date | null>(null)
+
   
   const onToggleSnackBar = () => setToastVisible(!toastVisible);
 
@@ -81,7 +85,7 @@ useEffect(()=>{
     setSortType(isPreferences == null ? "alphabetical" : isPreferences.sortBy === null ? "alphabetical" : isPreferences.sortBy)
     setSortIcon(getIcon(isPreferences === null ? "alphabetical" : isPreferences.sortBy === null ? "alphabetical" : isPreferences.sortBy))
     setSortAscending(isPreferences === null ? true : isPreferences.sortOrder === null ? true : isPreferences.sortOrder)
-    setTheme(isPreferences === null ? { "name": "default", "colors": colorThemes.default } : isPreferences.theme === null ? { "name": "default", "colors": colorThemes.default } : {"name" : isPreferences.theme, "colors" : colorThemes[isPreferences.theme]} )
+    setTheme(isPreferences === null ? { "name": "default", "colors": colorThemes.default } : isPreferences.theme === null ? { "name": "default", "colors": colorThemes.default } : { "name": "default", "colors": colorThemes.default } )
   }
   getPreferences()
 },[])
@@ -99,7 +103,7 @@ useEffect(()=>{
     setGunCollection(sortedGuns)
   }
   getGuns()
-},[newGunOpen, seeGunOpen])
+},[newGunOpen, seeGunOpen, dbImport])
 
   function handleGunCardPress(gun){
     setCurrentGun(gun)
@@ -128,13 +132,36 @@ async function handleThemeSwitch(color:string){
 }
   
 async function handleSaveDb(){
-
-  let fileUri = FileSystem.documentDirectory + `gunDB_${new Date().getTime()}`;
-  await FileSystem.writeAsStringAsync(fileUri, JSON.stringify(gunCollection), { encoding: FileSystem.EncodingType.UTF8 })
-  console.log(`DB saved as ${fileUri}`)
-  setSnackbarText(`DB saved as ${fileUri}`)
+  const fileName = `gunDB_${new Date().getTime()}.json`
+  const permissions = await FileSystem.StorageAccessFramework.requestDirectoryPermissionsAsync()
+  if(permissions.granted){
+    let directoryUri = permissions.directoryUri
+    let data = JSON.stringify(gunCollection)
+    const fileUri = await FileSystem.StorageAccessFramework.createFileAsync(directoryUri, fileName, "application/json")
+    await FileSystem.writeAsStringAsync(fileUri, data, {encoding: FileSystem.EncodingType.UTF8})
+  }
+  setSnackbarText(toastMessages.dbSaveSuccess[language])
   onToggleSnackBar()
   
+}
+
+async function handleImportDb(){
+  const result = await DocumentPicker.getDocumentAsync({copyToCacheDirectory: true})
+  const content = await FileSystem.readAsStringAsync(result.assets[0].uri)
+  const guns:GunType[] = JSON.parse(content)
+  
+  const allKeys:string = await AsyncStorage.getItem(KEY_DATABASE) // gets the object that holds all key values
+  let newKeys:string[] = []
+  
+  guns.map(value =>{
+    newKeys.push(value.id) // if its the first gun to be saved, create an array with the id of the gun. Otherwise, merge the key into the existing array
+    SecureStore.setItem(`${GUN_DATABASE}_${value.id}`, JSON.stringify(value)) // Save the gun
+  })
+
+  await AsyncStorage.setItem(KEY_DATABASE, JSON.stringify(newKeys)) // Save the key object
+  setdbImport(new Date())  
+  setSnackbarText(`${JSON.parse(content).length} ${toastMessages.dbImportSuccess[language]}`)
+  onToggleSnackBar()
 }
 
   return (
@@ -285,6 +312,7 @@ async function handleSaveDb(){
                     <View style={{ marginLeft: 5, marginRight: 5, padding: 10, backgroundColor: "white"}}>
                       <View>
                         <Button onPress={()=>handleSaveDb()} mode="contained">{preferenceTitles.saveDb[language]}</Button>
+                        <Button onPress={()=>handleImportDb()} mode="contained">{preferenceTitles.importDb[language]}</Button>
                       </View>
                     </View>
                 </ScrollView>
