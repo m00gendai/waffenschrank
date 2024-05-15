@@ -97,7 +97,7 @@ export const checkBoxes:{name: string, de:string, en:string, fr:string}[] = [
         fr: "Ex-automatique"
     },
     {
-        name: "highCapacityagazine",
+        name: "highCapacityMagazine",
         de: "Ladevorrichtung mit hoher Kapazität",
         en: "High Capacity Magazine", 
         fr: "Chargeur de grande capacité"
