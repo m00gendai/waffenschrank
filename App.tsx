@@ -1,4 +1,4 @@
-import { StyleSheet, View, Dimensions, ScrollView, TouchableNativeFeedback, Modal } from 'react-native';
+import { StyleSheet, View, Dimensions, ScrollView, TouchableNativeFeedback, Alert } from 'react-native';
 import { PaperProvider, Card, FAB, Appbar, Menu, Icon, SegmentedButtons, Text, Button, Snackbar, Divider } from 'react-native-paper';
 import NewGun from "./components/NewGun"
 import Gun from "./components/Gun"
@@ -13,11 +13,10 @@ import { Color, GunType, MenuVisibility } from "./interfaces"
 import { getIcon, sortBy } from './utils';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Animated, { FadeIn, FadeOut, LightSpeedInLeft, LightSpeedOutLeft, SlideInDown, SlideOutDown } from 'react-native-reanimated';
-import { preferenceTitles, toastMessages } from './textTemplates';
+import { databaseImportAlert, preferenceTitles, toastMessages } from './textTemplates';
 import { colorThemes } from './colorThemes';
 import * as FileSystem from 'expo-file-system';
 import * as DocumentPicker from 'expo-document-picker';
-import { WebView } from 'react-native-webview';
 
 async function getKeys(){
   const keys:string = await AsyncStorage.getItem(KEY_DATABASE)
@@ -52,6 +51,19 @@ export default function App() {
 
   const date: Date = new Date()
   const currentYear:number = date.getFullYear()
+
+  function invokeAlert(){
+    Alert.alert(databaseImportAlert.title[language], databaseImportAlert.subtitle[language], [
+        {
+            text: databaseImportAlert.yes[language],
+            onPress: () => handleImportDb()
+        },
+        {
+            text: databaseImportAlert.no[language],
+            style: "cancel"
+        }
+    ])
+}
 
   function handleMenu(category: string, status: boolean){
     setMenuVisibility({...menuVisibility, [category]: status})
@@ -133,6 +145,7 @@ async function handleThemeSwitch(color:string){
   
 async function handleSaveDb(){
   const fileName = `gunDB_${new Date().getTime()}.json`
+  // ANDROID
   const permissions = await FileSystem.StorageAccessFramework.requestDirectoryPermissionsAsync()
   if(permissions.granted){
     let directoryUri = permissions.directoryUri
@@ -140,6 +153,10 @@ async function handleSaveDb(){
     const fileUri = await FileSystem.StorageAccessFramework.createFileAsync(directoryUri, fileName, "application/json")
     await FileSystem.writeAsStringAsync(fileUri, data, {encoding: FileSystem.EncodingType.UTF8})
   }
+
+  /*
+    for iOS, use expo-share, Sharing.shareAsync(fileUri, fileNamea)
+  */
   setSnackbarText(toastMessages.dbSaveSuccess[language])
   onToggleSnackBar()
   
@@ -147,6 +164,9 @@ async function handleSaveDb(){
 
 async function handleImportDb(){
   const result = await DocumentPicker.getDocumentAsync({copyToCacheDirectory: true})
+  if(result.assets === null){
+    return
+  }
   const content = await FileSystem.readAsStringAsync(result.assets[0].uri)
   const guns:GunType[] = JSON.parse(content)
   
@@ -310,9 +330,10 @@ async function handleImportDb(){
                     </View>
                     <Divider bold/>
                     <View style={{ marginLeft: 5, marginRight: 5, padding: 10, backgroundColor: "white"}}>
-                      <View>
-                        <Button onPress={()=>handleSaveDb()} mode="contained">{preferenceTitles.saveDb[language]}</Button>
-                        <Button onPress={()=>handleImportDb()} mode="contained">{preferenceTitles.importDb[language]}</Button>
+                      <Text variant="titleMedium" style={{marginBottom: 10}}>{preferenceTitles.db[language]}</Text>
+                      <View style={{display: "flex", flexDirection: "row", justifyContent: "space-between"}}>
+                        <Button style={{width: "45%"}} icon="content-save-move" onPress={()=>handleSaveDb()} mode="contained">{preferenceTitles.saveDb[language]}</Button>
+                        <Button style={{width: "45%"}} icon="application-import" onPress={()=>invokeAlert()} mode="contained">{preferenceTitles.importDb[language]}</Button>
                       </View>
                     </View>
                 </ScrollView>
