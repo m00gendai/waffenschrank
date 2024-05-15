@@ -64,6 +64,30 @@ export const validationFailedAlert:{[key: string]: {de:string, en:string, fr:str
     }
 }
 
+export const databaseImportAlert:{[key: string]: {de:string, en:string, fr:string}} = {
+    title: {
+        de: "Datenbank importieren und aktuelle überschreiben?",
+        en: "",
+        fr: "",
+    },
+    subtitle: {
+        de: "Die aktuelle Datenbank wird unwiderruflich mit der importierten überschrieben. Wirklich fortfahren?",
+        en: "Continue?",
+        fr: "vraiment revenir?",
+    },
+    yes: {
+        de: "Ja",
+        en: "Yes",
+        fr: "Oui",
+    },
+    no: {
+        de: "Nein",
+        en: "No",
+        fr: "Non"
+    }
+}
+
+
 export const validationErros:{[key: string]: {de:string, en:string, fr:string}} = {
     requiredFieldEmpty: {
         de: "Feld darf nicht leer sein",
@@ -106,15 +130,20 @@ export const preferenceTitles:{[key:string]: {de: string, en: string, fr: string
         en: "Color scheme",
         fr: "Schéma de couleurs"
     },
+    db: {
+        de: "Datenbank",
+        en: "Database",
+        fr: "Base de données"
+    },
     saveDb: {
-        de: "Datenbank speichern",
-        en: "Save database",
-        fr: "Enregistrer la base de données"
+        de: "Speichern",
+        en: "Save",
+        fr: "Enregistrer"
     },
     importDb: {
-        de: "Datenbank importieren",
-        en: "Import database",
-        fr: "Importer la base de données"
+        de: "Importieren",
+        en: "Import",
+        fr: "Importer"
     },
     
 }
