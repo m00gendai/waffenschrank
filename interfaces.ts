@@ -15,7 +15,16 @@ export interface GunType{
   images: string[]
   createdAt: Date
   lastModifiedAt: Date
-  status?: {key: boolean}
+  status?: GunTypeStatus
+}
+
+export interface GunTypeStatus{
+  secondHand: boolean
+  exFullAuto: boolean
+  highCapacityMagazine: boolean
+  short: boolean
+  serviceRifle: boolean
+  loanerGun: boolean
 }
 
 export interface MenuVisibility{
