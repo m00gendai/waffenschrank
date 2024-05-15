@@ -73,7 +73,7 @@ export default function Gun({setSeeGunOpen, gun, lang}:Props){
     }
     
     function invokeAlert(gun){
-        Alert.alert(`${gun.Modellbezeichnung} löschen?`, "Die Waffe wird unwiderruflich gelöscht", [
+        Alert.alert(`${gun.model} löschen?`, "Die Waffe wird unwiderruflich gelöscht", [
             {
                 text: "Ja",
                 onPress: () => deleteItem(gun)
