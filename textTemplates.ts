@@ -82,6 +82,16 @@ export const toastMessages:{[key: string]: {de:string, en:string, fr:string}} = 
         de: "geändert",
         en: "changed",
         fr: "modifié"
+    },
+    dbSaveSuccess: {
+        de: "Datenbank gespeichert",
+        en: "Database saved",
+        fr: "Base de données enregistrée"
+    },
+    dbImportSuccess: {
+        de: "Datensätze importiert",
+        en: "datasets imported",
+        fr: "enregistrements importés"
     }
 }
 
@@ -100,5 +110,11 @@ export const preferenceTitles:{[key:string]: {de: string, en: string, fr: string
         de: "Datenbank speichern",
         en: "Save database",
         fr: "Enregistrer la base de données"
-    }
+    },
+    importDb: {
+        de: "Datenbank importieren",
+        en: "Import database",
+        fr: "Importer la base de données"
+    },
+    
 }
