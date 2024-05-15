@@ -74,6 +74,7 @@ export default function NewGun({setNewGunOpen, lang}){
             
 
         const allKeys:string = await AsyncStorage.getItem(KEY_DATABASE) // gets the object that holds all key values
+        console.log(allKeys)
         const newKeys:string[] = allKeys == null ? [value.id] : [...JSON.parse(allKeys), value.id] // if its the first gun to be saved, create an array with the id of the gun. Otherwise, merge the key into the existing array
         await AsyncStorage.setItem(KEY_DATABASE, JSON.stringify(newKeys)) // Save the key object
 
