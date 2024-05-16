@@ -123,7 +123,7 @@ export const preferenceTitles:{[key:string]: {de: string, en: string, fr: string
     language: {
         de: "Grüezi wohl!",
         en: "Tally ho!",
-        fr: "Bonjour!"
+        fr: "Enchanté!"
     },
     colors: {
         de: "Farbschema",
