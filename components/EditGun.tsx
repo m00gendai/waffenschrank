@@ -13,16 +13,16 @@ import { GunType } from '../interfaces';
 import NewTextArea from './NewTextArea';
 import NewCheckboxArea from './NewCheckboxArea';
 import { editGunTitle, imageDeleteAlert, toastMessages, unsavedChangesAlert } from '../textTemplates';
+import { usePreferenceStore } from '../usePreferenceStore';
 
 interface Props{
     setEditGunOpen: React.Dispatch<React.SetStateAction<boolean>>
     gun: GunType
     setCurrentGun: React.Dispatch<React.SetStateAction<GunType>>
-    lang: string
 }
 
 
-export default function EditGun({setEditGunOpen, gun, setCurrentGun, lang}: Props){
+export default function EditGun({setEditGunOpen, gun, setCurrentGun}: Props){
 
     const [selectedImage, setSelectedImage] = useState<string[]>(gun.images && gun.images.length != 0 ? gun.images : [])
     const [granted, setGranted] = useState<boolean>(false)
@@ -31,18 +31,20 @@ export default function EditGun({setEditGunOpen, gun, setCurrentGun, lang}: Prop
     const [snackbarText, setSnackbarText] = useState<string>("")
     const [saveState, setSaveState] = useState<boolean | null>(null)
 
+    const { language } = usePreferenceStore()
+
   const onToggleSnackBar = () => setVisible(!visible);
 
   const onDismissSnackBar = () => setVisible(false);
 
   function invokeAlert(){
-    Alert.alert(unsavedChangesAlert.title[lang], unsavedChangesAlert.subtitle[lang], [
+    Alert.alert(unsavedChangesAlert.title[language], unsavedChangesAlert.subtitle[language], [
         {
-            text: unsavedChangesAlert.yes[lang],
+            text: unsavedChangesAlert.yes[language],
             onPress: () => setEditGunOpen(false)
         },
         {
-            text: unsavedChangesAlert.no[lang],
+            text: unsavedChangesAlert.no[language],
             style: "cancel"
         }
     ])
@@ -50,13 +52,13 @@ export default function EditGun({setEditGunOpen, gun, setCurrentGun, lang}: Prop
 
 
   function deleteImagePrompt(index:number){
-    Alert.alert(imageDeleteAlert.title[lang], ``, [
+    Alert.alert(imageDeleteAlert.title[language], ``, [
         {
-            text: imageDeleteAlert.yes[lang],
+            text: imageDeleteAlert.yes[language],
             onPress: () => deleteImage(index)
         },
         {
-            text: imageDeleteAlert.no[lang],
+            text: imageDeleteAlert.no[language],
             style: "cancel"
         }
     ])
@@ -68,7 +70,7 @@ export default function EditGun({setEditGunOpen, gun, setCurrentGun, lang}: Prop
         console.log(`Saved item ${JSON.stringify(value)} with key ${GUN_DATABASE}_${value.id}`)
         setCurrentGun({...value, images:selectedImage})
         setSaveState(true)
-        setSnackbarText(`${value.manufacturer ? value.manufacturer : ""} ${value.model} ${toastMessages.changed[lang]}`)
+        setSnackbarText(`${value.manufacturer ? value.manufacturer : ""} ${value.model} ${toastMessages.changed[language]}`)
         onToggleSnackBar()
       }
 
@@ -143,7 +145,7 @@ export default function EditGun({setEditGunOpen, gun, setCurrentGun, lang}: Prop
             
             <Appbar style={{width: "100%"}}>
                 <Appbar.BackAction  onPress={() => {saveState == true ? setEditGunOpen(false) : saveState === false ? invokeAlert() : setEditGunOpen(false)}} />
-                <Appbar.Content title={editGunTitle[lang]} />
+                <Appbar.Content title={editGunTitle[language]} />
                 <Appbar.Action icon="floppy" onPress={() => save({...gunData, lastModifiedAt: new Date()})} color={saveState  == true ? "green" : saveState == false ? "red" : "black"}/>
             </Appbar>
         
@@ -215,12 +217,12 @@ export default function EditGun({setEditGunOpen, gun, setCurrentGun, lang}: Prop
                                         gap: 5,
                                         
                                 }}>
-                                    <NewText data={data.name} gunData={gunData} setGunData={setGunData} lang={lang} label={data[lang]}/>
+                                    <NewText data={data.name} gunData={gunData} setGunData={setGunData} label={data[language]}/>
                                 </View>
                             )
                         })}
-                         <NewCheckboxArea data={"status"} gunData={gunData} setGunData={setGunData} lang={lang}/>
-                        <NewTextArea data={gunRemarks[lang]} gunData={gunData} setGunData={setGunData}/>
+                         <NewCheckboxArea data={"status"} gunData={gunData} setGunData={setGunData}/>
+                        <NewTextArea data={gunRemarks[language]} gunData={gunData} setGunData={setGunData}/>
                        
                     </View>
                 </ScrollView>

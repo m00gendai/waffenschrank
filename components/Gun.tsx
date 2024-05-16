@@ -9,7 +9,7 @@ import ImageViewer from "./ImageViewer"
 import { GUN_DATABASE, KEY_DATABASE } from '../configs';
 import { GunType } from '../interfaces';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { usePreferenceStore } from '../store';
+import { usePreferenceStore } from '../usePreferenceStore';
 
 interface Props{
     setSeeGunOpen: React.Dispatch<React.SetStateAction<boolean>>
@@ -24,7 +24,7 @@ export default function Gun({setSeeGunOpen, gun}:Props){
     const [lightBox, setLightBox] = useState<boolean>(false);
     const [lightBoxIndex, setLightBoxIndex] = useState<number>(0)
 
-    const lang = usePreferenceStore((state)=>state.language)
+    const { language } = usePreferenceStore()
 
     const showModal = (index) => {
         setLightBox(true)
@@ -127,7 +127,7 @@ export default function Gun({setSeeGunOpen, gun}:Props){
                         {gunDataTemplate.map((item, index)=>{
                             return(
                                 <View key={`${item.name}`} style={{flex: 1, flexDirection: "column"}} >
-                                    <Text style={{width: "100%", fontSize: 12,}}>{`${item[lang]}:`}</Text>
+                                    <Text style={{width: "100%", fontSize: 12,}}>{`${item[language]}:`}</Text>
                                     <Text style={{width: "100%", fontSize: 18, marginBottom: 5, paddingBottom: 5, borderBottomColor: "black", borderBottomWidth: 0.2}}>{item.name === "paidPrice" ? `CHF ${currentGun[item.name]}` : currentGun[item.name]}</Text>
                                 </View>
                             )
@@ -135,18 +135,18 @@ export default function Gun({setSeeGunOpen, gun}:Props){
                         <View style={{flex: 1, flexDirection: "column"}} >
                         {checkBoxes.map(checkBox=>{
                             return(
-                                <Checkbox.Item key={checkBox.name} label={checkBox[lang]} status={gun.status && gun.status[checkBox.name] ? "checked" : "unchecked"}/>
+                                <Checkbox.Item key={checkBox.name} label={checkBox[language]} status={gun.status && gun.status[checkBox.name] ? "checked" : "unchecked"}/>
                             )
                         })}
                         </View>
                         <View style={{flex: 1, flexDirection: "column"}} >
-                            <Text style={{width: "100%", fontSize: 12,}}>{gunRemarks[lang]}</Text>
+                            <Text style={{width: "100%", fontSize: 12,}}>{gunRemarks[language]}</Text>
                             <Text style={{width: "100%", fontSize: 18, marginBottom: 5, paddingBottom: 5, borderBottomColor: "black", borderBottomWidth: 0.2}}>{currentGun.remarks}</Text>
                         </View>
                     </View>
                     
                     <Modal visible={editGunOpen}>
-                        <EditGun setEditGunOpen={setEditGunOpen} gun={currentGun} setCurrentGun={setCurrentGun} lang={lang} />
+                        <EditGun setEditGunOpen={setEditGunOpen} gun={currentGun} setCurrentGun={setCurrentGun}/>
                     </Modal>
                     
                     <Modal visible={lightBox} transparent>

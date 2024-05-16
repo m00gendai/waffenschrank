@@ -7,16 +7,16 @@ import dayjs from 'dayjs';
 import ColorPicker, { Panel1, Swatches, Preview, OpacitySlider, HueSlider } from 'reanimated-color-picker';
 import { calibers } from '../lib/caliberData';
 import { gunDataTemplate } from '../lib/gunDataTemplate';
+import { usePreferenceStore } from '../usePreferenceStore';
 
 interface Props{
     data: string
     gunData: GunType
     setGunData: React.Dispatch<React.SetStateAction<GunType>>
-    lang: string
     label: string
 }
 
-export default function NewText({data, gunData, setGunData, lang, label}: Props){
+export default function NewText({data, gunData, setGunData, label}: Props){
 
     const [input, setInput] = useState<string>(gunData ? gunData[data] : "")
     const [showDateTime, setShowDateTime] = useState<boolean>(false)
@@ -26,6 +26,8 @@ export default function NewText({data, gunData, setGunData, lang, label}: Props)
     const [showModalCaliber, setShowModalCaliber] = useState<boolean>(false)
     const [color, setColor] = useState<string>(gunData ? gunData[data] : "#000")
     const [activeCaliber, setActiveCaliber] = useState<string>(gunData ? gunData[data] : "")
+
+    const { language } = usePreferenceStore()
 
     function updateGunData(input:string){
         setInput(input)

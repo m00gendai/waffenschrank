@@ -15,7 +15,7 @@ import { gunDataValidation } from '../utils';
 import NewTextArea from './NewTextArea';
 import NewCheckboxArea from './NewCheckboxArea';
 import { newGunTitle, toastMessages, unsavedChangesAlert, validationFailedAlert } from '../textTemplates';
-import { usePreferenceStore } from '../store';
+import { usePreferenceStore } from '../usePreferenceStore';
 
 interface Props{
     setNewGunOpen: React.Dispatch<React.SetStateAction<boolean>>
@@ -31,7 +31,7 @@ export default function NewGun({setNewGunOpen}){
     const [snackbarText, setSnackbarText] = useState<string>("")
     const [saveState, setSaveState] = useState<boolean>(false)
 
-    const lang = usePreferenceStore((state) => state.language)
+    const { language } = usePreferenceStore()
 
 
     useEffect(()=>{
@@ -39,13 +39,13 @@ export default function NewGun({setNewGunOpen}){
     },[gunData])
 
     function invokeAlert(){
-        Alert.alert(unsavedChangesAlert.title[lang], unsavedChangesAlert.subtitle[lang], [
+        Alert.alert(unsavedChangesAlert.title[language], unsavedChangesAlert.subtitle[language], [
             {
-                text: unsavedChangesAlert.yes[lang],
+                text: unsavedChangesAlert.yes[language],
                 onPress: () => setNewGunOpen(false)
             },
             {
-                text: unsavedChangesAlert.no[lang],
+                text: unsavedChangesAlert.no[language],
                 style: "cancel"
             }
         ])
@@ -56,11 +56,11 @@ export default function NewGun({setNewGunOpen}){
   const onDismissSnackBar = () => setVisible(false);
 
     async function save(value:GunType) {
-        const validationResult:{field: string, error: string}[] = gunDataValidation(value, lang)
+        const validationResult:{field: string, error: string}[] = gunDataValidation(value, language)
         if(validationResult.length != 0){
-            Alert.alert(validationFailedAlert.title[lang], `${validationResult.map(result => `${result.field}: ${result.error}`)}`, [
+            Alert.alert(validationFailedAlert.title[language], `${validationResult.map(result => `${result.field}: ${result.error}`)}`, [
                 {
-                    text: validationFailedAlert.no[lang],
+                    text: validationFailedAlert.no[language],
                     style: "cancel"
                 }
             ])
@@ -83,7 +83,7 @@ export default function NewGun({setNewGunOpen}){
         SecureStore.setItem(`${GUN_DATABASE}_${value.id}`, JSON.stringify(value)) // Save the gun
         console.log(`Saved item ${JSON.stringify(value)} with key ${GUN_DATABASE}_${value.id}`)
         setSaveState(true)
-        setSnackbarText(`${value.manufacturer ? value.manufacturer : ""} ${value.model} ${toastMessages.saved[lang]}`)
+        setSnackbarText(`${value.manufacturer ? value.manufacturer : ""} ${value.model} ${toastMessages.saved[language]}`)
         onToggleSnackBar()
     }
     
@@ -149,7 +149,7 @@ export default function NewGun({setNewGunOpen}){
             
             <Appbar style={{width: "100%"}}>
                 <Appbar.BackAction  onPress={() => {saveState ? setNewGunOpen(false) : invokeAlert()}} />
-                <Appbar.Content title={newGunTitle[lang]} />
+                <Appbar.Content title={newGunTitle[language]} />
                 <Appbar.Action icon="floppy" onPress={() => save({...gunData, id: uuidv4(), images:selectedImage, createdAt: new Date(), lastModifiedAt: new Date()})} color={saveState ? "green" : "red"} />
             </Appbar>
 
@@ -195,12 +195,12 @@ export default function NewGun({setNewGunOpen}){
                                         
                                 }}>
                                     
-                                    <NewText data={data.name} gunData={gunData} setGunData={setGunData} lang={lang} label={data[lang]}/>
+                                    <NewText data={data.name} gunData={gunData} setGunData={setGunData} label={data[language]}/>
                                 </View>
                             )
                         })}
-                        <NewCheckboxArea data={"status"} gunData={gunData} setGunData={setGunData} lang={lang}/>
-                        <NewTextArea data={gunRemarks[lang]} gunData={gunData} setGunData={setGunData}/>
+                        <NewCheckboxArea data={"status"} gunData={gunData} setGunData={setGunData} />
+                        <NewTextArea data={gunRemarks[language]} gunData={gunData} setGunData={setGunData}/>
                     </View>
                 </ScrollView>
             </View>

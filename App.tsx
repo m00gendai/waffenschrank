@@ -17,7 +17,7 @@ import { databaseImportAlert, preferenceTitles, toastMessages } from './textTemp
 import { colorThemes } from './colorThemes';
 import * as FileSystem from 'expo-file-system';
 import * as DocumentPicker from 'expo-document-picker';
-import { usePreferenceStore } from './store';
+import { usePreferenceStore } from './usePreferenceStore';
 
 async function getKeys(){
   const keys:string = await AsyncStorage.getItem(KEY_DATABASE)
@@ -39,12 +39,12 @@ export default function App() {
   const [sortType, setSortType] = useState<string>("alphabetical")
   const [menuOpen, setMenuOpen] = useState<boolean>(false)
   const [displayGrid, setDisplayGrid] = useState<boolean>(true)
-  const [theme, setTheme] = useState<{name: string, colors:Color}>({ name: "default", colors: colorThemes.default })
   const [toastVisible, setToastVisible] = useState<boolean>(false)
   const [snackbarText, setSnackbarText] = useState<string>("")
   const [dbImport, setdbImport] = useState<Date | null>(null)
 
-  const language: string = usePreferenceStore((state) => state.language)
+  const { language, switchLanguage, theme, switchTheme } = usePreferenceStore();
+
   const onToggleSnackBar = () => setToastVisible(!toastVisible);
 
   const onDismissSnackBar = () => setToastVisible(false);
@@ -93,12 +93,12 @@ useEffect(()=>{
   async function getPreferences(){
     const preferences:string = await AsyncStorage.getItem(PREFERENCES)
     const isPreferences = preferences === null ? null : JSON.parse(preferences)
-    usePreferenceStore((state) => state.switchLanguage(isPreferences === null ? "de" : isPreferences.language === null ? "de" : isPreferences.language))
     setDisplayGrid(isPreferences === null ? true : isPreferences.display === null ? true : isPreferences.display)
     setSortType(isPreferences == null ? "alphabetical" : isPreferences.sortBy === null ? "alphabetical" : isPreferences.sortBy)
     setSortIcon(getIcon(isPreferences === null ? "alphabetical" : isPreferences.sortBy === null ? "alphabetical" : isPreferences.sortBy))
     setSortAscending(isPreferences === null ? true : isPreferences.sortOrder === null ? true : isPreferences.sortOrder)
-    setTheme(isPreferences === null ? { "name": "default", "colors": colorThemes.default } : isPreferences.theme === null ? { "name": "default", "colors": colorThemes.default } : { "name": "default", "colors": colorThemes.default } )
+    switchLanguage(isPreferences === null ? "de" : isPreferences.language === null ? "de" : isPreferences.language)
+    switchTheme(isPreferences === null ? "de" : isPreferences.theme === null ? "de" : isPreferences.theme)
   }
   getPreferences()
 },[])
@@ -124,7 +124,7 @@ useEffect(()=>{
   }
 
 async function handleLanguageSwitch(lng:string){
-  usePreferenceStore((state) => state.switchLanguage(lng))
+  switchLanguage(lng)
   const preferences:string = await AsyncStorage.getItem(PREFERENCES)
   const newPreferences:{[key:string] : string} = preferences == null ? {"language": lng} : {...JSON.parse(preferences), "language":lng} 
   await AsyncStorage.setItem(PREFERENCES, JSON.stringify(newPreferences))
@@ -138,7 +138,7 @@ async function handleDisplaySwitch(){
 }
 
 async function handleThemeSwitch(color:string){
-  setTheme({name: color, colors: colorThemes[color]})
+  switchTheme(color)
   const preferences:string = await AsyncStorage.getItem(PREFERENCES)
   const newPreferences:{[key:string] : string} = preferences == null ? {"theme": color} : {...JSON.parse(preferences), "theme":color} 
   await AsyncStorage.setItem(PREFERENCES, JSON.stringify(newPreferences))

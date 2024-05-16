@@ -3,15 +3,17 @@ import { Checkbox } from 'react-native-paper';
 import { GunType } from "../interfaces"
 import { useState } from "react";
 import { checkBoxes } from "../lib/gunDataTemplate";
+import { usePreferenceStore } from "../usePreferenceStore";
 
 interface Props{
     data: string
     gunData: GunType
     setGunData: React.Dispatch<React.SetStateAction<GunType>>
-    lang: string
 }
 
-export default function NewCheckboxArea({data, gunData, setGunData, lang}: Props){
+export default function NewCheckboxArea({data, gunData, setGunData}: Props){
+
+    const { language } = usePreferenceStore()
 
     const convertArrayToObject = (array:{ name: string; de: string; en: string; fr: string; }[]) => {
         const initialValue = {};
@@ -42,7 +44,7 @@ export default function NewCheckboxArea({data, gunData, setGunData, lang}: Props
         <View>
             {checkBoxes.map(checkBox=>{
                 return(
-                    <Checkbox.Item key={checkBox.name} label={checkBox[lang]} status={checked[checkBox.name] ? "checked" : "unchecked"} onPress={()=>{handleCheckBoxCheck(checkBox.name)}}/>
+                    <Checkbox.Item key={checkBox.name} label={checkBox[language]} status={checked[checkBox.name] ? "checked" : "unchecked"} onPress={()=>{handleCheckBoxCheck(checkBox.name)}}/>
                 )
             })}
             
