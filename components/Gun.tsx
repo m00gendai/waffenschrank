@@ -9,20 +9,22 @@ import ImageViewer from "./ImageViewer"
 import { GUN_DATABASE, KEY_DATABASE } from '../configs';
 import { GunType } from '../interfaces';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { usePreferenceStore } from '../store';
 
 interface Props{
     setSeeGunOpen: React.Dispatch<React.SetStateAction<boolean>>
     gun: GunType
-    lang: string
 }
 
 
-export default function Gun({setSeeGunOpen, gun, lang}:Props){
+export default function Gun({setSeeGunOpen, gun}:Props){
 
     const [editGunOpen, setEditGunOpen] = useState<boolean>(false)
     const [currentGun, setCurrentGun] = useState<GunType>(gun)
     const [lightBox, setLightBox] = useState<boolean>(false);
     const [lightBoxIndex, setLightBoxIndex] = useState<number>(0)
+
+    const lang = usePreferenceStore((state)=>state.language)
 
     const showModal = (index) => {
         setLightBox(true)
@@ -111,7 +113,7 @@ export default function Gun({setSeeGunOpen, gun, lang}:Props){
                                 }      
                                 if(!currentGun.images || currentGun.images.length === 0){
                                     return(
-                                        <TouchableNativeFeedback key={`slides_${index}`} onPress={()=>showModal(index)}>
+                                        <TouchableNativeFeedback key={`slides_${index}`}>
                                             <View style={styles.imageContainer} >
                                             <ImageViewer isLightBox={false} selectedImage={null} /> 
                                             </View>

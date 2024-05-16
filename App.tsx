@@ -17,6 +17,7 @@ import { databaseImportAlert, preferenceTitles, toastMessages } from './textTemp
 import { colorThemes } from './colorThemes';
 import * as FileSystem from 'expo-file-system';
 import * as DocumentPicker from 'expo-document-picker';
+import { usePreferenceStore } from './store';
 
 async function getKeys(){
   const keys:string = await AsyncStorage.getItem(KEY_DATABASE)
@@ -38,13 +39,12 @@ export default function App() {
   const [sortType, setSortType] = useState<string>("alphabetical")
   const [menuOpen, setMenuOpen] = useState<boolean>(false)
   const [displayGrid, setDisplayGrid] = useState<boolean>(true)
-  const [language, setLanguage] = useState<string>("de")
   const [theme, setTheme] = useState<{name: string, colors:Color}>({ name: "default", colors: colorThemes.default })
   const [toastVisible, setToastVisible] = useState<boolean>(false)
   const [snackbarText, setSnackbarText] = useState<string>("")
   const [dbImport, setdbImport] = useState<Date | null>(null)
 
-  
+  const language: string = usePreferenceStore((state) => state.language)
   const onToggleSnackBar = () => setToastVisible(!toastVisible);
 
   const onDismissSnackBar = () => setToastVisible(false);
@@ -53,6 +53,7 @@ export default function App() {
   const currentYear:number = date.getFullYear()
 
   function invokeAlert(){
+    
     Alert.alert(databaseImportAlert.title[language], databaseImportAlert.subtitle[language], [
         {
             text: databaseImportAlert.yes[language],
@@ -92,7 +93,7 @@ useEffect(()=>{
   async function getPreferences(){
     const preferences:string = await AsyncStorage.getItem(PREFERENCES)
     const isPreferences = preferences === null ? null : JSON.parse(preferences)
-    setLanguage(isPreferences === null ? "de" : isPreferences.language === null ? "de" : isPreferences.language)
+    usePreferenceStore((state) => state.switchLanguage(isPreferences === null ? "de" : isPreferences.language === null ? "de" : isPreferences.language))
     setDisplayGrid(isPreferences === null ? true : isPreferences.display === null ? true : isPreferences.display)
     setSortType(isPreferences == null ? "alphabetical" : isPreferences.sortBy === null ? "alphabetical" : isPreferences.sortBy)
     setSortIcon(getIcon(isPreferences === null ? "alphabetical" : isPreferences.sortBy === null ? "alphabetical" : isPreferences.sortBy))
@@ -123,7 +124,7 @@ useEffect(()=>{
   }
 
 async function handleLanguageSwitch(lng:string){
-  setLanguage(lng)
+  usePreferenceStore((state) => state.switchLanguage(lng))
   const preferences:string = await AsyncStorage.getItem(PREFERENCES)
   const newPreferences:{[key:string] : string} = preferences == null ? {"language": lng} : {...JSON.parse(preferences), "language":lng} 
   await AsyncStorage.setItem(PREFERENCES, JSON.stringify(newPreferences))
@@ -157,6 +158,7 @@ async function handleSaveDb(){
   /*
     for iOS, use expo-share, Sharing.shareAsync(fileUri, fileNamea)
   */
+  const language = usePreferenceStore((state) => state.language)
   setSnackbarText(toastMessages.dbSaveSuccess[language])
   onToggleSnackBar()
   
@@ -180,6 +182,7 @@ async function handleImportDb(){
 
   await AsyncStorage.setItem(KEY_DATABASE, JSON.stringify(newKeys)) // Save the key object
   setdbImport(new Date())  
+  const language:string = usePreferenceStore((state)=> state.language)
   setSnackbarText(`${JSON.parse(content).length} ${toastMessages.dbImportSuccess[language]}`)
   onToggleSnackBar()
 }
@@ -259,7 +262,7 @@ async function handleImportDb(){
       {newGunOpen ? 
       <Animated.View entering={SlideInDown} exiting={SlideOutDown} style={{position: "absolute", left: 0, width: "100%", height: "100%"}}>
         <SafeAreaView>
-          <NewGun setNewGunOpen={setNewGunOpen} lang={language}/>
+          <NewGun setNewGunOpen={setNewGunOpen} />
         </SafeAreaView>
       </Animated.View> 
       : 
@@ -268,7 +271,7 @@ async function handleImportDb(){
       {seeGunOpen ? 
       <Animated.View entering={FadeIn} exiting={FadeOut} style={{position: "absolute", left: 0, width: "100%", height: "100%"}}>
         <SafeAreaView>
-          <Gun setSeeGunOpen={setSeeGunOpen} gun={currentGun} lang={language} />
+          <Gun setSeeGunOpen={setSeeGunOpen} gun={currentGun} />
         </SafeAreaView>
       </Animated.View>
       :

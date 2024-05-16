@@ -15,14 +15,14 @@ import { gunDataValidation } from '../utils';
 import NewTextArea from './NewTextArea';
 import NewCheckboxArea from './NewCheckboxArea';
 import { newGunTitle, toastMessages, unsavedChangesAlert, validationFailedAlert } from '../textTemplates';
+import { usePreferenceStore } from '../store';
 
 interface Props{
     setNewGunOpen: React.Dispatch<React.SetStateAction<boolean>>
-    lang: string
 }
 
 
-export default function NewGun({setNewGunOpen, lang}){
+export default function NewGun({setNewGunOpen}){
 
     const [selectedImage, setSelectedImage] = useState<string[]>(null)
     const [granted, setGranted] = useState<boolean>(false)
@@ -30,6 +30,8 @@ export default function NewGun({setNewGunOpen, lang}){
     const [visible, setVisible] = useState<boolean>(false);
     const [snackbarText, setSnackbarText] = useState<string>("")
     const [saveState, setSaveState] = useState<boolean>(false)
+
+    const lang = usePreferenceStore((state) => state.language)
 
 
     useEffect(()=>{
