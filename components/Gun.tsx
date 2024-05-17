@@ -1,4 +1,3 @@
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { StyleSheet, Text, View, Modal, ScrollView, Alert, TouchableNativeFeedback, TouchableOpacity } from 'react-native';
 import { Button, Appbar, Icon, Checkbox } from 'react-native-paper';
 import { checkBoxes, gunDataTemplate, gunRemarks } from "../lib/gunDataTemplate"
@@ -7,31 +6,25 @@ import { useState} from "react"
 import EditGun from "./EditGun"
 import ImageViewer from "./ImageViewer"
 import { GUN_DATABASE, KEY_DATABASE } from '../configs';
-import { GunType } from '../interfaces';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { usePreferenceStore } from '../usePreferenceStore';
-
-interface Props{
-    setSeeGunOpen: React.Dispatch<React.SetStateAction<boolean>>
-    gun: GunType
-}
+import { usePreferenceStore } from '../stores/usePreferenceStore';
+import { useViewStore } from '../stores/useViewStore';
+import { useGunStore } from '../stores/useGunStore';
+import { gunDeleteAlert } from '../lib/textTemplates';
 
 
-export default function Gun({setSeeGunOpen, gun}:Props){
+export default function Gun(){
 
-    const [editGunOpen, setEditGunOpen] = useState<boolean>(false)
-    const [currentGun, setCurrentGun] = useState<GunType>(gun)
-    const [lightBox, setLightBox] = useState<boolean>(false);
     const [lightBoxIndex, setLightBoxIndex] = useState<number>(0)
 
+    const { setSeeGunOpen, editGunOpen, setEditGunOpen, lightBoxOpen, setLightBoxOpen } = useViewStore()
     const { language } = usePreferenceStore()
+    const { currentGun, setCurrentGun } = useGunStore()
 
-    const showModal = (index) => {
-        setLightBox(true)
+    const showModal = (index:number) => {
+        setLightBoxOpen()
         setLightBoxIndex(index)
     }
-
-    const hideModal = () => setLightBox(false);
 
     const styles = StyleSheet.create({
         container: {
@@ -71,17 +64,17 @@ export default function Gun({setSeeGunOpen, gun}:Props){
         const keyArray: string[] = JSON.parse(keys)
         const newKeys: string[] = keyArray.filter(key => key != gun.id)
         AsyncStorage.setItem(KEY_DATABASE, JSON.stringify(newKeys))
-        setSeeGunOpen(false)
+        setSeeGunOpen()
     }
     
     function invokeAlert(gun){
-        Alert.alert(`${gun.model} löschen?`, "Die Waffe wird unwiderruflich gelöscht", [
+        Alert.alert(`${gun.model} ${gunDeleteAlert.title[language]}`, gunDeleteAlert.subtitle[language], [
             {
-                text: "Ja",
+                text: gunDeleteAlert.yes[language],
                 onPress: () => deleteItem(gun)
             },
             {
-                text: "Nein",
+                text: gunDeleteAlert.no[language],
                 style: "cancel"
             }
         ])
@@ -91,9 +84,9 @@ export default function Gun({setSeeGunOpen, gun}:Props){
         <View style={{width: "100%", height: "100%", backgroundColor: "white"}}>
             
             <Appbar style={{width: "100%"}}>
-                <Appbar.BackAction  onPress={() => setSeeGunOpen(false)} />
+                <Appbar.BackAction  onPress={() => setSeeGunOpen()} />
                 <Appbar.Content title={`${currentGun.manufacturer} ${currentGun.model}`} />
-                <Appbar.Action icon="pencil" onPress={() => setEditGunOpen(true)} />
+                <Appbar.Action icon="pencil" onPress={setEditGunOpen} />
             </Appbar>
         
             <View style={styles.container}>   
@@ -135,7 +128,7 @@ export default function Gun({setSeeGunOpen, gun}:Props){
                         <View style={{flex: 1, flexDirection: "column"}} >
                         {checkBoxes.map(checkBox=>{
                             return(
-                                <Checkbox.Item key={checkBox.name} label={checkBox[language]} status={gun.status && gun.status[checkBox.name] ? "checked" : "unchecked"}/>
+                                <Checkbox.Item key={checkBox.name} label={checkBox[language]} status={currentGun.status && currentGun.status[checkBox.name] ? "checked" : "unchecked"}/>
                             )
                         })}
                         </View>
@@ -146,19 +139,19 @@ export default function Gun({setSeeGunOpen, gun}:Props){
                     </View>
                     
                     <Modal visible={editGunOpen}>
-                        <EditGun setEditGunOpen={setEditGunOpen} gun={currentGun} setCurrentGun={setCurrentGun}/>
+                        <EditGun />
                     </Modal>
                     
-                    <Modal visible={lightBox} transparent>
+                    <Modal visible={lightBoxOpen} transparent>
                         <View style={{width: "100%", height: "100%", padding: 0, flex: 1, flexDirection: "column", flexWrap: "wrap"}}>
                             <View style={{width: "100%", flexDirection: "row", justifyContent:"flex-end", alignItems: "center", alignContent: "center", backgroundColor: "black", flex: 2}}>
                                 <View style={{backgroundColor: "black", padding: 0}}>
-                                    <TouchableOpacity onPress={hideModal} style={{padding: 10}}>
+                                    <TouchableOpacity onPress={setLightBoxOpen} style={{padding: 10}}>
                                         <Icon source="close-circle-outline" size={25} color='white'/>
                                     </TouchableOpacity>
                                 </View>
                             </View>
-                          {lightBox ? <ImageViewer isLightBox={true} selectedImage={currentGun.images[lightBoxIndex]}/> : null}
+                          {lightBoxOpen ? <ImageViewer isLightBox={true} selectedImage={currentGun.images[lightBoxIndex]}/> : null}
                         </View>
                     </Modal>                    
                     

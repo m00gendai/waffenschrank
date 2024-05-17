@@ -1,11 +1,6 @@
 import { Image, StyleSheet, View } from 'react-native';
-import { useState } from "react"
 import { GestureDetector, Gesture, GestureHandlerRootView, PinchGesture, PanGesture, SimultaneousGesture } from 'react-native-gesture-handler';
-import Animated, {
-    useSharedValue,
-    useAnimatedStyle,
-  } from 'react-native-reanimated';
-import { Icon } from 'react-native-paper';
+import Animated, { useSharedValue, useAnimatedStyle } from 'react-native-reanimated';
 
 export default function ImageViewer({selectedImage, isLightBox}){
 

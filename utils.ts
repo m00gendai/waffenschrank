@@ -1,6 +1,6 @@
 import { GunType } from "./interfaces";
 import { gunDataTemplate } from "./lib/gunDataTemplate";
-import { validationErros } from "./textTemplates";
+import { validationErros } from "./lib//textTemplates";
 
 export function sortBy(value: string, ascending: boolean, guns: GunType[]){
     if(value === "alphabetical"){

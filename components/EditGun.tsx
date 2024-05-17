@@ -12,26 +12,25 @@ import { GUN_DATABASE } from '../configs';
 import { GunType } from '../interfaces';
 import NewTextArea from './NewTextArea';
 import NewCheckboxArea from './NewCheckboxArea';
-import { editGunTitle, imageDeleteAlert, toastMessages, unsavedChangesAlert } from '../textTemplates';
-import { usePreferenceStore } from '../usePreferenceStore';
-
-interface Props{
-    setEditGunOpen: React.Dispatch<React.SetStateAction<boolean>>
-    gun: GunType
-    setCurrentGun: React.Dispatch<React.SetStateAction<GunType>>
-}
+import { editGunTitle, imageDeleteAlert, toastMessages, unsavedChangesAlert } from '../lib/textTemplates';
+import { usePreferenceStore } from '../stores/usePreferenceStore';
+import { useViewStore } from '../stores/useViewStore';
+import { useGunStore } from '../stores/useGunStore';
 
 
-export default function EditGun({setEditGunOpen, gun, setCurrentGun}: Props){
+export default function EditGun(){
 
-    const [selectedImage, setSelectedImage] = useState<string[]>(gun.images && gun.images.length != 0 ? gun.images : [])
+    const { currentGun, setCurrentGun } = useGunStore()
+
+    const [selectedImage, setSelectedImage] = useState<string[]>(currentGun.images && currentGun.images.length != 0 ? currentGun.images : [])
     const [granted, setGranted] = useState<boolean>(false)
-    const [gunData, setGunData] = useState<GunType>(gun)
+    const [gunData, setGunData] = useState<GunType>(currentGun)
     const [visible, setVisible] = useState<boolean>(false);
     const [snackbarText, setSnackbarText] = useState<string>("")
     const [saveState, setSaveState] = useState<boolean | null>(null)
 
     const { language } = usePreferenceStore()
+    const { setEditGunOpen } = useViewStore()
 
   const onToggleSnackBar = () => setVisible(!visible);
 
@@ -41,7 +40,7 @@ export default function EditGun({setEditGunOpen, gun, setCurrentGun}: Props){
     Alert.alert(unsavedChangesAlert.title[language], unsavedChangesAlert.subtitle[language], [
         {
             text: unsavedChangesAlert.yes[language],
-            onPress: () => setEditGunOpen(false)
+            onPress: setEditGunOpen
         },
         {
             text: unsavedChangesAlert.no[language],
@@ -134,7 +133,11 @@ export default function EditGun({setEditGunOpen, gun, setCurrentGun}: Props){
                 setGunData({...gunData, images:newImage})
             } else {
                 setSelectedImage([result.assets[0].uri])
-                setGunData({...gunData, images:[...gunData.images, result.assets[0].uri]})
+                if(gunData.images.length !== 0){
+                    setGunData({...gunData, images:[...gunData.images, result.assets[0].uri]})
+                } else {
+                    setGunData({...gunData, images: [result.assets[0].uri]})
+                }
             }
             setSaveState(false)
         }
@@ -144,7 +147,7 @@ export default function EditGun({setEditGunOpen, gun, setCurrentGun}: Props){
         <View style={{width: "100%", height: "100%"}}>
             
             <Appbar style={{width: "100%"}}>
-                <Appbar.BackAction  onPress={() => {saveState == true ? setEditGunOpen(false) : saveState === false ? invokeAlert() : setEditGunOpen(false)}} />
+                <Appbar.BackAction  onPress={() => {saveState == true ? setEditGunOpen() : saveState === false ? invokeAlert() : setEditGunOpen()}} />
                 <Appbar.Content title={editGunTitle[language]} />
                 <Appbar.Action icon="floppy" onPress={() => save({...gunData, lastModifiedAt: new Date()})} color={saveState  == true ? "green" : saveState == false ? "red" : "black"}/>
             </Appbar>

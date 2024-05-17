@@ -3,7 +3,7 @@ import { Checkbox } from 'react-native-paper';
 import { GunType } from "../interfaces"
 import { useState } from "react";
 import { checkBoxes } from "../lib/gunDataTemplate";
-import { usePreferenceStore } from "../usePreferenceStore";
+import { usePreferenceStore } from "../stores/usePreferenceStore";
 
 interface Props{
     data: string

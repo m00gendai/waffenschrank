@@ -14,15 +14,12 @@ import { GunType } from '../interfaces';
 import { gunDataValidation } from '../utils';
 import NewTextArea from './NewTextArea';
 import NewCheckboxArea from './NewCheckboxArea';
-import { newGunTitle, toastMessages, unsavedChangesAlert, validationFailedAlert } from '../textTemplates';
-import { usePreferenceStore } from '../usePreferenceStore';
-
-interface Props{
-    setNewGunOpen: React.Dispatch<React.SetStateAction<boolean>>
-}
+import { newGunTitle, toastMessages, unsavedChangesAlert, validationFailedAlert } from '../lib/textTemplates';
+import { usePreferenceStore } from '../stores/usePreferenceStore';
+import { useViewStore } from '../stores/useViewStore';
 
 
-export default function NewGun({setNewGunOpen}){
+export default function NewGun(){
 
     const [selectedImage, setSelectedImage] = useState<string[]>(null)
     const [granted, setGranted] = useState<boolean>(false)
@@ -32,7 +29,7 @@ export default function NewGun({setNewGunOpen}){
     const [saveState, setSaveState] = useState<boolean>(false)
 
     const { language } = usePreferenceStore()
-
+    const { setNewGunOpen } = useViewStore()
 
     useEffect(()=>{
         setSaveState(false)
@@ -42,7 +39,7 @@ export default function NewGun({setNewGunOpen}){
         Alert.alert(unsavedChangesAlert.title[language], unsavedChangesAlert.subtitle[language], [
             {
                 text: unsavedChangesAlert.yes[language],
-                onPress: () => setNewGunOpen(false)
+                onPress: setNewGunOpen
             },
             {
                 text: unsavedChangesAlert.no[language],
@@ -76,10 +73,8 @@ export default function NewGun({setNewGunOpen}){
             
 
         const allKeys:string = await AsyncStorage.getItem(KEY_DATABASE) // gets the object that holds all key values
-        console.log(allKeys)
         const newKeys:string[] = allKeys == null ? [value.id] : [...JSON.parse(allKeys), value.id] // if its the first gun to be saved, create an array with the id of the gun. Otherwise, merge the key into the existing array
         await AsyncStorage.setItem(KEY_DATABASE, JSON.stringify(newKeys)) // Save the key object
-
         SecureStore.setItem(`${GUN_DATABASE}_${value.id}`, JSON.stringify(value)) // Save the gun
         console.log(`Saved item ${JSON.stringify(value)} with key ${GUN_DATABASE}_${value.id}`)
         setSaveState(true)
@@ -148,7 +143,7 @@ export default function NewGun({setNewGunOpen}){
         <View style={{width: "100%", height: "100%", backgroundColor: "white"}}>
             
             <Appbar style={{width: "100%"}}>
-                <Appbar.BackAction  onPress={() => {saveState ? setNewGunOpen(false) : invokeAlert()}} />
+                <Appbar.BackAction  onPress={() => {saveState ? setNewGunOpen() : invokeAlert()}} />
                 <Appbar.Content title={newGunTitle[language]} />
                 <Appbar.Action icon="floppy" onPress={() => save({...gunData, id: uuidv4(), images:selectedImage, createdAt: new Date(), lastModifiedAt: new Date()})} color={saveState ? "green" : "red"} />
             </Appbar>

@@ -7,7 +7,7 @@ import dayjs from 'dayjs';
 import ColorPicker, { Panel1, Swatches, Preview, OpacitySlider, HueSlider } from 'reanimated-color-picker';
 import { calibers } from '../lib/caliberData';
 import { gunDataTemplate } from '../lib/gunDataTemplate';
-import { usePreferenceStore } from '../usePreferenceStore';
+import { usePreferenceStore } from '../stores//usePreferenceStore';
 
 interface Props{
     data: string
