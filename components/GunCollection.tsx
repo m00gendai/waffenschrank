@@ -6,7 +6,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { GUN_DATABASE, KEY_DATABASE, PREFERENCES, defaultGridGap, defaultViewPadding } from '../configs';
 import { GunType, MenuVisibility } from '../interfaces';
 import * as SecureStore from "expo-secure-store"
-import { getIcon, sortBy } from '../utils';
+import { getIcon, doSortBy } from '../utils';
 import Animated, { FadeIn, FadeOut, SlideInDown, SlideOutDown } from 'react-native-reanimated';
 import NewGun from './NewGun';
 import Gun from './Gun';
@@ -16,13 +16,15 @@ import { usePreferenceStore } from '../stores/usePreferenceStore';
 
 export default function GunCollection(){
 
-  const [displayGrid, setDisplayGrid] = useState<boolean>(true)
+  // TODO: Zustand SortIcon, Zustand SortOrder @ usePreferenceStore
+  // TODO: Zustand menuVisibility @ useViewStore
+  // Todo: Stricter typing ("stringA" | "stringB" instead of just string)
+
   const [menuVisibility, setMenuVisibility] = useState<MenuVisibility>({sortBy: false, filterBy: false});
   const [sortIcon, setSortIcon] = useState<string>("alphabetical-variant")
   const [sortAscending, setSortAscending] = useState<boolean>(true)
-  const [sortType, setSortType] = useState<string>("alphabetical")
 
-  const { dbImport } = usePreferenceStore()
+  const { dbImport, displayAsGrid, setDisplayAsGrid, toggleDisplayAsGrid, sortBy, setSortBy } = usePreferenceStore()
   const { mainMenuOpen, setMainMenuOpen, newGunOpen, setNewGunOpen, editGunOpen, setEditGunOpen, seeGunOpen, setSeeGunOpen } = useViewStore()
   const { gunCollection, setGunCollection, currentGun, setCurrentGun } = useGunStore()
 
@@ -34,7 +36,6 @@ export default function GunCollection(){
         return JSON.parse(keys)
       }
       
-
     useEffect(()=>{
         async function getGuns(){
           const keys:string[] = await getKeys()
@@ -44,21 +45,33 @@ export default function GunCollection(){
           }))
           const preferences:string = await AsyncStorage.getItem(PREFERENCES)
           const isPreferences = preferences === null ? null : JSON.parse(preferences)
-          const sortedGuns = sortBy(isPreferences === null ? "alphabetical" : isPreferences.sortBy === null ? "alphabetical" : isPreferences.sortBy, isPreferences == null? true : isPreferences.sortOrder === null ? true : isPreferences.sortOrder, guns)
+
+          const sortedGuns = doSortBy(isPreferences === null ? "alphabetical" : isPreferences.sortBy === null ? "alphabetical" : isPreferences.sortBy, isPreferences == null? true : isPreferences.sortOrder === null ? true : isPreferences.sortOrder, guns)
           setGunCollection(sortedGuns)
         }
         getGuns()
       },[newGunOpen, seeGunOpen, dbImport])
-      
+
+useEffect(()=>{
+  async function getPreferences(){
+    const preferences:string = await AsyncStorage.getItem(PREFERENCES)
+    const isPreferences = preferences === null ? null : JSON.parse(preferences)
+    setDisplayAsGrid(isPreferences === null ? true : isPreferences.displayAsGrid === null ? true : isPreferences.displayAsGrid)
+    setSortBy(isPreferences === null ? "alphabetical" : isPreferences.sortBy === null ? "alphabetical" : isPreferences.sortBy)
+    setSortIcon(getIcon((isPreferences === null ? "alphabetical" : isPreferences.sortBy === null ? "alphabetical" : isPreferences.sortBy)))
+  }
+  getPreferences()
+},[])
+
         function handleGunCardPress(gun){
           setCurrentGun(gun)
           setSeeGunOpen()
         }
 
-        async function handleSortBy(type: string){
+        async function handleSortBy(type: "alphabetical" | "chronological" | "caliber"){
             setSortIcon(getIcon(type))
-            setSortType(type)
-            const sortedGuns = sortBy(type, sortAscending, gunCollection) 
+            setSortBy(type)
+            const sortedGuns = doSortBy(type, sortAscending, gunCollection) 
             setGunCollection(sortedGuns)
             const preferences:string = await AsyncStorage.getItem(PREFERENCES)
             const newPreferences:{[key:string] : string} = preferences == null ? {"sortBy": type} : {...JSON.parse(preferences), "sortBy":type} 
@@ -71,7 +84,7 @@ export default function GunCollection(){
 
           async function handleSortOrder(){
             setSortAscending(!sortAscending)
-            const sortedGuns = sortBy(sortType, !sortAscending, gunCollection) // called with !sortAscending due to the useState having still the old value
+            const sortedGuns = doSortBy(sortBy, !sortAscending, gunCollection) // called with !sortAscending due to the useState having still the old value
             setGunCollection(sortedGuns)
             const preferences:string = await AsyncStorage.getItem(PREFERENCES)
             const newPreferences:{[key:string] : string} = preferences == null ? {"sortOrder": !sortAscending} : {...JSON.parse(preferences), "sortOrder":!sortAscending} 
@@ -79,9 +92,9 @@ export default function GunCollection(){
           }
         
           async function handleDisplaySwitch(){
-            setDisplayGrid(!displayGrid)
+            toggleDisplayAsGrid()
             const preferences:string = await AsyncStorage.getItem(PREFERENCES)
-            const newPreferences:{[key:string] : string} = preferences == null ? {"display": !displayGrid} : {...JSON.parse(preferences), "display":!displayGrid} 
+            const newPreferences:{[key:string] : string} = preferences == null ? {"displayAsGrid": !displayAsGrid} : {...JSON.parse(preferences), "displayAsGrid": !displayAsGrid} 
             await AsyncStorage.setItem(PREFERENCES, JSON.stringify(newPreferences))
           }
 
@@ -100,7 +113,7 @@ export default function GunCollection(){
             <Appbar.Action icon={"menu"} onPress={setMainMenuOpen} />
           </View>
           <View  style={{display: "flex", flexDirection: "row", justifyContent: "flex-end"}}>
-            <Appbar.Action icon={displayGrid ? "view-grid" : "format-list-bulleted-type"} onPress={handleDisplaySwitch} />
+            <Appbar.Action icon={displayAsGrid ? "view-grid" : "format-list-bulleted-type"} onPress={handleDisplaySwitch} />
             <Menu
               visible={menuVisibility.sortBy}
               onDismiss={()=>handleMenu("sortBy", false)}
@@ -134,11 +147,11 @@ export default function GunCollection(){
                 >
                   <Card 
                     style={{
-                      width: (Dimensions.get("window").width / (displayGrid ? 2 : 1)) - (defaultGridGap + (defaultViewPadding/2)),
+                      width: (Dimensions.get("window").width / (displayAsGrid ? 2 : 1)) - (defaultGridGap + (defaultViewPadding/2)),
                     }}
                   >
                     <Card.Title title={`${gun.manufacturer && gun.manufacturer.length != 0 ? gun.manufacturer : ""} ${gun.model}`} subtitle={gun.serial && gun.serial.length != 0 ? gun.serial : " "} subtitleVariant='bodySmall' titleVariant='titleSmall' titleNumberOfLines={2} />
-                    {displayGrid ? 
+                    {displayAsGrid ? 
                     <Card.Cover 
                       source={gun.images && gun.images.length != 0 ? { uri: gun.images[0] } : require(`../assets//775788_several different realistic rifles and pistols on _xl-1024-v1-0.png`)} 
                       style={{

@@ -2,7 +2,7 @@ import { GunType } from "./interfaces";
 import { gunDataTemplate } from "./lib/gunDataTemplate";
 import { validationErros } from "./lib//textTemplates";
 
-export function sortBy(value: string, ascending: boolean, guns: GunType[]){
+export function doSortBy(value: "alphabetical" | "chronological" | "caliber", ascending: boolean, guns: GunType[]){
     if(value === "alphabetical"){
         const sorted = guns.sort((a, b) =>{
             const x = `${a.manufacturer} ${a.model}`
