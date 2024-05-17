@@ -1,4 +1,4 @@
-export const calibers = [
+export const calibers:{range:string, variants: {name: string}[]}[] = [
     {
         range: "2mm (.79 - .117)",
         variants: [
