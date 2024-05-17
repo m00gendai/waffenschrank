@@ -1,4 +1,4 @@
-import { ColorTheme } from "./interfaces";
+import { ColorTheme } from "../interfaces";
 
 export const colorThemes:ColorTheme = {
     
