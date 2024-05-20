@@ -238,7 +238,7 @@ const activeTags = tags.filter(tag => tag.status === true)
             >
               <Menu.Item onPress={() => handleSortBy("alphabetical")} title="Alphabetisch" leadingIcon={getIcon("alphabetical")}/>
               <Menu.Item onPress={() => handleSortBy("chronological")} title="Chronologisch" leadingIcon={getIcon("chronological")}/>
-              <Menu.Item onPress={() => {}} title="Kaliber" leadingIcon={getIcon("caliber")}/>
+             {/* <Menu.Item onPress={() => {}} title="Kaliber" leadingIcon={getIcon("caliber")}/> */}
             </Menu>
             <Appbar.Action icon={sortAscending ? "arrow-up" : "arrow-down"} onPress={() => handleSortOrder()} />
           </View>
