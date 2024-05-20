@@ -165,6 +165,7 @@ export default function EditGun(){
                                             position: "absolute",
                                             bottom: 10,
                                             display: "flex",
+                                            width: "100%",
                                             flexDirection: "row",
                                             justifyContent: "center",
                                             alignItems: "center"
