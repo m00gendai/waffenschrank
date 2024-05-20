@@ -4,9 +4,8 @@ import { GunType } from '../interfaces';
 import { TouchableNativeFeedback, View, Modal, ScrollView } from 'react-native';
 import DateTimePicker from 'react-native-ui-datepicker';
 import dayjs from 'dayjs';
-import ColorPicker, { Panel1, Swatches, Preview, OpacitySlider, HueSlider } from 'reanimated-color-picker';
+import ColorPicker, { Panel1, Swatches, Preview, HueSlider } from 'reanimated-color-picker';
 import { calibers } from '../lib/caliberData';
-import { gunDataTemplate } from '../lib/gunDataTemplate';
 import { usePreferenceStore } from '../stores//usePreferenceStore';
 
 interface Props{
@@ -105,12 +104,13 @@ export default function NewText({data, gunData, setGunData, label}: Props){
                         onChangeText={input => updateGunData(input)}
                         onKeyPress={(e) => data === "acquisitionDate" ? e.preventDefault() : null}
                         left={data === "paidPrice" ? <TextInput.Affix text="CHF " /> : null}
+                        inputMode={`${data === "acquisitionDate" ? "decimal" : "text"}`}
                     />
                 </View>
             </TouchableNativeFeedback>
 
             <Modal visible={showDateTime} animationType='slide' transparent>
-                <View style={{width: "100%", height: "100%", display: "flex", flexDirection: "row", justifyContent: "center", alignItems: "center", flexWrap: "wrap"}}>
+                <View style={{width: "100%", height: "100%", display: "flex", flexDirection: "row", justifyContent: "center", alignItems: "center", flexWrap: "wrap", backgroundColor: "rgba(0,0,0,0.5)"}}>
                     <View style={{width: "85%", height: "100%", display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", flexWrap: "wrap"}}>
 
                             <View style={{backgroundColor: "white", width: "100%"}}>
@@ -132,7 +132,7 @@ export default function NewText({data, gunData, setGunData, label}: Props){
             </Modal>
         
             <Modal visible={showModal} animationType='slide' transparent>
-                <View style={{width: "100%", height: "100%", display: "flex", flexDirection: "row", justifyContent: "center", alignItems: "center", flexWrap: "wrap"}}>
+                <View style={{width: "100%", height: "100%", display: "flex", flexDirection: "row", justifyContent: "center", alignItems: "center", flexWrap: "wrap", backgroundColor: "rgba(0,0,0,0.5)"}}>
                     <View style={{width: "85%", height: "100%", display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", flexWrap: "wrap"}}>
                         <ColorPicker style={{ width: '100%', backgroundColor: "white", padding: 10 }} value={gunData ? gunData[data] : "#000"} onComplete={onSelectColor}>
                             <Preview style={{marginBottom: 10}} />
@@ -149,7 +149,7 @@ export default function NewText({data, gunData, setGunData, label}: Props){
             </Modal>
 
             <Modal visible={showModalCaliber} animationType='slide' transparent>
-                <View style={{width: "100%", height: "100%", display: "flex", flexDirection: "row", justifyContent: "center", alignItems: "center", flexWrap: "wrap"}}>
+                <View style={{width: "100%", height: "100%", display: "flex", flexDirection: "row", justifyContent: "center", alignItems: "center", flexWrap: "wrap", backgroundColor: "rgba(0,0,0,0.5)"}}>
                     <View style={{width: "85%", height: "100%", display: "flex", flexDirection: "row", justifyContent: "center", alignItems: "center", alignContent: "center", flexWrap: "wrap"}}>
                         <Surface style={{backgroundColor: "white", width: "100%", height: "75%"}} elevation={4}>
                             <List.Section titleStyle={{fontWeight: "bold"}}  title={`${activeCaliber ? activeCaliber : "Kaliber auswählen"}`} style={{width: "100%", height: "100%"}}>
