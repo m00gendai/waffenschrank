@@ -8,7 +8,6 @@ import { usePreferenceStore } from './stores/usePreferenceStore';
 import { useViewStore } from './stores/useViewStore';
 import GunCollection from './components/GunCollection';
 import MainMenu from './components/mainMenu';
-import { colorThemes } from './lib/colorThemes';
 
 
 export default function App() {
@@ -26,9 +25,11 @@ export default function App() {
     }
     getPreferences()
   },[])
+
+  const currentTheme = {...theme, roundness : 5}
   
   return (
-    <PaperProvider theme={theme}>
+    <PaperProvider theme={currentTheme}>
       <GunCollection />
       {mainMenuOpen ? 
       <MainMenu />
