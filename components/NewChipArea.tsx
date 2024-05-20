@@ -26,6 +26,9 @@ export default function NewChipArea({data, gunData, setGunData}:Props){
     const [text, setText] = useState<string>("")
 
     async function saveNewTag(){
+        if(text === ""){
+            return
+        }
         gunData && gunData.tags ? 
         setGunData({...gunData, tags: [...gunData.tags, text]})
         : setGunData({...gunData, tags: [text]})
@@ -68,22 +71,22 @@ export default function NewChipArea({data, gunData, setGunData}:Props){
                     
         <View style={{width: "100%", height: "100%", display: "flex", flexDirection: "row", justifyContent: "center", alignItems: "center", flexWrap: "wrap", backgroundColor: "rgba(0,0,0,0.5)"}}>
             <View style={{width: "100%", height: "100%", display: "flex", justifyContent: "center", alignItems: "center"}}>
-                            <View style={{width: "80%", padding: 10, backgroundColor: "white"}}>
+                            <View style={{width: "85%", padding: 10, backgroundColor: "white"}}>
                                 <View style={{display: "flex", flexDirection: "row"}}>
                                     <TextInput
                                         label="Schlagwort eingeben"
                                         value={text}
                                         onChangeText={text => setText(text)}
-                                        style={{flex: 9}}
+                                        style={{flex: 8, marginRight: 10}}
                                         />
-                                        <IconButton mode="contained" icon={"floppy"} size={20} onPress={saveNewTag} style={{flex: 1}} />
+                                        <IconButton mode="contained" icon={"floppy"} size={30} onPress={saveNewTag} style={{flex: 2, height: "100%", margin: 0}} />
                                 </View>
                                 <View style={{display: "flex", flexDirection: "row", flexWrap: "wrap", marginTop: 10, marginBottom: 10, justifyContent: "flex-start"}}>
                                     {gunData?.tags?.map((tag, index) =>{
                                         return <View key={`${tag}_${index}`} style={{padding: 5}}><Chip onClose={()=>deleteTag(tag)}>{tag}</Chip></View>
                                     })}
                                 </View>
-                                <Button mode="contained" onPress={()=>setViewTagModal(false)}>Close</Button>
+                                <Button mode="contained" onPress={()=>setViewTagModal(false)}>OK</Button>
                             </View>
                             </View>
                      
