@@ -184,10 +184,10 @@ export default function mainMenu(){
                                         {Object.entries(colorThemes).map(colorTheme =>{
                                             return(    
                                                 <TouchableNativeFeedback onPress={()=>handleThemeSwitch(colorTheme[0])} key={colorTheme[0]}>
-                                                    <View style={{borderColor: theme.name === colorTheme[0] ? colorTheme[1].primary : colorTheme[1].primaryContainer, borderWidth: theme.name === colorTheme[0] ? 5 : 1, padding: 5, width: "45%", height: 50, display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-evenly", marginTop: 10, marginBottom: 10}}>
-                                                        <View style={{height: "100%", width: "30%", backgroundColor: colorTheme[1].primaryContainer}}></View>
+                                                    <View style={{borderColor: theme.name === colorTheme[0] ? colorTheme[1].primary : colorTheme[1].primaryContainer, borderWidth: theme.name === colorTheme[0] ? 5 : 1, padding: 5, width: "45%", height: 50, display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-evenly", marginTop: 10, marginBottom: 10, borderRadius: 50}}>
+                                                        <View style={{height: "100%", width: "30%", backgroundColor: colorTheme[1].primaryContainer, borderBottomLeftRadius: 50, borderTopLeftRadius: 50}}></View>
                                                         <View style={{height: "100%", width: "30%", backgroundColor: colorTheme[1].secondaryContainer}}></View>
-                                                        <View style={{height: "100%", width: "30%", backgroundColor: colorTheme[1].tertiaryContainer}}></View>
+                                                        <View style={{height: "100%", width: "30%", backgroundColor: colorTheme[1].tertiaryContainer, borderBottomRightRadius: 50, borderTopRightRadius: 50}}></View>
                                                     </View>
                                                 </TouchableNativeFeedback>
                                             )})}
