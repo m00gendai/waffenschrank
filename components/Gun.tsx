@@ -1,6 +1,6 @@
 import { StyleSheet, Text, View, Modal, ScrollView, Alert, TouchableNativeFeedback, TouchableOpacity } from 'react-native';
-import { Button, Appbar, Icon, Checkbox } from 'react-native-paper';
-import { checkBoxes, gunDataTemplate, gunRemarks } from "../lib/gunDataTemplate"
+import { Button, Appbar, Icon, Checkbox, Chip } from 'react-native-paper';
+import { checkBoxes, gunDataTemplate, gunRemarks, gunTags } from "../lib/gunDataTemplate"
 import * as SecureStore from "expo-secure-store"
 import { useState} from "react"
 import EditGun from "./EditGun"
@@ -117,6 +117,11 @@ export default function Gun(){
                         </ScrollView>
                     </View>
                     <View style={styles.data}>
+                        <View style={{flex: 1, flexDirection: "row", flexWrap: "wrap", marginBottom: 10}}>
+                            {currentGun.tags?.map((tag, index) =>{
+                                return <View key={`${tag}_${index}`} style={{padding: 5}}><Chip >{tag}</Chip></View>
+                            })}
+                        </View>
                         {gunDataTemplate.map((item, index)=>{
                             return(
                                 <View key={`${item.name}`} style={{flex: 1, flexDirection: "column"}} >

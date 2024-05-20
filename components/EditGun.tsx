@@ -16,6 +16,7 @@ import { editGunTitle, imageDeleteAlert, toastMessages, unsavedChangesAlert } fr
 import { usePreferenceStore } from '../stores/usePreferenceStore';
 import { useViewStore } from '../stores/useViewStore';
 import { useGunStore } from '../stores/useGunStore';
+import NewChipArea from './NewChipArea';
 
 
 export default function EditGun(){
@@ -207,6 +208,7 @@ export default function EditGun(){
                         height: "100%",
                         width: "100%",
                     }}>
+                        <NewChipArea data={"status"} gunData={gunData} setGunData={setGunData}/>
                         {gunDataTemplate.map(data=>{
                             return(
                                 <View 

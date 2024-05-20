@@ -17,6 +17,7 @@ import NewCheckboxArea from './NewCheckboxArea';
 import { newGunTitle, toastMessages, unsavedChangesAlert, validationFailedAlert } from '../lib/textTemplates';
 import { usePreferenceStore } from '../stores/usePreferenceStore';
 import { useViewStore } from '../stores/useViewStore';
+import NewChipArea from './NewChipArea';
 
 
 export default function NewGun(){
@@ -176,6 +177,7 @@ export default function NewGun(){
                         width: "100%",
                         
                     }}>
+                        <NewChipArea data={"status"} gunData={gunData} setGunData={setGunData}/>
                         {gunDataTemplate.map(data=>{
                             return(
                                 <View 
