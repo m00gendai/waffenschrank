@@ -104,7 +104,7 @@ export default function NewText({data, gunData, setGunData, label}: Props){
                         onChangeText={input => updateGunData(input)}
                         onKeyPress={(e) => data === "acquisitionDate" ? e.preventDefault() : null}
                         left={data === "paidPrice" ? <TextInput.Affix text="CHF " /> : null}
-                        inputMode={`${data === "acquisitionDate" ? "decimal" : "text"}`}
+                        inputMode={`${data === "paidPrice" ? "decimal" : data === "shotCount" ? "decimal" : "text"}`}
                     />
                 </View>
             </TouchableNativeFeedback>
