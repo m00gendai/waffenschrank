@@ -21,10 +21,28 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.m00gendai.arsenal"
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "plugins": [
+      "expo-secure-store",
+      "expo-build-properties",
+      "expo-asset"
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "5ef50f11-cb46-4131-abc8-d04acd131837"
+      }
+    },
+    "owner": "m00gendai"
+  },
+  "android": {
+    "permissions": [
+      "android.permission.READ_MEDIA_IMAGES",
+      "android.permission.READ_MEDIA_VISUAL_USER_SELECTED"
+    ]
   }
 }
