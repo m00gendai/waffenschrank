@@ -16,6 +16,7 @@ export interface GunType{
   createdAt: Date
   lastModifiedAt: Date
   status?: GunTypeStatus
+  tags: string[]
 }
 
 export interface GunTypeStatus{

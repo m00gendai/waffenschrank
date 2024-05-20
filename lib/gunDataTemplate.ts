@@ -25,18 +25,6 @@ export const gunDataTemplate:{name:string, de:string, en:string, fr:string}[] = 
             fr: "Pays d'origine",
     },
     {
-            name: "gunType",
-            de: "Waffentyp",
-            en: "Type of Gun",
-            fr: "Type d'arme",
-    },
-    {
-            name: "functionType",
-            de: "Funktionsweise",
-            en: "Function",
-            fr: "Mode de fonctionnement",
-    },
-    {
             name: "caliber",
             de: "Kaliber",
             en: "Caliber",
@@ -121,3 +109,10 @@ export const checkBoxes:{name: string, de:string, en:string, fr:string}[] = [
         fr: "Arme en prêt"
     },
 ]
+
+export const gunTags:{name:string, de:string, en:string, fr:string} = {
+        name: "tags", 
+        de: "Schlagworte",
+        en: "Tags", 
+        fr: "mots-clés"
+}
