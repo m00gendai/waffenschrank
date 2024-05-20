@@ -27,5 +27,5 @@ interface PreferenceStore {
     setDisplayAsGrid: (status: boolean) => set((state) => ({displayAsGrid: status})),
     toggleDisplayAsGrid: () => set((state) => ({displayAsGrid: !state.displayAsGrid})),
     sortBy: "alphabetical",
-    setSortBy: (type: "alphabetical" | "chronological" | "caliber") => set((state) => ({sortBy: type}))
+    setSortBy: (type: "alphabetical" | "chronological" | "caliber") => set((state) => ({sortBy: type})),
   }))
