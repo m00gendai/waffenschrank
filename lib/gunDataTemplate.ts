@@ -57,6 +57,12 @@ export const gunDataTemplate:{name:string, de:string, en:string, fr:string}[] = 
     
     },
     {
+        name: "shotCount",
+        de: "Schussbelastung",
+        en: "Shot count",
+        fr: "Compte de tirs"
+    },
+    {
             name: "mainColor",
             de: "Hauptfarbe",
             en: "Main Color",
