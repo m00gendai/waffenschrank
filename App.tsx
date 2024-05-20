@@ -8,6 +8,7 @@ import { usePreferenceStore } from './stores/usePreferenceStore';
 import { useViewStore } from './stores/useViewStore';
 import GunCollection from './components/GunCollection';
 import MainMenu from './components/mainMenu';
+import { colorThemes } from './lib/colorThemes';
 
 
 export default function App() {
@@ -20,13 +21,12 @@ export default function App() {
       const preferences:string = await AsyncStorage.getItem(PREFERENCES)
       const isPreferences = preferences === null ? null : JSON.parse(preferences)
       
-      switchLanguage(isPreferences === null ? "de" : isPreferences.language === null ? "de" : isPreferences.language)
-      switchTheme(isPreferences === null ? "de" : isPreferences.theme === null ? "de" : isPreferences.theme)
+      switchLanguage(isPreferences === null ? "de" : isPreferences.language === undefined ? "de" : isPreferences.language)
+      switchTheme(isPreferences === null ? "default" : isPreferences.theme === undefined ? "default" : isPreferences.theme)
     }
     getPreferences()
   },[])
-
-
+  
   return (
     <PaperProvider theme={theme}>
       <GunCollection />
