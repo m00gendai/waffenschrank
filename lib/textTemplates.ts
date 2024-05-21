@@ -1,4 +1,4 @@
-interface SimpleTranslation{
+export interface SimpleTranslation{
     de: string
     en: string
     fr: string
@@ -235,4 +235,10 @@ export const databaseOperations:DatabaseOperation = {
         en: "Database is being imported...",
         fr: "Base de données en cours d'importation...",
     }
+}
+
+export const pdfFooter:SimpleTranslation = {
+    de: "Generiert mit der Arsenal Mobile App",
+    en: "Generated using the Arsenal Mobile App",
+    fr: "Généré par l'application mobile d'Arsenal"
 }
