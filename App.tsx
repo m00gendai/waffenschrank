@@ -1,4 +1,4 @@
-import { PaperProvider, Text } from 'react-native-paper';
+import { PaperProvider } from 'react-native-paper';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useEffect } from "react"
 import {PREFERENCES } from "./configs"
