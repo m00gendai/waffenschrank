@@ -5,7 +5,7 @@ import * as FileSystem from 'expo-file-system';
 import { GunType } from '../interfaces';
 import { checkBoxes, gunDataTemplate, gunRemarks, gunTags } from '../lib/gunDataTemplate';
 import { usePreferenceStore } from '../stores/usePreferenceStore';
-import { pdfFooter } from '../lib/textTemplates';
+import { pdfFooter, pdfTitle } from '../lib/textTemplates';
 import { dateLocales } from '../configs';
 
 
@@ -37,7 +37,8 @@ export async function printSingleGun(gun:GunType, language: string){
         minute: "2-digit"
       };
     const generatedDate:string = date.toLocaleDateString(dateLocales[language], dateOptions)
-
+    const excludedKeys = ["images", "createdAt", "lastModifiedAt", "status", "id", "tags", "remarks"];
+    const art5Keys = checkBoxes.map(checkBox => checkBox.name)
 console.log(gun)
     const html = `
     <html>
@@ -49,10 +50,12 @@ console.log(gun)
         <h1>${gun.manufacturer ? gun.manufacturer : ""} ${gun.model}</h1>
         ${gun.images && gun.images.length !== 0 ? `<div class="imageContainer">${imgs.map(img => {return `<div class="image" style="background-image: url(data:image/jpeg;base64,${img});"></div>`}).join("")}</div>`: ""}
         ${gun.tags && gun.tags.length !== 0 ? `<div class="tagContainer">${gun.tags.map(tag => {return `<div class="tag">${tag}</div>`}).join("")}</div>` : ""}
+        ${gun.tags && gun.tags.length !== 0 ? `<hr />` : ""}
+        ${gun.status && Object.entries(gun.status).length !== 0 ? `<div class="tagContainer">${Object.entries(gun.status).map(status => {return status[1] && art5Keys.includes(status[0]) ? `<div class="tag">${getTranslation(status[0], language)}</div>` : ""}).join("")}</div>` : ""}
         <table>
             <tbody>
                 ${Object.entries(gun).map(entry =>{
-                    const excludedKeys = ["images", "createdAt", "lastModifiedAt", "status", "id", "tags", "remarks"];
+                    
                     return excludedKeys.includes(entry[0]) ? null :`<tr><td><strong>${getTranslation(entry[0], language)}</strong></td><td>${entry[1]}</td></tr>`
                 }).join("")}
             </tbody>
@@ -82,6 +85,9 @@ console.log(gun)
         text-align: left;
         margin: 0;
         padding: 0;
+      }
+      hr{
+        width: 100%;
       }
       .bodyContent{
         position: relative;
@@ -124,7 +130,6 @@ console.log(gun)
         align-items: flex-start; 
         flex-wrap: wrap;
         gap: 10px;
-        margin: 10px 0 20px 0;
     }
         .tag{
             position: relative;
@@ -133,6 +138,7 @@ console.log(gun)
             display: flex;
             justify-content: center;
             align-items: center;
+            font-size: 10px;
         }
     table {
         position: relative;
@@ -140,6 +146,17 @@ console.log(gun)
         width: 100%;
         font-size: 20px;
         border-collapse: collapse;
+    }
+    .art5container{
+      position: relative;
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-wrap: nowrap;
+    }
+    .art5{
+      font-size: 10px;
     }
     table > tbody > tr {
         padding: 5px 0;
@@ -226,16 +243,16 @@ export async function printGunCollection(guns:GunType[], language: string){
     </head>
     <body>
     <div class="bodyContent">
-      <h1>List of Göns</h1>
+      <h1>${pdfTitle[language]}</h1>
         <table>
         <thead>
           <tr>
-          ${gunDataTemplate.map(data=>{return excludedKeys.includes(data.name) ? null : `<th>${data[language]}</th>`}).join("")}
+          ${gunDataTemplate.map(data=>{return excludedKeys.includes(data.name) ? "" : `<th>${data[language]}</th>`}).join("")}
           </tr>
         </thead>
           <tbody>
               ${guns.map(gun =>{
-                return `<tr>${Object.entries(gun).map(entry=>{return excludedKeys.includes(entry[0]) ? null :`<td>${entry[1] ? entry[1] : " "}</td>`}).join("")}</tr>`}).join("")}
+                return `<tr>${gunDataTemplate.map(data=>{return data.name in gun && !excludedKeys.includes(data.name) ? `<td>${gun[data.name]}</td>` : !(data.name in gun) && !excludedKeys.includes(data.name) ? `<td></td>`: `""`}).join("")}</tr>`}).join("")}
           </tbody>
       </table>
     </div>
@@ -322,15 +339,19 @@ export async function printGunCollection(guns:GunType[], language: string){
       border-collapse: collapse;
   }
 
-  table > tbody > tr {
+  tr {
+    position: relative;
       padding: 5px 0;
+      width: 100%;
   }
-  table > tbody > tr:nth-child(even){
+  tr:nth-child(even){
       background-color: #f5f5f5;
   }
-  table > tbody > tr > td {
+  td {
       padding: 5px;
-      
+  }
+  th, td{
+    border: 1px solid #ddd;
   }
   .remarkContainer{
       position: relative;
