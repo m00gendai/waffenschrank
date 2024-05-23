@@ -228,7 +228,7 @@ export default function EditGun(){
                             )
                         })}
                          <NewCheckboxArea data={"status"} gunData={gunData} setGunData={setGunData}/>
-                        <NewTextArea data={gunRemarks[language]} gunData={gunData} setGunData={setGunData}/>
+                        <NewTextArea data={gunRemarks.name} gunData={gunData} setGunData={setGunData}/>
                        
                     </View>
                 </ScrollView>

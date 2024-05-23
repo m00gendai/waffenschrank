@@ -1,4 +1,4 @@
-interface SimpleTranslation{
+export interface SimpleTranslation{
     de: string
     en: string
     fr: string
@@ -29,6 +29,8 @@ interface PreferenceTitle{
     db: SimpleTranslation
     saveDb: SimpleTranslation
     importDb: SimpleTranslation
+    gunList: SimpleTranslation
+    printAllGuns: SimpleTranslation
 }
 
 interface DatabaseOperation{
@@ -221,7 +223,16 @@ export const preferenceTitles:PreferenceTitle = {
         en: "Import",
         fr: "Importer"
     },
-    
+    gunList: {
+        de: "Waffenverzeichnis",
+        en: "List of weapons",
+        fr: "Liste des armes"
+    },
+    printAllGuns: {
+        de: "Komplett",
+        en: "Complete",
+        fr: "Complet"
+    }
 }
 
 export const databaseOperations:DatabaseOperation = {
@@ -235,4 +246,16 @@ export const databaseOperations:DatabaseOperation = {
         en: "Database is being imported...",
         fr: "Base de données en cours d'importation...",
     }
+}
+
+export const pdfTitle:SimpleTranslation = {
+    de: "Waffenverzeichnis",
+    en: "List of weapons",
+    fr: "Liste des armes"
+}
+
+export const pdfFooter:SimpleTranslation = {
+    de: "Generiert mit der Arsenal Mobile App",
+    en: "Generated using the Arsenal Mobile App",
+    fr: "Généré par l'application mobile d'Arsenal"
 }

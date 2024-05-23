@@ -18,6 +18,7 @@ import { newGunTitle, toastMessages, unsavedChangesAlert, validationFailedAlert 
 import { usePreferenceStore } from '../stores/usePreferenceStore';
 import { useViewStore } from '../stores/useViewStore';
 import NewChipArea from './NewChipArea';
+import { useGunStore } from '../stores/useGunStore';
 
 
 export default function NewGun(){
@@ -30,7 +31,8 @@ export default function NewGun(){
     const [saveState, setSaveState] = useState<boolean>(false)
 
     const { language } = usePreferenceStore()
-    const { setNewGunOpen } = useViewStore()
+    const { setNewGunOpen, setSeeGunOpen } = useViewStore()
+    const { setCurrentGun } = useGunStore()
 
     useEffect(()=>{
         setSaveState(false)
@@ -81,6 +83,10 @@ export default function NewGun(){
         setSaveState(true)
         setSnackbarText(`${value.manufacturer ? value.manufacturer : ""} ${value.model} ${toastMessages.saved[language]}`)
         onToggleSnackBar()
+        setNewGunOpen()
+        setCurrentGun(gunData)
+        setSeeGunOpen()
+
     }
     
     const pickImageAsync = async (indx:number) =>{
@@ -197,7 +203,7 @@ export default function NewGun(){
                             )
                         })}
                         <NewCheckboxArea data={"status"} gunData={gunData} setGunData={setGunData} />
-                        <NewTextArea data={gunRemarks[language]} gunData={gunData} setGunData={setGunData}/>
+                        <NewTextArea data={gunRemarks.name} gunData={gunData} setGunData={setGunData}/>
                     </View>
                 </ScrollView>
             </View>

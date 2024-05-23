@@ -14,6 +14,7 @@ import { GunType } from "../interfaces"
 import * as SecureStore from "expo-secure-store"
 import { useGunStore } from "../stores/useGunStore"
 import { SafeAreaView } from "react-native-safe-area-context"
+import { printGunCollection } from "../functions/printToPDF"
 
 
 export default function mainMenu(){
@@ -201,6 +202,15 @@ export default function mainMenu(){
                                         <Button style={{width: "45%"}} icon="application-import" onPress={()=>invokeAlert()} mode="contained">{preferenceTitles.importDb[language]}</Button>
                                     </View>
                                 </View>
+                                <Divider bold/>
+                                <View style={{ marginLeft: 5, marginRight: 5, padding: 10, backgroundColor: "white"}}>
+                                    <Text variant="titleMedium" style={{marginBottom: 10}}>{preferenceTitles.gunList[language]}</Text>
+                                    <View style={{display: "flex", flexDirection: "row", justifyContent: "space-between"}}>
+                                        <Button style={{width: "45%"}} icon="printer" onPress={()=>printGunCollection(gunCollection, language)} mode="contained">{preferenceTitles.printAllGuns[language]}</Button>
+                                        
+                                    </View>
+                                </View>
+                                
                             </ScrollView>
                         </View>
                         <View style={{width: "100%", flex: 2, padding: 10}}>

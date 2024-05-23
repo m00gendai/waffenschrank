@@ -79,16 +79,16 @@ export const gunRemarks:{name:string, de:string, en:string, fr:string} = {
 
 export const checkBoxes:{name: string, de:string, en:string, fr:string}[] = [
     {
-        name: "secondHand",
-        de: "Occasionswaffe",
-        en: "Second Hand", 
-        fr: "Arme d'occasion"
+        name: "fullAuto",
+        de: "Seriefeuerwaffe",
+        en: "Automatic firearm", 
+        fr: "Arme à feu automatique"
     },
     {
         name: "exFullAuto",
-        de: "Ex-Vollauto",
-        en: "Ex-fullauto", 
-        fr: "Ex-automatique"
+        de: "Umgebaute Seriefeuerwaffe",
+        en: "Converted automatic firearm", 
+        fr: "Arme à feu automatique transformée"
     },
     {
         name: "highCapacityMagazine",
@@ -101,19 +101,7 @@ export const checkBoxes:{name: string, de:string, en:string, fr:string}[] = [
         de: "Kürzbar auf unter 60cm",
         en: "Can be shortened to under 60cm", 
         fr: "Peut être raccourci à moins de 60cm"
-    },
-    {
-        name: "serviceRifle",
-        de: "Persönliche Ordonnanzwaffe",
-        en: "Personal Service Weapon", 
-        fr: "Arme d'ordonnance personnelle"
-    },
-    {
-        name: "loanerGun",
-        de: "Leihwaffe",
-        en: "Loaner Gun", 
-        fr: "Arme en prêt"
-    },
+    }
 ]
 
 export const gunTags:{name:string, de:string, en:string, fr:string} = {

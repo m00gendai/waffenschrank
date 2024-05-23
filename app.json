@@ -1,8 +1,8 @@
 {
   "expo": {
-    "name": "waffenschrank",
-    "slug": "waffenschrank",
-    "version": "1.0.0",
+    "name": "Arsenal",
+    "slug": "Arsenal",
+    "version": "Alpha 1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
