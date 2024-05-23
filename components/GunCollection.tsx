@@ -90,15 +90,13 @@ useEffect(()=>{
     const isPreferences = preferences === null ? null : JSON.parse(preferences)
 
     const tagList: string = await AsyncStorage.getItem(TAGS)
-    console.log("tagList")
-    console.log(tagList)
+
     const isTagList:{label: string, status: boolean}[] = tagList === null ? null : JSON.parse(tagList)
    
     setDisplayAsGrid(isPreferences === null ? true : isPreferences.displayAsGrid === null ? true : isPreferences.displayAsGrid)
     setSortBy(isPreferences === null ? "alphabetical" : isPreferences.sortBy === null ? "alphabetical" : isPreferences.sortBy)
     setSortIcon(getIcon((isPreferences === null ? "alphabetical" : isPreferences.sortBy === null ? "alphabetical" : isPreferences.sortBy)))
-    console.log("isTagList")
-    console.log(isTagList)
+
     if(isTagList !== null && isTagList !== undefined){
       Object.values(isTagList).map(tag =>{
 
@@ -154,8 +152,7 @@ function sortCheckboxes(list:{label: string, status: boolean}[]){
 }
 
 function sortTags(list:{label: string, status: boolean}[]){
-  console.log("list")
-  console.log(list)
+
   const removeDuplicates = (arr:{label:string,status:boolean}[]) => {
     const map = new Map();
     arr.forEach(item => {
@@ -167,8 +164,7 @@ function sortTags(list:{label: string, status: boolean}[]){
 };
 
 const uniqueObjects = removeDuplicates(list);
-console.log("uniqueObjects")
-console.log(uniqueObjects)
+
   return uniqueObjects.sort((a:{label: string, status: boolean}, b:{label: string, status: boolean}) =>{
     const x = a.label
     const y = b.label
@@ -177,8 +173,7 @@ console.log(uniqueObjects)
 }
 
 async function handleFilterPress(tag:{label:string, status:boolean}){
-  console.log("tag")
-  console.log(tag)
+
   const preferences:string = await AsyncStorage.getItem(TAGS)
 
   const index = tags.findIndex(tagItem => tagItem.label === tag.label)
@@ -315,7 +310,7 @@ const activeTags = tags.filter(tag => tag.status === true)
           </View>
         </ScrollView>
         {newGunOpen ? 
-      <Animated.View entering={SlideInDown} exiting={SlideOutDown} style={{position: "absolute", left: 0, width: "100%", height: "100%"}}>
+      <Animated.View entering={SlideInDown} exiting={SlideOutDown} style={{position: "absolute", left: 0, top: 0, right: 0, bottom: 0}}>
         <SafeAreaView>
           <NewGun />
         </SafeAreaView>
@@ -324,7 +319,7 @@ const activeTags = tags.filter(tag => tag.status === true)
       null}
         
       {seeGunOpen ? 
-      <Animated.View entering={FadeIn} exiting={FadeOut} style={{position: "absolute", left: 0, width: "100%", height: "100%"}}>
+      <Animated.View entering={FadeIn} exiting={FadeOut} style={{position: "absolute", left: 0, top: 0, right: 0, bottom: 0}}>
         <SafeAreaView>
           <Gun />
         </SafeAreaView>
