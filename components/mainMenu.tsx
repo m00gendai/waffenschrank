@@ -204,9 +204,9 @@ export default function mainMenu(){
                                 </View>
                                 <Divider bold/>
                                 <View style={{ marginLeft: 5, marginRight: 5, padding: 10, backgroundColor: "white"}}>
-                                    <Text variant="titleMedium" style={{marginBottom: 10}}>Print Göns</Text>
+                                    <Text variant="titleMedium" style={{marginBottom: 10}}>{preferenceTitles.gunList[language]}</Text>
                                     <View style={{display: "flex", flexDirection: "row", justifyContent: "space-between"}}>
-                                        <Button style={{width: "45%"}} icon="content-save-move" onPress={()=>printGunCollection(gunCollection, language)} mode="contained">Print</Button>
+                                        <Button style={{width: "45%"}} icon="printer" onPress={()=>printGunCollection(gunCollection, language)} mode="contained">{preferenceTitles.printAllGuns[language]}</Button>
                                         
                                     </View>
                                 </View>
