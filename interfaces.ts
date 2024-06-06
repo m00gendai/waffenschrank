@@ -39,7 +39,7 @@ export interface AmmoType{
   headstamp?: string | null
   currentStock?: number
   previousStock?: number
-  lastTopUpAt?: Date
+  lastTopUpAt?: string
   criticalStock?: number
   tags: string[]
   images: string[]
