@@ -101,7 +101,7 @@ export default function Ammo(){
                                     return(
                                         <TouchableNativeFeedback key={`slides_${index}`} onPress={()=>showModal(index)}>
                                             <View style={styles.imageContainer} >
-                                            <ImageViewer isLightBox={false} selectedImage={currentAmmo.images[index]} /> 
+                                            <ImageViewer placeholder='ammo' isLightBox={false} selectedImage={currentAmmo.images[index]} /> 
                                             </View>
                                         </TouchableNativeFeedback>
                                     )
@@ -110,7 +110,7 @@ export default function Ammo(){
                                     return(
                                         <TouchableNativeFeedback key={`slides_${index}`}>
                                             <View style={styles.imageContainer} >
-                                            <ImageViewer isLightBox={false} selectedImage={null} /> 
+                                            <ImageViewer placeholder="ammo" isLightBox={false} selectedImage={null} /> 
                                             </View>
                                         </TouchableNativeFeedback>
                                     )
