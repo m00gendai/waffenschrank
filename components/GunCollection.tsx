@@ -78,7 +78,7 @@ export default function GunCollection(){
           const preferences:string = await AsyncStorage.getItem(PREFERENCES)
           const isPreferences = preferences === null ? null : JSON.parse(preferences)
 
-          const sortedGuns = doSortBy(isPreferences === null ? "alphabetical" : isPreferences.sortBy === null ? "alphabetical" : isPreferences.sortBy, isPreferences == null? true : isPreferences.sortOrder === null ? true : isPreferences.sortOrder, guns)
+          const sortedGuns = doSortBy(isPreferences === null ? "alphabetical" : isPreferences.sortBy === null ? "alphabetical" : isPreferences.sortBy, isPreferences == null? true : isPreferences.sortOrder === null ? true : isPreferences.sortOrder, guns) as GunType[]
           setGunCollection(sortedGuns)
         }
         getGuns()
@@ -116,7 +116,7 @@ useEffect(()=>{
         async function handleSortBy(type: "alphabetical" | "chronological" | "caliber"){
             setSortIcon(getIcon(type))
             setSortBy(type)
-            const sortedGuns = doSortBy(type, sortAscending, gunCollection) 
+            const sortedGuns = doSortBy(type, sortAscending, gunCollection) as GunType[]
             setGunCollection(sortedGuns)
             const preferences:string = await AsyncStorage.getItem(PREFERENCES)
             const newPreferences:{[key:string] : string} = preferences == null ? {"sortBy": type} : {...JSON.parse(preferences), "sortBy":type} 
@@ -129,7 +129,7 @@ useEffect(()=>{
 
           async function handleSortOrder(){
             setSortAscending(!sortAscending)
-            const sortedGuns = doSortBy(sortBy, !sortAscending, gunCollection) // called with !sortAscending due to the useState having still the old value
+            const sortedGuns = doSortBy(sortBy, !sortAscending, gunCollection) as GunType[] // called with !sortAscending due to the useState having still the old value
             setGunCollection(sortedGuns)
             const preferences:string = await AsyncStorage.getItem(PREFERENCES)
             const newPreferences:{[key:string] : string} = preferences == null ? {"sortOrder": !sortAscending} : {...JSON.parse(preferences), "sortOrder":!sortAscending} 
@@ -240,7 +240,7 @@ const activeTags = tags.filter(tag => tag.status === true)
         </Appbar>
 
         <ScrollView 
-          style={{
+          contentContainerStyle={{
             width: "100%", 
             height: "100%", 
             flexDirection: "column", 
