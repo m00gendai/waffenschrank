@@ -1,6 +1,6 @@
 import { IconButton, List, Surface, TextInput } from 'react-native-paper';
 import { useState } from 'react';
-import { GunType } from '../interfaces';
+import { GunType, AmmoType } from '../interfaces';
 import { TouchableNativeFeedback, View, Modal, ScrollView } from 'react-native';
 import DateTimePicker from 'react-native-ui-datepicker';
 import dayjs from 'dayjs';
@@ -10,27 +10,34 @@ import { usePreferenceStore } from '../stores//usePreferenceStore';
 
 interface Props{
     data: string
-    gunData: GunType
-    setGunData: React.Dispatch<React.SetStateAction<GunType>>
+    gunData?: GunType
+    setGunData?: React.Dispatch<React.SetStateAction<GunType>>
+    ammoData?: AmmoType
+    setAmmoData?: React.Dispatch<React.SetStateAction<AmmoType>>
     label: string
 }
 
-export default function NewText({data, gunData, setGunData, label}: Props){
+export default function NewText({data, gunData, setGunData, ammoData, setAmmoData, label}: Props){
 
-    const [input, setInput] = useState<string>(gunData ? gunData[data] : "")
+    const [input, setInput] = useState<string>(gunData ? gunData[data] : ammoData ? ammoData[data] : "")
     const [showDateTime, setShowDateTime] = useState<boolean>(false)
     const [date, setDate] = useState<(string | number | Date | dayjs.Dayjs)>(dayjs());
-    const [initialDate, setInitialDate] = useState<string>(gunData ? gunData[data]: "")
+    const [initialDate, setInitialDate] = useState<string>(gunData ? gunData[data] : ammoData ? ammoData[data] : "")
     const [showModal, setShowModal] = useState(false);
     const [showModalCaliber, setShowModalCaliber] = useState<boolean>(false)
     const [color, setColor] = useState<string>(gunData ? gunData[data] : "#000")
-    const [activeCaliber, setActiveCaliber] = useState<string>(gunData ? gunData[data] : "")
+    const [activeCaliber, setActiveCaliber] = useState<string>(gunData ? gunData[data] : ammoData? ammoData[data] : "")
 
     const { language } = usePreferenceStore()
 
     function updateGunData(input:string){
         setInput(input)
         setGunData({...gunData, [data]: input})
+    }
+
+    function updateAmmoData(input:string){
+        setInput(input)
+        setAmmoData({...ammoData, [data]: input})
     }
 
     function updateDate(input){
@@ -73,12 +80,12 @@ export default function NewText({data, gunData, setGunData, label}: Props){
     }
 
     function handleCaliberSelectConfirm(){
-        updateGunData(activeCaliber)
+        gunData !== undefined && gunData ? updateGunData(activeCaliber) : updateAmmoData(activeCaliber)
         setShowModalCaliber(false)
     }
 
     function handleCaliberSelectCancel(){
-        setActiveCaliber(gunData ? gunData[data] : "")
+        setActiveCaliber(gunData !== undefined && gunData ? gunData[data] : ammoData !== undefined && ammoData ? ammoData[data] : "")
         setShowModalCaliber(false)
     }
 
@@ -101,7 +108,7 @@ export default function NewText({data, gunData, setGunData, label}: Props){
                         value={input}
                         editable={data === "acquisitionDate" ? false : data === "mainColor" ? false : data === "caliber" ? false : true}
                         showSoftInputOnFocus={data === "acquisitionDate" ? false : true}
-                        onChangeText={input => updateGunData(input)}
+                        onChangeText={input => gunData !== undefined && gunData ? updateGunData(input) : updateAmmoData(input)}
                         onKeyPress={(e) => data === "acquisitionDate" ? e.preventDefault() : null}
                         left={data === "paidPrice" ? <TextInput.Affix text="CHF " /> : null}
                         inputMode={`${data === "paidPrice" ? "decimal" : data === "shotCount" ? "decimal" : "text"}`}

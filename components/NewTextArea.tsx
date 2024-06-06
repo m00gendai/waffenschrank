@@ -1,18 +1,21 @@
 import { TextInput } from 'react-native-paper';
 import { useState } from 'react';
-import { GunType } from '../interfaces';
+import { GunType, AmmoType } from '../interfaces';
 import { usePreferenceStore } from '../stores/usePreferenceStore';
 import { gunRemarks } from '../lib/gunDataTemplate';
+import { ammoRemarks } from '../lib/ammoDataTemplate';
 
 interface Props{
     data: string
-    gunData: GunType
-    setGunData: React.Dispatch<React.SetStateAction<GunType>>
+    gunData?: GunType
+    setGunData?: React.Dispatch<React.SetStateAction<GunType>>
+    ammoData?: AmmoType
+    setAmmoData?: React.Dispatch<React.SetStateAction<AmmoType>>
 }
 
-export default function NewText({data, gunData, setGunData}: Props){
+export default function NewText({data, gunData, setGunData, ammoData, setAmmoData}: Props){
 
-    const [input, setInput] = useState<string>(gunData ? gunData[data] : "")
+    const [input, setInput] = useState<string>(gunData ? gunData[data] : ammoData ? ammoData[data] : "")
     const [charCount, setCharCount] = useState(0)
     const [isBackspace, setIsBackspace] = useState<boolean>(false)
     const [isFocus, setFocus] = useState<boolean>(false)
@@ -49,9 +52,23 @@ export default function NewText({data, gunData, setGunData}: Props){
         }
     }
 
+    function updateAmmoData(input:string){
+        if(charCount < MAX_CHAR_COUNT){
+            setCharCount(input.length)
+            setInput(input)
+            setAmmoData({...ammoData, [data]: input})
+            }
+            
+        if(charCount >= MAX_CHAR_COUNT && isBackspace){
+            setCharCount(input.length)
+            setInput(input)
+            setAmmoData({...ammoData, [data]: input})
+        }
+    }
+
     return(
         <TextInput
-            label={`${gunRemarks[language]} ${isFocus ? `${charCount}/${MAX_CHAR_COUNT}` : ``}`} 
+            label={`${gunData ? gunRemarks[language] : ammoRemarks[language]} ${isFocus ? `${charCount}/${MAX_CHAR_COUNT}` : ``}`} 
             style={{
                 flex: 1,
                 height: 200
@@ -60,7 +77,7 @@ export default function NewText({data, gunData, setGunData}: Props){
             onFocus={()=>setFocus(true)}
             onBlur={()=>setFocus(false)}
             onKeyPress={({nativeEvent}) => setIsBackspace(nativeEvent.key === "Backspace" ? true : false)}
-            onChangeText={(input:string) => updateGunData(input)}
+            onChangeText={(input:string) => gunData ? updateGunData(input) : updateAmmoData(input)}
             multiline={true}
         />
     )
