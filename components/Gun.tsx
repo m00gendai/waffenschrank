@@ -1,6 +1,6 @@
 import { StyleSheet, Text, View, Modal, ScrollView, Alert, TouchableNativeFeedback, TouchableOpacity } from 'react-native';
 import { Button, Appbar, Icon, Checkbox, Chip } from 'react-native-paper';
-import { checkBoxes, gunDataTemplate, gunRemarks, gunTags } from "../lib/gunDataTemplate"
+import { checkBoxes, gunDataTemplate, gunRemarks } from "../lib/gunDataTemplate"
 import * as SecureStore from "expo-secure-store"
 import { useState} from "react"
 import EditGun from "./EditGun"
