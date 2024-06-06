@@ -14,6 +14,13 @@ interface PreferenceStore {
     toggleDisplayAsGrid: () => void
     sortBy: "alphabetical" | "chronological" | "caliber"
     setSortBy: (type: "alphabetical" | "chronological" | "caliber") => void
+    ammoDbImport: Date
+    setAmmoDbImport: (date: Date) => void
+    displayAmmoAsGrid: boolean
+    setDisplayAmmoAsGrid: (status: boolean) => void
+    toggleDisplayAmmoAsGrid: () => void
+    sortAmmoBy: "alphabetical" | "chronological" | "caliber"
+    setSortAmmoBy: (type: "alphabetical" | "chronological" | "caliber") => void
   }
 
   export const usePreferenceStore = create<PreferenceStore>((set) => ({
@@ -28,4 +35,11 @@ interface PreferenceStore {
     toggleDisplayAsGrid: () => set((state) => ({displayAsGrid: !state.displayAsGrid})),
     sortBy: "alphabetical",
     setSortBy: (type: "alphabetical" | "chronological" | "caliber") => set((state) => ({sortBy: type})),
+    ammoDbImport: null,
+    setAmmoDbImport: (date: Date) => set((state) => ({ammoDbImport: date})),
+    displayAmmoAsGrid: true,
+    setDisplayAmmoAsGrid: (status: boolean) => set((state) => ({displayAmmoAsGrid: status})),
+    toggleDisplayAmmoAsGrid: () => set((state) => ({displayAmmoAsGrid: !state.displayAmmoAsGrid})),
+    sortAmmoBy: "alphabetical",
+    setSortAmmoBy: (type: "alphabetical" | "chronological" | "caliber") => set((state) => ({sortAmmoBy: type})),
   }))
