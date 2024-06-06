@@ -1,9 +1,9 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useEffect, useState } from 'react';
 import { Dimensions, ScrollView, StyleSheet, TouchableNativeFeedback, View, Text } from 'react-native';
-import { Appbar, Card, FAB, Menu, Switch, useTheme } from 'react-native-paper';
+import { Appbar, Card, FAB, IconButton, Menu, Switch, TextInput, useTheme } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { AMMO_DATABASE, A_KEY_DATABASE, PREFERENCES, A_TAGS, defaultGridGap, defaultViewPadding } from '../configs';
+import { AMMO_DATABASE, A_KEY_DATABASE, PREFERENCES, A_TAGS, defaultGridGap, defaultViewPadding, dateLocales } from '../configs';
 import { AmmoType, MenuVisibility } from '../interfaces';
 import * as SecureStore from "expo-secure-store"
 import { getIcon, doSortBy } from '../utils';
@@ -16,6 +16,7 @@ import { Checkbox } from 'react-native-paper';
 import newAmmo from './NewAmmo';
 import NewAmmo from './NewAmmo';
 import Ammo from './Ammo';
+import { ammoQuickUpdate } from '../lib/textTemplates';
 
 export default function AmmoCollection(){
 
@@ -26,8 +27,13 @@ export default function AmmoCollection(){
   const [menuVisibility, setMenuVisibility] = useState<MenuVisibility>({sortBy: false, filterBy: false});
   const [sortIcon, setSortIcon] = useState<string>("alphabetical-variant")
   const [sortAscending, setSortAscending] = useState<boolean>(true)
+  const [stockVisible, setStockVisible] = useState<boolean>(false)
+  const [stockChange, setStockChange] = useState<"dec" | "inc" | "">("")
+  const [stockValue, setStockValue] = useState<number>(0)
+  const [input, setInput] = useState<string>("")
+  const [error, displayError] = useState<boolean>(false)
 
-  const { ammoDbImport, displayAmmoAsGrid, setDisplayAmmoAsGrid, toggleDisplayAmmoAsGrid, sortAmmoBy, setSortAmmoBy } = usePreferenceStore()
+  const { ammoDbImport, displayAmmoAsGrid, setDisplayAmmoAsGrid, toggleDisplayAmmoAsGrid, sortAmmoBy, setSortAmmoBy, language } = usePreferenceStore()
   const { mainMenuOpen, setMainMenuOpen, newAmmoOpen, setNewAmmoOpen, editAmmoOpen, setEditAmmoOpen, seeAmmoOpen, setSeeAmmoOpen } = useViewStore()
   const { ammoCollection, setAmmoCollection, currentAmmo, setCurrentAmmo } = useAmmoStore()
   const { ammo_tags, setAmmoTags, overWriteAmmoTags } = useTagStore()
@@ -83,7 +89,7 @@ export default function AmmoCollection(){
           setAmmoCollection(sortedAmmo)
         }
         getAmmo()
-      },[newAmmoOpen, seeAmmoOpen, ammoDbImport])
+      },[newAmmoOpen, seeAmmoOpen, ammoDbImport, stockValue])
 
 useEffect(()=>{
   async function getPreferences(){
@@ -190,7 +196,32 @@ async function handleFilterPress(tag:{label:string, status:boolean}){
 const activeTags = ammo_tags.filter(tag => tag.status === true)
            const sortedTags = sortTags(ammo_tags)
               const ammoList = ammoCollection.filter(ammo => activeTags.some(tag => ammo.tags?.includes(tag.label)))
+
+function handleStockButtonPress(ammo:AmmoType){
+    setCurrentAmmo(ammo)
+    setStockVisible(!stockVisible)
+}
            
+async function saveNewStock(ammo:AmmoType){
+    const date:Date = new Date()
+    if(stockChange !== ""){
+    const currentValue:number = ammo.currentStock
+    const increase:number = parseInt(input)
+    const total:number = stockChange === "inc" ? currentValue + increase : currentValue - increase
+
+    await SecureStore.setItemAsync(`${AMMO_DATABASE}_${ammo.id}`, JSON.stringify({...ammo, previousStock: currentValue, currentStock:total, lastTopUpAt: date.toLocaleDateString(dateLocales.de)})) // Save the ammo
+        console.log(`Updated item ${JSON.stringify(ammo)} with key ${AMMO_DATABASE}_${ammo.id}`)
+        setCurrentAmmo({...ammo, currentStock:parseInt(input)})
+        setStockValue(parseInt(input))
+        setInput("")
+        setStockChange("")
+        setStockVisible(!stockVisible)
+        displayError(false)
+    }
+    else {
+        displayError(true)
+    }
+}
 
     return(
         <SafeAreaView 
@@ -265,13 +296,14 @@ const activeTags = ammo_tags.filter(tag => tag.status === true)
                     <Card.Title titleStyle={ammo.currentStock && ammo.criticalStock ? {color: parseFloat(ammo.currentStock.toString()) <= parseFloat(ammo.criticalStock.toString()) ? "red" : "black"} : {}} title={`${ammo.designation} ${ammo.currentStock ? `(${ammo.currentStock})` : ""}`} subtitle={ammo.manufacturer && ammo.manufacturer.length != 0 ? ammo.manufacturer : " "} subtitleVariant='bodySmall' titleVariant='titleSmall' titleNumberOfLines={2} />
                     {displayAmmoAsGrid ? 
                     <Card.Cover 
-                      source={ammo.images && ammo.images.length != 0 ? { uri: ammo.images[0] } : require(`../assets//775788_several different realistic rifles and pistols on _xl-1024-v1-0.png`)} 
+                      source={ammo.images && ammo.images.length != 0 ? { uri: ammo.images[0] } : require(`../assets//540940_several different realistic bullets and ammunition_xl-1024-v1-0.png`)} 
                       style={{
                         height: 100
                       }}
                     /> 
                     : 
                     null}
+                    <IconButton icon={"plus-minus-variant"} onPress={()=>handleStockButtonPress(ammo)} /> 
                   </Card>
                 </TouchableNativeFeedback>
               )
@@ -293,7 +325,7 @@ const activeTags = ammo_tags.filter(tag => tag.status === true)
                     <Card.Title titleStyle={ammo.currentStock && ammo.criticalStock ? {color: parseFloat(ammo.currentStock.toString()) <= parseFloat(ammo.criticalStock.toString()) ? "red" : "black"} : {}} title={`${ammo.designation} ${ammo.currentStock ? `(${ammo.currentStock})` : ""}`} subtitle={ammo.manufacturer && ammo.manufacturer.length != 0 ? ammo.manufacturer : " "} subtitleVariant='bodySmall' titleVariant='titleSmall' titleNumberOfLines={2} />
                     {displayAmmoAsGrid ? 
                     <Card.Cover 
-                      source={ammo.images && ammo.images.length != 0 ? { uri: ammo.images[0] } : require(`../assets//775788_several different realistic rifles and pistols on _xl-1024-v1-0.png`)} 
+                      source={ammo.images && ammo.images.length != 0 ? { uri: ammo.images[0] } : require(`../assets//540940_several different realistic bullets and ammunition_xl-1024-v1-0.png`)} 
                       style={{
                         height: 100
                       }}
@@ -327,6 +359,33 @@ const activeTags = ammo_tags.filter(tag => tag.status === true)
       </Animated.View>
       :
       null}
+
+{stockVisible ? 
+      <Animated.View entering={FadeIn} exiting={FadeOut} style={{position: "absolute", left: 0, top: 0, right: 0, bottom: 0}}>
+        <SafeAreaView>
+          <View style={{width: "100%", height: "100%", display: "flex", justifyContent: "center", alignItems: "center", backgroundColor: "rgba(0,0,0,0.5)"}}>
+            <View style={{width: "85%", display: "flex", flexDirection: "column", backgroundColor: "white"}}>
+            <View style={{width: "100%", display: "flex", flexDirection: "row"}}>
+                <Text>{ammoQuickUpdate.title[language]}</Text>
+            </View>
+                <View style={{width: "100%", display: "flex", flexDirection: "row"}}>
+                    <IconButton icon="plus" style={{backgroundColor: stockChange === "inc" ? "green" : "transparent"}} onPress={()=>setStockChange("inc")}/>
+                    <IconButton icon="minus" style={{backgroundColor: stockChange === "dec" ? "green" : "transparent"}} onPress={()=>setStockChange("dec")} />
+                    <TextInput style={{flex: 1}} keyboardType={"number-pad"} value={input} onChangeText={input => setInput(input.replace(/[^0-9]/g, ''))} inputMode='decimal'/>
+                    <IconButton icon="floppy" onPress={()=>saveNewStock(currentAmmo)}/>
+                    <IconButton icon="cancel" onPress={()=>setStockVisible(false)}/>
+                </View>
+                {error ? <View style={{width: "100%", display: "flex", flexDirection: "row"}}>
+                <Text style={{color: "red"}}>{ammoQuickUpdate.error[language]}</Text>
+            </View> : null}
+            </View>
+        </View>
+        </SafeAreaView>
+      </Animated.View>
+      :
+      null}
+
+
          {!seeAmmoOpen && !newAmmoOpen && !mainMenuOpen? 
       <FAB
         icon="plus"
