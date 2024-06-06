@@ -38,6 +38,11 @@ interface DatabaseOperation{
     import: SimpleTranslation
 }
 
+interface TabBarLabels{
+    gunCollection: SimpleTranslation
+    ammoCollection: SimpleTranslation
+}
+
 export const editGunTitle:SimpleTranslation = {
     de: "Waffe bearbeiten",
     en: "Edit Gun",
@@ -48,6 +53,18 @@ export const newGunTitle:SimpleTranslation = {
     de: "Neue Waffe",
     en: "New Gun",
     fr: "Nouvelle arme"
+}
+
+export const editAmmoTitle:SimpleTranslation = {
+    de: "Munition bearbeiten",
+    en: "Edit Ammunition",
+    fr: "Modifier les munitions",
+}
+
+export const newAmmoTitle:SimpleTranslation = {
+    de: "Neue Waffe",
+    en: "New Ammunition",
+    fr: "Nouvelles munitions"
 }
 
 export const unsavedChangesAlert:Alert = {
@@ -106,6 +123,29 @@ export const gunDeleteAlert:Alert = {
         de: "Die Waffe wird unwiderruflich gelöscht. Wirklich fortfahren?",
         en: "The gun will be irrevocably deleted. Really continue?",
         fr: "L'arme sera effacée de manière irréversible. Vraiment continuer?",
+    },
+    yes: {
+        de: "Ja",
+        en: "Yes",
+        fr: "Oui",
+    },
+    no: {
+        de: "Nein",
+        en: "No",
+        fr: "Non"
+    }
+}
+
+export const ammoDeleteAlert:Alert = {
+    title: {
+        de: "wirklich löschen?",
+        en: "will be deleted",
+        fr: "vraiment supprimer?",
+    },
+    subtitle: {
+        de: "Die Munition wird unwiderruflich gelöscht. Wirklich fortfahren?",
+        en: "The ammunition will be irrevocably deleted. Really continue?",
+        fr: "Les munitions sera effacée de manière irréversible. Vraiment continuer?",
     },
     yes: {
         de: "Ja",
@@ -258,4 +298,24 @@ export const pdfFooter:SimpleTranslation = {
     de: "Generiert mit der Arsenal Mobile App",
     en: "Generated using the Arsenal Mobile App",
     fr: "Généré par l'application mobile d'Arsenal"
+}
+
+export const tabBarLabels: TabBarLabels = {
+    gunCollection: {
+        de: "Waffen",
+        en: "Weapons",
+        fr: "Armes"
+    },
+    ammoCollection: {
+        de: "Munition",
+        en: "Ammunition",
+        fr: "Munitions"
+    }
+}
+
+export const newTags:{name:string, de:string, en:string, fr:string} = {
+    name: "tags", 
+    de: "Schlagworte",
+    en: "Tags", 
+    fr: "mots-clés"
 }
