@@ -36,7 +36,7 @@ export const ammoDataTemplate:{name:string, de:string, en:string, fr:string}[] =
         fr: "Montant actuel",
 },
 {
-    name: "lastTopupAt",
+    name: "lastTopUpAt",
     de: "Zuletzt aufgestockt",
     en: "Last topped up",
     fr: "Dernièrement augmenté",

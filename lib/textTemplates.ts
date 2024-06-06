@@ -43,6 +43,11 @@ interface TabBarLabels{
     ammoCollection: SimpleTranslation
 }
 
+interface AmmoQuickUpdate{
+    title: SimpleTranslation
+    error: SimpleTranslation
+}
+
 export const editGunTitle:SimpleTranslation = {
     de: "Waffe bearbeiten",
     en: "Edit Gun",
@@ -318,4 +323,17 @@ export const newTags:{name:string, de:string, en:string, fr:string} = {
     de: "Schlagworte",
     en: "Tags", 
     fr: "mots-clés"
+}
+
+export const ammoQuickUpdate:AmmoQuickUpdate = {
+    title: {
+        de: "Mit + oder - schnell eine Munituonszunahme oder -abnahme erfassen",
+        en: "Use + or - to quickly record an increase or decrease in ammunition volume", 
+        fr: "Saisir rapidement une augmentation ou une diminution de la munition avec + ou -."
+    },
+    error: {
+        de: "Entweder + oder - muss ausgewählt sein",
+        en: "Either + or - must be selected", 
+        fr: "Le + ou le - doit être sélectionné"
+    }
 }
