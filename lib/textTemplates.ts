@@ -26,9 +26,12 @@ interface Toast{
 interface PreferenceTitle{
     language: SimpleTranslation
     colors: SimpleTranslation
-    db: SimpleTranslation
-    saveDb: SimpleTranslation
-    importDb: SimpleTranslation
+    db_gun: SimpleTranslation
+    saveDb_gun: SimpleTranslation
+    importDb_gun: SimpleTranslation
+    db_ammo: SimpleTranslation
+    saveDb_ammo: SimpleTranslation
+    importDb_ammo: SimpleTranslation
     gunList: SimpleTranslation
     printAllGuns: SimpleTranslation
 }
@@ -67,7 +70,7 @@ export const editAmmoTitle:SimpleTranslation = {
 }
 
 export const newAmmoTitle:SimpleTranslation = {
-    de: "Neue Waffe",
+    de: "Neue Munition",
     en: "New Ammunition",
     fr: "Nouvelles munitions"
 }
@@ -253,17 +256,32 @@ export const preferenceTitles:PreferenceTitle = {
         en: "Color scheme",
         fr: "Schéma de couleurs"
     },
-    db: {
-        de: "Datenbank",
-        en: "Database",
-        fr: "Base de données"
+    db_gun: {
+        de: "Datenbank Waffen",
+        en: "Gun Database",
+        fr: "Base de données armes"
     },
-    saveDb: {
+    saveDb_gun: {
         de: "Speichern",
         en: "Save",
         fr: "Enregistrer"
     },
-    importDb: {
+    importDb_gun: {
+        de: "Importieren",
+        en: "Import",
+        fr: "Importer"
+    },
+    db_ammo: {
+        de: "Datenbank Munition",
+        en: "Ammunition Database",
+        fr: "Base de données munitions"
+    },
+    saveDb_ammo: {
+        de: "Speichern",
+        en: "Save",
+        fr: "Enregistrer"
+    },
+    importDb_ammo: {
         de: "Importieren",
         en: "Import",
         fr: "Importer"
