@@ -324,7 +324,7 @@ export default function mainMenu(){
                             </ScrollView>
                         </View>
                         <View style={{width: "100%", flex: 2, padding: 10, marginBottom: 10, elevation: 4}}>
-                            <Text style={{color: theme.colors.onBackground}} >Version Pre-Alpha</Text>
+                            <Text style={{color: theme.colors.onBackground}} >Version Alpha 2.0.0</Text>
                             <Text style={{color: theme.colors.onBackground}}>{`© ${currentYear === 2024 ? currentYear : `2024 - ${currentYear}`} Marcel Weber`} </Text>
                         </View>
                     </View>
