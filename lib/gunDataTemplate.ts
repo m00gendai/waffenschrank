@@ -63,6 +63,12 @@ export const gunDataTemplate:{name:string, de:string, en:string, fr:string}[] = 
         fr: "Compte de tirs"
     },
     {
+        name: "lastCleanedAt",
+        de: "Zuletzt gereinigt",
+        en: "Last cleaned",
+        fr: "Nettoyé en dernier"
+    },
+    {
             name: "mainColor",
             de: "Hauptfarbe",
             en: "Main Color",
