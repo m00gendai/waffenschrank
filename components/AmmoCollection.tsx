@@ -1,23 +1,24 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useEffect, useState } from 'react';
-import { Dimensions, ScrollView, StyleSheet, TouchableNativeFeedback, View, Text } from 'react-native';
-import { Appbar, Card, FAB, Menu, Switch, useTheme } from 'react-native-paper';
+import { ScrollView, StyleSheet, View, Text } from 'react-native';
+import { Appbar, FAB, IconButton, Menu, Switch, TextInput, useTheme } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { GUN_DATABASE, KEY_DATABASE, PREFERENCES, TAGS, defaultGridGap, defaultViewPadding } from '../configs';
-import { GunType, MenuVisibility } from '../interfaces';
+import { AMMO_DATABASE, A_KEY_DATABASE, PREFERENCES, A_TAGS, defaultGridGap, defaultViewPadding, dateLocales } from '../configs';
+import { AmmoType, MenuVisibility } from '../interfaces';
 import * as SecureStore from "expo-secure-store"
 import { getIcon, doSortBy } from '../utils';
 import Animated, { FadeIn, FadeOut, SlideInDown, SlideOutDown } from 'react-native-reanimated';
-import NewGun from './NewGun';
-import Gun from './Gun';
 import { useViewStore } from '../stores/useViewStore';
-import { useGunStore } from '../stores/useGunStore';
+import { useAmmoStore } from '../stores/useAmmoStore';
 import { usePreferenceStore } from '../stores/usePreferenceStore';
 import { useTagStore } from '../stores/useTagStore';
 import { Checkbox } from 'react-native-paper';
-import GunCard from './GunCard';
+import NewAmmo from './NewAmmo';
+import Ammo from './Ammo';
+import { ammoQuickUpdate } from '../lib/textTemplates';
+import AmmoCard from './AmmoCard';
 
-export default function GunCollection(){
+export default function AmmoCollection(){
 
   // TODO: Zustand SortIcon, Zustand SortOrder @ usePreferenceStore
   // TODO: Zustand menuVisibility @ useViewStore
@@ -26,16 +27,19 @@ export default function GunCollection(){
   const [menuVisibility, setMenuVisibility] = useState<MenuVisibility>({sortBy: false, filterBy: false});
   const [sortIcon, setSortIcon] = useState<string>("alphabetical-variant")
   const [sortAscending, setSortAscending] = useState<boolean>(true)
+  const [stockVisible, setStockVisible] = useState<boolean>(false)
+  const [stockChange, setStockChange] = useState<"dec" | "inc" | "">("")
+  const [stockValue, setStockValue] = useState<number>(0)
+  const [input, setInput] = useState<string>("")
+  const [error, displayError] = useState<boolean>(false)
 
-  const { dbImport, displayAsGrid, setDisplayAsGrid, toggleDisplayAsGrid, sortBy, setSortBy } = usePreferenceStore()
-  const { mainMenuOpen, setMainMenuOpen, newGunOpen, setNewGunOpen, editGunOpen, setEditGunOpen, seeGunOpen, setSeeGunOpen } = useViewStore()
-  const { gunCollection, setGunCollection, currentGun, setCurrentGun } = useGunStore()
-  const { tags, setTags, overWriteTags } = useTagStore()
+  const { ammoDbImport, displayAmmoAsGrid, setDisplayAmmoAsGrid, toggleDisplayAmmoAsGrid, sortAmmoBy, setSortAmmoBy, language, theme } = usePreferenceStore()
+  const { mainMenuOpen, setMainMenuOpen, newAmmoOpen, setNewAmmoOpen, seeAmmoOpen, } = useViewStore()
+  const { ammoCollection, setAmmoCollection, currentAmmo, setCurrentAmmo } = useAmmoStore()
+  const { ammo_tags, setAmmoTags, overWriteAmmoTags } = useTagStore()
   const [isFilterOn, setIsFilterOn] = useState<boolean>(false);
 
   const onToggleSwitch = () => setIsFilterOn(!isFilterOn);
-
-  const theme = useTheme();
 
   const styles = StyleSheet.create({
     container: {
@@ -62,7 +66,7 @@ export default function GunCollection(){
   });
   
     async function getKeys(){
-        const keys:string = await AsyncStorage.getItem(KEY_DATABASE)
+        const keys:string = await AsyncStorage.getItem(A_KEY_DATABASE)
         if(keys == null){
           return []
         }
@@ -70,38 +74,38 @@ export default function GunCollection(){
       }
       
     useEffect(()=>{
-        async function getGuns(){
+        async function getAmmo(){
           const keys:string[] = await getKeys()
-          const guns:GunType[] = await Promise.all(keys.map(async key =>{
-            const item:string = await SecureStore.getItemAsync(`${GUN_DATABASE}_${key}`)
+          const ammunitions:AmmoType[] = await Promise.all(keys.map(async key =>{
+            const item:string = await SecureStore.getItemAsync(`${AMMO_DATABASE}_${key}`)
             return JSON.parse(item)
           }))
           const preferences:string = await AsyncStorage.getItem(PREFERENCES)
           const isPreferences = preferences === null ? null : JSON.parse(preferences)
 
-          const sortedGuns = doSortBy(isPreferences === null ? "alphabetical" : isPreferences.sortBy === null ? "alphabetical" : isPreferences.sortBy, isPreferences == null? true : isPreferences.sortOrder === null ? true : isPreferences.sortOrder, guns) as GunType[]
-          setGunCollection(sortedGuns)
+          const sortedAmmo = doSortBy(isPreferences === null ? "alphabetical" : isPreferences.sortAmmoBy === null ? "alphabetical" : isPreferences.sortAmmoBy, isPreferences == null? true : isPreferences.sortAmmoOrder === null ? true : isPreferences.sortOrder, ammunitions) as AmmoType[]
+          setAmmoCollection(sortedAmmo)
         }
-        getGuns()
-      },[newGunOpen, seeGunOpen, dbImport])
+        getAmmo()
+      },[newAmmoOpen, seeAmmoOpen, ammoDbImport, stockValue])
 
 useEffect(()=>{
   async function getPreferences(){
     const preferences:string = await AsyncStorage.getItem(PREFERENCES)
     const isPreferences = preferences === null ? null : JSON.parse(preferences)
 
-    const tagList: string = await AsyncStorage.getItem(TAGS)
+    const tagList: string = await AsyncStorage.getItem(A_TAGS)
 
     const isTagList:{label: string, status: boolean}[] = tagList === null ? null : JSON.parse(tagList)
    
-    setDisplayAsGrid(isPreferences === null ? true : isPreferences.displayAsGrid === null ? true : isPreferences.displayAsGrid)
-    setSortBy(isPreferences === null ? "alphabetical" : isPreferences.sortBy === null ? "alphabetical" : isPreferences.sortBy)
-    setSortIcon(getIcon((isPreferences === null ? "alphabetical" : isPreferences.sortBy === null ? "alphabetical" : isPreferences.sortBy)))
+    setDisplayAmmoAsGrid(isPreferences === null ? true : isPreferences.displayAmmoAsGrid === null ? true : isPreferences.displayAmmoAsGrid)
+    setSortAmmoBy(isPreferences === null ? "alphabetical" : isPreferences.sortAmmoBy === null ? "alphabetical" : isPreferences.sortAmmoBy)
+    setSortIcon(getIcon((isPreferences === null ? "alphabetical" : isPreferences.sortAmmoBy === null ? "alphabetical" : isPreferences.sortAmmoBy)))
 
     if(isTagList !== null && isTagList !== undefined){
       Object.values(isTagList).map(tag =>{
 
-      setTags(tag)
+      setAmmoTags(tag)
     }) 
   }
   
@@ -113,11 +117,11 @@ useEffect(()=>{
 
         async function handleSortBy(type: "alphabetical" | "chronological" | "caliber"){
             setSortIcon(getIcon(type))
-            setSortBy(type)
-            const sortedGuns = doSortBy(type, sortAscending, gunCollection) as GunType[]
-            setGunCollection(sortedGuns)
+            setSortAmmoBy(type)
+            const sortedAmmo = doSortBy(type, sortAscending, ammoCollection) as AmmoType[] 
+            setAmmoCollection(sortedAmmo)
             const preferences:string = await AsyncStorage.getItem(PREFERENCES)
-            const newPreferences:{[key:string] : string} = preferences == null ? {"sortBy": type} : {...JSON.parse(preferences), "sortBy":type} 
+            const newPreferences:{[key:string] : string} = preferences == null ? {"sortAmmoBy": type} : {...JSON.parse(preferences), "sortAmmoBy":type} 
             await AsyncStorage.setItem(PREFERENCES, JSON.stringify(newPreferences))
           }
 
@@ -127,17 +131,17 @@ useEffect(()=>{
 
           async function handleSortOrder(){
             setSortAscending(!sortAscending)
-            const sortedGuns = doSortBy(sortBy, !sortAscending, gunCollection) as GunType[] // called with !sortAscending due to the useState having still the old value
-            setGunCollection(sortedGuns)
+            const sortedAmmo = doSortBy(sortAmmoBy, !sortAscending, ammoCollection) as AmmoType[] // called with !sortAscending due to the useState having still the old value
+            setAmmoCollection(sortedAmmo)
             const preferences:string = await AsyncStorage.getItem(PREFERENCES)
             const newPreferences:{[key:string] : string} = preferences == null ? {"sortOrder": !sortAscending} : {...JSON.parse(preferences), "sortOrder":!sortAscending} 
             await AsyncStorage.setItem(PREFERENCES, JSON.stringify(newPreferences))
           }
         
           async function handleDisplaySwitch(){
-            toggleDisplayAsGrid()
+            toggleDisplayAmmoAsGrid()
             const preferences:string = await AsyncStorage.getItem(PREFERENCES)
-            const newPreferences:{[key:string] : string} = preferences == null ? {"displayAsGrid": !displayAsGrid} : {...JSON.parse(preferences), "displayAsGrid": !displayAsGrid} 
+            const newPreferences:{[key:string] : string} = preferences == null ? {"displayAmmoAsGrid": !displayAmmoAsGrid} : {...JSON.parse(preferences), "displayAmmoAsGrid": !displayAmmoAsGrid} 
             await AsyncStorage.setItem(PREFERENCES, JSON.stringify(newPreferences))
           } 
 
@@ -172,30 +176,50 @@ const uniqueObjects = removeDuplicates(list);
 
 async function handleFilterPress(tag:{label:string, status:boolean}){
 
-  const preferences:string = await AsyncStorage.getItem(TAGS)
+  const preferences:string = await AsyncStorage.getItem(A_TAGS)
+console.log(`preferences: ${preferences}`)
+  const index = ammo_tags.findIndex(tagItem => tagItem.label === tag.label)
 
-  const index = tags.findIndex(tagItem => tagItem.label === tag.label)
+  ammo_tags[index].status = !ammo_tags[index].status
+  overWriteAmmoTags(ammo_tags)
 
-  tags[index].status = !tags[index].status
-  overWriteTags(tags)
-
-            const newPreferences:{[key:string] : string} = preferences == null ? {"tags": tags} : {...JSON.parse(preferences), "tags":tags} 
-            await AsyncStorage.setItem(TAGS, JSON.stringify(newPreferences))
+            const newPreferences:{[key:string] : string} = preferences == null ? {"ammo_tags": ammo_tags} : {...JSON.parse(preferences), "ammo_tags":ammo_tags} 
+            await AsyncStorage.setItem(A_TAGS, JSON.stringify(newPreferences))
  
 }
 
-const activeTags = tags.filter(tag => tag.status === true)
-           const sortedTags = sortTags(tags)
-              const gunList = gunCollection.filter(gun => activeTags.some(tag => gun.tags?.includes(tag.label)))
-           
+const activeTags = ammo_tags.filter(tag => tag.status === true)
+           const sortedTags = sortTags(ammo_tags)
+              const ammoList = ammoCollection.filter(ammo => activeTags.some(tag => ammo.tags?.includes(tag.label)))
 
+
+           
+async function saveNewStock(ammo:AmmoType){
+    const date:Date = new Date()
+    if(stockChange !== ""){
+    const currentValue:number = ammo.currentStock ? ammo.currentStock : 0
+    const increase:number = parseInt(input)
+    const total:number = stockChange === "inc" ? currentValue + increase : currentValue - increase
+console.log(total)
+    await SecureStore.setItemAsync(`${AMMO_DATABASE}_${ammo.id}`, JSON.stringify({...ammo, previousStock: currentValue, currentStock:total, lastTopUpAt: date.toLocaleDateString(dateLocales.de)})) // Save the ammo
+        console.log(`Updated item ${JSON.stringify(ammo)} with key ${AMMO_DATABASE}_${ammo.id}`)
+        setCurrentAmmo({...ammo, currentStock:parseInt(input)})
+        setStockValue(parseInt(input))
+        setInput("")
+        setStockChange("")
+        setStockVisible(!stockVisible)
+        displayError(false)
+    }
+    else {
+        displayError(true)
+    }
+}
     return(
         <SafeAreaView 
         style={{
           width: "100%", 
           height: "100%", 
-          flex: 1,
-          backgroundColor: theme.colors.background
+          flex: 1
         }}
       >
 
@@ -223,7 +247,7 @@ const activeTags = tags.filter(tag => tag.status === true)
               })}
               </View>
             </Menu>
-            <Appbar.Action icon={displayAsGrid ? "view-grid" : "format-list-bulleted-type"} onPress={handleDisplaySwitch} />
+            <Appbar.Action icon={displayAmmoAsGrid ? "view-grid" : "format-list-bulleted-type"} onPress={handleDisplaySwitch} />
             <Menu
               visible={menuVisibility.sortBy}
               onDismiss={()=>handleMenu("sortBy", false)}
@@ -239,7 +263,7 @@ const activeTags = tags.filter(tag => tag.status === true)
         </Appbar>
 
         <ScrollView 
-          style={{
+          contentContainerStyle={{
             width: "100%", 
             height: "100%", 
             flexDirection: "column", 
@@ -249,17 +273,18 @@ const activeTags = tags.filter(tag => tag.status === true)
           <View 
             style={styles.container}
           >
-            {gunCollection.length != 0 && !isFilterOn ? gunCollection.map(gun =>{
+            {ammoCollection.length != 0 && !isFilterOn ? ammoCollection.map(ammo =>{
               return(
-                <GunCard key={gun.id} gun={gun}/>
+                <AmmoCard key={ammo.id} ammo={ammo} stockVisible={stockVisible} setStockVisible={setStockVisible}/>
               )
             }) 
             :
-            gunCollection.length !== 0 && isFilterOn ? gunList.map(gun =>{
+            ammoCollection.length !== 0 && isFilterOn ? ammoList.map(ammo =>{
               
 
                 
-                  return <GunCard key={gun.id} gun={gun}/>
+                  return <AmmoCard key={ammo.id} ammo={ammo} stockVisible={stockVisible} setStockVisible={setStockVisible}/>
+                
                 
               
             })
@@ -268,28 +293,55 @@ const activeTags = tags.filter(tag => tag.status === true)
             null}
           </View>
         </ScrollView>
-        {newGunOpen ? 
+        {newAmmoOpen ? 
       <Animated.View entering={SlideInDown} exiting={SlideOutDown} style={{position: "absolute", left: 0, top: 0, right: 0, bottom: 0}}>
         <SafeAreaView>
-          <NewGun />
+          <NewAmmo />
         </SafeAreaView>
       </Animated.View> 
       : 
       null}
         
-      {seeGunOpen ? 
+      {seeAmmoOpen ? 
       <Animated.View entering={FadeIn} exiting={FadeOut} style={{position: "absolute", left: 0, top: 0, right: 0, bottom: 0}}>
         <SafeAreaView>
-          <Gun />
+          <Ammo />
         </SafeAreaView>
       </Animated.View>
       :
       null}
-         {!seeGunOpen && !newGunOpen && !mainMenuOpen? 
+
+{stockVisible ? 
+      <Animated.View entering={FadeIn} exiting={FadeOut} style={{position: "absolute", left: 0, top: 0, right: 0, bottom: 0}}>
+        <SafeAreaView>
+          <View style={{width: "100%", height: "100%", display: "flex", justifyContent: "center", alignItems: "center", backgroundColor: theme.colors.backdrop}}>
+            <View style={{width: "85%", display: "flex", flexDirection: "column", backgroundColor: theme.colors.background}}>
+            <View style={{width: "100%", display: "flex", flexDirection: "row"}}>
+                <Text style={{color: theme.colors.onBackground}}>{ammoQuickUpdate.title[language]}</Text>
+            </View>
+                <View style={{width: "100%", display: "flex", flexDirection: "row"}}>
+                    <IconButton mode="contained" icon="plus" selected={stockChange === "inc" ? true : false} onPress={()=>setStockChange("inc")}/>
+                    <IconButton mode="contained" icon="minus" selected={stockChange === "dec" ? true : false} onPress={()=>setStockChange("dec")} />
+                    <TextInput style={{flex: 1}} keyboardType={"number-pad"} value={input} onChangeText={input => setInput(input.replace(/[^0-9]/g, ''))} inputMode='decimal'/>
+                    <IconButton mode="contained" icon="floppy" onPress={()=>saveNewStock(currentAmmo)}/>
+                    <IconButton mode="contained" icon="cancel" onPress={()=>setStockVisible(false)}/>
+                </View>
+                {error ? <View style={{width: "100%", display: "flex", flexDirection: "row"}}>
+                <Text style={{color: theme.colors.error}}>{ammoQuickUpdate.error[language]}</Text>
+            </View> : null}
+            </View>
+        </View>
+        </SafeAreaView>
+      </Animated.View>
+      :
+      null}
+
+
+         {!seeAmmoOpen && !newAmmoOpen && !mainMenuOpen? 
       <FAB
         icon="plus"
         style={styles.fab}
-        onPress={setNewGunOpen}
+        onPress={setNewAmmoOpen}
         disabled={mainMenuOpen ? true : false}
       /> 
       : 

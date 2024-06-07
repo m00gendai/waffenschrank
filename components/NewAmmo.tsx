@@ -4,45 +4,45 @@ import * as ImagePicker from "expo-image-picker"
 import { useEffect, useState } from 'react';
 import * as SecureStore from "expo-secure-store"
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { gunDataTemplate, gunRemarks } from "../lib/gunDataTemplate"
+import { ammoDataTemplate, ammoRemarks } from "../lib/ammoDataTemplate"
 import NewText from "./NewText"
 import "react-native-get-random-values"
 import { v4 as uuidv4 } from 'uuid';
 import ImageViewer from "./ImageViewer"
-import { GUN_DATABASE, KEY_DATABASE } from '../configs';
-import { GunType } from '../interfaces';
-import { gunDataValidation } from '../utils';
+import { AMMO_DATABASE, A_KEY_DATABASE } from '../configs';
+import { AmmoType } from '../interfaces';
+import { ammoDataValidation } from '../utils';
 import NewTextArea from './NewTextArea';
 import NewCheckboxArea from './NewCheckboxArea';
-import { newGunTitle, toastMessages, unsavedChangesAlert, validationFailedAlert } from '../lib/textTemplates';
+import { newAmmoTitle, toastMessages, unsavedChangesAlert, validationFailedAlert } from '../lib/textTemplates';
 import { usePreferenceStore } from '../stores/usePreferenceStore';
 import { useViewStore } from '../stores/useViewStore';
 import NewChipArea from './NewChipArea';
-import { useGunStore } from '../stores/useGunStore';
+import { useAmmoStore } from '../stores/useAmmoStore';
 
 
-export default function NewGun(){
+export default function newAmmo(){
 
     const [selectedImage, setSelectedImage] = useState<string[]>(null)
     const [granted, setGranted] = useState<boolean>(false)
-    const [gunData, setGunData] = useState<GunType>(null)
+    const [ammoData, setAmmoData] = useState<AmmoType>(null)
     const [visible, setVisible] = useState<boolean>(false);
     const [snackbarText, setSnackbarText] = useState<string>("")
     const [saveState, setSaveState] = useState<boolean>(false)
 
     const { language, theme } = usePreferenceStore()
-    const { setNewGunOpen, setSeeGunOpen } = useViewStore()
-    const { setCurrentGun } = useGunStore()
+    const { setNewAmmoOpen, setSeeAmmoOpen } = useViewStore()
+    const { setCurrentAmmo } = useAmmoStore()
 
     useEffect(()=>{
         setSaveState(false)
-    },[gunData])
+    },[ammoData])
 
     function invokeAlert(){
         Alert.alert(unsavedChangesAlert.title[language], unsavedChangesAlert.subtitle[language], [
             {
                 text: unsavedChangesAlert.yes[language],
-                onPress: setNewGunOpen
+                onPress: setNewAmmoOpen
             },
             {
                 text: unsavedChangesAlert.no[language],
@@ -55,8 +55,8 @@ export default function NewGun(){
 
   const onDismissSnackBar = () => setVisible(false);
 
-    async function save(value:GunType) {
-        const validationResult:{field: string, error: string}[] = gunDataValidation(value, language)
+    async function save(value:AmmoType) {
+        const validationResult:{field: string, error: string}[] = ammoDataValidation(value, language)
         if(validationResult.length != 0){
             Alert.alert(validationFailedAlert.title[language], `${validationResult.map(result => `${result.field}: ${result.error}`)}`, [
                 {
@@ -67,25 +67,25 @@ export default function NewGun(){
             return
         }
         /* 
-            Saving a gun is a two-step process:
-            1. Save the key of the gun to the key database
-            2. Save the gun object as a separate key/value pair in the gun database
+            Saving ammo is a two-step process:
+            1. Save the key of the ammo to the key database
+            2. Save the ammo object as a separate key/value pair in the ammo database
         */
 
         
             
 
-        const allKeys:string = await AsyncStorage.getItem(KEY_DATABASE) // gets the object that holds all key values
-        const newKeys:string[] = allKeys == null ? [value.id] : [...JSON.parse(allKeys), value.id] // if its the first gun to be saved, create an array with the id of the gun. Otherwise, merge the key into the existing array
-        await AsyncStorage.setItem(KEY_DATABASE, JSON.stringify(newKeys)) // Save the key object
-        SecureStore.setItem(`${GUN_DATABASE}_${value.id}`, JSON.stringify(value)) // Save the gun
-        console.log(`Saved item ${JSON.stringify(value)} with key ${GUN_DATABASE}_${value.id}`)
+        const allKeys:string = await AsyncStorage.getItem(A_KEY_DATABASE) // gets the object that holds all key values
+        const newKeys:string[] = allKeys == null ? [value.id] : [...JSON.parse(allKeys), value.id] // if its the first ammo to be saved, create an array with the id of the ammo. Otherwise, merge the key into the existing array
+        await AsyncStorage.setItem(A_KEY_DATABASE, JSON.stringify(newKeys)) // Save the key object
+        SecureStore.setItem(`${AMMO_DATABASE}_${value.id}`, JSON.stringify(value)) // Save the ammo
+        console.log(`Saved item ${JSON.stringify(value)} with key ${AMMO_DATABASE}_${value.id}`)
         setSaveState(true)
-        setSnackbarText(`${value.manufacturer ? value.manufacturer : ""} ${value.model} ${toastMessages.saved[language]}`)
+        setSnackbarText(`${value.designation} ${value.manufacturer ? value.manufacturer : ""} ${toastMessages.saved[language]}`)
         onToggleSnackBar()
-        setNewGunOpen()
-        setCurrentGun(gunData)
-        setSeeGunOpen()
+        setNewAmmoOpen()
+        setCurrentAmmo(ammoData)
+        setSeeAmmoOpen()
 
     }
     
@@ -109,10 +109,10 @@ export default function NewGun(){
             if(newImage && newImage.length != 0){
                 newImage.splice(indx, 1, result.assets[0].uri)
                 setSelectedImage(newImage)
-                setGunData({...gunData, images:newImage})
+                setAmmoData({...ammoData, images:newImage})
             } else {
                 setSelectedImage([result.assets[0].uri])
-                setGunData({...gunData, images:[result.assets[0].uri]})
+                setAmmoData({...ammoData, images:[result.assets[0].uri]})
             }
         }
     }   
@@ -138,21 +138,61 @@ export default function NewGun(){
             if(newImage && newImage.length != 0){
                 newImage.splice(indx, 1, result.assets[0].uri)
                 setSelectedImage(newImage)
-                setGunData({...gunData, images:newImage})
+                setAmmoData({...ammoData, images:newImage})
             } else {
                 setSelectedImage([result.assets[0].uri])
-                setGunData({...gunData, images:[result.assets[0].uri]})
+                setAmmoData({...ammoData, images:[result.assets[0].uri]})
             }
         }
     }   
+
+    const styles = StyleSheet.create({
+        container: {
+            display: "flex",
+            flex: 1,
+            flexWrap: "wrap",
+            flexDirection: "column",
+            height: "100%",
+            width: "100%",
+            justifyContent: "center",
+            alignItems: "flex-start",
+            alignContent: "flex-start",
+            gap: 5,
+            padding: 5,
+        },
+        imageContainer: {
+            width: "100%",
+            aspectRatio: "18/10",
+            flexDirection: "column",
+            flex: 1,
+            marginRight: 5
+        },
+        button: {
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center"
+        },
+        fab: {
+            position: 'absolute',
+            margin: 16,
+            right: 0,
+            bottom: 0,
+        },
+        fab2: {
+        position: 'absolute',
+        margin: 16,
+        left: 0,
+        bottom: 0,
+        },
+      });
 
     return(
         <View style={{width: "100%", height: "100%", backgroundColor: theme.colors.background}}>
             
             <Appbar style={{width: "100%"}}>
-                <Appbar.BackAction  onPress={() => {saveState ? setNewGunOpen() : invokeAlert()}} />
-                <Appbar.Content title={newGunTitle[language]} />
-                <Appbar.Action icon="floppy" onPress={() => save({...gunData, id: uuidv4(), images:selectedImage, createdAt: new Date(), lastModifiedAt: new Date()})} color={saveState  == true ? "green" : saveState == false ? theme.colors.error : theme.colors.onBackground} />
+                <Appbar.BackAction  onPress={() => {saveState ? setNewAmmoOpen() : invokeAlert()}} />
+                <Appbar.Content title={newAmmoTitle[language]} />
+                <Appbar.Action icon="floppy" onPress={() => save({...ammoData, id: uuidv4(), images:selectedImage, createdAt: new Date(), lastModifiedAt: new Date()})} color={saveState  == true ? "green" : saveState == false ? theme.colors.error : theme.colors.onBackground} />
             </Appbar>
 
             <View style={styles.container}>
@@ -183,8 +223,8 @@ export default function NewGun(){
                         width: "100%",
                         
                     }}>
-                        <NewChipArea data={"status"} gunData={gunData} setGunData={setGunData}/>
-                        {gunDataTemplate.map(data=>{
+                        <NewChipArea data={"status"} ammoData={ammoData} setAmmoData={setAmmoData}/>
+                        {ammoDataTemplate.map(data=>{
                             return(
                                 <View 
                                     id={data.name}
@@ -198,12 +238,11 @@ export default function NewGun(){
                                         
                                 }}>
                                     
-                                    <NewText data={data.name} gunData={gunData} setGunData={setGunData} label={data[language]}/>
+                                    <NewText data={data.name} ammoData={ammoData} setAmmoData={setAmmoData} label={data[language]}/>
                                 </View>
                             )
                         })}
-                        <NewCheckboxArea data={"status"} gunData={gunData} setGunData={setGunData} />
-                        <NewTextArea data={gunRemarks.name} gunData={gunData} setGunData={setGunData}/>
+                        <NewTextArea data={ammoRemarks.name} ammoData={ammoData} setAmmoData={setAmmoData}/>
                     </View>
                 </ScrollView>
             </View>
@@ -222,42 +261,3 @@ export default function NewGun(){
     )
 }
 
-const styles = StyleSheet.create({
-    container: {
-        display: "flex",
-        flex: 1,
-        flexWrap: "wrap",
-        flexDirection: "column",
-        height: "100%",
-        width: "100%",
-        justifyContent: "center",
-        alignItems: "flex-start",
-        alignContent: "flex-start",
-        gap: 5,
-        padding: 5,
-    },
-    imageContainer: {
-        width: "100%",
-        aspectRatio: "18/10",
-        flexDirection: "column",
-        flex: 1,
-        marginRight: 5
-    },
-    button: {
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center"
-    },
-    fab: {
-        position: 'absolute',
-        margin: 16,
-        right: 0,
-        bottom: 0,
-    },
-    fab2: {
-    position: 'absolute',
-    margin: 16,
-    left: 0,
-    bottom: 0,
-    },
-  });

@@ -1,4 +1,4 @@
-interface SimpleTranslation{
+export interface SimpleTranslation{
     de: string
     en: string
     fr: string
@@ -26,14 +26,29 @@ interface Toast{
 interface PreferenceTitle{
     language: SimpleTranslation
     colors: SimpleTranslation
-    db: SimpleTranslation
-    saveDb: SimpleTranslation
-    importDb: SimpleTranslation
+    db_gun: SimpleTranslation
+    saveDb_gun: SimpleTranslation
+    importDb_gun: SimpleTranslation
+    db_ammo: SimpleTranslation
+    saveDb_ammo: SimpleTranslation
+    importDb_ammo: SimpleTranslation
+    gunList: SimpleTranslation
+    printAllGuns: SimpleTranslation
 }
 
 interface DatabaseOperation{
     export: SimpleTranslation
     import: SimpleTranslation
+}
+
+interface TabBarLabels{
+    gunCollection: SimpleTranslation
+    ammoCollection: SimpleTranslation
+}
+
+interface AmmoQuickUpdate{
+    title: SimpleTranslation
+    error: SimpleTranslation
 }
 
 export const editGunTitle:SimpleTranslation = {
@@ -46,6 +61,18 @@ export const newGunTitle:SimpleTranslation = {
     de: "Neue Waffe",
     en: "New Gun",
     fr: "Nouvelle arme"
+}
+
+export const editAmmoTitle:SimpleTranslation = {
+    de: "Munition bearbeiten",
+    en: "Edit Ammunition",
+    fr: "Modifier les munitions",
+}
+
+export const newAmmoTitle:SimpleTranslation = {
+    de: "Neue Munition",
+    en: "New Ammunition",
+    fr: "Nouvelles munitions"
 }
 
 export const unsavedChangesAlert:Alert = {
@@ -104,6 +131,29 @@ export const gunDeleteAlert:Alert = {
         de: "Die Waffe wird unwiderruflich gelöscht. Wirklich fortfahren?",
         en: "The gun will be irrevocably deleted. Really continue?",
         fr: "L'arme sera effacée de manière irréversible. Vraiment continuer?",
+    },
+    yes: {
+        de: "Ja",
+        en: "Yes",
+        fr: "Oui",
+    },
+    no: {
+        de: "Nein",
+        en: "No",
+        fr: "Non"
+    }
+}
+
+export const ammoDeleteAlert:Alert = {
+    title: {
+        de: "wirklich löschen?",
+        en: "will be deleted",
+        fr: "vraiment supprimer?",
+    },
+    subtitle: {
+        de: "Die Munition wird unwiderruflich gelöscht. Wirklich fortfahren?",
+        en: "The ammunition will be irrevocably deleted. Really continue?",
+        fr: "Les munitions sera effacée de manière irréversible. Vraiment continuer?",
     },
     yes: {
         de: "Ja",
@@ -206,22 +256,46 @@ export const preferenceTitles:PreferenceTitle = {
         en: "Color scheme",
         fr: "Schéma de couleurs"
     },
-    db: {
-        de: "Datenbank",
-        en: "Database",
-        fr: "Base de données"
+    db_gun: {
+        de: "Datenbank Waffen",
+        en: "Gun Database",
+        fr: "Base de données armes"
     },
-    saveDb: {
+    saveDb_gun: {
         de: "Speichern",
         en: "Save",
         fr: "Enregistrer"
     },
-    importDb: {
+    importDb_gun: {
         de: "Importieren",
         en: "Import",
         fr: "Importer"
     },
-    
+    db_ammo: {
+        de: "Datenbank Munition",
+        en: "Ammunition Database",
+        fr: "Base de données munitions"
+    },
+    saveDb_ammo: {
+        de: "Speichern",
+        en: "Save",
+        fr: "Enregistrer"
+    },
+    importDb_ammo: {
+        de: "Importieren",
+        en: "Import",
+        fr: "Importer"
+    },
+    gunList: {
+        de: "Waffenverzeichnis",
+        en: "List of weapons",
+        fr: "Liste des armes"
+    },
+    printAllGuns: {
+        de: "Komplett",
+        en: "Complete",
+        fr: "Complet"
+    }
 }
 
 export const databaseOperations:DatabaseOperation = {
@@ -234,5 +308,50 @@ export const databaseOperations:DatabaseOperation = {
         de: "Datenbank wird importiert...",
         en: "Database is being imported...",
         fr: "Base de données en cours d'importation...",
+    }
+}
+
+export const pdfTitle:SimpleTranslation = {
+    de: "Waffenverzeichnis",
+    en: "List of weapons",
+    fr: "Liste des armes"
+}
+
+export const pdfFooter:SimpleTranslation = {
+    de: "Generiert mit der Arsenal Mobile App",
+    en: "Generated using the Arsenal Mobile App",
+    fr: "Généré par l'application mobile d'Arsenal"
+}
+
+export const tabBarLabels: TabBarLabels = {
+    gunCollection: {
+        de: "Waffen",
+        en: "Weapons",
+        fr: "Armes"
+    },
+    ammoCollection: {
+        de: "Munition",
+        en: "Ammunition",
+        fr: "Munitions"
+    }
+}
+
+export const newTags:{name:string, de:string, en:string, fr:string} = {
+    name: "tags", 
+    de: "Schlagworte",
+    en: "Tags", 
+    fr: "mots-clés"
+}
+
+export const ammoQuickUpdate:AmmoQuickUpdate = {
+    title: {
+        de: "Mit + oder - schnell eine Munituonszunahme oder -abnahme erfassen",
+        en: "Use + or - to quickly record an increase or decrease in ammunition volume", 
+        fr: "Saisir rapidement une augmentation ou une diminution de la munition avec + ou -."
+    },
+    error: {
+        de: "Entweder + oder - muss ausgewählt sein",
+        en: "Either + or - must be selected", 
+        fr: "Le + ou le - doit être sélectionné"
     }
 }

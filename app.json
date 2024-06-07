@@ -1,13 +1,13 @@
 {
   "expo": {
-    "name": "waffenschrank",
-    "slug": "waffenschrank",
-    "version": "1.0.0",
+    "name": "Arsenal",
+    "slug": "Arsenal",
+    "version": "Alpha 1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/568392_a gun safe framed by laurels app icon _xl-1024-v1-0.png",
     "userInterfaceStyle": "light",
     "splash": {
-      "image": "./assets/splash.png",
+      "image": "./assets/83258_a closed black safe with decorated door app splash_xl-1024-v1-0.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
@@ -19,7 +19,7 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
+        "foregroundImage": "./assets/568392_a gun safe framed by laurels app icon _xl-1024-v1-0.png",
         "backgroundColor": "#ffffff"
       },
       "package": "com.m00gendai.arsenal"

@@ -4,34 +4,34 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import * as ImagePicker from "expo-image-picker"
 import { useState } from 'react';
 import * as SecureStore from "expo-secure-store"
-import { gunDataTemplate, gunRemarks } from "../lib/gunDataTemplate"
+import { ammoDataTemplate, ammoRemarks } from "../lib/ammoDataTemplate"
 import NewText from "./NewText"
 import "react-native-get-random-values"
 import ImageViewer from "./ImageViewer"
-import { GUN_DATABASE } from '../configs';
-import { GunType } from '../interfaces';
+import { AMMO_DATABASE } from '../configs';
+import { AmmoType } from '../interfaces';
 import NewTextArea from './NewTextArea';
 import NewCheckboxArea from './NewCheckboxArea';
 import { editGunTitle, imageDeleteAlert, toastMessages, unsavedChangesAlert } from '../lib/textTemplates';
 import { usePreferenceStore } from '../stores/usePreferenceStore';
 import { useViewStore } from '../stores/useViewStore';
-import { useGunStore } from '../stores/useGunStore';
+import { useAmmoStore } from '../stores/useAmmoStore';
 import NewChipArea from './NewChipArea';
 
 
-export default function EditGun(){
+export default function EditAmmo(){
 
-    const { currentGun, setCurrentGun } = useGunStore()
+    const { currentAmmo, setCurrentAmmo } = useAmmoStore()
 
-    const [selectedImage, setSelectedImage] = useState<string[]>(currentGun.images && currentGun.images.length != 0 ? currentGun.images : [])
+    const [selectedImage, setSelectedImage] = useState<string[]>(currentAmmo.images && currentAmmo.images.length !== 0 ? currentAmmo.images : [])
     const [granted, setGranted] = useState<boolean>(false)
-    const [gunData, setGunData] = useState<GunType>(currentGun)
+    const [ammoData, setAmmoData] = useState<AmmoType>(currentAmmo)
     const [visible, setVisible] = useState<boolean>(false);
     const [snackbarText, setSnackbarText] = useState<string>("")
     const [saveState, setSaveState] = useState<boolean | null>(null)
 
     const { language, theme } = usePreferenceStore()
-    const { setEditGunOpen } = useViewStore()
+    const { setEditAmmoOpen } = useViewStore()
 
   const onToggleSnackBar = () => setVisible(!visible);
 
@@ -41,7 +41,7 @@ export default function EditGun(){
     Alert.alert(unsavedChangesAlert.title[language], unsavedChangesAlert.subtitle[language], [
         {
             text: unsavedChangesAlert.yes[language],
-            onPress: setEditGunOpen
+            onPress: setEditAmmoOpen
         },
         {
             text: unsavedChangesAlert.no[language],
@@ -64,13 +64,11 @@ export default function EditGun(){
     ])
     }
 
-    async function save(value: GunType) {
-        console.log(value)
-        await SecureStore.setItemAsync(`${GUN_DATABASE}_${value.id}`, JSON.stringify(value)) // Save the gun
-        console.log(`Saved item ${JSON.stringify(value)} with key ${GUN_DATABASE}_${value.id}`)
-        setCurrentGun({...value, images:selectedImage})
+    async function save(value: AmmoType) {
+        await SecureStore.setItemAsync(`${AMMO_DATABASE}_${value.id}`, JSON.stringify(value)) // Save the ammo
+        setCurrentAmmo({...value, images:selectedImage})
         setSaveState(true)
-        setSnackbarText(`${value.manufacturer ? value.manufacturer : ""} ${value.model} ${toastMessages.changed[language]}`)
+        setSnackbarText(`${value.designation} ${value.manufacturer ? value.manufacturer : ""} ${toastMessages.changed[language]}`)
         onToggleSnackBar()
       }
 
@@ -78,7 +76,7 @@ export default function EditGun(){
         const currentImages: string[] = selectedImage
         currentImages.splice(indx, 1)
         setSelectedImage(currentImages)
-        setGunData({...gunData, images: currentImages})
+        setAmmoData({...ammoData, images: currentImages})
     }
   
     const pickImageAsync = async (indx:number) =>{
@@ -101,10 +99,10 @@ export default function EditGun(){
             if(newImage && newImage.length != 0){
                 newImage.splice(indx, 1, result.assets[0].uri)
                 setSelectedImage(newImage)
-                setGunData({...gunData, images:newImage})
+                setAmmoData({...ammoData, images:newImage})
             } else {
                 setSelectedImage([result.assets[0].uri])
-                setGunData({...gunData, images:[result.assets[0].uri]})
+                setAmmoData({...ammoData, images:[result.assets[0].uri]})
             }
             setSaveState(false)
         }
@@ -127,17 +125,17 @@ export default function EditGun(){
 
         if(!result.canceled){
             const newImage = selectedImage
-            console.log(gunData)
+            console.log(ammoData)
             if(newImage && newImage.length != 0){
                 newImage.splice(indx, 1, result.assets[0].uri)
                 setSelectedImage(newImage)
-                setGunData({...gunData, images:newImage})
+                setAmmoData({...ammoData, images:newImage})
             } else {
                 setSelectedImage([result.assets[0].uri])
-                if(gunData.images.length !== 0){
-                    setGunData({...gunData, images:[...gunData.images, result.assets[0].uri]})
+                if(ammoData.images.length !== 0){
+                    setAmmoData({...ammoData, images:[...ammoData.images, result.assets[0].uri]})
                 } else {
-                    setGunData({...gunData, images: [result.assets[0].uri]})
+                    setAmmoData({...ammoData, images: [result.assets[0].uri]})
                 }
             }
             setSaveState(false)
@@ -157,7 +155,6 @@ export default function EditGun(){
             alignContent: "flex-start",
             gap: 5,
             padding: 5,
-            backgroundColor: theme.colors.background
         },
         imageContainer: {
             width: "100%",
@@ -196,9 +193,9 @@ export default function EditGun(){
         <View style={{width: "100%", height: "100%", backgroundColor: theme.colors.background}}>
             
             <Appbar style={{width: "100%"}}>
-                <Appbar.BackAction  onPress={() => {saveState == true ? setEditGunOpen() : saveState === false ? invokeAlert() : setEditGunOpen()}} />
+                <Appbar.BackAction  onPress={() => {saveState == true ? setEditAmmoOpen() : saveState === false ? invokeAlert() : setEditAmmoOpen()}} />
                 <Appbar.Content title={editGunTitle[language]} />
-                <Appbar.Action icon="floppy" onPress={() => save({...gunData, lastModifiedAt: new Date()})} color={saveState  == true ? "green" : saveState == false ? theme.colors.error : theme.colors.onBackground}/>
+                <Appbar.Action icon="floppy" onPress={() => save({...ammoData, lastModifiedAt: new Date()})} color={saveState  == true ? "green" : saveState == false ? theme.colors.error : theme.colors.onBackground}/>
             </Appbar>
         
             <SafeAreaView style={styles.container}>
@@ -220,7 +217,7 @@ export default function EditGun(){
                                         }}>
                                             <SegmentedButtons
                                                 value={""}
-                                                onValueChange={()=>console.log("")}
+                                                onValueChange={()=>console.log("i cant leave this function empty so heres a console log")}
                                                 style={{
                                                     width: "75%"
                                                 }}
@@ -256,8 +253,8 @@ export default function EditGun(){
                         height: "100%",
                         width: "100%",
                     }}>
-                        <NewChipArea data={"status"} gunData={gunData} setGunData={setGunData}/>
-                        {gunDataTemplate.map(data=>{
+                        <NewChipArea data={"status"} ammoData={ammoData} setAmmoData={setAmmoData}/>
+                        {ammoDataTemplate.map(data=>{
                             return(
                                 <View 
                                     id={data.name}
@@ -270,12 +267,11 @@ export default function EditGun(){
                                         gap: 5,
                                         
                                 }}>
-                                    <NewText data={data.name} gunData={gunData} setGunData={setGunData} label={data[language]}/>
+                                    <NewText data={data.name} ammoData={ammoData} setAmmoData={setAmmoData} label={data[language]}/>
                                 </View>
                             )
                         })}
-                         <NewCheckboxArea data={"status"} gunData={gunData} setGunData={setGunData}/>
-                        <NewTextArea data={gunRemarks.name} gunData={gunData} setGunData={setGunData}/>
+                        <NewTextArea data={ammoRemarks.name} ammoData={ammoData} setAmmoData={setAmmoData}/>
                        
                     </View>
                 </ScrollView>
@@ -294,4 +290,3 @@ export default function EditGun(){
         </View>
     )
 }
-
