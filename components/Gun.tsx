@@ -1,5 +1,5 @@
-import { StyleSheet, Text, View, Modal, ScrollView, Alert, TouchableNativeFeedback, TouchableOpacity } from 'react-native';
-import { Button, Appbar, Icon, Checkbox, Chip } from 'react-native-paper';
+import { StyleSheet, View, Modal, ScrollView, Alert, TouchableNativeFeedback, TouchableOpacity } from 'react-native';
+import { Button, Appbar, Icon, Checkbox, Chip, Text } from 'react-native-paper';
 import { checkBoxes, gunDataTemplate, gunRemarks } from "../lib/gunDataTemplate"
 import * as SecureStore from "expo-secure-store"
 import { useState} from "react"
@@ -19,7 +19,7 @@ export default function Gun(){
     const [lightBoxIndex, setLightBoxIndex] = useState<number>(0)
 
     const { setSeeGunOpen, editGunOpen, setEditGunOpen, lightBoxOpen, setLightBoxOpen } = useViewStore()
-    const { language } = usePreferenceStore()
+    const { language, theme } = usePreferenceStore()
     const { currentGun, setCurrentGun } = useGunStore()
 
     const showModal = (index:number) => {
@@ -40,6 +40,7 @@ export default function Gun(){
             alignContent: "flex-start",
             gap: 5,
             padding: 5,
+            backgroundColor: theme.colors.background
         },
         imageContainer: {
             width: "100%",
@@ -82,7 +83,7 @@ export default function Gun(){
     }
 
     return(
-        <View style={{width: "100%", height: "100%", backgroundColor: "white"}}>
+        <View style={{width: "100%", height: "100%", backgroundColor: theme.colors.background}}>
             
             <Appbar style={{width: "100%"}}>
                 <Appbar.BackAction  onPress={() => setSeeGunOpen()} />
@@ -128,7 +129,13 @@ export default function Gun(){
                             return(
                                 <View key={`${item.name}`} style={{flex: 1, flexDirection: "column"}} >
                                     <Text style={{width: "100%", fontSize: 12,}}>{`${item[language]}:`}</Text>
-                                    <Text style={{width: "100%", fontSize: 18, marginBottom: 5, paddingBottom: 5, borderBottomColor: "black", borderBottomWidth: 0.2}}>{item.name === "paidPrice" ? `CHF ${currentGun[item.name] ? currentGun[item.name] : ""}` : currentGun[item.name]}</Text>
+                                    <Text style={{width: "100%", fontSize: 18, marginBottom: 5, paddingBottom: 5, borderBottomColor: theme.colors.primary, borderBottomWidth: 0.2}}>{item.name === "paidPrice" ? `CHF ${currentGun[item.name] ? currentGun[item.name] : ""}` : currentGun[item.name]}</Text>
+                                    {item.name === "mainColor" ? 
+                                        <View style={{position:"absolute", top: 0, right: 0, bottom: 0, left: 0, display: "flex", flexDirection: "row", justifyContent: "flex-end", alignItems: "center"}}>
+                                            <View style={{height: "50%", aspectRatio: "5/1", borderRadius: 50, backgroundColor: `${currentGun.mainColor}`, transform:[{translateY: -5}]}}></View>
+                                        </View> 
+                                    : 
+                                    null}
                                 </View>
                             )
                         })}
@@ -141,7 +148,7 @@ export default function Gun(){
                         </View>
                         <View style={{flex: 1, flexDirection: "column"}} >
                             <Text style={{width: "100%", fontSize: 12,}}>{gunRemarks[language]}</Text>
-                            <Text style={{width: "100%", fontSize: 18, marginBottom: 5, paddingBottom: 5, borderBottomColor: "black", borderBottomWidth: 0.2}}>{currentGun.remarks}</Text>
+                            <Text style={{width: "100%", fontSize: 18, marginBottom: 5, paddingBottom: 5, borderBottomColor: theme.colors.primary, borderBottomWidth: 0.2}}>{currentGun.remarks}</Text>
                         </View>
                     </View>
                     
@@ -163,8 +170,8 @@ export default function Gun(){
                     </Modal>                    
                     
                     <View style={{width: "100%", display: "flex", flex: 1, flexDirection: "row", justifyContent:"center"}}>
-                        <Button mode="contained" style={{width: "20%", backgroundColor: "red", marginTop: 20}} onPress={()=>invokeAlert(currentGun)}>
-                            <Icon source="delete" color='white' size={20}/>
+                        <Button mode="contained" style={{width: "20%", backgroundColor: theme.colors.errorContainer, marginTop: 20}} onPress={()=>invokeAlert(currentGun)}>
+                            <Icon source="delete" color={theme.colors.onErrorContainer} size={20}/>
                         </Button>
                     </View>
                 </ScrollView>
