@@ -3,7 +3,8 @@ import { shareAsync } from 'expo-sharing';
 import * as IntentLauncher from 'expo-intent-launcher';
 import * as FileSystem from 'expo-file-system';
 import { GunType } from '../interfaces';
-import { checkBoxes, gunDataTemplate, gunRemarks, gunTags } from '../lib/gunDataTemplate';
+import { checkBoxes, gunDataTemplate, gunRemarks } from '../lib/gunDataTemplate';
+import { newTags } from '../lib/textTemplates';
 import { usePreferenceStore } from '../stores/usePreferenceStore';
 import { pdfFooter, pdfTitle } from '../lib/textTemplates';
 import { dateLocales } from '../configs';
@@ -14,7 +15,7 @@ const getTranslation = (key: string, language: string): string => {
     const data = gunDataTemplate.find(item => item.name === key);
     const remarks = gunRemarks.name === key ? gunRemarks[language] : null
     const boxes = checkBoxes.find(item => item.name === key);
-    const tags = gunTags.name === key ? gunTags[language] : null
+    const tags = newTags.name === key ? newTags[language] : null
     return data ? data[language] : remarks ? remarks : boxes ? boxes[language] : tags ? tags : key;
   };
 
@@ -37,9 +38,9 @@ export async function printSingleGun(gun:GunType, language: string){
         minute: "2-digit"
       };
     const generatedDate:string = date.toLocaleDateString(dateLocales[language], dateOptions)
-    const excludedKeys = ["images", "createdAt", "lastModifiedAt", "status", "id", "tags", "remarks"];
+    const excludedKeys = ["images", "createdAt", "lastModifiedAt", "status", "id", "tags", "remarks", "lastCleanedAt"];
     const art5Keys = checkBoxes.map(checkBox => checkBox.name)
-console.log(gun)
+
     const html = `
     <html>
       <head>
@@ -235,7 +236,7 @@ export async function printGunCollection(guns:GunType[], language: string){
       minute: "2-digit"
     };
   const generatedDate:string = date.toLocaleDateString(dateLocales[language], dateOptions)
-  const excludedKeys = ["images", "createdAt", "lastModifiedAt", "status", "id", "tags", "remarks", "manufacturingDate", "originCountry", "paidPrice", "shotCount", "mainColor"];
+  const excludedKeys = ["images", "createdAt", "lastModifiedAt", "status", "id", "tags", "remarks", "manufacturingDate", "originCountry", "paidPrice", "shotCount", "mainColor", "lastCleanedAt"];
   const html = `
   <html>
     <head>
