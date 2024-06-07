@@ -9,6 +9,12 @@ interface ViewStore {
     setSeeGunOpen: () => void
     editGunOpen: boolean
     setEditGunOpen: () => void
+    newAmmoOpen: boolean
+    setNewAmmoOpen: () => void
+    seeAmmoOpen: boolean
+    setSeeAmmoOpen: () => void
+    editAmmoOpen: boolean
+    setEditAmmoOpen: () => void
     lightBoxOpen: boolean
     setLightBoxOpen: () => void
   }
@@ -22,6 +28,12 @@ interface ViewStore {
     setSeeGunOpen: () => set((state) => ({seeGunOpen: !state.seeGunOpen})),
     editGunOpen: false,
     setEditGunOpen: () => set((state) => ({editGunOpen: !state.editGunOpen})),
+    newAmmoOpen: false,
+    setNewAmmoOpen: () => set((state) => ({newAmmoOpen: !state.newAmmoOpen})),
+    seeAmmoOpen: false,
+    setSeeAmmoOpen: () => set((state) => ({seeAmmoOpen: !state.seeAmmoOpen})),
+    editAmmoOpen: false,
+    setEditAmmoOpen: () => set((state) => ({editAmmoOpen: !state.editAmmoOpen})),
     lightBoxOpen: false,
     setLightBoxOpen: () => set((state) => ({lightBoxOpen: !state.lightBoxOpen}))
   }))

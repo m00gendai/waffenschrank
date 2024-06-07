@@ -28,6 +28,24 @@ export interface GunTypeStatus{
   loanerGun: boolean
 }
 
+export interface AmmoType{
+  id: string
+  manufacturer?: string | null
+  caliber: string | null
+  designation: string
+  originCountry?: string | null
+  createdAt: Date,
+  lastModifiedAt: Date,
+  headstamp?: string | null
+  currentStock?: number
+  previousStock?: number
+  lastTopUpAt?: string
+  criticalStock?: number
+  tags: string[]
+  images: string[]
+  remarks?: string
+}
+
 export interface MenuVisibility{
   sortBy: boolean
   filterBy: boolean

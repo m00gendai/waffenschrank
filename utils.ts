@@ -1,10 +1,11 @@
-import { GunType } from "./interfaces";
+import { AmmoType, GunType } from "./interfaces";
 import { gunDataTemplate } from "./lib/gunDataTemplate";
 import { validationErros } from "./lib//textTemplates";
+import { ammoDataTemplate } from "./lib/ammoDataTemplate";
 
-export function doSortBy(value: "alphabetical" | "chronological" | "caliber", ascending: boolean, guns: GunType[]){
+export function doSortBy(value: "alphabetical" | "chronological" | "caliber", ascending: boolean, items: GunType[] | AmmoType[]){
     if(value === "alphabetical"){
-        const sorted = guns.sort((a, b) =>{
+        const sorted = items.sort((a, b) =>{
             const x = `${a.manufacturer} ${a.model}`
             const y = `${b.manufacturer} ${b.model}`
             if(ascending){
@@ -15,7 +16,7 @@ export function doSortBy(value: "alphabetical" | "chronological" | "caliber", as
         return sorted
     }
     if(value === "chronological"){
-        const sorted = guns.sort((a, b) =>{
+        const sorted = items.sort((a, b) =>{
             const x = a.createdAt
             const y = b.createdAt
             if(ascending){
@@ -26,7 +27,7 @@ export function doSortBy(value: "alphabetical" | "chronological" | "caliber", as
         return sorted
     }
     if(value = "caliber"){
-        return guns
+        return items
     }
 }
 
@@ -45,6 +46,18 @@ export function gunDataValidation(value:GunType, lang:string){
     let validationResponse: {field: string, error: string}[] = []
     const requiredFields: string[] = ["model"]
     const x:{de: string, en: string, fr: string}[] = gunDataTemplate.filter(item => requiredFields.includes(item.name))
+    for(const entry of requiredFields){
+       if( !(entry in value) || value[entry].length == 0 ){
+        validationResponse = [...validationResponse, {field: x[0][lang], error: validationErros.requiredFieldEmpty[lang]}]
+       }
+    }
+    return validationResponse
+}
+
+export function ammoDataValidation(value:AmmoType, lang:string){
+    let validationResponse: {field: string, error: string}[] = []
+    const requiredFields: string[] = ["designation"]
+    const x:{de: string, en: string, fr: string}[] = ammoDataTemplate.filter(item => requiredFields.includes(item.name))
     for(const entry of requiredFields){
        if( !(entry in value) || value[entry].length == 0 ){
         validationResponse = [...validationResponse, {field: x[0][lang], error: validationErros.requiredFieldEmpty[lang]}]

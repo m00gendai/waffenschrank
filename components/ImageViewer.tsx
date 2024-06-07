@@ -2,7 +2,13 @@ import { Image, StyleSheet, View } from 'react-native';
 import { GestureDetector, Gesture, GestureHandlerRootView, PinchGesture, PanGesture, SimultaneousGesture } from 'react-native-gesture-handler';
 import Animated, { useSharedValue, useAnimatedStyle } from 'react-native-reanimated';
 
-export default function ImageViewer({selectedImage, isLightBox}){
+interface Props{
+  selectedImage:string
+  isLightBox: boolean
+  placeholder?: "gun" | "ammo"
+}
+
+export default function ImageViewer({selectedImage, isLightBox, placeholder}:Props){
 
     const scale = useSharedValue<number>(1);
     const savedScale = useSharedValue<number>(1);
@@ -64,14 +70,14 @@ export default function ImageViewer({selectedImage, isLightBox}){
                 <GestureHandlerRootView style={styles.imageContainer2} >
                     <GestureDetector gesture={composed}>
                         <Animated.View style={[animatedStyle]} >
-                         <Image resizeMode={isLightBox ? "contain" : "cover"} style={styles.image} source={selectedImage ? {uri: selectedImage} : require(`../assets//775788_several different realistic rifles and pistols on _xl-1024-v1-0.png`)} />
+                         <Image resizeMode={isLightBox ? "contain" : "cover"} style={styles.image} source={selectedImage ? {uri: selectedImage} : placeholder === "ammo" ? require(`../assets//540940_several different realistic bullets and ammunition_xl-1024-v1-0.png`) : require(`../assets//775788_several different realistic rifles and pistols on _xl-1024-v1-0.png`)} />
                         </Animated.View>
                     </GestureDetector>
                 </GestureHandlerRootView>
             </View>
         :
            selectedImage != null ? <Image resizeMode={isLightBox ? "contain" : "cover"} style={styles.image} source={{uri: selectedImage} } /> 
-        :  <Image resizeMode={isLightBox ? "contain" : "cover"} style={styles.image} source={selectedImage ? {uri: selectedImage} : require(`../assets//775788_several different realistic rifles and pistols on _xl-1024-v1-0.png`)} />
+        :  <Image resizeMode={isLightBox ? "contain" : "cover"} style={styles.image} source={selectedImage ? {uri: selectedImage} : placeholder === "ammo" ? require(`../assets//540940_several different realistic bullets and ammunition_xl-1024-v1-0.png`) : require(`../assets//775788_several different realistic rifles and pistols on _xl-1024-v1-0.png`)} />
         }
         </View>
     ) 
