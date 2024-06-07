@@ -30,7 +30,7 @@ export default function NewGun(){
     const [snackbarText, setSnackbarText] = useState<string>("")
     const [saveState, setSaveState] = useState<boolean>(false)
 
-    const { language } = usePreferenceStore()
+    const { language, theme } = usePreferenceStore()
     const { setNewGunOpen, setSeeGunOpen } = useViewStore()
     const { setCurrentGun } = useGunStore()
 
@@ -147,12 +147,12 @@ export default function NewGun(){
     }   
 
     return(
-        <View style={{width: "100%", height: "100%", backgroundColor: "white"}}>
+        <View style={{width: "100%", height: "100%", backgroundColor: theme.colors.background}}>
             
             <Appbar style={{width: "100%"}}>
                 <Appbar.BackAction  onPress={() => {saveState ? setNewGunOpen() : invokeAlert()}} />
                 <Appbar.Content title={newGunTitle[language]} />
-                <Appbar.Action icon="floppy" onPress={() => save({...gunData, id: uuidv4(), images:selectedImage, createdAt: new Date(), lastModifiedAt: new Date()})} color={saveState ? "green" : "red"} />
+                <Appbar.Action icon="floppy" onPress={() => save({...gunData, id: uuidv4(), images:selectedImage, createdAt: new Date(), lastModifiedAt: new Date()})} color={saveState  == true ? "green" : saveState == false ? theme.colors.error : theme.colors.onBackground} />
             </Appbar>
 
             <View style={styles.container}>

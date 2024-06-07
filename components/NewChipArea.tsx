@@ -20,7 +20,7 @@ interface Props{
 
 export default function NewChipArea({data, gunData, setGunData, ammoData, setAmmoData}:Props){
 console.log(gunData, ammoData)
-    const { language } = usePreferenceStore()
+    const { language, theme } = usePreferenceStore()
     const { currentGun } = useGunStore()
     const { currentAmmo } = useAmmoStore()
     const {tags, setTags, ammo_tags, setAmmoTags} = useTagStore()
@@ -102,9 +102,9 @@ console.log(gunData, ammoData)
         </TouchableNativeFeedback>
         <Modal visible={viewTagModal} transparent>
                     
-        <View style={{width: "100%", height: "100%", display: "flex", flexDirection: "row", justifyContent: "center", alignItems: "center", flexWrap: "wrap", backgroundColor: "rgba(0,0,0,0.5)"}}>
+        <View style={{width: "100%", height: "100%", display: "flex", flexDirection: "row", justifyContent: "center", alignItems: "center", flexWrap: "wrap", backgroundColor: theme.colors.backdrop}}>
             <View style={{width: "100%", height: "100%", display: "flex", justifyContent: "center", alignItems: "center"}}>
-                            <View style={{width: "85%", padding: 10, backgroundColor: "white"}}>
+                            <View style={{width: "85%", padding: 10, backgroundColor: theme.colors.background}}>
                                 <View style={{display: "flex", flexDirection: "row"}}>
                                     <TextInput
                                         label="Schlagwort eingeben"

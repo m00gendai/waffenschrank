@@ -30,7 +30,7 @@ export default function newAmmo(){
     const [snackbarText, setSnackbarText] = useState<string>("")
     const [saveState, setSaveState] = useState<boolean>(false)
 
-    const { language } = usePreferenceStore()
+    const { language, theme } = usePreferenceStore()
     const { setNewAmmoOpen, setSeeAmmoOpen } = useViewStore()
     const { setCurrentAmmo } = useAmmoStore()
 
@@ -146,13 +146,53 @@ export default function newAmmo(){
         }
     }   
 
+    const styles = StyleSheet.create({
+        container: {
+            display: "flex",
+            flex: 1,
+            flexWrap: "wrap",
+            flexDirection: "column",
+            height: "100%",
+            width: "100%",
+            justifyContent: "center",
+            alignItems: "flex-start",
+            alignContent: "flex-start",
+            gap: 5,
+            padding: 5,
+        },
+        imageContainer: {
+            width: "100%",
+            aspectRatio: "18/10",
+            flexDirection: "column",
+            flex: 1,
+            marginRight: 5
+        },
+        button: {
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center"
+        },
+        fab: {
+            position: 'absolute',
+            margin: 16,
+            right: 0,
+            bottom: 0,
+        },
+        fab2: {
+        position: 'absolute',
+        margin: 16,
+        left: 0,
+        bottom: 0,
+        },
+      });
+
     return(
-        <View style={{width: "100%", height: "100%", backgroundColor: "white"}}>
+        <View style={{width: "100%", height: "100%", backgroundColor: theme.colors.background}}>
             
             <Appbar style={{width: "100%"}}>
                 <Appbar.BackAction  onPress={() => {saveState ? setNewAmmoOpen() : invokeAlert()}} />
                 <Appbar.Content title={newAmmoTitle[language]} />
-                <Appbar.Action icon="floppy" onPress={() => save({...ammoData, id: uuidv4(), images:selectedImage, createdAt: new Date(), lastModifiedAt: new Date()})} color={saveState ? "green" : "red"} />
+                <Appbar.Action icon="floppy" onPress={() => save({...ammoData, id: uuidv4(), images:selectedImage, createdAt: new Date(), lastModifiedAt: new Date()})} color={saveState  == true ? "green" : saveState == false ? theme.colors.error : theme.colors.onBackground} />
             </Appbar>
 
             <View style={styles.container}>
@@ -221,42 +261,3 @@ export default function newAmmo(){
     )
 }
 
-const styles = StyleSheet.create({
-    container: {
-        display: "flex",
-        flex: 1,
-        flexWrap: "wrap",
-        flexDirection: "column",
-        height: "100%",
-        width: "100%",
-        justifyContent: "center",
-        alignItems: "flex-start",
-        alignContent: "flex-start",
-        gap: 5,
-        padding: 5,
-    },
-    imageContainer: {
-        width: "100%",
-        aspectRatio: "18/10",
-        flexDirection: "column",
-        flex: 1,
-        marginRight: 5
-    },
-    button: {
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center"
-    },
-    fab: {
-        position: 'absolute',
-        margin: 16,
-        right: 0,
-        bottom: 0,
-    },
-    fab2: {
-    position: 'absolute',
-    margin: 16,
-    left: 0,
-    bottom: 0,
-    },
-  });
