@@ -1,9 +1,9 @@
-import { StyleSheet, Text, View, Modal, ScrollView, Alert, TouchableNativeFeedback, TouchableOpacity } from 'react-native';
-import { Button, Appbar, Icon, Chip } from 'react-native-paper';
+import { StyleSheet, View, Modal, ScrollView, Alert, TouchableNativeFeedback, TouchableOpacity } from 'react-native';
+import { Button, Appbar, Icon, Chip, Text } from 'react-native-paper';
 import { ammoDataTemplate, ammoRemarks } from "../lib/ammoDataTemplate"
 import * as SecureStore from "expo-secure-store"
 import { useState} from "react"
-import EditGun from "./EditGun"
+import EditAmmo from "./EditAmmo"
 import ImageViewer from "./ImageViewer"
 import { AMMO_DATABASE, A_KEY_DATABASE } from '../configs';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -19,7 +19,7 @@ export default function Ammo(){
     const [lightBoxIndex, setLightBoxIndex] = useState<number>(0)
 
     const { setSeeAmmoOpen, editAmmoOpen, setEditAmmoOpen, lightBoxOpen, setLightBoxOpen } = useViewStore()
-    const { language } = usePreferenceStore()
+    const { language, theme } = usePreferenceStore()
     const { currentAmmo, setCurrentAmmo } = useAmmoStore()
 
     const showModal = (index:number) => {
@@ -82,7 +82,7 @@ export default function Ammo(){
     }
 
     return(
-        <View style={{width: "100%", height: "100%", backgroundColor: "white"}}>
+        <View style={{width: "100%", height: "100%", backgroundColor: theme.colors.background}}>
             
             <Appbar style={{width: "100%"}}>
                 <Appbar.BackAction  onPress={() => setSeeAmmoOpen()} />
@@ -128,18 +128,18 @@ export default function Ammo(){
                             return(
                                 <View key={`${item.name}`} style={{flex: 1, flexDirection: "column"}} >
                                     <Text style={{width: "100%", fontSize: 12,}}>{`${item[language]}:`}</Text>
-                                    <Text style={{width: "100%", fontSize: 18, marginBottom: 5, paddingBottom: 5, borderBottomColor: "black", borderBottomWidth: 0.2}}>{currentAmmo[item.name]}</Text>
+                                    <Text style={{width: "100%", fontSize: 18, marginBottom: 5, paddingBottom: 5, borderBottomColor: theme.colors.primary, borderBottomWidth: 0.2}}>{currentAmmo[item.name]}</Text>
                                 </View>
                             )
                         })}
                         <View style={{flex: 1, flexDirection: "column"}} >
                             <Text style={{width: "100%", fontSize: 12,}}>{ammoRemarks[language]}</Text>
-                            <Text style={{width: "100%", fontSize: 18, marginBottom: 5, paddingBottom: 5, borderBottomColor: "black", borderBottomWidth: 0.2}}>{currentAmmo.remarks}</Text>
+                            <Text style={{width: "100%", fontSize: 18, marginBottom: 5, paddingBottom: 5, borderBottomColor: theme.colors.primary, borderBottomWidth: 0.2}}>{currentAmmo.remarks}</Text>
                         </View>
                     </View>
                     
                     <Modal visible={editAmmoOpen}>
-                        <EditGun />
+                        <EditAmmo />
                     </Modal>
                     
                     <Modal visible={lightBoxOpen} transparent>
@@ -156,8 +156,8 @@ export default function Ammo(){
                     </Modal>                    
                     
                     <View style={{width: "100%", display: "flex", flex: 1, flexDirection: "row", justifyContent:"center"}}>
-                        <Button mode="contained" style={{width: "20%", backgroundColor: "red", marginTop: 20}} onPress={()=>invokeAlert(currentAmmo)}>
-                            <Icon source="delete" color='white' size={20}/>
+                        <Button mode="contained" style={{width: "20%", backgroundColor: theme.colors.errorContainer, marginTop: 20}} onPress={()=>invokeAlert(currentAmmo)}>
+                            <Icon source="delete" size={20} color={theme.colors.onErrorContainer}/>
                         </Button>
                     </View>
                 </ScrollView>
