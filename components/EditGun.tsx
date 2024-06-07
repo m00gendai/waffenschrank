@@ -30,7 +30,7 @@ export default function EditGun(){
     const [snackbarText, setSnackbarText] = useState<string>("")
     const [saveState, setSaveState] = useState<boolean | null>(null)
 
-    const { language } = usePreferenceStore()
+    const { language, theme } = usePreferenceStore()
     const { setEditGunOpen } = useViewStore()
 
   const onToggleSnackBar = () => setVisible(!visible);
@@ -127,7 +127,7 @@ export default function EditGun(){
 
         if(!result.canceled){
             const newImage = selectedImage
-
+            console.log(gunData)
             if(newImage && newImage.length != 0){
                 newImage.splice(indx, 1, result.assets[0].uri)
                 setSelectedImage(newImage)
@@ -144,13 +144,61 @@ export default function EditGun(){
         }
     }   
 
+    const styles = StyleSheet.create({
+        container: {
+            display: "flex",
+            flex: 1,
+            flexWrap: "wrap",
+            flexDirection: "column",
+            height: "100%",
+            width: "100%",
+            justifyContent: "center",
+            alignItems: "flex-start",
+            alignContent: "flex-start",
+            gap: 5,
+            padding: 5,
+            backgroundColor: theme.colors.background
+        },
+        imageContainer: {
+            width: "100%",
+            aspectRatio: "18/10",
+            flexDirection: "column",
+            flex: 1,
+            marginRight: 5,
+        },
+        button: {
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            backgroundColor: theme.colors.primaryContainer
+        },
+        buttonDelete: {
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            backgroundColor: theme.colors.primaryContainer
+        },
+        fab: {
+            position: 'absolute',
+            margin: 16,
+            right: 0,
+            bottom: 0,
+          },
+          fab2: {
+            position: 'absolute',
+            margin: 16,
+            left: 0,
+            bottom: 0,
+          },
+      });
+
     return(
-        <View style={{width: "100%", height: "100%"}}>
+        <View style={{width: "100%", height: "100%", backgroundColor: theme.colors.background}}>
             
             <Appbar style={{width: "100%"}}>
                 <Appbar.BackAction  onPress={() => {saveState == true ? setEditGunOpen() : saveState === false ? invokeAlert() : setEditGunOpen()}} />
                 <Appbar.Content title={editGunTitle[language]} />
-                <Appbar.Action icon="floppy" onPress={() => save({...gunData, lastModifiedAt: new Date()})} color={saveState  == true ? "green" : saveState == false ? "red" : "black"}/>
+                <Appbar.Action icon="floppy" onPress={() => save({...gunData, lastModifiedAt: new Date()})} color={saveState  == true ? "green" : saveState == false ? theme.colors.error : theme.colors.onBackground}/>
             </Appbar>
         
             <SafeAreaView style={styles.container}>
@@ -193,7 +241,6 @@ export default function EditGun(){
                                                     {   value: 'delete', 
                                                         icon: 'delete',
                                                         style: styles.buttonDelete,
-                                                        uncheckedColor: "red",
                                                         onPress: ()=>deleteImagePrompt(index),
                                                         disabled: selectedImage[index] ? false : true
                                                     },
@@ -248,49 +295,3 @@ export default function EditGun(){
     )
 }
 
-const styles = StyleSheet.create({
-    container: {
-        display: "flex",
-        flex: 1,
-        flexWrap: "wrap",
-        flexDirection: "column",
-        height: "100%",
-        width: "100%",
-        justifyContent: "center",
-        alignItems: "flex-start",
-        alignContent: "flex-start",
-        gap: 5,
-        padding: 5,
-    },
-    imageContainer: {
-        width: "100%",
-        aspectRatio: "18/10",
-        flexDirection: "column",
-        flex: 1,
-        marginRight: 5,
-    },
-    button: {
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        backgroundColor: "white"
-    },
-    buttonDelete: {
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        backgroundColor: "white"
-    },
-    fab: {
-        position: 'absolute',
-        margin: 16,
-        right: 0,
-        bottom: 0,
-      },
-      fab2: {
-        position: 'absolute',
-        margin: 16,
-        left: 0,
-        bottom: 0,
-      },
-  });
