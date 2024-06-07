@@ -15,6 +15,7 @@ import { useGunStore } from '../stores/useGunStore';
 import { usePreferenceStore } from '../stores/usePreferenceStore';
 import { useTagStore } from '../stores/useTagStore';
 import { Checkbox } from 'react-native-paper';
+import GunCard from './GunCard';
 
 export default function GunCollection(){
 
@@ -108,10 +109,7 @@ useEffect(()=>{
   getPreferences()
 },[])
 
-        function handleGunCardPress(gun){
-          setCurrentGun(gun)
-          setSeeGunOpen()
-        }
+        
 
         async function handleSortBy(type: "alphabetical" | "chronological" | "caliber"){
             setSortIcon(getIcon(type))
@@ -196,7 +194,8 @@ const activeTags = tags.filter(tag => tag.status === true)
         style={{
           width: "100%", 
           height: "100%", 
-          flex: 1
+          flex: 1,
+          backgroundColor: theme.colors.background
         }}
       >
 
@@ -240,7 +239,7 @@ const activeTags = tags.filter(tag => tag.status === true)
         </Appbar>
 
         <ScrollView 
-          contentContainerStyle={{
+          style={{
             width: "100%", 
             height: "100%", 
             flexDirection: "column", 
@@ -252,27 +251,7 @@ const activeTags = tags.filter(tag => tag.status === true)
           >
             {gunCollection.length != 0 && !isFilterOn ? gunCollection.map(gun =>{
               return(
-                <TouchableNativeFeedback 
-                  key={gun.id} 
-                  onPress={()=>handleGunCardPress(gun)}
-                >
-                  <Card 
-                    style={{
-                      width: (Dimensions.get("window").width / (displayAsGrid ? 2 : 1)) - (defaultGridGap + (defaultViewPadding/2)),
-                    }}
-                  >
-                    <Card.Title title={`${gun.manufacturer && gun.manufacturer.length != 0 ? gun.manufacturer : ""} ${gun.model}`} subtitle={gun.serial && gun.serial.length != 0 ? gun.serial : " "} subtitleVariant='bodySmall' titleVariant='titleSmall' titleNumberOfLines={2} />
-                    {displayAsGrid ? 
-                    <Card.Cover 
-                      source={gun.images && gun.images.length != 0 ? { uri: gun.images[0] } : require(`../assets//775788_several different realistic rifles and pistols on _xl-1024-v1-0.png`)} 
-                      style={{
-                        height: 100
-                      }}
-                    /> 
-                    : 
-                    null}
-                  </Card>
-                </TouchableNativeFeedback>
+                <GunCard key={gun.id} gun={gun}/>
               )
             }) 
             :
@@ -280,27 +259,7 @@ const activeTags = tags.filter(tag => tag.status === true)
               
 
                 
-                  return <TouchableNativeFeedback 
-                  key={gun.id} 
-                  onPress={()=>handleGunCardPress(gun)}
-                >
-                  <Card 
-                    style={{
-                      width: (Dimensions.get("window").width / (displayAsGrid ? 2 : 1)) - (defaultGridGap + (defaultViewPadding/2)),
-                    }}
-                  >
-                    <Card.Title title={`${gun.manufacturer && gun.manufacturer.length != 0 ? gun.manufacturer : ""} ${gun.model}`} subtitle={gun.serial && gun.serial.length != 0 ? gun.serial : " "} subtitleVariant='bodySmall' titleVariant='titleSmall' titleNumberOfLines={2} />
-                    {displayAsGrid ? 
-                    <Card.Cover 
-                      source={gun.images && gun.images.length != 0 ? { uri: gun.images[0] } : require(`../assets//775788_several different realistic rifles and pistols on _xl-1024-v1-0.png`)} 
-                      style={{
-                        height: 100
-                      }}
-                    /> 
-                    : 
-                    null}
-                  </Card>
-                </TouchableNativeFeedback>
+                  return <GunCard key={gun.id} gun={gun}/>
                 
               
             })
