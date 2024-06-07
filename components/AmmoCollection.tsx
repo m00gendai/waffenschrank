@@ -1,7 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useEffect, useState } from 'react';
-import { Dimensions, ScrollView, StyleSheet, TouchableNativeFeedback, View, Text } from 'react-native';
-import { Appbar, Card, FAB, IconButton, Menu, Switch, TextInput, useTheme } from 'react-native-paper';
+import { ScrollView, StyleSheet, View, Text } from 'react-native';
+import { Appbar, FAB, IconButton, Menu, Switch, TextInput, useTheme } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { AMMO_DATABASE, A_KEY_DATABASE, PREFERENCES, A_TAGS, defaultGridGap, defaultViewPadding, dateLocales } from '../configs';
 import { AmmoType, MenuVisibility } from '../interfaces';
@@ -13,10 +13,10 @@ import { useAmmoStore } from '../stores/useAmmoStore';
 import { usePreferenceStore } from '../stores/usePreferenceStore';
 import { useTagStore } from '../stores/useTagStore';
 import { Checkbox } from 'react-native-paper';
-import newAmmo from './NewAmmo';
 import NewAmmo from './NewAmmo';
 import Ammo from './Ammo';
 import { ammoQuickUpdate } from '../lib/textTemplates';
+import AmmoCard from './AmmoCard';
 
 export default function AmmoCollection(){
 
@@ -33,15 +33,13 @@ export default function AmmoCollection(){
   const [input, setInput] = useState<string>("")
   const [error, displayError] = useState<boolean>(false)
 
-  const { ammoDbImport, displayAmmoAsGrid, setDisplayAmmoAsGrid, toggleDisplayAmmoAsGrid, sortAmmoBy, setSortAmmoBy, language } = usePreferenceStore()
-  const { mainMenuOpen, setMainMenuOpen, newAmmoOpen, setNewAmmoOpen, editAmmoOpen, setEditAmmoOpen, seeAmmoOpen, setSeeAmmoOpen } = useViewStore()
+  const { ammoDbImport, displayAmmoAsGrid, setDisplayAmmoAsGrid, toggleDisplayAmmoAsGrid, sortAmmoBy, setSortAmmoBy, language, theme } = usePreferenceStore()
+  const { mainMenuOpen, setMainMenuOpen, newAmmoOpen, setNewAmmoOpen, seeAmmoOpen, } = useViewStore()
   const { ammoCollection, setAmmoCollection, currentAmmo, setCurrentAmmo } = useAmmoStore()
   const { ammo_tags, setAmmoTags, overWriteAmmoTags } = useTagStore()
   const [isFilterOn, setIsFilterOn] = useState<boolean>(false);
 
   const onToggleSwitch = () => setIsFilterOn(!isFilterOn);
-
-  const theme = useTheme();
 
   const styles = StyleSheet.create({
     container: {
@@ -115,10 +113,7 @@ useEffect(()=>{
   getPreferences()
 },[])
 
-        function handleAmmoCardPress(ammo){
-          setCurrentAmmo(ammo)
-          setSeeAmmoOpen()
-        }
+        
 
         async function handleSortBy(type: "alphabetical" | "chronological" | "caliber"){
             setSortIcon(getIcon(type))
@@ -182,7 +177,7 @@ const uniqueObjects = removeDuplicates(list);
 async function handleFilterPress(tag:{label:string, status:boolean}){
 
   const preferences:string = await AsyncStorage.getItem(A_TAGS)
-
+console.log(`preferences: ${preferences}`)
   const index = ammo_tags.findIndex(tagItem => tagItem.label === tag.label)
 
   ammo_tags[index].status = !ammo_tags[index].status
@@ -197,18 +192,15 @@ const activeTags = ammo_tags.filter(tag => tag.status === true)
            const sortedTags = sortTags(ammo_tags)
               const ammoList = ammoCollection.filter(ammo => activeTags.some(tag => ammo.tags?.includes(tag.label)))
 
-function handleStockButtonPress(ammo:AmmoType){
-    setCurrentAmmo(ammo)
-    setStockVisible(!stockVisible)
-}
+
            
 async function saveNewStock(ammo:AmmoType){
     const date:Date = new Date()
     if(stockChange !== ""){
-    const currentValue:number = ammo.currentStock
+    const currentValue:number = ammo.currentStock ? ammo.currentStock : 0
     const increase:number = parseInt(input)
     const total:number = stockChange === "inc" ? currentValue + increase : currentValue - increase
-
+console.log(total)
     await SecureStore.setItemAsync(`${AMMO_DATABASE}_${ammo.id}`, JSON.stringify({...ammo, previousStock: currentValue, currentStock:total, lastTopUpAt: date.toLocaleDateString(dateLocales.de)})) // Save the ammo
         console.log(`Updated item ${JSON.stringify(ammo)} with key ${AMMO_DATABASE}_${ammo.id}`)
         setCurrentAmmo({...ammo, currentStock:parseInt(input)})
@@ -222,7 +214,6 @@ async function saveNewStock(ammo:AmmoType){
         displayError(true)
     }
 }
-
     return(
         <SafeAreaView 
         style={{
@@ -284,28 +275,7 @@ async function saveNewStock(ammo:AmmoType){
           >
             {ammoCollection.length != 0 && !isFilterOn ? ammoCollection.map(ammo =>{
               return(
-                <TouchableNativeFeedback 
-                  key={ammo.id} 
-                  onPress={()=>handleAmmoCardPress(ammo)}
-                >
-                  <Card 
-                    style={{
-                      width: (Dimensions.get("window").width / (displayAmmoAsGrid ? 2 : 1)) - (defaultGridGap + (defaultViewPadding/2)),
-                    }}
-                  >
-                    <Card.Title titleStyle={ammo.currentStock && ammo.criticalStock ? {color: parseFloat(ammo.currentStock.toString()) <= parseFloat(ammo.criticalStock.toString()) ? "red" : "black"} : {}} title={`${ammo.designation} ${ammo.currentStock ? `(${ammo.currentStock})` : ""}`} subtitle={ammo.manufacturer && ammo.manufacturer.length != 0 ? ammo.manufacturer : " "} subtitleVariant='bodySmall' titleVariant='titleSmall' titleNumberOfLines={2} />
-                    {displayAmmoAsGrid ? 
-                    <Card.Cover 
-                      source={ammo.images && ammo.images.length != 0 ? { uri: ammo.images[0] } : require(`../assets//540940_several different realistic bullets and ammunition_xl-1024-v1-0.png`)} 
-                      style={{
-                        height: 100
-                      }}
-                    /> 
-                    : 
-                    null}
-                    <IconButton icon={"plus-minus-variant"} onPress={()=>handleStockButtonPress(ammo)} /> 
-                  </Card>
-                </TouchableNativeFeedback>
+                <AmmoCard key={ammo.id} ammo={ammo} stockVisible={stockVisible} setStockVisible={setStockVisible}/>
               )
             }) 
             :
@@ -313,27 +283,8 @@ async function saveNewStock(ammo:AmmoType){
               
 
                 
-                  return <TouchableNativeFeedback 
-                  key={ammo.id} 
-                  onPress={()=>handleAmmoCardPress(ammo)}
-                >
-                  <Card 
-                    style={{
-                      width: (Dimensions.get("window").width / (displayAmmoAsGrid ? 2 : 1)) - (defaultGridGap + (defaultViewPadding/2)),
-                    }}
-                  >
-                    <Card.Title titleStyle={ammo.currentStock && ammo.criticalStock ? {color: parseFloat(ammo.currentStock.toString()) <= parseFloat(ammo.criticalStock.toString()) ? "red" : "black"} : {}} title={`${ammo.designation} ${ammo.currentStock ? `(${ammo.currentStock})` : ""}`} subtitle={ammo.manufacturer && ammo.manufacturer.length != 0 ? ammo.manufacturer : " "} subtitleVariant='bodySmall' titleVariant='titleSmall' titleNumberOfLines={2} />
-                    {displayAmmoAsGrid ? 
-                    <Card.Cover 
-                      source={ammo.images && ammo.images.length != 0 ? { uri: ammo.images[0] } : require(`../assets//540940_several different realistic bullets and ammunition_xl-1024-v1-0.png`)} 
-                      style={{
-                        height: 100
-                      }}
-                    /> 
-                    : 
-                    null}
-                  </Card>
-                </TouchableNativeFeedback>
+                  return <AmmoCard key={ammo.id} ammo={ammo} stockVisible={stockVisible} setStockVisible={setStockVisible}/>
+                
                 
               
             })
@@ -363,20 +314,20 @@ async function saveNewStock(ammo:AmmoType){
 {stockVisible ? 
       <Animated.View entering={FadeIn} exiting={FadeOut} style={{position: "absolute", left: 0, top: 0, right: 0, bottom: 0}}>
         <SafeAreaView>
-          <View style={{width: "100%", height: "100%", display: "flex", justifyContent: "center", alignItems: "center", backgroundColor: "rgba(0,0,0,0.5)"}}>
-            <View style={{width: "85%", display: "flex", flexDirection: "column", backgroundColor: "white"}}>
+          <View style={{width: "100%", height: "100%", display: "flex", justifyContent: "center", alignItems: "center", backgroundColor: theme.colors.backdrop}}>
+            <View style={{width: "85%", display: "flex", flexDirection: "column", backgroundColor: theme.colors.background}}>
             <View style={{width: "100%", display: "flex", flexDirection: "row"}}>
-                <Text>{ammoQuickUpdate.title[language]}</Text>
+                <Text style={{color: theme.colors.onBackground}}>{ammoQuickUpdate.title[language]}</Text>
             </View>
                 <View style={{width: "100%", display: "flex", flexDirection: "row"}}>
-                    <IconButton icon="plus" style={{backgroundColor: stockChange === "inc" ? "green" : "transparent"}} onPress={()=>setStockChange("inc")}/>
-                    <IconButton icon="minus" style={{backgroundColor: stockChange === "dec" ? "green" : "transparent"}} onPress={()=>setStockChange("dec")} />
+                    <IconButton mode="contained" icon="plus" selected={stockChange === "inc" ? true : false} onPress={()=>setStockChange("inc")}/>
+                    <IconButton mode="contained" icon="minus" selected={stockChange === "dec" ? true : false} onPress={()=>setStockChange("dec")} />
                     <TextInput style={{flex: 1}} keyboardType={"number-pad"} value={input} onChangeText={input => setInput(input.replace(/[^0-9]/g, ''))} inputMode='decimal'/>
-                    <IconButton icon="floppy" onPress={()=>saveNewStock(currentAmmo)}/>
-                    <IconButton icon="cancel" onPress={()=>setStockVisible(false)}/>
+                    <IconButton mode="contained" icon="floppy" onPress={()=>saveNewStock(currentAmmo)}/>
+                    <IconButton mode="contained" icon="cancel" onPress={()=>setStockVisible(false)}/>
                 </View>
                 {error ? <View style={{width: "100%", display: "flex", flexDirection: "row"}}>
-                <Text style={{color: "red"}}>{ammoQuickUpdate.error[language]}</Text>
+                <Text style={{color: theme.colors.error}}>{ammoQuickUpdate.error[language]}</Text>
             </View> : null}
             </View>
         </View>
