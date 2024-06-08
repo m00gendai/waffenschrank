@@ -87,7 +87,7 @@ export default function AmmoCollection(){
           setAmmoCollection(sortedAmmo)
         }
         getAmmo()
-      },[newAmmoOpen, seeAmmoOpen, ammoDbImport, stockValue])
+      },[ammoDbImport])
 
 useEffect(()=>{
   async function getPreferences(){
@@ -177,7 +177,7 @@ const uniqueObjects = removeDuplicates(list);
 async function handleFilterPress(tag:{label:string, status:boolean}){
 
   const preferences:string = await AsyncStorage.getItem(A_TAGS)
-console.log(`preferences: ${preferences}`)
+
   const index = ammo_tags.findIndex(tagItem => tagItem.label === tag.label)
 
   ammo_tags[index].status = !ammo_tags[index].status
@@ -198,17 +198,21 @@ async function saveNewStock(ammo:AmmoType){
     const date:Date = new Date()
     if(stockChange !== ""){
     const currentValue:number = ammo.currentStock ? ammo.currentStock : 0
-    const increase:number = parseInt(input)
-    const total:number = stockChange === "inc" ? currentValue + increase : currentValue - increase
-console.log(total)
+    const increase:number = Number(input)
+    const total:number = stockChange === "inc" ? Number(currentValue) + Number(increase) : Number(currentValue) - Number(increase)
     await SecureStore.setItemAsync(`${AMMO_DATABASE}_${ammo.id}`, JSON.stringify({...ammo, previousStock: currentValue, currentStock:total, lastTopUpAt: date.toLocaleDateString(dateLocales.de)})) // Save the ammo
         console.log(`Updated item ${JSON.stringify(ammo)} with key ${AMMO_DATABASE}_${ammo.id}`)
         setCurrentAmmo({...ammo, currentStock:parseInt(input)})
         setStockValue(parseInt(input))
         setInput("")
         setStockChange("")
+        const currentObj:AmmoType = ammoCollection.find(({id}) => id === ammo.id)
+        const index:number = ammoCollection.indexOf(currentObj)
+        const newCollection:AmmoType[] = ammoCollection.toSpliced(index, 1, {...ammo, currentStock:total})
+        setAmmoCollection(newCollection)
         setStockVisible(!stockVisible)
         displayError(false)
+
     }
     else {
         displayError(true)
