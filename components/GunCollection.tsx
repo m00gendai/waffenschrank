@@ -1,7 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useEffect, useState } from 'react';
 import { Dimensions, ScrollView, StyleSheet, TouchableNativeFeedback, View, Text } from 'react-native';
-import { Appbar, Card, FAB, Menu, Switch, useTheme } from 'react-native-paper';
+import { Appbar, Card, FAB, Menu, Modal, Portal, Switch, useTheme } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { GUN_DATABASE, KEY_DATABASE, PREFERENCES, TAGS, defaultGridGap, defaultViewPadding } from '../configs';
 import { GunType, MenuVisibility } from '../interfaces';
@@ -48,7 +48,8 @@ export default function GunCollection(){
       flexWrap: "wrap",
       flexDirection: "row",
       gap: defaultGridGap,
-      padding: defaultViewPadding
+      padding: defaultViewPadding,
+      marginBottom: 75
     },
     fab: {
       position: 'absolute',
@@ -187,7 +188,6 @@ async function handleFilterPress(tag:{label:string, status:boolean}){
 const activeTags = tags.filter(tag => tag.status === true)
            const sortedTags = sortTags(tags)
               const gunList = gunCollection.filter(gun => activeTags.some(tag => gun.tags?.includes(tag.label)))
-           
 
     return(
         <SafeAreaView 
@@ -268,32 +268,25 @@ const activeTags = tags.filter(tag => tag.status === true)
             null}
           </View>
         </ScrollView>
-        {newGunOpen ? 
-      <Animated.View entering={SlideInDown} exiting={SlideOutDown} style={{position: "absolute", left: 0, top: 0, right: 0, bottom: 0}}>
-        <SafeAreaView>
-          <NewGun />
-        </SafeAreaView>
-      </Animated.View> 
-      : 
-      null}
-        
-      {seeGunOpen ? 
-      <Animated.View entering={FadeIn} exiting={FadeOut} style={{position: "absolute", left: 0, top: 0, right: 0, bottom: 0}}>
-        <SafeAreaView>
+
+        <Portal>
+          <Modal visible={newGunOpen} contentContainerStyle={{height: "100%"}} onDismiss={setNewGunOpen}>
+            <NewGun />
+          </Modal>
+        </Portal>        
+
+      <Portal>
+        <Modal visible={seeGunOpen} contentContainerStyle={{height: "100%"}} onDismiss={setSeeGunOpen}>
           <Gun />
-        </SafeAreaView>
-      </Animated.View>
-      :
-      null}
-         {!seeGunOpen && !newGunOpen && !mainMenuOpen? 
+        </Modal>
+      </Portal>
+
       <FAB
         icon="plus"
         style={styles.fab}
         onPress={setNewGunOpen}
         disabled={mainMenuOpen ? true : false}
       /> 
-      : 
-      null}
         
       </SafeAreaView>
     )
