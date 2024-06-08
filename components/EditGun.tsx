@@ -21,7 +21,7 @@ import NewChipArea from './NewChipArea';
 
 export default function EditGun(){
 
-    const { currentGun, setCurrentGun } = useGunStore()
+    const { currentGun, setCurrentGun, gunCollection, setGunCollection } = useGunStore()
 
     const [selectedImage, setSelectedImage] = useState<string[]>(currentGun.images && currentGun.images.length != 0 ? currentGun.images : [])
     const [granted, setGranted] = useState<boolean>(false)
@@ -65,13 +65,16 @@ export default function EditGun(){
     }
 
     async function save(value: GunType) {
-        console.log(value)
         await SecureStore.setItemAsync(`${GUN_DATABASE}_${value.id}`, JSON.stringify(value)) // Save the gun
         console.log(`Saved item ${JSON.stringify(value)} with key ${GUN_DATABASE}_${value.id}`)
         setCurrentGun({...value, images:selectedImage})
         setSaveState(true)
         setSnackbarText(`${value.manufacturer ? value.manufacturer : ""} ${value.model} ${toastMessages.changed[language]}`)
         onToggleSnackBar()
+        const currentObj:GunType = gunCollection.find(({id}) => id === value.id)
+        const index:number = gunCollection.indexOf(currentObj)
+        const newCollection:GunType[] = gunCollection.toSpliced(index, 1, value)
+        setGunCollection(newCollection)
       }
 
     function deleteImage(indx:number){
@@ -127,7 +130,6 @@ export default function EditGun(){
 
         if(!result.canceled){
             const newImage = selectedImage
-            console.log(gunData)
             if(newImage && newImage.length != 0){
                 newImage.splice(indx, 1, result.assets[0].uri)
                 setSelectedImage(newImage)
@@ -220,7 +222,7 @@ export default function EditGun(){
                                         }}>
                                             <SegmentedButtons
                                                 value={""}
-                                                onValueChange={()=>console.log("")}
+                                                onValueChange={()=>console.log("i cant leave this function empty so heres a console log")}
                                                 style={{
                                                     width: "75%"
                                                 }}

@@ -21,7 +21,7 @@ import NewChipArea from './NewChipArea';
 
 export default function EditAmmo(){
 
-    const { currentAmmo, setCurrentAmmo } = useAmmoStore()
+    const { currentAmmo, setCurrentAmmo, ammoCollection, setAmmoCollection } = useAmmoStore()
 
     const [selectedImage, setSelectedImage] = useState<string[]>(currentAmmo.images && currentAmmo.images.length !== 0 ? currentAmmo.images : [])
     const [granted, setGranted] = useState<boolean>(false)
@@ -70,6 +70,10 @@ export default function EditAmmo(){
         setSaveState(true)
         setSnackbarText(`${value.designation} ${value.manufacturer ? value.manufacturer : ""} ${toastMessages.changed[language]}`)
         onToggleSnackBar()
+        const currentObj:AmmoType = ammoCollection.find(({id}) => id === value.id)
+        const index:number = ammoCollection.indexOf(currentObj)
+        const newCollection:AmmoType[] = ammoCollection.toSpliced(index, 1, value)
+        setAmmoCollection(newCollection)
       }
 
     function deleteImage(indx:number){
@@ -125,7 +129,6 @@ export default function EditAmmo(){
 
         if(!result.canceled){
             const newImage = selectedImage
-            console.log(ammoData)
             if(newImage && newImage.length != 0){
                 newImage.splice(indx, 1, result.assets[0].uri)
                 setSelectedImage(newImage)

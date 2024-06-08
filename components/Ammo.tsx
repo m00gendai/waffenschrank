@@ -12,6 +12,7 @@ import { useViewStore } from '../stores/useViewStore';
 import { useAmmoStore } from '../stores/useAmmoStore';
 import { ammoDeleteAlert } from '../lib/textTemplates';
 import { printSingleGun } from '../functions/printToPDF';
+import { AmmoType } from '../interfaces';
 
 
 export default function Ammo(){
@@ -20,7 +21,7 @@ export default function Ammo(){
 
     const { setSeeAmmoOpen, editAmmoOpen, setEditAmmoOpen, lightBoxOpen, setLightBoxOpen } = useViewStore()
     const { language, theme } = usePreferenceStore()
-    const { currentAmmo, setCurrentAmmo } = useAmmoStore()
+    const { currentAmmo, setCurrentAmmo, ammoCollection, setAmmoCollection } = useAmmoStore()
 
     const showModal = (index:number) => {
         setLightBoxOpen()
@@ -65,6 +66,9 @@ export default function Ammo(){
         const keyArray: string[] = JSON.parse(keys)
         const newKeys: string[] = keyArray.filter(key => key != ammo.id)
         AsyncStorage.setItem(A_KEY_DATABASE, JSON.stringify(newKeys))
+        const index:number = ammoCollection.indexOf(ammo)
+        const newCollection:AmmoType[] = ammoCollection.toSpliced(index, 1)
+        setAmmoCollection(newCollection)
         setSeeAmmoOpen()
     }
     

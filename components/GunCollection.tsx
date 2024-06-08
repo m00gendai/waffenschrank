@@ -83,7 +83,7 @@ export default function GunCollection(){
           setGunCollection(sortedGuns)
         }
         getGuns()
-      },[newGunOpen, seeGunOpen, dbImport])
+      },[dbImport])
 
 useEffect(()=>{
   async function getPreferences(){

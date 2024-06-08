@@ -12,6 +12,7 @@ import { useViewStore } from '../stores/useViewStore';
 import { useGunStore } from '../stores/useGunStore';
 import { gunDeleteAlert } from '../lib/textTemplates';
 import { printSingleGun } from '../functions/printToPDF';
+import { GunType } from '../interfaces';
 
 
 export default function Gun(){
@@ -20,7 +21,7 @@ export default function Gun(){
 
     const { setSeeGunOpen, editGunOpen, setEditGunOpen, lightBoxOpen, setLightBoxOpen } = useViewStore()
     const { language, theme } = usePreferenceStore()
-    const { currentGun, setCurrentGun } = useGunStore()
+    const { currentGun, setCurrentGun, gunCollection, setGunCollection} = useGunStore()
 
     const showModal = (index:number) => {
         setLightBoxOpen()
@@ -58,6 +59,7 @@ export default function Gun(){
     })
 
     async function deleteItem(gun){
+        
         // Deletes gun in gun database
         await SecureStore.deleteItemAsync(`${GUN_DATABASE}_${gun.id}`)
 
@@ -66,6 +68,9 @@ export default function Gun(){
         const keyArray: string[] = JSON.parse(keys)
         const newKeys: string[] = keyArray.filter(key => key != gun.id)
         AsyncStorage.setItem(KEY_DATABASE, JSON.stringify(newKeys))
+        const index:number = gunCollection.indexOf(gun)
+        const newCollection:GunType[] = gunCollection.toSpliced(index, 1)
+        setGunCollection(newCollection)
         setSeeGunOpen()
     }
     
