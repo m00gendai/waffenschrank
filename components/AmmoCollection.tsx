@@ -17,6 +17,7 @@ import NewAmmo from './NewAmmo';
 import Ammo from './Ammo';
 import { ammoQuickUpdate } from '../lib/textTemplates';
 import AmmoCard from './AmmoCard';
+import { colorThemes } from '../lib/colorThemes';
 
 export default function AmmoCollection(){
 
@@ -52,7 +53,8 @@ export default function AmmoCollection(){
       flexWrap: "wrap",
       flexDirection: "row",
       gap: defaultGridGap,
-      padding: defaultViewPadding
+      padding: defaultViewPadding,
+      marginBottom: 75
     },
     fab: {
       position: 'absolute',
@@ -267,32 +269,24 @@ async function saveNewStock(ammo:AmmoType){
         </Appbar>
 
         <ScrollView 
-          contentContainerStyle={{
+          style={{
             width: "100%", 
             height: "100%", 
             flexDirection: "column", 
-            flexWrap: "wrap"
+            flexWrap: "wrap",
+            backgroundColor: theme.colors.background
           }}
         >
           <View 
             style={styles.container}
           >
             {ammoCollection.length != 0 && !isFilterOn ? ammoCollection.map(ammo =>{
-              return(
-                <AmmoCard key={ammo.id} ammo={ammo} stockVisible={stockVisible} setStockVisible={setStockVisible}/>
-              )
+              return <AmmoCard key={ammo.id} ammo={ammo} stockVisible={stockVisible} setStockVisible={setStockVisible}/>
             }) 
             :
             ammoCollection.length !== 0 && isFilterOn ? ammoList.map(ammo =>{
-              
-
-                
-                  return <AmmoCard key={ammo.id} ammo={ammo} stockVisible={stockVisible} setStockVisible={setStockVisible}/>
-                
-                
-              
+              return <AmmoCard key={ammo.id} ammo={ammo} stockVisible={stockVisible} setStockVisible={setStockVisible}/>
             })
-              
             :
             null}
           </View>
