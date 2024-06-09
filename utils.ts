@@ -39,6 +39,8 @@ export function getIcon(type:string){
             return "clock-outline"
         case "caliber":
             return "bullet"
+        default:
+            return "alphabetical-variant"
     }
 }
 
