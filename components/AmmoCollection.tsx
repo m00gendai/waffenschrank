@@ -1,7 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, View, Text } from 'react-native';
-import { Appbar, FAB, IconButton, Menu, Switch, TextInput, useTheme } from 'react-native-paper';
+import { Appbar, FAB, IconButton, Menu, Modal, Portal, Switch, TextInput, useTheme } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { AMMO_DATABASE, A_KEY_DATABASE, PREFERENCES, A_TAGS, defaultGridGap, defaultViewPadding, dateLocales } from '../configs';
 import { AmmoType, MenuVisibility } from '../interfaces';
@@ -35,7 +35,7 @@ export default function AmmoCollection(){
   const [error, displayError] = useState<boolean>(false)
 
   const { ammoDbImport, displayAmmoAsGrid, setDisplayAmmoAsGrid, toggleDisplayAmmoAsGrid, sortAmmoBy, setSortAmmoBy, language, theme } = usePreferenceStore()
-  const { mainMenuOpen, setMainMenuOpen, newAmmoOpen, setNewAmmoOpen, seeAmmoOpen, } = useViewStore()
+  const { mainMenuOpen, setMainMenuOpen, newAmmoOpen, setNewAmmoOpen, seeAmmoOpen, setSeeAmmoOpen} = useViewStore()
   const { ammoCollection, setAmmoCollection, currentAmmo, setCurrentAmmo } = useAmmoStore()
   const { ammo_tags, setAmmoTags, overWriteAmmoTags } = useTagStore()
   const [isFilterOn, setIsFilterOn] = useState<boolean>(false);
@@ -291,23 +291,18 @@ async function saveNewStock(ammo:AmmoType){
             null}
           </View>
         </ScrollView>
-        {newAmmoOpen ? 
-      <Animated.View entering={SlideInDown} exiting={SlideOutDown} style={{position: "absolute", left: 0, top: 0, right: 0, bottom: 0}}>
-        <SafeAreaView>
-          <NewAmmo />
-        </SafeAreaView>
-      </Animated.View> 
-      : 
-      null}
         
-      {seeAmmoOpen ? 
-      <Animated.View entering={FadeIn} exiting={FadeOut} style={{position: "absolute", left: 0, top: 0, right: 0, bottom: 0}}>
-        <SafeAreaView>
-          <Ammo />
-        </SafeAreaView>
-      </Animated.View>
-      :
-      null}
+        <Portal>
+          <Modal visible={newAmmoOpen} contentContainerStyle={{height: "100%"}} onDismiss={setNewAmmoOpen}>
+            <NewAmmo />
+          </Modal>
+        </Portal>        
+        
+        <Portal>
+          <Modal visible={seeAmmoOpen} contentContainerStyle={{height: "100%"}} onDismiss={setSeeAmmoOpen}>
+            <Ammo />
+          </Modal>
+      </Portal>
 
 {stockVisible ? 
       <Animated.View entering={FadeIn} exiting={FadeOut} style={{position: "absolute", left: 0, top: 0, right: 0, bottom: 0}}>
@@ -335,15 +330,13 @@ async function saveNewStock(ammo:AmmoType){
       null}
 
 
-         {!seeAmmoOpen && !newAmmoOpen && !mainMenuOpen? 
+
       <FAB
         icon="plus"
         style={styles.fab}
         onPress={setNewAmmoOpen}
         disabled={mainMenuOpen ? true : false}
-      /> 
-      : 
-      null}
+/>
         
       </SafeAreaView>
     )
