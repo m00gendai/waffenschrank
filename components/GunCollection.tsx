@@ -1,7 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useEffect, useState } from 'react';
-import { Dimensions, ScrollView, StyleSheet, TouchableNativeFeedback, View, Text } from 'react-native';
-import { Appbar, Card, FAB, Menu, Modal, Portal, Switch, useTheme } from 'react-native-paper';
+import { Dimensions, ScrollView, StyleSheet, TouchableNativeFeedback, View } from 'react-native';
+import { Appbar, Card, FAB, Menu, Modal, Portal, Switch, useTheme, Text } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { GUN_DATABASE, KEY_DATABASE, PREFERENCES, TAGS, defaultGridGap, defaultViewPadding } from '../configs';
 import { GunType, MenuVisibility } from '../interfaces';
@@ -211,7 +211,7 @@ const activeTags = tags.filter(tag => tag.status === true)
             anchor={<Appbar.Action icon="filter" onPress={() =>{handleMenu("filterBy", true)}} />}
             anchorPosition='bottom'
             >
-            <View style={{padding: 5}}>
+            <View style={{padding: defaultViewPadding}}>
               <View style={{display: "flex", flexDirection: "row", justifyContent: "flex-start", alignItems: "center"}}>
                 <Text>Filter:</Text>
                 <Switch value={isFilterOn} onValueChange={onToggleSwitch} />
