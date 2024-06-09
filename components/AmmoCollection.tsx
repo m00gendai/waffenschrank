@@ -1,7 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useEffect, useState } from 'react';
-import { ScrollView, StyleSheet, View, Text } from 'react-native';
-import { Appbar, FAB, IconButton, Menu, Modal, Portal, Switch, TextInput, useTheme } from 'react-native-paper';
+import { ScrollView, StyleSheet, View } from 'react-native';
+import { Appbar, FAB, IconButton, Menu, Modal, Portal, Switch, TextInput, Text } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { AMMO_DATABASE, A_KEY_DATABASE, PREFERENCES, A_TAGS, defaultGridGap, defaultViewPadding, dateLocales } from '../configs';
 import { AmmoType, MenuVisibility } from '../interfaces';
@@ -241,7 +241,7 @@ async function saveNewStock(ammo:AmmoType){
             anchor={<Appbar.Action icon="filter" onPress={() =>{handleMenu("filterBy", true)}} />}
             anchorPosition='bottom'
             >
-            <View style={{padding: 5}}>
+            <View style={{padding: defaultViewPadding}}>
               <View style={{display: "flex", flexDirection: "row", justifyContent: "flex-start", alignItems: "center"}}>
                 <Text>Filter:</Text>
                 <Switch value={isFilterOn} onValueChange={onToggleSwitch} />
