@@ -1,7 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
-import { Appbar, FAB, IconButton, Menu, Modal, Portal, Switch, TextInput, Text } from 'react-native-paper';
+import { Appbar, FAB, IconButton, Menu, Modal, Portal, Switch, TextInput, Text, Tooltip } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { AMMO_DATABASE, A_KEY_DATABASE, PREFERENCES, A_TAGS, defaultGridGap, defaultViewPadding, dateLocales } from '../configs';
 import { AmmoType, MenuVisibility } from '../interfaces';
@@ -15,7 +15,7 @@ import { useTagStore } from '../stores/useTagStore';
 import { Checkbox } from 'react-native-paper';
 import NewAmmo from './NewAmmo';
 import Ammo from './Ammo';
-import { ammoQuickUpdate } from '../lib/textTemplates';
+import { ammoQuickUpdate, tooltips } from '../lib/textTemplates';
 import AmmoCard from './AmmoCard';
 import { colorThemes } from '../lib/colorThemes';
 
@@ -238,7 +238,7 @@ async function saveNewStock(ammo:AmmoType){
           <Menu
             visible={menuVisibility.filterBy}
             onDismiss={()=>handleMenu("filterBy", false)}
-            anchor={<Appbar.Action icon="filter" onPress={() =>{handleMenu("filterBy", true)}} />}
+            anchor={sortedTags.length === 0 ? <Tooltip title={tooltips.tagFilter[language]}><Appbar.Action icon="filter" disabled={sortedTags.length === 0 ? true : false} onPress={() =>{handleMenu("filterBy", true)}} /></Tooltip> : <Appbar.Action icon="filter" disabled={sortedTags.length === 0 ? true : false} onPress={() =>{handleMenu("filterBy", true)}} />}
             anchorPosition='bottom'
             >
             <View style={{padding: defaultViewPadding}}>

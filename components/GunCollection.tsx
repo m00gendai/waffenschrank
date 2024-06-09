@@ -1,7 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useEffect, useState } from 'react';
 import { Dimensions, ScrollView, StyleSheet, TouchableNativeFeedback, View } from 'react-native';
-import { Appbar, Card, FAB, Menu, Modal, Portal, Switch, useTheme, Text } from 'react-native-paper';
+import { Appbar, Card, FAB, Menu, Modal, Portal, Switch, useTheme, Text, Tooltip } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { GUN_DATABASE, KEY_DATABASE, PREFERENCES, TAGS, defaultGridGap, defaultViewPadding } from '../configs';
 import { GunType, MenuVisibility } from '../interfaces';
@@ -16,6 +16,7 @@ import { usePreferenceStore } from '../stores/usePreferenceStore';
 import { useTagStore } from '../stores/useTagStore';
 import { Checkbox } from 'react-native-paper';
 import GunCard from './GunCard';
+import { tooltips } from '../lib/textTemplates';
 
 export default function GunCollection(){
 
@@ -27,7 +28,7 @@ export default function GunCollection(){
   const [sortIcon, setSortIcon] = useState<string>("alphabetical-variant")
   const [sortAscending, setSortAscending] = useState<boolean>(true)
 
-  const { dbImport, displayAsGrid, setDisplayAsGrid, toggleDisplayAsGrid, sortBy, setSortBy } = usePreferenceStore()
+  const { dbImport, displayAsGrid, setDisplayAsGrid, toggleDisplayAsGrid, sortBy, setSortBy, language } = usePreferenceStore()
   const { mainMenuOpen, setMainMenuOpen, newGunOpen, setNewGunOpen, editGunOpen, setEditGunOpen, seeGunOpen, setSeeGunOpen } = useViewStore()
   const { gunCollection, setGunCollection, currentGun, setCurrentGun } = useGunStore()
   const { tags, setTags, overWriteTags } = useTagStore()
@@ -208,7 +209,7 @@ const activeTags = tags.filter(tag => tag.status === true)
           <Menu
             visible={menuVisibility.filterBy}
             onDismiss={()=>handleMenu("filterBy", false)}
-            anchor={<Appbar.Action icon="filter" onPress={() =>{handleMenu("filterBy", true)}} />}
+            anchor={sortedTags.length === 0 ? <Tooltip title={tooltips.tagFilter[language]}><Appbar.Action icon="filter" disabled={sortedTags.length === 0 ? true : false} onPress={() =>{handleMenu("filterBy", true)}} /></Tooltip> : <Appbar.Action icon="filter" disabled={sortedTags.length === 0 ? true : false} onPress={() =>{handleMenu("filterBy", true)}} />}
             anchorPosition='bottom'
             >
             <View style={{padding: defaultViewPadding}}>
