@@ -1,5 +1,5 @@
 import { StyleSheet, View, ScrollView, Alert} from 'react-native';
-import { Appbar, SegmentedButtons, Snackbar } from 'react-native-paper';
+import { Appbar, Button, Dialog, SegmentedButtons, Snackbar, Text } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as ImagePicker from "expo-image-picker"
 import { useState } from 'react';
@@ -29,6 +29,9 @@ export default function EditGun(){
     const [visible, setVisible] = useState<boolean>(false);
     const [snackbarText, setSnackbarText] = useState<string>("")
     const [saveState, setSaveState] = useState<boolean | null>(null)
+    const [imageDialogVisible, toggleImageDialogVisible] = useState<boolean>(false)
+    const [unsavedVisible, toggleUnsavedDialogVisible] = useState<boolean>(false)
+    const [deleteImageIndex, setDeleteImageIndex] = useState<number>(0)
 
     const { language, theme } = usePreferenceStore()
     const { setEditGunOpen } = useViewStore()
@@ -36,33 +39,6 @@ export default function EditGun(){
   const onToggleSnackBar = () => setVisible(!visible);
 
   const onDismissSnackBar = () => setVisible(false);
-
-  function invokeAlert(){
-    Alert.alert(unsavedChangesAlert.title[language], unsavedChangesAlert.subtitle[language], [
-        {
-            text: unsavedChangesAlert.yes[language],
-            onPress: setEditGunOpen
-        },
-        {
-            text: unsavedChangesAlert.no[language],
-            style: "cancel"
-        }
-    ])
-    }
-
-
-  function deleteImagePrompt(index:number){
-    Alert.alert(imageDeleteAlert.title[language], ``, [
-        {
-            text: imageDeleteAlert.yes[language],
-            onPress: () => deleteImage(index)
-        },
-        {
-            text: imageDeleteAlert.no[language],
-            style: "cancel"
-        }
-    ])
-    }
 
     async function save(value: GunType) {
         await SecureStore.setItemAsync(`${GUN_DATABASE}_${value.id}`, JSON.stringify(value)) // Save the gun
@@ -82,6 +58,7 @@ export default function EditGun(){
         currentImages.splice(indx, 1)
         setSelectedImage(currentImages)
         setGunData({...gunData, images: currentImages})
+        toggleImageDialogVisible(false)
     }
   
     const pickImageAsync = async (indx:number) =>{
@@ -146,6 +123,11 @@ export default function EditGun(){
         }
     }   
 
+    function deleteImagePrompt(index:number){
+        setDeleteImageIndex(index)
+        toggleImageDialogVisible(true)
+         }
+
     const styles = StyleSheet.create({
         container: {
             display: "flex",
@@ -198,7 +180,7 @@ export default function EditGun(){
         <View style={{width: "100%", height: "100%", backgroundColor: theme.colors.background}}>
             
             <Appbar style={{width: "100%"}}>
-                <Appbar.BackAction  onPress={() => {saveState == true ? setEditGunOpen() : saveState === false ? invokeAlert() : setEditGunOpen()}} />
+                <Appbar.BackAction  onPress={() => {saveState == true ? setEditGunOpen() : saveState === false ? toggleUnsavedDialogVisible(true) : setEditGunOpen()}} />
                 <Appbar.Content title={editGunTitle[language]} />
                 <Appbar.Action icon="floppy" onPress={() => save({...gunData, lastModifiedAt: new Date()})} color={saveState  == true ? "green" : saveState == false ? theme.colors.error : theme.colors.onBackground}/>
             </Appbar>
@@ -293,6 +275,32 @@ export default function EditGun(){
                 }}>
                 {snackbarText}
             </Snackbar>
+
+            <Dialog visible={imageDialogVisible} onDismiss={()=>toggleImageDialogVisible(false)}>
+            <Dialog.Title>
+                    {`${imageDeleteAlert.title[language]}`}
+                    </Dialog.Title>
+                    <Dialog.Actions>
+                        <Button onPress={()=>deleteImage(deleteImageIndex)} icon="delete" buttonColor={theme.colors.errorContainer} textColor={theme.colors.onErrorContainer}>{imageDeleteAlert.yes[language]}</Button>
+                        <Button onPress={()=>toggleImageDialogVisible(false)} icon="cancel" buttonColor={theme.colors.secondary} textColor={theme.colors.onSecondary}>{imageDeleteAlert.no[language]}</Button>
+                    </Dialog.Actions>
+                </Dialog>
+                   
+
+            
+                <Dialog visible={unsavedVisible} onDismiss={()=>toggleUnsavedDialogVisible(!unsavedVisible)}>
+                    <Dialog.Title>
+                    {`${unsavedChangesAlert.title[language]}`}
+                    </Dialog.Title>
+                    <Dialog.Content>
+                        <Text>{`${unsavedChangesAlert.subtitle[language]}`}</Text>
+                    </Dialog.Content>
+                    <Dialog.Actions>
+                        <Button onPress={setEditGunOpen} icon="delete" buttonColor={theme.colors.errorContainer} textColor={theme.colors.onErrorContainer}>{unsavedChangesAlert.yes[language]}</Button>
+                        <Button onPress={()=>toggleUnsavedDialogVisible(!unsavedVisible)} icon="cancel" buttonColor={theme.colors.secondary} textColor={theme.colors.onSecondary}>{unsavedChangesAlert.no[language]}</Button>
+                    </Dialog.Actions>
+                </Dialog>
+
         </View>
     )
 }
