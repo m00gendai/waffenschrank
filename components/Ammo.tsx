@@ -1,5 +1,5 @@
 import { StyleSheet, View, Modal, ScrollView, Alert, TouchableNativeFeedback, TouchableOpacity } from 'react-native';
-import { Button, Appbar, Icon, Chip, Text } from 'react-native-paper';
+import { Button, Appbar, Icon, Chip, Text, Dialog, Portal } from 'react-native-paper';
 import { ammoDataTemplate, ammoRemarks } from "../lib/ammoDataTemplate"
 import * as SecureStore from "expo-secure-store"
 import { useState} from "react"
@@ -12,15 +12,17 @@ import { useViewStore } from '../stores/useViewStore';
 import { useAmmoStore } from '../stores/useAmmoStore';
 import { ammoDeleteAlert } from '../lib/textTemplates';
 import { printSingleGun } from '../functions/printToPDF';
+import { AmmoType } from '../interfaces';
 
 
 export default function Ammo(){
 
     const [lightBoxIndex, setLightBoxIndex] = useState<number>(0)
+    const [dialogVisible, toggleDialogVisible] = useState<boolean>(false)
 
     const { setSeeAmmoOpen, editAmmoOpen, setEditAmmoOpen, lightBoxOpen, setLightBoxOpen } = useViewStore()
     const { language, theme } = usePreferenceStore()
-    const { currentAmmo, setCurrentAmmo } = useAmmoStore()
+    const { currentAmmo, setCurrentAmmo, ammoCollection, setAmmoCollection } = useAmmoStore()
 
     const showModal = (index:number) => {
         setLightBoxOpen()
@@ -65,20 +67,10 @@ export default function Ammo(){
         const keyArray: string[] = JSON.parse(keys)
         const newKeys: string[] = keyArray.filter(key => key != ammo.id)
         AsyncStorage.setItem(A_KEY_DATABASE, JSON.stringify(newKeys))
+        const index:number = ammoCollection.indexOf(ammo)
+        const newCollection:AmmoType[] = ammoCollection.toSpliced(index, 1)
+        setAmmoCollection(newCollection)
         setSeeAmmoOpen()
-    }
-    
-    function invokeAlert(ammo){
-        Alert.alert(`${ammo.designation} ${ammoDeleteAlert.title[language]}`, ammoDeleteAlert.subtitle[language], [
-            {
-                text: ammoDeleteAlert.yes[language],
-                onPress: () => deleteItem(ammo)
-            },
-            {
-                text: ammoDeleteAlert.no[language],
-                style: "cancel"
-            }
-        ])
     }
 
     return(
@@ -153,10 +145,25 @@ export default function Ammo(){
                             </View>
                           {lightBoxOpen ? <ImageViewer isLightBox={true} selectedImage={currentAmmo.images[lightBoxIndex]}/> : null}
                         </View>
-                    </Modal>                    
+                    </Modal>     
+
+                    <Portal>
+                        <Dialog visible={dialogVisible} onDismiss={()=>toggleDialogVisible(!dialogVisible)}>
+                            <Dialog.Title>
+                            {`${currentAmmo.designation} ${ammoDeleteAlert.title[language]}`}
+                            </Dialog.Title>
+                            <Dialog.Content>
+                                <Text>{`${ammoDeleteAlert.subtitle[language]}`}</Text>
+                            </Dialog.Content>
+                            <Dialog.Actions>
+                                <Button onPress={()=>deleteItem(currentAmmo)} icon="delete" buttonColor={theme.colors.errorContainer} textColor={theme.colors.onErrorContainer}>{ammoDeleteAlert.yes[language]}</Button>
+                                <Button onPress={()=>toggleDialogVisible(!dialogVisible)} icon="cancel" buttonColor={theme.colors.secondary} textColor={theme.colors.onSecondary}>{ammoDeleteAlert.no[language]}</Button>
+                            </Dialog.Actions>
+                        </Dialog>
+                    </Portal>               
                     
                     <View style={{width: "100%", display: "flex", flex: 1, flexDirection: "row", justifyContent:"center"}}>
-                        <Button mode="contained" style={{width: "20%", backgroundColor: theme.colors.errorContainer, marginTop: 20}} onPress={()=>invokeAlert(currentAmmo)}>
+                        <Button mode="contained" style={{width: "20%", backgroundColor: theme.colors.errorContainer, marginTop: 20}} onPress={()=>toggleDialogVisible(!dialogVisible)}>
                             <Icon source="delete" size={20} color={theme.colors.onErrorContainer}/>
                         </Button>
                     </View>
@@ -165,4 +172,3 @@ export default function Ammo(){
         </View>
     )
 }
-

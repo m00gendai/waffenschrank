@@ -32,7 +32,7 @@ export default function NewGun(){
 
     const { language, theme } = usePreferenceStore()
     const { setNewGunOpen, setSeeGunOpen } = useViewStore()
-    const { setCurrentGun } = useGunStore()
+    const { setCurrentGun, gunCollection, setGunCollection } = useGunStore()
 
     useEffect(()=>{
         setSaveState(false)
@@ -85,6 +85,8 @@ export default function NewGun(){
         onToggleSnackBar()
         setNewGunOpen()
         setCurrentGun(gunData)
+        const newCollection:GunType[] = [...gunCollection, value]
+        setGunCollection(newCollection)
         setSeeGunOpen()
 
     }

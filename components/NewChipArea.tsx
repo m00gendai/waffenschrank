@@ -19,7 +19,7 @@ interface Props{
 }
 
 export default function NewChipArea({data, gunData, setGunData, ammoData, setAmmoData}:Props){
-console.log(gunData, ammoData)
+
     const { language, theme } = usePreferenceStore()
     const { currentGun } = useGunStore()
     const { currentAmmo } = useAmmoStore()
@@ -42,30 +42,22 @@ console.log(gunData, ammoData)
         if(gunData !== undefined){
             const allTags:string = await AsyncStorage.getItem(TAGS) // gets the object that holds all key values
             const allTagsArray = allTags === null ? [] : JSON.parse(allTags)
-            console.log("allTagsArray")
-            console.log(allTagsArray)
             if(!allTagsArray.some(element => element.label === text)){
                 setTags({label: text, status: true})
 
             
                 const newTags:{label:string, status:boolean}[] = allTagsArray.length === 0 ? [{label:text,status:true}] : [...allTagsArray, {label:text,status:true}] // if its the first gun to be saved, create an array with the id of the gun. Otherwise, merge the key into the existing array
-                console.log("newTags")
-                console.log(newTags)
                 await AsyncStorage.setItem(TAGS, JSON.stringify(newTags)) // Save the key object
             }
         }
         if(ammoData !== undefined){
             const allTags:string = await AsyncStorage.getItem(A_TAGS) // gets the object that holds all key values
             const allTagsArray = allTags === null ? [] : JSON.parse(allTags)
-            console.log("allTagsArray")
-            console.log(allTagsArray)
             if(!allTagsArray.some(element => element.label === text)){
                 setAmmoTags({label: text, status: true})
     
             
                 const newTags:{label:string, status:boolean}[] = allTagsArray.length === 0 ? [{label:text,status:true}] : [...allTagsArray, {label:text,status:true}] // if its the first gun to be saved, create an array with the id of the gun. Otherwise, merge the key into the existing array
-               console.log("newTags")
-               console.log(newTags)
                 await AsyncStorage.setItem(A_TAGS, JSON.stringify(newTags)) // Save the key object
             }
         }

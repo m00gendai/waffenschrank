@@ -1,7 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, View, Text } from 'react-native';
-import { Appbar, FAB, IconButton, Menu, Switch, TextInput, useTheme } from 'react-native-paper';
+import { Appbar, FAB, IconButton, Menu, Modal, Portal, Switch, TextInput, useTheme } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { AMMO_DATABASE, A_KEY_DATABASE, PREFERENCES, A_TAGS, defaultGridGap, defaultViewPadding, dateLocales } from '../configs';
 import { AmmoType, MenuVisibility } from '../interfaces';
@@ -17,6 +17,7 @@ import NewAmmo from './NewAmmo';
 import Ammo from './Ammo';
 import { ammoQuickUpdate } from '../lib/textTemplates';
 import AmmoCard from './AmmoCard';
+import { colorThemes } from '../lib/colorThemes';
 
 export default function AmmoCollection(){
 
@@ -34,7 +35,7 @@ export default function AmmoCollection(){
   const [error, displayError] = useState<boolean>(false)
 
   const { ammoDbImport, displayAmmoAsGrid, setDisplayAmmoAsGrid, toggleDisplayAmmoAsGrid, sortAmmoBy, setSortAmmoBy, language, theme } = usePreferenceStore()
-  const { mainMenuOpen, setMainMenuOpen, newAmmoOpen, setNewAmmoOpen, seeAmmoOpen, } = useViewStore()
+  const { mainMenuOpen, setMainMenuOpen, newAmmoOpen, setNewAmmoOpen, seeAmmoOpen, setSeeAmmoOpen} = useViewStore()
   const { ammoCollection, setAmmoCollection, currentAmmo, setCurrentAmmo } = useAmmoStore()
   const { ammo_tags, setAmmoTags, overWriteAmmoTags } = useTagStore()
   const [isFilterOn, setIsFilterOn] = useState<boolean>(false);
@@ -52,7 +53,8 @@ export default function AmmoCollection(){
       flexWrap: "wrap",
       flexDirection: "row",
       gap: defaultGridGap,
-      padding: defaultViewPadding
+      padding: defaultViewPadding,
+      marginBottom: 75
     },
     fab: {
       position: 'absolute',
@@ -87,7 +89,7 @@ export default function AmmoCollection(){
           setAmmoCollection(sortedAmmo)
         }
         getAmmo()
-      },[newAmmoOpen, seeAmmoOpen, ammoDbImport, stockValue])
+      },[ammoDbImport])
 
 useEffect(()=>{
   async function getPreferences(){
@@ -177,7 +179,7 @@ const uniqueObjects = removeDuplicates(list);
 async function handleFilterPress(tag:{label:string, status:boolean}){
 
   const preferences:string = await AsyncStorage.getItem(A_TAGS)
-console.log(`preferences: ${preferences}`)
+
   const index = ammo_tags.findIndex(tagItem => tagItem.label === tag.label)
 
   ammo_tags[index].status = !ammo_tags[index].status
@@ -198,17 +200,21 @@ async function saveNewStock(ammo:AmmoType){
     const date:Date = new Date()
     if(stockChange !== ""){
     const currentValue:number = ammo.currentStock ? ammo.currentStock : 0
-    const increase:number = parseInt(input)
-    const total:number = stockChange === "inc" ? currentValue + increase : currentValue - increase
-console.log(total)
+    const increase:number = Number(input)
+    const total:number = stockChange === "inc" ? Number(currentValue) + Number(increase) : Number(currentValue) - Number(increase)
     await SecureStore.setItemAsync(`${AMMO_DATABASE}_${ammo.id}`, JSON.stringify({...ammo, previousStock: currentValue, currentStock:total, lastTopUpAt: date.toLocaleDateString(dateLocales.de)})) // Save the ammo
         console.log(`Updated item ${JSON.stringify(ammo)} with key ${AMMO_DATABASE}_${ammo.id}`)
         setCurrentAmmo({...ammo, currentStock:parseInt(input)})
         setStockValue(parseInt(input))
         setInput("")
         setStockChange("")
+        const currentObj:AmmoType = ammoCollection.find(({id}) => id === ammo.id)
+        const index:number = ammoCollection.indexOf(currentObj)
+        const newCollection:AmmoType[] = ammoCollection.toSpliced(index, 1, {...ammo, currentStock:total})
+        setAmmoCollection(newCollection)
         setStockVisible(!stockVisible)
         displayError(false)
+
     }
     else {
         displayError(true)
@@ -263,89 +269,79 @@ console.log(total)
         </Appbar>
 
         <ScrollView 
-          contentContainerStyle={{
+          style={{
             width: "100%", 
             height: "100%", 
             flexDirection: "column", 
-            flexWrap: "wrap"
+            flexWrap: "wrap",
+            backgroundColor: theme.colors.background
           }}
         >
           <View 
             style={styles.container}
           >
             {ammoCollection.length != 0 && !isFilterOn ? ammoCollection.map(ammo =>{
-              return(
-                <AmmoCard key={ammo.id} ammo={ammo} stockVisible={stockVisible} setStockVisible={setStockVisible}/>
-              )
+              return <AmmoCard key={ammo.id} ammo={ammo} stockVisible={stockVisible} setStockVisible={setStockVisible}/>
             }) 
             :
             ammoCollection.length !== 0 && isFilterOn ? ammoList.map(ammo =>{
-              
-
-                
-                  return <AmmoCard key={ammo.id} ammo={ammo} stockVisible={stockVisible} setStockVisible={setStockVisible}/>
-                
-                
-              
+              return <AmmoCard key={ammo.id} ammo={ammo} stockVisible={stockVisible} setStockVisible={setStockVisible}/>
             })
-              
             :
             null}
           </View>
         </ScrollView>
-        {newAmmoOpen ? 
-      <Animated.View entering={SlideInDown} exiting={SlideOutDown} style={{position: "absolute", left: 0, top: 0, right: 0, bottom: 0}}>
-        <SafeAreaView>
-          <NewAmmo />
-        </SafeAreaView>
-      </Animated.View> 
-      : 
-      null}
         
-      {seeAmmoOpen ? 
-      <Animated.View entering={FadeIn} exiting={FadeOut} style={{position: "absolute", left: 0, top: 0, right: 0, bottom: 0}}>
-        <SafeAreaView>
-          <Ammo />
-        </SafeAreaView>
-      </Animated.View>
-      :
-      null}
+        <Portal>
+          <Modal visible={newAmmoOpen} contentContainerStyle={{height: "100%"}} onDismiss={setNewAmmoOpen}>
+            <NewAmmo />
+          </Modal>
+        </Portal>        
+        
+        <Portal>
+          <Modal visible={seeAmmoOpen} contentContainerStyle={{height: "100%"}} onDismiss={setSeeAmmoOpen}>
+            <Ammo />
+          </Modal>
+        </Portal>
 
-{stockVisible ? 
-      <Animated.View entering={FadeIn} exiting={FadeOut} style={{position: "absolute", left: 0, top: 0, right: 0, bottom: 0}}>
-        <SafeAreaView>
-          <View style={{width: "100%", height: "100%", display: "flex", justifyContent: "center", alignItems: "center", backgroundColor: theme.colors.backdrop}}>
-            <View style={{width: "85%", display: "flex", flexDirection: "column", backgroundColor: theme.colors.background}}>
-            <View style={{width: "100%", display: "flex", flexDirection: "row"}}>
-                <Text style={{color: theme.colors.onBackground}}>{ammoQuickUpdate.title[language]}</Text>
-            </View>
-                <View style={{width: "100%", display: "flex", flexDirection: "row"}}>
-                    <IconButton mode="contained" icon="plus" selected={stockChange === "inc" ? true : false} onPress={()=>setStockChange("inc")}/>
-                    <IconButton mode="contained" icon="minus" selected={stockChange === "dec" ? true : false} onPress={()=>setStockChange("dec")} />
-                    <TextInput style={{flex: 1}} keyboardType={"number-pad"} value={input} onChangeText={input => setInput(input.replace(/[^0-9]/g, ''))} inputMode='decimal'/>
-                    <IconButton mode="contained" icon="floppy" onPress={()=>saveNewStock(currentAmmo)}/>
-                    <IconButton mode="contained" icon="cancel" onPress={()=>setStockVisible(false)}/>
-                </View>
-                {error ? <View style={{width: "100%", display: "flex", flexDirection: "row"}}>
-                <Text style={{color: theme.colors.error}}>{ammoQuickUpdate.error[language]}</Text>
-            </View> : null}
-            </View>
-        </View>
-        </SafeAreaView>
-      </Animated.View>
-      :
-      null}
+        <Portal>
+      <Modal visible={stockVisible} >
+        <View style={{width: "100%", height: "100%", display: "flex", flexDirection: "row", justifyContent: "center", alignItems: "center", flexWrap: "wrap", backgroundColor: theme.colors.backdrop}}>
+            <View style={{width: "85%", height: "100%", display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", flexWrap: "wrap"}}>
+                <View style={{backgroundColor: theme.colors.background, width: "100%", display: "flex", flexDirection: "row", flexWrap: "wrap"}}>
+                  <View style={{padding: defaultViewPadding}}>
+                    <Text style={{color: theme.colors.onBackground}}>{ammoQuickUpdate.title[language]}</Text>
+                  </View>
+                  <View style={{width: "100%", display: "flex", flexDirection: "row", padding: defaultViewPadding, flexWrap: "wrap"}}>
+                    <View style={{width: "100%", display: "flex", flexDirection: "row", justifyContent: "center",  marginBottom: 10}}>
+                      <IconButton mode="contained" icon="plus" selected={stockChange === "inc" ? true : false} onPress={()=>setStockChange("inc")}/>
+                      <IconButton mode="contained" icon="minus" selected={stockChange === "dec" ? true : false} onPress={()=>setStockChange("dec")} />
+                    </View>
+                    <TextInput style={{width: "100%"}} placeholder={ammoQuickUpdate.placeholder[language]} keyboardType={"number-pad"} value={input} onChangeText={input => setInput(input.replace(/[^0-9]/g, ''))} inputMode='decimal'/>
+                    <View style={{width: "100%", display: "flex", flexDirection: "row", justifyContent: "space-between", marginTop: 10}}>
+                    <IconButton mode="contained" icon="check" onPress={() => saveNewStock(currentAmmo)} style={{width: 50, backgroundColor: theme.colors.primary}} iconColor={theme.colors.onPrimary}/>
+                      <IconButton mode="contained" icon="cancel" onPress={()=>setStockVisible(false)} style={{width: 50, backgroundColor: theme.colors.secondaryContainer}} iconColor={theme.colors.onSecondaryContainer}/>
+                    </View>
+                  </View>
+                  {error ? 
+                  <View style={{width: "100%", display: "flex", flexDirection: "row"}}>
+                    <Text style={{color: theme.colors.error}}>{ammoQuickUpdate.error[language]}</Text>
+                  </View> 
+                  : 
+                  null}
+                  </View>
+              </View>
+          </View>
+      </Modal>
+      </Portal>
 
 
-         {!seeAmmoOpen && !newAmmoOpen && !mainMenuOpen? 
       <FAB
         icon="plus"
         style={styles.fab}
         onPress={setNewAmmoOpen}
         disabled={mainMenuOpen ? true : false}
-      /> 
-      : 
-      null}
+/>
         
       </SafeAreaView>
     )

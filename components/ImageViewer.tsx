@@ -27,11 +27,6 @@ export default function ImageViewer({selectedImage, isLightBox, placeholder}:Pro
 
     const panGesture: PanGesture = Gesture.Pan().runOnJS(true)
     .onChange((e) => {
-        console.log(`X : ${Math.ceil(positionX.value)}`)
-        console.log(`Y : ${Math.ceil(positionY.value)}`)
-        console.log(`S : ${Math.ceil(scale.value)}`)
-        console.log(`V : ${(Math.ceil(scale.value*100)/2)}`)
-        console.log(e.velocityY)
         barrierX.value = (scale.value*100)/2
         barrierY.value = (scale.value*100)/2
         // scale 1 = 0 , scale 2 = 100 --- -100 -> scale*100-100 (1*100-100 = 0, 2*100-100 = 100)
