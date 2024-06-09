@@ -160,7 +160,7 @@ export default function Gun(){
                     <Modal visible={editGunOpen}>
                         <EditGun />
                     </Modal>
-                    
+
                     <Modal visible={lightBoxOpen} transparent>
                         <View style={{width: "100%", height: "100%", padding: 0, flex: 1, flexDirection: "column", flexWrap: "wrap"}}>
                             <View style={{width: "100%", flexDirection: "row", justifyContent:"flex-end", alignItems: "center", alignContent: "center", backgroundColor: "black", flex: 2}}>
