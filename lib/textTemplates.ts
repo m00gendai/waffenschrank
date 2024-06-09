@@ -52,6 +52,10 @@ interface AmmoQuickUpdate{
     placeholder: SimpleTranslation
 }
 
+interface Tooltips{
+    tagFilter: SimpleTranslation
+}
+
 export const editGunTitle:SimpleTranslation = {
     de: "Waffe bearbeiten",
     en: "Edit Gun",
@@ -359,5 +363,13 @@ export const ammoQuickUpdate:AmmoQuickUpdate = {
         de: "Menge +/-",
         en: "Amount +/-", 
         fr: "Montant +/-"
+    }
+}
+
+export const tooltips:Tooltips = {
+    tagFilter: {
+        de: "Hier kann nach erfassten Schlagworten gefiltert werden",
+        en: "Here you can filter by entered tags",
+        fr: "Ici, il est possible de filtrer les mots-clés saisis",
     }
 }
