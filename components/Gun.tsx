@@ -1,5 +1,5 @@
 import { StyleSheet, View, Modal, ScrollView, Alert, TouchableNativeFeedback, TouchableOpacity } from 'react-native';
-import { Button, Appbar, Icon, Checkbox, Chip, Text } from 'react-native-paper';
+import { Button, Appbar, Icon, Checkbox, Chip, Text, Portal, Dialog } from 'react-native-paper';
 import { checkBoxes, gunDataTemplate, gunRemarks } from "../lib/gunDataTemplate"
 import * as SecureStore from "expo-secure-store"
 import { useState} from "react"
@@ -18,6 +18,7 @@ import { GunType } from '../interfaces';
 export default function Gun(){
 
     const [lightBoxIndex, setLightBoxIndex] = useState<number>(0)
+    const [dialogVisible, toggleDialogVisible] = useState<boolean>(false)
 
     const { setSeeGunOpen, editGunOpen, setEditGunOpen, lightBoxOpen, setLightBoxOpen } = useViewStore()
     const { language, theme } = usePreferenceStore()
@@ -72,19 +73,6 @@ export default function Gun(){
         const newCollection:GunType[] = gunCollection.toSpliced(index, 1)
         setGunCollection(newCollection)
         setSeeGunOpen()
-    }
-    
-    function invokeAlert(gun){
-        Alert.alert(`${gun.model} ${gunDeleteAlert.title[language]}`, gunDeleteAlert.subtitle[language], [
-            {
-                text: gunDeleteAlert.yes[language],
-                onPress: () => deleteItem(gun)
-            },
-            {
-                text: gunDeleteAlert.no[language],
-                style: "cancel"
-            }
-        ])
     }
 
     return(
@@ -172,10 +160,25 @@ export default function Gun(){
                             </View>
                           {lightBoxOpen ? <ImageViewer isLightBox={true} selectedImage={currentGun.images[lightBoxIndex]}/> : null}
                         </View>
-                    </Modal>                    
+                    </Modal>       
+
+                    <Portal>
+                        <Dialog visible={dialogVisible} onDismiss={()=>toggleDialogVisible(!dialogVisible)}>
+                            <Dialog.Title>
+                            {`${currentGun.model} ${gunDeleteAlert.title[language]}`}
+                            </Dialog.Title>
+                            <Dialog.Content>
+                                <Text>{`${gunDeleteAlert.subtitle[language]}`}</Text>
+                            </Dialog.Content>
+                            <Dialog.Actions>
+                                <Button onPress={()=>deleteItem(currentGun)} icon="delete" buttonColor={theme.colors.errorContainer} textColor={theme.colors.onErrorContainer}>{gunDeleteAlert.yes[language]}</Button>
+                                <Button onPress={()=>toggleDialogVisible(!dialogVisible)} icon="cancel" buttonColor={theme.colors.secondary} textColor={theme.colors.onSecondary}>{gunDeleteAlert.no[language]}</Button>
+                            </Dialog.Actions>
+                        </Dialog>
+                    </Portal>                  
                     
                     <View style={{width: "100%", display: "flex", flex: 1, flexDirection: "row", justifyContent:"center"}}>
-                        <Button mode="contained" style={{width: "20%", backgroundColor: theme.colors.errorContainer, marginTop: 20}} onPress={()=>invokeAlert(currentGun)}>
+                        <Button mode="contained" style={{width: "20%", backgroundColor: theme.colors.errorContainer, marginTop: 20}} onPress={()=>toggleDialogVisible(!dialogVisible)}>
                             <Icon source="delete" color={theme.colors.onErrorContainer} size={20}/>
                         </Button>
                     </View>
@@ -184,4 +187,3 @@ export default function Gun(){
         </View>
     )
 }
-
