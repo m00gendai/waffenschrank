@@ -302,33 +302,38 @@ async function saveNewStock(ammo:AmmoType){
           <Modal visible={seeAmmoOpen} contentContainerStyle={{height: "100%"}} onDismiss={setSeeAmmoOpen}>
             <Ammo />
           </Modal>
+        </Portal>
+
+        <Portal>
+      <Modal visible={stockVisible} >
+        <View style={{width: "100%", height: "100%", display: "flex", flexDirection: "row", justifyContent: "center", alignItems: "center", flexWrap: "wrap", backgroundColor: theme.colors.backdrop}}>
+            <View style={{width: "85%", height: "100%", display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", flexWrap: "wrap"}}>
+                <View style={{backgroundColor: theme.colors.background, width: "100%", display: "flex", flexDirection: "row", flexWrap: "wrap"}}>
+                  <View style={{padding: defaultViewPadding}}>
+                    <Text style={{color: theme.colors.onBackground}}>{ammoQuickUpdate.title[language]}</Text>
+                  </View>
+                  <View style={{width: "100%", display: "flex", flexDirection: "row", padding: defaultViewPadding, flexWrap: "wrap"}}>
+                    <View style={{width: "100%", display: "flex", flexDirection: "row", justifyContent: "center",  marginBottom: 10}}>
+                      <IconButton mode="contained" icon="plus" selected={stockChange === "inc" ? true : false} onPress={()=>setStockChange("inc")}/>
+                      <IconButton mode="contained" icon="minus" selected={stockChange === "dec" ? true : false} onPress={()=>setStockChange("dec")} />
+                    </View>
+                    <TextInput style={{width: "100%"}} placeholder={ammoQuickUpdate.placeholder[language]} keyboardType={"number-pad"} value={input} onChangeText={input => setInput(input.replace(/[^0-9]/g, ''))} inputMode='decimal'/>
+                    <View style={{width: "100%", display: "flex", flexDirection: "row", justifyContent: "space-between", marginTop: 10}}>
+                    <IconButton mode="contained" icon="check" onPress={() => saveNewStock(currentAmmo)} style={{width: 50, backgroundColor: theme.colors.primary}} iconColor={theme.colors.onPrimary}/>
+                      <IconButton mode="contained" icon="cancel" onPress={()=>setStockVisible(false)} style={{width: 50, backgroundColor: theme.colors.secondaryContainer}} iconColor={theme.colors.onSecondaryContainer}/>
+                    </View>
+                  </View>
+                  {error ? 
+                  <View style={{width: "100%", display: "flex", flexDirection: "row"}}>
+                    <Text style={{color: theme.colors.error}}>{ammoQuickUpdate.error[language]}</Text>
+                  </View> 
+                  : 
+                  null}
+                  </View>
+              </View>
+          </View>
+      </Modal>
       </Portal>
-
-{stockVisible ? 
-      <Animated.View entering={FadeIn} exiting={FadeOut} style={{position: "absolute", left: 0, top: 0, right: 0, bottom: 0}}>
-        <SafeAreaView>
-          <View style={{width: "100%", height: "100%", display: "flex", justifyContent: "center", alignItems: "center", backgroundColor: theme.colors.backdrop}}>
-            <View style={{width: "85%", display: "flex", flexDirection: "column", backgroundColor: theme.colors.background}}>
-            <View style={{width: "100%", display: "flex", flexDirection: "row"}}>
-                <Text style={{color: theme.colors.onBackground}}>{ammoQuickUpdate.title[language]}</Text>
-            </View>
-                <View style={{width: "100%", display: "flex", flexDirection: "row"}}>
-                    <IconButton mode="contained" icon="plus" selected={stockChange === "inc" ? true : false} onPress={()=>setStockChange("inc")}/>
-                    <IconButton mode="contained" icon="minus" selected={stockChange === "dec" ? true : false} onPress={()=>setStockChange("dec")} />
-                    <TextInput style={{flex: 1}} keyboardType={"number-pad"} value={input} onChangeText={input => setInput(input.replace(/[^0-9]/g, ''))} inputMode='decimal'/>
-                    <IconButton mode="contained" icon="floppy" onPress={()=>saveNewStock(currentAmmo)}/>
-                    <IconButton mode="contained" icon="cancel" onPress={()=>setStockVisible(false)}/>
-                </View>
-                {error ? <View style={{width: "100%", display: "flex", flexDirection: "row"}}>
-                <Text style={{color: theme.colors.error}}>{ammoQuickUpdate.error[language]}</Text>
-            </View> : null}
-            </View>
-        </View>
-        </SafeAreaView>
-      </Animated.View>
-      :
-      null}
-
 
 
       <FAB
