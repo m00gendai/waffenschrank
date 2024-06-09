@@ -222,7 +222,6 @@ export default function mainMenu(){
         let newKeys:string[] = []
         
         importableAmmoCollection.map(value =>{
-            console.log(value.id)
             newKeys.push(value.id) // if its the first gun to be saved, create an array with the id of the gun. Otherwise, merge the key into the existing array
             SecureStore.setItem(`${AMMO_DATABASE}_${value.id}`, JSON.stringify(value)) // Save the gun
         })
