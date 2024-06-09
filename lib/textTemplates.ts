@@ -49,6 +49,7 @@ interface TabBarLabels{
 interface AmmoQuickUpdate{
     title: SimpleTranslation
     error: SimpleTranslation
+    placeholder: SimpleTranslation
 }
 
 export const editGunTitle:SimpleTranslation = {
@@ -353,5 +354,10 @@ export const ammoQuickUpdate:AmmoQuickUpdate = {
         de: "Entweder + oder - muss ausgewählt sein",
         en: "Either + or - must be selected", 
         fr: "Le + ou le - doit être sélectionné"
+    },
+    placeholder: {
+        de: "Menge +/-",
+        en: "Amount +/-", 
+        fr: "Montant +/-"
     }
 }
