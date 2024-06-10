@@ -1,21 +1,27 @@
-export const gunDataTemplate:{name:string, de:string, en:string, fr:string}[] = [
+export const gunDataTemplate:{name:string, de:string, en:string, fr:string, it: string, ch: string}[] = [
     {
             name: "manufacturer",
             de: "Hersteller",
             en: "Manufacturer",
             fr: "Fabricant",
+            it: "Produttore",
+            ch: "Producent",
     },
     {   
             name: "model",
             de: "Modellbezeichnung",
             en: "Model Name",
             fr: "Désignation du modèle",
+            it: "Nome del modello",
+            ch: "Designaziun dal model",
             },
     {
             name: "manufacturingDate",
             de: "Herstellungszeitraum",
             en: "Manufacturing Date",
             fr: "Période de fabrication",
+            it: "Periodo di produzione",
+            ch: "Perioda da producziun",
         
     },
     {
@@ -23,30 +29,40 @@ export const gunDataTemplate:{name:string, de:string, en:string, fr:string}[] = 
             de: "Ursprungsland",    
             en: "Origin Country",
             fr: "Pays d'origine",
+            it: "Paese di origine",
+            ch: "Pajais d'origin",
     },
     {
             name: "caliber",
             de: "Kaliber",
             en: "Caliber",
             fr: "Calibre",
+            it: "Calibro",
+            ch: "Caliber",
     },
     {   
             name: "serial",
             de: "Seriennummer",
             en: "Serial",
-            fr: "Numéro de série"
+            fr: "Numéro de série",
+            it: "Numero di serie",
+            ch: "Numer da seria",
     },
     {
             name: "permit",
             de: "Bewilligung",
             en: "Permit",
-            fr: "Permis"
+            fr: "Permis",
+            it: "Permesso",
+            ch: "Concessiun",
     },
     {
             name: "acquisitionDate",
             de: "Erwerbsdatum",     
             en: "Acquision Date",
             fr: "Date d'acquisition",
+            it: "Data di acquisizione",
+            ch: "Data d'acquist",
         
     },
     {
@@ -54,58 +70,76 @@ export const gunDataTemplate:{name:string, de:string, en:string, fr:string}[] = 
         de: "Kaufpreis",     
         en: "Price",
         fr: "Prix d'achat",
+        it: "Prezzo",
+        ch: "Pretsch da cumpra",
     
     },
     {
         name: "shotCount",
         de: "Schussbelastung",
         en: "Shot count",
-        fr: "Compte de tirs"
+        fr: "Compte de tirs",
+        it: "Numero di colpi sparati",
+        ch: "Chargia da tir",
     },
     {
         name: "lastCleanedAt",
         de: "Zuletzt gereinigt",
         en: "Last cleaned",
-        fr: "Nettoyé en dernier"
+        fr: "Nettoyé en dernier",
+        it: "Ultima pulizia",
+        ch: "Il davos purifitgà",
     },
     {
             name: "mainColor",
             de: "Hauptfarbe",
             en: "Main Color",
             fr: "Couleur principale",
+            it: "Colore principale",
+            ch: "Da colur principala",
     },
 ]
 
-export const gunRemarks:{name:string, de:string, en:string, fr:string} = {
+export const gunRemarks:{name:string, de:string, en:string, fr:string, it: string, ch: string} = {
     name: "remarks",
     de: "Bemerkungen",
     en: "Remarks",
     fr: "Remarques",
+    it: "Osservazioni",
+    ch: "Remartgar",
 }
 
-export const checkBoxes:{name: string, de:string, en:string, fr:string}[] = [
+export const checkBoxes:{name: string, de:string, en:string, fr:string, it: string, ch: string}[] = [
     {
         name: "fullAuto",
         de: "Seriefeuerwaffe",
         en: "Automatic firearm", 
-        fr: "Arme à feu automatique"
+        fr: "Arme à feu automatique",
+        it: "Arma da fuoco automatica",
+        ch: "Arma da fieu a seria",
     },
     {
         name: "exFullAuto",
         de: "Umgebaute Seriefeuerwaffe",
         en: "Converted automatic firearm", 
-        fr: "Arme à feu automatique transformée"
+        fr: "Arme à feu automatique transformée",
+        it: "Arma da fuoco automatica convertita",
+        ch: "Arma da fieu a seria transfurmada",
     },
     {
         name: "highCapacityMagazine",
         de: "Ladevorrichtung mit hoher Kapazität",
         en: "High Capacity Magazine", 
-        fr: "Chargeur de grande capacité"
+        fr: "Chargeur de grande capacité",
+        it: "Caricatore ad alta capacità",
+        ch: "Indriz da chargiar da gronda capacitad",
     },
     {
         name: "short",
         de: "Kürzbar auf unter 60cm",
         en: "Can be shortened to under 60cm", 
-        fr: "Peut être raccourci à moins de 60cm"
+        fr: "Peut être raccourci à moins de 60cm",
+        it: "Può essere accorciato a meno di 60cm",
+        ch: "Per pauc sin main che 60cm",
     }
 ]
