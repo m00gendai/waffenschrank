@@ -1,13 +1,23 @@
-import { AmmoType, GunType } from "./interfaces";
+import { AmmoType, GunType, SortingTypes } from "./interfaces";
 import { gunDataTemplate } from "./lib/gunDataTemplate";
 import { validationErros } from "./lib//textTemplates";
 import { ammoDataTemplate } from "./lib/ammoDataTemplate";
 
-export function doSortBy(value: "alphabetical" | "chronological" | "caliber", ascending: boolean, items: GunType[] | AmmoType[]){
+export function doSortBy(value: SortingTypes, ascending: boolean, items: GunType[] | AmmoType[]){
     if(value === "alphabetical"){
         const sorted = items.sort((a, b) =>{
-            const x = `${a.manufacturer} ${a.model}`
-            const y = `${b.manufacturer} ${b.model}`
+
+            let x:string
+            let y:string
+            if(a.model !== undefined){
+                x = a.manufacturer === null ? a.model : a.manufacturer === undefined ? a.model : `${a.manufacturer} ${a.model}`
+                y = b.manufacturer === null ? b.model : b.manufacturer === undefined ? b.model : `${b.manufacturer} ${b.model}`
+            }
+            if(a.designation !== undefined){
+                x = a.manufacturer === null ? a.designation : a.manufacturer === undefined ? a.designation : `${a.designation} ${a.manufacturer}`
+                y = b.manufacturer === null ? b.designation : b.manufacturer === undefined ? b.designation : `${b.designation} ${b.manufacturer}`
+            }
+            
             if(ascending){
                 return x > y ? 1 : x < y ? -1 : 0
             } else {
@@ -15,7 +25,7 @@ export function doSortBy(value: "alphabetical" | "chronological" | "caliber", as
         }})
         return sorted
     }
-    if(value === "chronological"){
+    if(value === "lastAdded"){
         const sorted = items.sort((a, b) =>{
             const x = a.createdAt
             const y = b.createdAt
@@ -26,19 +36,27 @@ export function doSortBy(value: "alphabetical" | "chronological" | "caliber", as
         }})
         return sorted
     }
-    if(value = "caliber"){
-        return items
+    if(value === "lastModified"){
+        const sorted = items.sort((a, b) =>{
+            const x = a.lastModifiedAt !== undefined ? a.lastModifiedAt : a.createdAt
+            const y = b.lastModifiedAt !== undefined ? b.lastModifiedAt : b.createdAt
+            if(ascending){
+                return x > y ? 1 : x < y ? -1 : 0
+            } else {
+                return x < y ? 1 : x > y ? -1 : 0
+        }})
+        return sorted
     }
 }
 
-export function getIcon(type:string){
+export function getIcon(type:SortingTypes){
     switch(type){
         case "alphabetical":
             return "alphabetical-variant"
-        case "chronological":
-            return "clock-outline"
-        case "caliber":
-            return "bullet"
+        case "lastAdded":
+            return "clock-plus-outline"
+        case "lastModified":
+            return "clock-edit-outline"
         default:
             return "alphabetical-variant"
     }
