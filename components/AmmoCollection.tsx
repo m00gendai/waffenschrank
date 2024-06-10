@@ -4,10 +4,9 @@ import { ScrollView, StyleSheet, View } from 'react-native';
 import { Appbar, FAB, IconButton, Menu, Modal, Portal, Switch, TextInput, Text, Tooltip } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { AMMO_DATABASE, A_KEY_DATABASE, PREFERENCES, A_TAGS, defaultGridGap, defaultViewPadding, dateLocales } from '../configs';
-import { AmmoType, MenuVisibility } from '../interfaces';
+import { AmmoType, MenuVisibility, SortingTypes } from '../interfaces';
 import * as SecureStore from "expo-secure-store"
 import { getIcon, doSortBy } from '../utils';
-import Animated, { FadeIn, FadeOut, SlideInDown, SlideOutDown } from 'react-native-reanimated';
 import { useViewStore } from '../stores/useViewStore';
 import { useAmmoStore } from '../stores/useAmmoStore';
 import { usePreferenceStore } from '../stores/usePreferenceStore';
@@ -15,7 +14,7 @@ import { useTagStore } from '../stores/useTagStore';
 import { Checkbox } from 'react-native-paper';
 import NewAmmo from './NewAmmo';
 import Ammo from './Ammo';
-import { ammoQuickUpdate, tooltips } from '../lib/textTemplates';
+import { ammoQuickUpdate, sorting, tooltips } from '../lib/textTemplates';
 import AmmoCard from './AmmoCard';
 import { colorThemes } from '../lib/colorThemes';
 
@@ -117,7 +116,7 @@ useEffect(()=>{
 
         
 
-        async function handleSortBy(type: "alphabetical" | "chronological" | "caliber"){
+        async function handleSortBy(type:SortingTypes){
             setSortIcon(getIcon(type))
             setSortAmmoBy(type)
             const sortedAmmo = doSortBy(type, sortAscending, ammoCollection) as AmmoType[] 
@@ -260,9 +259,9 @@ async function saveNewStock(ammo:AmmoType){
               anchor={<Appbar.Action icon={sortIcon} onPress={() => handleMenu("sortBy", true)} />}
               anchorPosition='bottom'
             >
-              <Menu.Item onPress={() => handleSortBy("alphabetical")} title="Alphabetisch" leadingIcon={getIcon("alphabetical")}/>
-              <Menu.Item onPress={() => handleSortBy("chronological")} title="Chronologisch" leadingIcon={getIcon("chronological")}/>
-             {/* <Menu.Item onPress={() => {}} title="Kaliber" leadingIcon={getIcon("caliber")}/> */}
+              <Menu.Item onPress={() => handleSortBy("alphabetical")} title={`${sorting.alphabetic[language]}`} leadingIcon={getIcon("alphabetical")}/>
+              <Menu.Item onPress={() => handleSortBy("lastAdded")} title={`${sorting.lastAdded[language]}`} leadingIcon={getIcon("lastAdded")}/>
+              <Menu.Item onPress={() => handleSortBy("lastModified")} title={`${sorting.lastModified[language]}`} leadingIcon={getIcon("lastModified")}/>
             </Menu>
             <Appbar.Action icon={sortAscending ? "arrow-up" : "arrow-down"} onPress={() => handleSortOrder()} />
           </View>
