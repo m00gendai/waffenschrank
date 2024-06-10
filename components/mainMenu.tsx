@@ -10,7 +10,7 @@ import { colorThemes } from "../lib/colorThemes"
 import { useState } from "react"
 import * as FileSystem from 'expo-file-system';
 import * as DocumentPicker from 'expo-document-picker';
-import { AmmoType, GunType } from "../interfaces"
+import { AmmoType, GunType, Languages } from "../interfaces"
 import * as SecureStore from "expo-secure-store"
 import { useGunStore } from "../stores/useGunStore"
 import { SafeAreaView } from "react-native-safe-area-context"
@@ -47,7 +47,7 @@ export default function mainMenu(){
         await AsyncStorage.setItem(PREFERENCES, JSON.stringify(newPreferences))
     }
 
-    async function handleLanguageSwitch(lng:string){
+    async function handleLanguageSwitch(lng:Languages){
         switchLanguage(lng)
         const preferences:string = await AsyncStorage.getItem(PREFERENCES)
         const newPreferences:{[key:string] : string} = preferences == null ? {"language": lng} : {...JSON.parse(preferences), "language":lng} 
@@ -226,10 +226,6 @@ export default function mainMenu(){
                     <View style={{padding: 0, display: "flex", height: "100%", flexDirection: "column", flexWrap: "wrap"}}>
                         <View style={{width: "100%", flex: 10}}>
                             <ScrollView>
-                                <View style={{padding: 10}}>
-                                    <Text style={{color: theme.colors.onBackground}}>HELLO IS THIS THE KRUSTY KRAB?</Text>
-                                    <Text style={{color: theme.colors.onBackground}}>NO THIS IS MENU!</Text>
-                                </View>
                                 <View style={{marginLeft: 5, marginRight: 5, padding: 10, backgroundColor: theme.colors.background}}>
                                     <Text variant="titleMedium" style={{marginBottom: 10, color: theme.colors.onBackground}}>{preferenceTitles.language[language]}</Text>
                                     <SegmentedButtons
@@ -248,6 +244,14 @@ export default function mainMenu(){
                                         { 
                                             value: 'fr', 
                                             label: '🇫🇷' 
+                                        },
+                                        { 
+                                            value: 'it', 
+                                            label: '🇮🇹' 
+                                        },
+                                        { 
+                                            value: 'ch', 
+                                            label: '🇨🇭' 
                                         },
                                         ]}
                                     />
