@@ -1,6 +1,6 @@
 import { create } from "zustand"
 import { colorThemes } from "../lib/colorThemes"
-import { Color, SortingTypes} from "../interfaces"
+import { Color, Languages, SortingTypes} from "../interfaces"
 
 interface PreferenceStore {
     language: string
@@ -25,7 +25,7 @@ interface PreferenceStore {
 
   export const usePreferenceStore = create<PreferenceStore>((set) => ({
     language: "de",
-    switchLanguage: (lang: string) => set((state) => ({ language: lang })),
+    switchLanguage: (lang: Languages) => set((state) => ({ language: lang })),
     theme: { name: "default", colors: colorThemes.default },
     switchTheme: (name: string) => set((state) => ({theme: {name: name, colors: colorThemes[name]}})),
     dbImport: null,

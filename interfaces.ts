@@ -101,3 +101,4 @@ export interface Elevation {
 }
 
 export type SortingTypes = "alphabetical" | "lastAdded" | "lastModified"
+export type Languages = "de" | "en" | "fr" | "it" | "ch"
