@@ -52,6 +52,16 @@ interface AmmoQuickUpdate{
     placeholder: SimpleTranslation
 }
 
+interface Tooltips{
+    tagFilter: SimpleTranslation
+}
+
+interface Sorting{
+    alphabetic: SimpleTranslation
+    lastModified: SimpleTranslation
+    lastAdded: SimpleTranslation
+}
+
 export const editGunTitle:SimpleTranslation = {
     de: "Waffe bearbeiten",
     en: "Edit Gun",
@@ -360,4 +370,31 @@ export const ammoQuickUpdate:AmmoQuickUpdate = {
         en: "Amount +/-", 
         fr: "Montant +/-"
     }
+}
+
+export const tooltips:Tooltips = {
+    tagFilter: {
+        de: "Hier kann nach erfassten Schlagworten gefiltert werden",
+        en: "Here you can filter by entered tags",
+        fr: "Ici, il est possible de filtrer les mots-clés saisis",
+    }
+}
+
+export const sorting:Sorting = {
+    alphabetic: {
+        de: "Alphabetisch",
+        en: "Alphabetical",
+        fr: "Alphabétique",
+    },
+    lastModified: {
+        de: "Zuletzt geändert",
+        en: "Last modified",
+        fr: "Dernière modification",
+    },
+    lastAdded: {
+        de: "Zuletzt hinzugefügt",
+        en: "Last added",
+        fr: "Dernier ajout",
+    },
+    
 }

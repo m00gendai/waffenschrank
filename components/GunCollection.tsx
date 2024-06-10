@@ -1,13 +1,12 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useEffect, useState } from 'react';
-import { Dimensions, ScrollView, StyleSheet, TouchableNativeFeedback, View, Text } from 'react-native';
-import { Appbar, Card, FAB, Menu, Modal, Portal, Switch, useTheme } from 'react-native-paper';
+import { Dimensions, ScrollView, StyleSheet, TouchableNativeFeedback, View } from 'react-native';
+import { Appbar, Card, FAB, Menu, Modal, Portal, Switch, useTheme, Text, Tooltip } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { GUN_DATABASE, KEY_DATABASE, PREFERENCES, TAGS, defaultGridGap, defaultViewPadding } from '../configs';
-import { GunType, MenuVisibility } from '../interfaces';
+import { GunType, MenuVisibility, SortingTypes } from '../interfaces';
 import * as SecureStore from "expo-secure-store"
 import { getIcon, doSortBy } from '../utils';
-import Animated, { FadeIn, FadeOut, SlideInDown, SlideOutDown } from 'react-native-reanimated';
 import NewGun from './NewGun';
 import Gun from './Gun';
 import { useViewStore } from '../stores/useViewStore';
@@ -16,6 +15,7 @@ import { usePreferenceStore } from '../stores/usePreferenceStore';
 import { useTagStore } from '../stores/useTagStore';
 import { Checkbox } from 'react-native-paper';
 import GunCard from './GunCard';
+import { sorting, tooltips } from '../lib/textTemplates';
 
 export default function GunCollection(){
 
@@ -27,7 +27,7 @@ export default function GunCollection(){
   const [sortIcon, setSortIcon] = useState<string>("alphabetical-variant")
   const [sortAscending, setSortAscending] = useState<boolean>(true)
 
-  const { dbImport, displayAsGrid, setDisplayAsGrid, toggleDisplayAsGrid, sortBy, setSortBy } = usePreferenceStore()
+  const { dbImport, displayAsGrid, setDisplayAsGrid, toggleDisplayAsGrid, sortBy, setSortBy, language } = usePreferenceStore()
   const { mainMenuOpen, setMainMenuOpen, newGunOpen, setNewGunOpen, editGunOpen, setEditGunOpen, seeGunOpen, setSeeGunOpen } = useViewStore()
   const { gunCollection, setGunCollection, currentGun, setCurrentGun } = useGunStore()
   const { tags, setTags, overWriteTags } = useTagStore()
@@ -112,7 +112,7 @@ useEffect(()=>{
 
         
 
-        async function handleSortBy(type: "alphabetical" | "chronological" | "caliber"){
+        async function handleSortBy(type: SortingTypes){
             setSortIcon(getIcon(type))
             setSortBy(type)
             const sortedGuns = doSortBy(type, sortAscending, gunCollection) as GunType[]
@@ -208,10 +208,10 @@ const activeTags = tags.filter(tag => tag.status === true)
           <Menu
             visible={menuVisibility.filterBy}
             onDismiss={()=>handleMenu("filterBy", false)}
-            anchor={<Appbar.Action icon="filter" onPress={() =>{handleMenu("filterBy", true)}} />}
+            anchor={sortedTags.length === 0 ? <Tooltip title={tooltips.tagFilter[language]}><Appbar.Action icon="filter" disabled={sortedTags.length === 0 ? true : false} onPress={() =>{handleMenu("filterBy", true)}} /></Tooltip> : <Appbar.Action icon="filter" disabled={sortedTags.length === 0 ? true : false} onPress={() =>{handleMenu("filterBy", true)}} />}
             anchorPosition='bottom'
             >
-            <View style={{padding: 5}}>
+            <View style={{padding: defaultViewPadding}}>
               <View style={{display: "flex", flexDirection: "row", justifyContent: "flex-start", alignItems: "center"}}>
                 <Text>Filter:</Text>
                 <Switch value={isFilterOn} onValueChange={onToggleSwitch} />
@@ -230,9 +230,9 @@ const activeTags = tags.filter(tag => tag.status === true)
               anchor={<Appbar.Action icon={sortIcon} onPress={() => handleMenu("sortBy", true)} />}
               anchorPosition='bottom'
             >
-              <Menu.Item onPress={() => handleSortBy("alphabetical")} title="Alphabetisch" leadingIcon={getIcon("alphabetical")}/>
-              <Menu.Item onPress={() => handleSortBy("chronological")} title="Chronologisch" leadingIcon={getIcon("chronological")}/>
-             {/* <Menu.Item onPress={() => {}} title="Kaliber" leadingIcon={getIcon("caliber")}/> */}
+             <Menu.Item onPress={() => handleSortBy("alphabetical")} title={`${sorting.alphabetic[language]}`} leadingIcon={getIcon("alphabetical")}/>
+              <Menu.Item onPress={() => handleSortBy("lastAdded")} title={`${sorting.lastAdded[language]}`} leadingIcon={getIcon("lastAdded")}/>
+              <Menu.Item onPress={() => handleSortBy("lastModified")} title={`${sorting.lastModified[language]}`} leadingIcon={getIcon("lastModified")}/>
             </Menu>
             <Appbar.Action icon={sortAscending ? "arrow-up" : "arrow-down"} onPress={() => handleSortOrder()} />
           </View>

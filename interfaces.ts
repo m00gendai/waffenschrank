@@ -99,3 +99,5 @@ export interface Elevation {
   level4: string
   level5: string
 }
+
+export type SortingTypes = "alphabetical" | "lastAdded" | "lastModified"
