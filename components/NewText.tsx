@@ -1,4 +1,4 @@
-import { IconButton, List, Surface, TextInput } from 'react-native-paper';
+import { IconButton, List, Surface, TextInput, Text, Badge } from 'react-native-paper';
 import { useState } from 'react';
 import { GunType, AmmoType } from '../interfaces';
 import { TouchableNativeFeedback, View, Modal, ScrollView } from 'react-native';
@@ -7,6 +7,7 @@ import dayjs from 'dayjs';
 import ColorPicker, { Panel1, Swatches, Preview, HueSlider } from 'reanimated-color-picker';
 import { calibers } from '../lib/caliberData';
 import { usePreferenceStore } from '../stores//usePreferenceStore';
+import { defaultViewPadding } from '../configs';
 
 interface Props{
     data: string
@@ -18,20 +19,19 @@ interface Props{
 }
 
 export default function NewText({data, gunData, setGunData, ammoData, setAmmoData, label}: Props){
-
-    const [input, setInput] = useState<string>(gunData ? gunData[data] : ammoData ? ammoData[data] : "")
+    const [input, setInput] = useState<string>(gunData ? Array.isArray(gunData[data]) ? gunData[data].join("\n") : gunData[data] : ammoData ? ammoData[data] : "")
     const [showDateTime, setShowDateTime] = useState<boolean>(false)
     const [date, setDate] = useState<(string | number | Date | dayjs.Dayjs)>(dayjs());
     const [initialDate, setInitialDate] = useState<string>(gunData ? gunData[data] : ammoData ? ammoData[data] : "")
     const [showModal, setShowModal] = useState(false);
     const [showModalCaliber, setShowModalCaliber] = useState<boolean>(false)
     const [color, setColor] = useState<string>(gunData ? gunData[data] : "#000")
-    const [activeCaliber, setActiveCaliber] = useState<string>(gunData ? gunData[data] : ammoData? ammoData[data] : "")
+    const [activeCaliber, setActiveCaliber] = useState<string[]>(gunData && gunData[data] !== undefined ? gunData[data] : ammoData && ammoData[data] !== undefined ? [ammoData[data]] : [])
 
     const { language, theme } = usePreferenceStore()
 
-    function updateGunData(input:string){
-        setInput(input)
+    function updateGunData(input:string | string[]){
+        setInput(Array.isArray(input) ? input.join("\n") : input)
         setGunData({...gunData, [data]: input})
     }
 
@@ -76,11 +76,28 @@ export default function NewText({data, gunData, setGunData, ammoData, setAmmoDat
     }
 
     function handleCaliberItemSelect(name:string){
-        setActiveCaliber(name)
+        if(gunData){
+        if(activeCaliber.includes(name)){
+            const index: number = activeCaliber.indexOf(name)
+            const newActiveCaliber: string[] = Array.isArray(activeCaliber) ? activeCaliber.toSpliced(index, 1) : []
+            setActiveCaliber(newActiveCaliber)
+        }
+        if(!activeCaliber.includes(name)){
+            activeCaliber.length !== 0 ? Array.isArray(activeCaliber) ? setActiveCaliber([...activeCaliber, name]) : setActiveCaliber([activeCaliber, name]) : setActiveCaliber([name])
+        }
+    }
+    if(ammoData){
+        if(activeCaliber.includes(name)){
+            setActiveCaliber([])
+        }
+        if(!activeCaliber.includes(name)){
+            setActiveCaliber([name])
+        }
+    }
     }
 
     function handleCaliberSelectConfirm(){
-        gunData !== undefined && gunData ? updateGunData(activeCaliber) : updateAmmoData(activeCaliber)
+        gunData !== undefined && gunData ? updateGunData(activeCaliber) : updateAmmoData(activeCaliber.toString())
         setShowModalCaliber(false)
     }
 
@@ -113,6 +130,7 @@ export default function NewText({data, gunData, setGunData, ammoData, setAmmoDat
                         onKeyPress={(e) => data === "acquisitionDate" ? e.preventDefault() : null}
                         left={data === "paidPrice" ? <TextInput.Affix text="CHF " /> : null}
                         inputMode={`${data === "paidPrice" ? "decimal" : data === "shotCount" ? "decimal" : "text"}`}
+                        multiline={gunData && Array.isArray(gunData[data])}
                     />
                 </View>
             </TouchableNativeFeedback>
@@ -172,8 +190,11 @@ export default function NewText({data, gunData, setGunData, ammoData, setAmmoDat
             <Modal visible={showModalCaliber} animationType='slide' transparent>
                 <View style={{width: "100%", height: "100%", display: "flex", flexDirection: "row", justifyContent: "center", alignItems: "center", flexWrap: "wrap", backgroundColor: theme.colors.backdrop}}>
                     <View style={{width: "85%", height: "100%", display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", flexWrap: "wrap"}}>
-                        <View style={{backgroundColor: theme.colors.background, width: "100%", height: "80%"}}>
-                            <List.Section titleStyle={{fontWeight: "bold", color: theme.colors.primary}}  title={`${activeCaliber ? activeCaliber : "Kaliber auswählen"}`} style={{width: "100%", flex:1}}>
+                        <View style={{backgroundColor: theme.colors.background, width: "100%", height: "90%"}}>
+                            <List.Section style={{flex: 1}}>
+                                <View style={{padding: defaultViewPadding}}>
+                                    <Text variant="titleMedium" style={{color: theme.colors.primary}}>{`${Array.isArray(activeCaliber) && activeCaliber.length !== 0 ? activeCaliber.join("\n") : "Kaliber auswählen"}`}</Text>
+                               </View>
                                 <ScrollView>
                                     {calibers.map((caliber, index) =>{
                                         return(
@@ -181,13 +202,13 @@ export default function NewText({data, gunData, setGunData, ammoData, setAmmoDat
                                                 title={caliber.range}
                                                 key={caliber.range}
                                                 style={{
-                                                    backgroundColor: theme.colors.secondaryContainer
+                                                    backgroundColor: theme.colors.secondaryContainer,
                                                 }}
                                             >
                                                 <View style={{backgroundColor: theme.colors.tertiaryContainer}}>
                                                     {caliber.variants.map((variant, index)=>{
                                                         return(
-                                                            <List.Item key={`${variant.name}_${index}`} title={variant.name} titleStyle={{color: activeCaliber === variant.name ? theme.colors.onTertiary : theme.colors.onTertiaryContainer}} onPress={()=>handleCaliberItemSelect(variant.name)} style={{backgroundColor: activeCaliber === variant.name ? theme.colors.tertiary : "transparent"}}/>
+                                                            <List.Item key={`${variant.name}_${index}`} title={variant.name} titleStyle={{color: activeCaliber.includes(variant.name) ? theme.colors.onTertiary : theme.colors.onTertiaryContainer}} onPress={()=>handleCaliberItemSelect(variant.name)} style={{backgroundColor: activeCaliber.includes(variant.name) ? theme.colors.tertiary : "transparent"}}/>
                                                         )
                                                     })}
                                                 </View>
