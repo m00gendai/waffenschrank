@@ -5,7 +5,7 @@ import { ActivityIndicator, Button, Dialog, Divider, Icon, Modal, SegmentedButto
 import { databaseImportAlert, databaseOperations, preferenceTitles, toastMessages } from "../lib/textTemplates"
 import { usePreferenceStore } from "../stores/usePreferenceStore"
 import AsyncStorage from "@react-native-async-storage/async-storage"
-import { AMMO_DATABASE, A_KEY_DATABASE, GUN_DATABASE, KEY_DATABASE, PREFERENCES } from "../configs"
+import { AMMO_DATABASE, A_KEY_DATABASE, GUN_DATABASE, KEY_DATABASE, PREFERENCES, defaultViewPadding, languageSelection } from "../configs"
 import { colorThemes } from "../lib/colorThemes"
 import { useState } from "react"
 import * as FileSystem from 'expo-file-system';
@@ -228,33 +228,12 @@ export default function mainMenu(){
                             <ScrollView>
                                 <View style={{marginLeft: 5, marginRight: 5, padding: 10, backgroundColor: theme.colors.background}}>
                                     <Text variant="titleMedium" style={{marginBottom: 10, color: theme.colors.onBackground}}>{preferenceTitles.language[language]}</Text>
-                                    <SegmentedButtons
-                                        value={language}
-                                        onValueChange={handleLanguageSwitch}
-
-                                        buttons={[
-                                        {
-                                            value: 'de',
-                                            label: `🇩🇪`,
-                                        },
-                                        {
-                                            value: 'en',
-                                            label: '🇬🇧',
-                                        },
-                                        { 
-                                            value: 'fr', 
-                                            label: '🇫🇷' 
-                                        },
-                                        { 
-                                            value: 'it', 
-                                            label: '🇮🇹' 
-                                        },
-                                        { 
-                                            value: 'ch', 
-                                            label: '🇨🇭' 
-                                        },
-                                        ]}
-                                    />
+                                    <View style={{display: "flex", flexDirection: "row", gap: 10, flexWrap: "wrap", justifyContent: "space-between"}}>
+                                        {languageSelection.map(langSelect =>{
+                                            return <Button key={langSelect.code} buttonColor={language === langSelect.code ? theme.colors.primaryContainer : theme.colors.background} onPress={()=>handleLanguageSwitch(langSelect.code)} mode="outlined">{langSelect.flag}</Button>
+                                        })}
+                                    </View>
+                                    
                                 </View>
                                 <Divider bold/>
                                 <View style={{marginLeft: 5, marginRight: 5, padding: 10, backgroundColor: theme.colors.background}}>
