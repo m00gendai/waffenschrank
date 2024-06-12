@@ -122,7 +122,11 @@ export default function Gun(){
                             return(
                                 <View key={`${item.name}`} style={{flex: 1, flexDirection: "column"}} >
                                     <Text style={{width: "100%", fontSize: 12,}}>{`${item[language]}:`}</Text>
+                                    {Array.isArray(currentGun[item.name]) ?
+                                    <Text style={{width: "100%", fontSize: 18, marginBottom: 5, paddingBottom: 5, borderBottomColor: theme.colors.primary, borderBottomWidth: 0.2}}>{currentGun[item.name] ? currentGun[item.name].join("\n") : ""}</Text>
+                                    :
                                     <Text style={{width: "100%", fontSize: 18, marginBottom: 5, paddingBottom: 5, borderBottomColor: theme.colors.primary, borderBottomWidth: 0.2}}>{item.name === "paidPrice" ? `CHF ${currentGun[item.name] ? currentGun[item.name] : ""}` : currentGun[item.name]}</Text>
+                                    }
                                     {item.name === "mainColor" ? 
                                         <View style={{position:"absolute", top: 0, right: 0, bottom: 0, left: 0, display: "flex", flexDirection: "row", justifyContent: "flex-end", alignItems: "center"}}>
                                             <View style={{height: "50%", aspectRatio: "5/1", borderRadius: 50, backgroundColor: `${currentGun.mainColor}`, transform:[{translateY: -5}]}}></View>

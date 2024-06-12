@@ -6,7 +6,7 @@ export interface GunType{
   originCountry?: string | null
   gunType?: string | null
   functionType?: string | null
-  caliber?: string | null
+  caliber?: string[] | null
   serial?: string | null
   permit?: string | null
   acquisitionDate?: string | null
