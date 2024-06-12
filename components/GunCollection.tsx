@@ -1,7 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useEffect, useState } from 'react';
 import { Dimensions, ScrollView, StyleSheet, TouchableNativeFeedback, View } from 'react-native';
-import { Appbar, Card, FAB, Menu, Modal, Portal, Switch, useTheme, Text, Tooltip } from 'react-native-paper';
+import { Appbar, Card, FAB, Menu, Modal, Portal, Switch, useTheme, Text, Tooltip, Banner, Searchbar } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { GUN_DATABASE, KEY_DATABASE, PREFERENCES, TAGS, defaultGridGap, defaultViewPadding } from '../configs';
 import { GunType, MenuVisibility, SortingTypes } from '../interfaces';
@@ -15,7 +15,8 @@ import { usePreferenceStore } from '../stores/usePreferenceStore';
 import { useTagStore } from '../stores/useTagStore';
 import { Checkbox } from 'react-native-paper';
 import GunCard from './GunCard';
-import { sorting, tooltips } from '../lib/textTemplates';
+import { search, sorting, tooltips } from '../lib/textTemplates';
+import Animated, { FadeIn, FadeOut, LightSpeedOutRight, SlideInDown, SlideInLeft, SlideInUp, SlideOutDown, SlideOutRight, SlideOutUp, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 
 export default function GunCollection(){
 
@@ -26,6 +27,8 @@ export default function GunCollection(){
   const [menuVisibility, setMenuVisibility] = useState<MenuVisibility>({sortBy: false, filterBy: false});
   const [sortIcon, setSortIcon] = useState<string>("alphabetical-variant")
   const [sortAscending, setSortAscending] = useState<boolean>(true)
+  const [searchBannerVisible, toggleSearchBannerVisible] = useState<boolean>(false)
+  const [searchQuery, setSearchQuery] = useState<string>("")
 
   const { dbImport, displayAsGrid, setDisplayAsGrid, toggleDisplayAsGrid, sortBy, setSortBy, language } = usePreferenceStore()
   const { mainMenuOpen, setMainMenuOpen, newGunOpen, setNewGunOpen, editGunOpen, setEditGunOpen, seeGunOpen, setSeeGunOpen } = useViewStore()
@@ -80,7 +83,7 @@ export default function GunCollection(){
           const preferences:string = await AsyncStorage.getItem(PREFERENCES)
           const isPreferences = preferences === null ? null : JSON.parse(preferences)
 
-          const sortedGuns = doSortBy(isPreferences === null ? "alphabetical" : isPreferences.sortBy === null ? "alphabetical" : isPreferences.sortBy, isPreferences == null? true : isPreferences.sortOrder === null ? true : isPreferences.sortOrder, guns) as GunType[]
+          const sortedGuns = doSortBy(isPreferences === null ? "alphabetical" : isPreferences.sortBy === undefined ? "alphabetical" : isPreferences.sortBy, isPreferences == null? true : isPreferences.sortOrder === null ? true : isPreferences.sortOrder, guns) as GunType[]
           setGunCollection(sortedGuns)
         }
         getGuns()
@@ -189,6 +192,32 @@ const activeTags = tags.filter(tag => tag.status === true)
            const sortedTags = sortTags(tags)
               const gunList = gunCollection.filter(gun => activeTags.some(tag => gun.tags?.includes(tag.label)))
 
+              function handleSearch(){
+                !searchBannerVisible ? startAnimation() : endAnimation()
+                if(searchBannerVisible){
+                  setSearchQuery("")
+                }
+              setTimeout(function(){
+                toggleSearchBannerVisible(!searchBannerVisible)
+              }, searchBannerVisible ? 400 : 50)
+              }
+              
+              const height = useSharedValue(0);
+              
+              const animatedStyle = useAnimatedStyle(() => {
+                return {
+                  height: height.value,
+                };
+              });
+              
+              const startAnimation = () => {
+                height.value = withTiming(56, { duration: 500 }); // 500 ms duration
+              };
+              
+              const endAnimation = () => {
+                height.value = withTiming(0, { duration: 500 }); // 500 ms duration
+              };
+
     return(
         <SafeAreaView 
         style={{
@@ -205,6 +234,7 @@ const activeTags = tags.filter(tag => tag.status === true)
             <Appbar.Action icon={"menu"} onPress={setMainMenuOpen} />
           </View>
           <View  style={{display: "flex", flexDirection: "row", justifyContent: "flex-end"}}>
+            <Appbar.Action icon="magnify" onPress={()=>handleSearch()}/>
           <Menu
             visible={menuVisibility.filterBy}
             onDismiss={()=>handleMenu("filterBy", false)}
@@ -237,7 +267,7 @@ const activeTags = tags.filter(tag => tag.status === true)
             <Appbar.Action icon={sortAscending ? "arrow-up" : "arrow-down"} onPress={() => handleSortOrder()} />
           </View>
         </Appbar>
-
+        <Animated.View style={[{paddingLeft: defaultViewPadding, paddingRight: defaultViewPadding}, animatedStyle]}>{searchBannerVisible ? <Searchbar placeholder={search[language]} onChangeText={setSearchQuery} value={searchQuery} /> : null}</Animated.View>
         <ScrollView 
           style={{
             width: "100%", 
@@ -249,21 +279,17 @@ const activeTags = tags.filter(tag => tag.status === true)
           <View 
             style={styles.container}
           >
-            {gunCollection.length != 0 && !isFilterOn ? gunCollection.map(gun =>{
+            {gunCollection.length !== 0 && !isFilterOn ? gunCollection.map(gun =>{
               return(
-                <GunCard key={gun.id} gun={gun}/>
+                searchQuery !== "" ? gun.manufacturer.toLowerCase().includes(searchQuery.toLowerCase()) || gun.model.toLowerCase().includes(searchQuery.toLowerCase()) ? <GunCard key={gun.id} gun={gun}/> : null : <GunCard key={gun.id} gun={gun}/>
               )
             }) 
             :
             gunCollection.length !== 0 && isFilterOn ? gunList.map(gun =>{
-              
-
-                
-                  return <GunCard key={gun.id} gun={gun}/>
-                
-              
+              return (
+                searchQuery !== "" ? gun.manufacturer.toLowerCase().includes(searchQuery.toLowerCase()) || gun.model.toLowerCase().includes(searchQuery.toLowerCase()) ? <GunCard key={gun.id} gun={gun}/> : null : <GunCard key={gun.id} gun={gun}/>
+              )
             })
-              
             :
             null}
           </View>

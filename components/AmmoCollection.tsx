@@ -1,7 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
-import { Appbar, FAB, IconButton, Menu, Modal, Portal, Switch, TextInput, Text, Tooltip } from 'react-native-paper';
+import { Appbar, FAB, IconButton, Menu, Modal, Portal, Switch, TextInput, Text, Tooltip, Searchbar } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { AMMO_DATABASE, A_KEY_DATABASE, PREFERENCES, A_TAGS, defaultGridGap, defaultViewPadding, dateLocales } from '../configs';
 import { AmmoType, MenuVisibility, SortingTypes } from '../interfaces';
@@ -14,9 +14,10 @@ import { useTagStore } from '../stores/useTagStore';
 import { Checkbox } from 'react-native-paper';
 import NewAmmo from './NewAmmo';
 import Ammo from './Ammo';
-import { ammoQuickUpdate, sorting, tooltips } from '../lib/textTemplates';
+import { ammoQuickUpdate, search, sorting, tooltips } from '../lib/textTemplates';
 import AmmoCard from './AmmoCard';
 import { colorThemes } from '../lib/colorThemes';
+import Animated, { LightSpeedOutRight, SlideInLeft, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 
 export default function AmmoCollection(){
 
@@ -32,6 +33,8 @@ export default function AmmoCollection(){
   const [stockValue, setStockValue] = useState<number>(0)
   const [input, setInput] = useState<string>("")
   const [error, displayError] = useState<boolean>(false)
+  const [searchBannerVisible, toggleSearchBannerVisible] = useState<boolean>(false)
+  const [searchQuery, setSearchQuery] = useState<string>("")
 
   const { ammoDbImport, displayAmmoAsGrid, setDisplayAmmoAsGrid, toggleDisplayAmmoAsGrid, sortAmmoBy, setSortAmmoBy, language, theme } = usePreferenceStore()
   const { mainMenuOpen, setMainMenuOpen, newAmmoOpen, setNewAmmoOpen, seeAmmoOpen, setSeeAmmoOpen} = useViewStore()
@@ -84,7 +87,7 @@ export default function AmmoCollection(){
           const preferences:string = await AsyncStorage.getItem(PREFERENCES)
           const isPreferences = preferences === null ? null : JSON.parse(preferences)
 
-          const sortedAmmo = doSortBy(isPreferences === null ? "alphabetical" : isPreferences.sortAmmoBy === null ? "alphabetical" : isPreferences.sortAmmoBy, isPreferences == null? true : isPreferences.sortAmmoOrder === null ? true : isPreferences.sortOrder, ammunitions) as AmmoType[]
+          const sortedAmmo = doSortBy(isPreferences === null ? "alphabetical" : isPreferences.sortAmmoBy === undefined ? "alphabetical" : isPreferences.sortAmmoBy, isPreferences == null? true : isPreferences.sortAmmoOrder === null ? true : isPreferences.sortOrder, ammunitions) as AmmoType[]
           setAmmoCollection(sortedAmmo)
         }
         getAmmo()
@@ -219,12 +222,40 @@ async function saveNewStock(ammo:AmmoType){
         displayError(true)
     }
 }
+
+function handleSearch(){
+  !searchBannerVisible ? startAnimation() : endAnimation()
+  if(searchBannerVisible){
+    setSearchQuery("")
+  }
+setTimeout(function(){
+  toggleSearchBannerVisible(!searchBannerVisible)
+}, searchBannerVisible ? 400 : 50)
+}
+
+const height = useSharedValue(0);
+
+const animatedStyle = useAnimatedStyle(() => {
+  return {
+    height: height.value,
+  };
+});
+
+const startAnimation = () => {
+  height.value = withTiming(56, { duration: 500 }); // 500 ms duration
+};
+
+const endAnimation = () => {
+  height.value = withTiming(0, { duration: 500 }); // 500 ms duration
+};
+
     return(
         <SafeAreaView 
         style={{
           width: "100%", 
           height: "100%", 
-          flex: 1
+          flex: 1,
+          backgroundColor: theme.colors.background
         }}
       >
 
@@ -234,6 +265,7 @@ async function saveNewStock(ammo:AmmoType){
             <Appbar.Action icon={"menu"} onPress={setMainMenuOpen} />
           </View>
           <View  style={{display: "flex", flexDirection: "row", justifyContent: "flex-end"}}>
+          <Appbar.Action icon="magnify" onPress={()=>handleSearch()}/>
           <Menu
             visible={menuVisibility.filterBy}
             onDismiss={()=>handleMenu("filterBy", false)}
@@ -266,7 +298,7 @@ async function saveNewStock(ammo:AmmoType){
             <Appbar.Action icon={sortAscending ? "arrow-up" : "arrow-down"} onPress={() => handleSortOrder()} />
           </View>
         </Appbar>
-
+        <Animated.View style={[{paddingLeft: defaultViewPadding, paddingRight: defaultViewPadding}, animatedStyle]}>{searchBannerVisible ? <Searchbar placeholder={search[language]} onChangeText={setSearchQuery} value={searchQuery} /> : null}</Animated.View>
         <ScrollView 
           style={{
             width: "100%", 
@@ -280,7 +312,9 @@ async function saveNewStock(ammo:AmmoType){
             style={styles.container}
           >
             {ammoCollection.length != 0 && !isFilterOn ? ammoCollection.map(ammo =>{
-              return <AmmoCard key={ammo.id} ammo={ammo} stockVisible={stockVisible} setStockVisible={setStockVisible}/>
+              return (
+                searchQuery !== "" ? ammo.manufacturer.toLowerCase().includes(searchQuery.toLowerCase()) || ammo.designation.toLowerCase().includes(searchQuery.toLowerCase()) ? <AmmoCard key={ammo.id} ammo={ammo} stockVisible={stockVisible} setStockVisible={setStockVisible}/> : null : <AmmoCard key={ammo.id} ammo={ammo} stockVisible={stockVisible} setStockVisible={setStockVisible}/>
+              )
             }) 
             :
             ammoCollection.length !== 0 && isFilterOn ? ammoList.map(ammo =>{
