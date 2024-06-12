@@ -76,7 +76,7 @@ export default function NewText({data, gunData, setGunData, ammoData, setAmmoDat
     }
 
     function handleCaliberItemSelect(name:string){
-        if(gunData){
+        if(gunData !== undefined){
         if(activeCaliber.includes(name)){
             const index: number = activeCaliber.indexOf(name)
             const newActiveCaliber: string[] = Array.isArray(activeCaliber) ? activeCaliber.toSpliced(index, 1) : []
@@ -86,7 +86,7 @@ export default function NewText({data, gunData, setGunData, ammoData, setAmmoDat
             activeCaliber.length !== 0 ? Array.isArray(activeCaliber) ? setActiveCaliber([...activeCaliber, name]) : setActiveCaliber([activeCaliber, name]) : setActiveCaliber([name])
         }
     }
-    if(ammoData){
+    if(ammoData !== undefined){
         if(activeCaliber.includes(name)){
             setActiveCaliber([])
         }
