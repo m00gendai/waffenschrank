@@ -1,8 +1,8 @@
 import { Dimensions, ScrollView, StyleSheet, TouchableNativeFeedback, View, Text } from 'react-native';
 import { AmmoType } from '../interfaces';
-import { Card, IconButton } from 'react-native-paper';
+import { Avatar, Badge, Button, Card, IconButton, TouchableRipple } from 'react-native-paper';
 import { usePreferenceStore } from '../stores/usePreferenceStore';
-import { defaultGridGap, defaultViewPadding } from '../configs';
+import { dateLocales, defaultGridGap, defaultViewPadding } from '../configs';
 import { ammoDataTemplate } from '../lib/ammoDataTemplate';
 import { useAmmoStore } from '../stores/useAmmoStore';
 import { useViewStore } from '../stores/useViewStore';
@@ -28,7 +28,7 @@ export default function AmmoCard({ammo, stockVisible, setStockVisible}:Props){
         setCurrentAmmo(ammo)
         setSeeAmmoOpen()
       }
-    
+
     return(
         <TouchableNativeFeedback 
                 key={ammo.id} 
@@ -42,15 +42,15 @@ export default function AmmoCard({ammo, stockVisible, setStockVisible}:Props){
         >
             <Card.Title
                 titleStyle={{
-                width: displayAmmoAsGrid ? "100%" : "50%",
-                color: ammo.currentStock && ammo.criticalStock ? parseFloat(ammo.currentStock.toString()) <= parseFloat(ammo.criticalStock.toString()) ? theme.colors.error : theme.colors.onSurfaceVariant : theme.colors.onSurfaceVariant,
+                width: displayAmmoAsGrid ? "100%" : "60%",
+                color: ammo.currentStock !== null && ammo.currentStock !== undefined && ammo.criticalStock ? Number(ammo.currentStock.toString()) <= Number(ammo.criticalStock.toString()) ? theme.colors.error : theme.colors.onSurfaceVariant : theme.colors.onSurfaceVariant,
                 }}
                 subtitleStyle={{
-                width: displayAmmoAsGrid ? "100%" : "50%",
-                color: ammo.currentStock && ammo.criticalStock ? parseFloat(ammo.currentStock.toString()) <= parseFloat(ammo.criticalStock.toString()) ? theme.colors.error : theme.colors.onSurfaceVariant : theme.colors.onSurfaceVariant,
+                width: displayAmmoAsGrid ? "100%" : "60%",
+                color: ammo.currentStock !== null && ammo.currentStock !== undefined && ammo.criticalStock ? Number(ammo.currentStock.toString()) <= Number(ammo.criticalStock.toString()) ? theme.colors.error : theme.colors.onSurfaceVariant : theme.colors.onSurfaceVariant,
                 }}
                 title={`${ammo.designation}`} 
-                subtitle={ammo.manufacturer && ammo.manufacturer.length != 0 ? `${ammo.manufacturer}\n${ammo.currentStock ? `${ammoDataTemplate[5][language]}: ${ammo.currentStock}` : ""}` : " "} 
+                subtitle={ammo.manufacturer && ammo.manufacturer.length !== 0 ? `${ammo.manufacturer}` : " "} 
                 subtitleVariant='bodySmall' 
                 titleVariant='titleSmall' 
                 titleNumberOfLines={2} 
@@ -64,16 +64,21 @@ export default function AmmoCard({ammo, stockVisible, setStockVisible}:Props){
                         height: 100
                     }}
                 /> 
-                <IconButton 
-                    mode="contained" 
-                    icon={"plus-minus-variant"} 
-                    onPress={()=>handleStockButtonPress(ammo)} 
-                    style={{
-                        position: "absolute", 
-                        bottom: 1, 
-                        right: 1
-                    }} 
-                /> 
+                <TouchableRipple onPress={() => handleStockButtonPress(ammo)} style={{borderRadius: 0, position: "absolute", bottom: 1, right: 1}}>
+                    <Badge
+                        style={{
+                            backgroundColor: ammo.currentStock !== null && ammo.currentStock !== undefined && ammo.criticalStock ? Number(ammo.currentStock.toString()) <= Number(ammo.criticalStock.toString()) ? theme.colors.errorContainer : theme.colors.primary : theme.colors.primary,
+                            color: ammo.currentStock !== null && ammo.currentStock !== undefined && ammo.criticalStock ? Number(ammo.currentStock.toString()) <= Number(ammo.criticalStock.toString()) ? theme.colors.onErrorContainer : theme.colors.onPrimary : theme.colors.onPrimary,
+                            aspectRatio: "1/1",
+                            fontSize: 10,
+                            margin: 6,
+                            elevation: 4,
+                        }}
+                        size={40}
+                    >
+                        {ammo.currentStock !== null && ammo.currentStock !== undefined && ammo.currentStock.toString() !== "" ? new Intl.NumberFormat(dateLocales[language]).format(ammo.currentStock) : "- - -" }
+                    </Badge>
+                </TouchableRipple>                
             </>
             : 
             null}
@@ -90,7 +95,9 @@ export default function AmmoCard({ammo, stockVisible, setStockVisible}:Props){
                     display: "flex", 
                     justifyContent: "flex-end", 
                     alignItems: "center", 
-                    flexDirection: "row"
+                    alignContent: "center",
+                    flexDirection: "row",
+                    flexWrap: "nowrap",
                 }}
             >
                 <Card.Cover 
@@ -100,11 +107,24 @@ export default function AmmoCard({ammo, stockVisible, setStockVisible}:Props){
                         aspectRatio: "4/3"
                     }}
                 /> 
-                <IconButton 
-                    mode="contained" 
-                    icon={"plus-minus-variant"} 
-                    onPress={()=>handleStockButtonPress(ammo)} 
-                /> 
+                <TouchableRipple onPress={() => handleStockButtonPress(ammo)} style={{borderRadius: 0}}>
+                    <Badge
+                        style={{
+                            backgroundColor: ammo.currentStock !== null && ammo.currentStock !== undefined && ammo.criticalStock ? Number(ammo.currentStock.toString()) <= Number(ammo.criticalStock.toString()) ? theme.colors.errorContainer : theme.colors.surfaceVariant : theme.colors.surfaceVariant,
+                            color: ammo.currentStock !== null && ammo.currentStock !== undefined && ammo.criticalStock ? Number(ammo.currentStock.toString()) <= Number(ammo.criticalStock.toString()) ? theme.colors.onErrorContainer : theme.colors.onSurfaceVariant : theme.colors.onSurfaceVariant,
+                            aspectRatio: "1/1",
+                            fontSize: 10,
+                            marginTop: "auto",
+                            marginBottom: "auto",
+                            marginLeft: 10,
+                            marginRight: 6,
+                        }}
+                        size={48}
+                    >
+                        {ammo.currentStock !== null && ammo.currentStock !== undefined && ammo.currentStock.toString() !== "" ? new Intl.NumberFormat(dateLocales[language]).format(ammo.currentStock) : "- - -" }
+                    </Badge>
+                </TouchableRipple>
+    
             </View>}
         </Card>
         </TouchableNativeFeedback>

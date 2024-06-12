@@ -1,5 +1,5 @@
 import { StyleSheet, View, ScrollView, Alert} from 'react-native';
-import { Appbar, SegmentedButtons, Snackbar } from 'react-native-paper';
+import { Appbar, Button, Dialog, Portal, SegmentedButtons, Snackbar, Text } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as ImagePicker from "expo-image-picker"
 import { useState } from 'react';
@@ -12,7 +12,7 @@ import { AMMO_DATABASE } from '../configs';
 import { AmmoType } from '../interfaces';
 import NewTextArea from './NewTextArea';
 import NewCheckboxArea from './NewCheckboxArea';
-import { editGunTitle, imageDeleteAlert, toastMessages, unsavedChangesAlert } from '../lib/textTemplates';
+import { editAmmoTitle, editGunTitle, imageDeleteAlert, toastMessages, unsavedChangesAlert } from '../lib/textTemplates';
 import { usePreferenceStore } from '../stores/usePreferenceStore';
 import { useViewStore } from '../stores/useViewStore';
 import { useAmmoStore } from '../stores/useAmmoStore';
@@ -21,7 +21,7 @@ import NewChipArea from './NewChipArea';
 
 export default function EditAmmo(){
 
-    const { currentAmmo, setCurrentAmmo } = useAmmoStore()
+    const { currentAmmo, setCurrentAmmo, ammoCollection, setAmmoCollection } = useAmmoStore()
 
     const [selectedImage, setSelectedImage] = useState<string[]>(currentAmmo.images && currentAmmo.images.length !== 0 ? currentAmmo.images : [])
     const [granted, setGranted] = useState<boolean>(false)
@@ -29,6 +29,9 @@ export default function EditAmmo(){
     const [visible, setVisible] = useState<boolean>(false);
     const [snackbarText, setSnackbarText] = useState<string>("")
     const [saveState, setSaveState] = useState<boolean | null>(null)
+    const [imageDialogVisible, toggleImageDialogVisible] = useState<boolean>(false)
+    const [unsavedVisible, toggleUnsavedDialogVisible] = useState<boolean>(false)
+    const [deleteImageIndex, setDeleteImageIndex] = useState<number>(0)
 
     const { language, theme } = usePreferenceStore()
     const { setEditAmmoOpen } = useViewStore()
@@ -37,39 +40,16 @@ export default function EditAmmo(){
 
   const onDismissSnackBar = () => setVisible(false);
 
-  function invokeAlert(){
-    Alert.alert(unsavedChangesAlert.title[language], unsavedChangesAlert.subtitle[language], [
-        {
-            text: unsavedChangesAlert.yes[language],
-            onPress: setEditAmmoOpen
-        },
-        {
-            text: unsavedChangesAlert.no[language],
-            style: "cancel"
-        }
-    ])
-    }
-
-
-  function deleteImagePrompt(index:number){
-    Alert.alert(imageDeleteAlert.title[language], ``, [
-        {
-            text: imageDeleteAlert.yes[language],
-            onPress: () => deleteImage(index)
-        },
-        {
-            text: imageDeleteAlert.no[language],
-            style: "cancel"
-        }
-    ])
-    }
-
     async function save(value: AmmoType) {
         await SecureStore.setItemAsync(`${AMMO_DATABASE}_${value.id}`, JSON.stringify(value)) // Save the ammo
         setCurrentAmmo({...value, images:selectedImage})
         setSaveState(true)
         setSnackbarText(`${value.designation} ${value.manufacturer ? value.manufacturer : ""} ${toastMessages.changed[language]}`)
         onToggleSnackBar()
+        const currentObj:AmmoType = ammoCollection.find(({id}) => id === value.id)
+        const index:number = ammoCollection.indexOf(currentObj)
+        const newCollection:AmmoType[] = ammoCollection.toSpliced(index, 1, value)
+        setAmmoCollection(newCollection)
       }
 
     function deleteImage(indx:number){
@@ -77,6 +57,7 @@ export default function EditAmmo(){
         currentImages.splice(indx, 1)
         setSelectedImage(currentImages)
         setAmmoData({...ammoData, images: currentImages})
+        toggleImageDialogVisible(false)
     }
   
     const pickImageAsync = async (indx:number) =>{
@@ -125,7 +106,6 @@ export default function EditAmmo(){
 
         if(!result.canceled){
             const newImage = selectedImage
-            console.log(ammoData)
             if(newImage && newImage.length != 0){
                 newImage.splice(indx, 1, result.assets[0].uri)
                 setSelectedImage(newImage)
@@ -141,6 +121,11 @@ export default function EditAmmo(){
             setSaveState(false)
         }
     }   
+
+    function deleteImagePrompt(index:number){
+       setDeleteImageIndex(index)
+       toggleImageDialogVisible(true)
+        }
 
     const styles = StyleSheet.create({
         container: {
@@ -193,8 +178,8 @@ export default function EditAmmo(){
         <View style={{width: "100%", height: "100%", backgroundColor: theme.colors.background}}>
             
             <Appbar style={{width: "100%"}}>
-                <Appbar.BackAction  onPress={() => {saveState == true ? setEditAmmoOpen() : saveState === false ? invokeAlert() : setEditAmmoOpen()}} />
-                <Appbar.Content title={editGunTitle[language]} />
+                <Appbar.BackAction  onPress={() => {saveState == true ? setEditAmmoOpen() : saveState === false ? toggleUnsavedDialogVisible(true) : setEditAmmoOpen()}} />
+                <Appbar.Content title={editAmmoTitle[language]} />
                 <Appbar.Action icon="floppy" onPress={() => save({...ammoData, lastModifiedAt: new Date()})} color={saveState  == true ? "green" : saveState == false ? theme.colors.error : theme.colors.onBackground}/>
             </Appbar>
         
@@ -287,6 +272,37 @@ export default function EditAmmo(){
                 }}>
                 {snackbarText}
             </Snackbar>
+
+            
+                <Dialog visible={imageDialogVisible} onDismiss={()=>toggleImageDialogVisible(false)}>
+                    <Dialog.Title>
+                    {`${imageDeleteAlert.title[language]}`}
+                    </Dialog.Title>
+                    <Dialog.Actions>
+                        <Button onPress={()=>deleteImage(deleteImageIndex)} icon="delete" buttonColor={theme.colors.errorContainer} textColor={theme.colors.onErrorContainer}>{imageDeleteAlert.yes[language]}</Button>
+                        <Button onPress={()=>toggleImageDialogVisible(false)} icon="cancel" buttonColor={theme.colors.secondary} textColor={theme.colors.onSecondary}>{imageDeleteAlert.no[language]}</Button>
+                    </Dialog.Actions>
+                </Dialog>
+                   
+
+            
+                <Dialog visible={unsavedVisible} onDismiss={()=>toggleUnsavedDialogVisible(!unsavedVisible)}>
+                    <Dialog.Title>
+                    {`${unsavedChangesAlert.title[language]}`}
+                    </Dialog.Title>
+                    <Dialog.Content>
+                        <Text>{`${unsavedChangesAlert.subtitle[language]}`}</Text>
+                    </Dialog.Content>
+                    <Dialog.Actions>
+                        <Button onPress={setEditAmmoOpen} icon="delete" buttonColor={theme.colors.errorContainer} textColor={theme.colors.onErrorContainer}>{unsavedChangesAlert.yes[language]}</Button>
+                        <Button onPress={()=>toggleUnsavedDialogVisible(!unsavedVisible)} icon="cancel" buttonColor={theme.colors.secondary} textColor={theme.colors.onSecondary}>{unsavedChangesAlert.no[language]}</Button>
+                    </Dialog.Actions>
+                </Dialog>
+                     
+
         </View>
     )
 }
+
+
+  

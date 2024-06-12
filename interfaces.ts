@@ -6,7 +6,7 @@ export interface GunType{
   originCountry?: string | null
   gunType?: string | null
   functionType?: string | null
-  caliber?: string | null
+  caliber?: string[] | null
   serial?: string | null
   permit?: string | null
   acquisitionDate?: string | null
@@ -99,3 +99,6 @@ export interface Elevation {
   level4: string
   level5: string
 }
+
+export type SortingTypes = "alphabetical" | "lastAdded" | "lastModified"
+export type Languages = "de" | "en" | "fr" | "it" | "ch"

@@ -1,13 +1,12 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useEffect, useState } from 'react';
-import { ScrollView, StyleSheet, View, Text } from 'react-native';
-import { Appbar, FAB, IconButton, Menu, Switch, TextInput, useTheme } from 'react-native-paper';
+import { ScrollView, StyleSheet, View } from 'react-native';
+import { Appbar, FAB, IconButton, Menu, Modal, Portal, Switch, TextInput, Text, Tooltip, Searchbar } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { AMMO_DATABASE, A_KEY_DATABASE, PREFERENCES, A_TAGS, defaultGridGap, defaultViewPadding, dateLocales } from '../configs';
-import { AmmoType, MenuVisibility } from '../interfaces';
+import { AmmoType, MenuVisibility, SortingTypes } from '../interfaces';
 import * as SecureStore from "expo-secure-store"
 import { getIcon, doSortBy } from '../utils';
-import Animated, { FadeIn, FadeOut, SlideInDown, SlideOutDown } from 'react-native-reanimated';
 import { useViewStore } from '../stores/useViewStore';
 import { useAmmoStore } from '../stores/useAmmoStore';
 import { usePreferenceStore } from '../stores/usePreferenceStore';
@@ -15,8 +14,10 @@ import { useTagStore } from '../stores/useTagStore';
 import { Checkbox } from 'react-native-paper';
 import NewAmmo from './NewAmmo';
 import Ammo from './Ammo';
-import { ammoQuickUpdate } from '../lib/textTemplates';
+import { ammoQuickUpdate, search, sorting, tooltips } from '../lib/textTemplates';
 import AmmoCard from './AmmoCard';
+import { colorThemes } from '../lib/colorThemes';
+import Animated, { LightSpeedOutRight, SlideInLeft, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 
 export default function AmmoCollection(){
 
@@ -32,9 +33,11 @@ export default function AmmoCollection(){
   const [stockValue, setStockValue] = useState<number>(0)
   const [input, setInput] = useState<string>("")
   const [error, displayError] = useState<boolean>(false)
+  const [searchBannerVisible, toggleSearchBannerVisible] = useState<boolean>(false)
+  const [searchQuery, setSearchQuery] = useState<string>("")
 
   const { ammoDbImport, displayAmmoAsGrid, setDisplayAmmoAsGrid, toggleDisplayAmmoAsGrid, sortAmmoBy, setSortAmmoBy, language, theme } = usePreferenceStore()
-  const { mainMenuOpen, setMainMenuOpen, newAmmoOpen, setNewAmmoOpen, seeAmmoOpen, } = useViewStore()
+  const { mainMenuOpen, setMainMenuOpen, newAmmoOpen, setNewAmmoOpen, seeAmmoOpen, setSeeAmmoOpen} = useViewStore()
   const { ammoCollection, setAmmoCollection, currentAmmo, setCurrentAmmo } = useAmmoStore()
   const { ammo_tags, setAmmoTags, overWriteAmmoTags } = useTagStore()
   const [isFilterOn, setIsFilterOn] = useState<boolean>(false);
@@ -52,7 +55,8 @@ export default function AmmoCollection(){
       flexWrap: "wrap",
       flexDirection: "row",
       gap: defaultGridGap,
-      padding: defaultViewPadding
+      padding: defaultViewPadding,
+      marginBottom: 75
     },
     fab: {
       position: 'absolute',
@@ -83,11 +87,11 @@ export default function AmmoCollection(){
           const preferences:string = await AsyncStorage.getItem(PREFERENCES)
           const isPreferences = preferences === null ? null : JSON.parse(preferences)
 
-          const sortedAmmo = doSortBy(isPreferences === null ? "alphabetical" : isPreferences.sortAmmoBy === null ? "alphabetical" : isPreferences.sortAmmoBy, isPreferences == null? true : isPreferences.sortAmmoOrder === null ? true : isPreferences.sortOrder, ammunitions) as AmmoType[]
+          const sortedAmmo = doSortBy(isPreferences === null ? "alphabetical" : isPreferences.sortAmmoBy === undefined ? "alphabetical" : isPreferences.sortAmmoBy, isPreferences == null? true : isPreferences.sortAmmoOrder === null ? true : isPreferences.sortOrder, ammunitions) as AmmoType[]
           setAmmoCollection(sortedAmmo)
         }
         getAmmo()
-      },[newAmmoOpen, seeAmmoOpen, ammoDbImport, stockValue])
+      },[ammoDbImport])
 
 useEffect(()=>{
   async function getPreferences(){
@@ -115,7 +119,7 @@ useEffect(()=>{
 
         
 
-        async function handleSortBy(type: "alphabetical" | "chronological" | "caliber"){
+        async function handleSortBy(type:SortingTypes){
             setSortIcon(getIcon(type))
             setSortAmmoBy(type)
             const sortedAmmo = doSortBy(type, sortAscending, ammoCollection) as AmmoType[] 
@@ -177,7 +181,7 @@ const uniqueObjects = removeDuplicates(list);
 async function handleFilterPress(tag:{label:string, status:boolean}){
 
   const preferences:string = await AsyncStorage.getItem(A_TAGS)
-console.log(`preferences: ${preferences}`)
+
   const index = ammo_tags.findIndex(tagItem => tagItem.label === tag.label)
 
   ammo_tags[index].status = !ammo_tags[index].status
@@ -198,28 +202,60 @@ async function saveNewStock(ammo:AmmoType){
     const date:Date = new Date()
     if(stockChange !== ""){
     const currentValue:number = ammo.currentStock ? ammo.currentStock : 0
-    const increase:number = parseInt(input)
-    const total:number = stockChange === "inc" ? currentValue + increase : currentValue - increase
-console.log(total)
+    const increase:number = Number(input)
+    const total:number = stockChange === "inc" ? Number(currentValue) + Number(increase) : Number(currentValue) - Number(increase)
     await SecureStore.setItemAsync(`${AMMO_DATABASE}_${ammo.id}`, JSON.stringify({...ammo, previousStock: currentValue, currentStock:total, lastTopUpAt: date.toLocaleDateString(dateLocales.de)})) // Save the ammo
         console.log(`Updated item ${JSON.stringify(ammo)} with key ${AMMO_DATABASE}_${ammo.id}`)
         setCurrentAmmo({...ammo, currentStock:parseInt(input)})
         setStockValue(parseInt(input))
         setInput("")
         setStockChange("")
+        const currentObj:AmmoType = ammoCollection.find(({id}) => id === ammo.id)
+        const index:number = ammoCollection.indexOf(currentObj)
+        const newCollection:AmmoType[] = ammoCollection.toSpliced(index, 1, {...ammo, currentStock:total})
+        setAmmoCollection(newCollection)
         setStockVisible(!stockVisible)
         displayError(false)
+
     }
     else {
         displayError(true)
     }
 }
+
+function handleSearch(){
+  !searchBannerVisible ? startAnimation() : endAnimation()
+  if(searchBannerVisible){
+    setSearchQuery("")
+  }
+setTimeout(function(){
+  toggleSearchBannerVisible(!searchBannerVisible)
+}, searchBannerVisible ? 400 : 50)
+}
+
+const height = useSharedValue(0);
+
+const animatedStyle = useAnimatedStyle(() => {
+  return {
+    height: height.value,
+  };
+});
+
+const startAnimation = () => {
+  height.value = withTiming(56, { duration: 500 }); // 500 ms duration
+};
+
+const endAnimation = () => {
+  height.value = withTiming(0, { duration: 500 }); // 500 ms duration
+};
+
     return(
         <SafeAreaView 
         style={{
           width: "100%", 
           height: "100%", 
-          flex: 1
+          flex: 1,
+          backgroundColor: theme.colors.background
         }}
       >
 
@@ -229,13 +265,14 @@ console.log(total)
             <Appbar.Action icon={"menu"} onPress={setMainMenuOpen} />
           </View>
           <View  style={{display: "flex", flexDirection: "row", justifyContent: "flex-end"}}>
+          <Appbar.Action icon="magnify" onPress={()=>handleSearch()}/>
           <Menu
             visible={menuVisibility.filterBy}
             onDismiss={()=>handleMenu("filterBy", false)}
-            anchor={<Appbar.Action icon="filter" onPress={() =>{handleMenu("filterBy", true)}} />}
+            anchor={sortedTags.length === 0 ? <Tooltip title={tooltips.tagFilter[language]}><Appbar.Action icon="filter" disabled={sortedTags.length === 0 ? true : false} onPress={() =>{handleMenu("filterBy", true)}} /></Tooltip> : <Appbar.Action icon="filter" disabled={sortedTags.length === 0 ? true : false} onPress={() =>{handleMenu("filterBy", true)}} />}
             anchorPosition='bottom'
             >
-            <View style={{padding: 5}}>
+            <View style={{padding: defaultViewPadding}}>
               <View style={{display: "flex", flexDirection: "row", justifyContent: "flex-start", alignItems: "center"}}>
                 <Text>Filter:</Text>
                 <Switch value={isFilterOn} onValueChange={onToggleSwitch} />
@@ -254,98 +291,90 @@ console.log(total)
               anchor={<Appbar.Action icon={sortIcon} onPress={() => handleMenu("sortBy", true)} />}
               anchorPosition='bottom'
             >
-              <Menu.Item onPress={() => handleSortBy("alphabetical")} title="Alphabetisch" leadingIcon={getIcon("alphabetical")}/>
-              <Menu.Item onPress={() => handleSortBy("chronological")} title="Chronologisch" leadingIcon={getIcon("chronological")}/>
-             {/* <Menu.Item onPress={() => {}} title="Kaliber" leadingIcon={getIcon("caliber")}/> */}
+              <Menu.Item onPress={() => handleSortBy("alphabetical")} title={`${sorting.alphabetic[language]}`} leadingIcon={getIcon("alphabetical")}/>
+              <Menu.Item onPress={() => handleSortBy("lastAdded")} title={`${sorting.lastAdded[language]}`} leadingIcon={getIcon("lastAdded")}/>
+              <Menu.Item onPress={() => handleSortBy("lastModified")} title={`${sorting.lastModified[language]}`} leadingIcon={getIcon("lastModified")}/>
             </Menu>
             <Appbar.Action icon={sortAscending ? "arrow-up" : "arrow-down"} onPress={() => handleSortOrder()} />
           </View>
         </Appbar>
-
+        <Animated.View style={[{paddingLeft: defaultViewPadding, paddingRight: defaultViewPadding}, animatedStyle]}>{searchBannerVisible ? <Searchbar placeholder={search[language]} onChangeText={setSearchQuery} value={searchQuery} /> : null}</Animated.View>
         <ScrollView 
-          contentContainerStyle={{
+          style={{
             width: "100%", 
             height: "100%", 
             flexDirection: "column", 
-            flexWrap: "wrap"
+            flexWrap: "wrap",
+            backgroundColor: theme.colors.background
           }}
         >
           <View 
             style={styles.container}
           >
             {ammoCollection.length != 0 && !isFilterOn ? ammoCollection.map(ammo =>{
-              return(
-                <AmmoCard key={ammo.id} ammo={ammo} stockVisible={stockVisible} setStockVisible={setStockVisible}/>
+              return (
+                searchQuery !== "" ? ammo.manufacturer.toLowerCase().includes(searchQuery.toLowerCase()) || ammo.designation.toLowerCase().includes(searchQuery.toLowerCase()) ? <AmmoCard key={ammo.id} ammo={ammo} stockVisible={stockVisible} setStockVisible={setStockVisible}/> : null : <AmmoCard key={ammo.id} ammo={ammo} stockVisible={stockVisible} setStockVisible={setStockVisible}/>
               )
             }) 
             :
             ammoCollection.length !== 0 && isFilterOn ? ammoList.map(ammo =>{
-              
-
-                
-                  return <AmmoCard key={ammo.id} ammo={ammo} stockVisible={stockVisible} setStockVisible={setStockVisible}/>
-                
-                
-              
+              return <AmmoCard key={ammo.id} ammo={ammo} stockVisible={stockVisible} setStockVisible={setStockVisible}/>
             })
-              
             :
             null}
           </View>
         </ScrollView>
-        {newAmmoOpen ? 
-      <Animated.View entering={SlideInDown} exiting={SlideOutDown} style={{position: "absolute", left: 0, top: 0, right: 0, bottom: 0}}>
-        <SafeAreaView>
-          <NewAmmo />
-        </SafeAreaView>
-      </Animated.View> 
-      : 
-      null}
         
-      {seeAmmoOpen ? 
-      <Animated.View entering={FadeIn} exiting={FadeOut} style={{position: "absolute", left: 0, top: 0, right: 0, bottom: 0}}>
-        <SafeAreaView>
-          <Ammo />
-        </SafeAreaView>
-      </Animated.View>
-      :
-      null}
+        <Portal>
+          <Modal visible={newAmmoOpen} contentContainerStyle={{height: "100%"}} onDismiss={setNewAmmoOpen}>
+            <NewAmmo />
+          </Modal>
+        </Portal>        
+        
+        <Portal>
+          <Modal visible={seeAmmoOpen} contentContainerStyle={{height: "100%"}} onDismiss={setSeeAmmoOpen}>
+            <Ammo />
+          </Modal>
+        </Portal>
 
-{stockVisible ? 
-      <Animated.View entering={FadeIn} exiting={FadeOut} style={{position: "absolute", left: 0, top: 0, right: 0, bottom: 0}}>
-        <SafeAreaView>
-          <View style={{width: "100%", height: "100%", display: "flex", justifyContent: "center", alignItems: "center", backgroundColor: theme.colors.backdrop}}>
-            <View style={{width: "85%", display: "flex", flexDirection: "column", backgroundColor: theme.colors.background}}>
-            <View style={{width: "100%", display: "flex", flexDirection: "row"}}>
-                <Text style={{color: theme.colors.onBackground}}>{ammoQuickUpdate.title[language]}</Text>
-            </View>
-                <View style={{width: "100%", display: "flex", flexDirection: "row"}}>
-                    <IconButton mode="contained" icon="plus" selected={stockChange === "inc" ? true : false} onPress={()=>setStockChange("inc")}/>
-                    <IconButton mode="contained" icon="minus" selected={stockChange === "dec" ? true : false} onPress={()=>setStockChange("dec")} />
-                    <TextInput style={{flex: 1}} keyboardType={"number-pad"} value={input} onChangeText={input => setInput(input.replace(/[^0-9]/g, ''))} inputMode='decimal'/>
-                    <IconButton mode="contained" icon="floppy" onPress={()=>saveNewStock(currentAmmo)}/>
-                    <IconButton mode="contained" icon="cancel" onPress={()=>setStockVisible(false)}/>
-                </View>
-                {error ? <View style={{width: "100%", display: "flex", flexDirection: "row"}}>
-                <Text style={{color: theme.colors.error}}>{ammoQuickUpdate.error[language]}</Text>
-            </View> : null}
-            </View>
-        </View>
-        </SafeAreaView>
-      </Animated.View>
-      :
-      null}
+        <Portal>
+      <Modal visible={stockVisible} >
+        <View style={{width: "100%", height: "100%", display: "flex", flexDirection: "row", justifyContent: "center", alignItems: "center", flexWrap: "wrap", backgroundColor: theme.colors.backdrop}}>
+            <View style={{width: "85%", height: "100%", display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", flexWrap: "wrap"}}>
+                <View style={{backgroundColor: theme.colors.background, width: "100%", display: "flex", flexDirection: "row", flexWrap: "wrap"}}>
+                  <View style={{padding: defaultViewPadding}}>
+                    <Text style={{color: theme.colors.onBackground}}>{ammoQuickUpdate.title[language]}</Text>
+                  </View>
+                  <View style={{width: "100%", display: "flex", flexDirection: "row", padding: defaultViewPadding, flexWrap: "wrap"}}>
+                    <View style={{width: "100%", display: "flex", flexDirection: "row", justifyContent: "center",  marginBottom: 10}}>
+                      <IconButton mode="contained" icon="plus" selected={stockChange === "inc" ? true : false} onPress={()=>setStockChange("inc")}/>
+                      <IconButton mode="contained" icon="minus" selected={stockChange === "dec" ? true : false} onPress={()=>setStockChange("dec")} />
+                    </View>
+                    <TextInput style={{width: "100%"}} placeholder={ammoQuickUpdate.placeholder[language]} keyboardType={"number-pad"} value={input} onChangeText={input => setInput(input.replace(/[^0-9]/g, ''))} inputMode='decimal'/>
+                    <View style={{width: "100%", display: "flex", flexDirection: "row", justifyContent: "space-between", marginTop: 10}}>
+                    <IconButton mode="contained" icon="check" onPress={() => saveNewStock(currentAmmo)} style={{width: 50, backgroundColor: theme.colors.primary}} iconColor={theme.colors.onPrimary}/>
+                      <IconButton mode="contained" icon="cancel" onPress={()=>setStockVisible(false)} style={{width: 50, backgroundColor: theme.colors.secondaryContainer}} iconColor={theme.colors.onSecondaryContainer}/>
+                    </View>
+                  </View>
+                  {error ? 
+                  <View style={{width: "100%", display: "flex", flexDirection: "row"}}>
+                    <Text style={{color: theme.colors.error}}>{ammoQuickUpdate.error[language]}</Text>
+                  </View> 
+                  : 
+                  null}
+                  </View>
+              </View>
+          </View>
+      </Modal>
+      </Portal>
 
 
-         {!seeAmmoOpen && !newAmmoOpen && !mainMenuOpen? 
       <FAB
         icon="plus"
         style={styles.fab}
         onPress={setNewAmmoOpen}
         disabled={mainMenuOpen ? true : false}
-      /> 
-      : 
-      null}
+/>
         
       </SafeAreaView>
     )

@@ -1,16 +1,16 @@
 import { Alert, ScrollView, TouchableNativeFeedback, View } from "react-native"
 import Animated, { LightSpeedInLeft, LightSpeedOutLeft } from "react-native-reanimated"
 import { useViewStore } from "../stores/useViewStore"
-import { ActivityIndicator, Button, Divider, Icon, Modal, SegmentedButtons, Snackbar, Text } from "react-native-paper"
+import { ActivityIndicator, Button, Dialog, Divider, Icon, Modal, SegmentedButtons, Snackbar, Text } from "react-native-paper"
 import { databaseImportAlert, databaseOperations, preferenceTitles, toastMessages } from "../lib/textTemplates"
 import { usePreferenceStore } from "../stores/usePreferenceStore"
 import AsyncStorage from "@react-native-async-storage/async-storage"
-import { AMMO_DATABASE, A_KEY_DATABASE, GUN_DATABASE, KEY_DATABASE, PREFERENCES } from "../configs"
+import { AMMO_DATABASE, A_KEY_DATABASE, GUN_DATABASE, KEY_DATABASE, PREFERENCES, defaultViewPadding, languageSelection } from "../configs"
 import { colorThemes } from "../lib/colorThemes"
 import { useState } from "react"
 import * as FileSystem from 'expo-file-system';
 import * as DocumentPicker from 'expo-document-picker';
-import { AmmoType, GunType } from "../interfaces"
+import { AmmoType, GunType, Languages } from "../interfaces"
 import * as SecureStore from "expo-secure-store"
 import { useGunStore } from "../stores/useGunStore"
 import { SafeAreaView } from "react-native-safe-area-context"
@@ -29,6 +29,8 @@ export default function mainMenu(){
     const [snackbarText, setSnackbarText] = useState<string>("")
     const [dbModalVisible, setDbModalVisible] = useState<boolean>(false)
     const [dbModalText, setDbModalText] = useState<string>("")
+    const [importGunDbVisible, toggleImportDunDbVisible] = useState<boolean>(false)
+    const [importAmmoDbVisible, toggleImportAmmoDbVisible] = useState<boolean>(false)
 
     const onToggleSnackBar = () => setToastVisible(!toastVisible);
     const onDismissSnackBar = () => setToastVisible(false);
@@ -36,30 +38,7 @@ export default function mainMenu(){
     const date: Date = new Date()
     const currentYear:number = date.getFullYear()
 
-    function invokeAlertGun(){
-        Alert.alert(databaseImportAlert.title[language], databaseImportAlert.subtitle[language], [
-            {
-                text: databaseImportAlert.yes[language],
-                onPress: () => handleImportGunDb()
-            },
-            {
-                text: databaseImportAlert.no[language],
-                style: "cancel"
-            }
-        ])
-    }
-    function invokeAlertAmmo(){
-        Alert.alert(databaseImportAlert.title[language], databaseImportAlert.subtitle[language], [
-            {
-                text: databaseImportAlert.yes[language],
-                onPress: () => handleImportAmmoDb()
-            },
-            {
-                text: databaseImportAlert.no[language],
-                style: "cancel"
-            }
-        ])
-    }
+    
 
     async function handleThemeSwitch(color:string){
         switchTheme(color)
@@ -68,7 +47,7 @@ export default function mainMenu(){
         await AsyncStorage.setItem(PREFERENCES, JSON.stringify(newPreferences))
     }
 
-    async function handleLanguageSwitch(lng:string){
+    async function handleLanguageSwitch(lng:Languages){
         switchLanguage(lng)
         const preferences:string = await AsyncStorage.getItem(PREFERENCES)
         const newPreferences:{[key:string] : string} = preferences == null ? {"language": lng} : {...JSON.parse(preferences), "language":lng} 
@@ -154,6 +133,7 @@ export default function mainMenu(){
         if(result.assets === null){
             return
         }
+        toggleImportDunDbVisible(false)
         setDbModalVisible(true)
         setDbModalText(databaseOperations.import[language])
         const content = await FileSystem.readAsStringAsync(result.assets[0].uri)
@@ -196,6 +176,7 @@ export default function mainMenu(){
         if(result.assets === null){
             return
         }
+        toggleImportAmmoDbVisible(false)
         setDbModalVisible(true)
         setDbModalText(databaseOperations.import[language])
         const content = await FileSystem.readAsStringAsync(result.assets[0].uri)
@@ -222,7 +203,6 @@ export default function mainMenu(){
         let newKeys:string[] = []
         
         importableAmmoCollection.map(value =>{
-            console.log(value.id)
             newKeys.push(value.id) // if its the first gun to be saved, create an array with the id of the gun. Otherwise, merge the key into the existing array
             SecureStore.setItem(`${AMMO_DATABASE}_${value.id}`, JSON.stringify(value)) // Save the gun
         })
@@ -246,31 +226,14 @@ export default function mainMenu(){
                     <View style={{padding: 0, display: "flex", height: "100%", flexDirection: "column", flexWrap: "wrap"}}>
                         <View style={{width: "100%", flex: 10}}>
                             <ScrollView>
-                                <View style={{padding: 10}}>
-                                    <Text style={{color: theme.colors.onBackground}}>HELLO IS THIS THE KRUSTY KRAB?</Text>
-                                    <Text style={{color: theme.colors.onBackground}}>NO THIS IS MENU!</Text>
-                                </View>
                                 <View style={{marginLeft: 5, marginRight: 5, padding: 10, backgroundColor: theme.colors.background}}>
                                     <Text variant="titleMedium" style={{marginBottom: 10, color: theme.colors.onBackground}}>{preferenceTitles.language[language]}</Text>
-                                    <SegmentedButtons
-                                        value={language}
-                                        onValueChange={handleLanguageSwitch}
-
-                                        buttons={[
-                                        {
-                                            value: 'de',
-                                            label: `🇩🇪`,
-                                        },
-                                        {
-                                            value: 'en',
-                                            label: '🇬🇧',
-                                        },
-                                        { 
-                                            value: 'fr', 
-                                            label: '🇫🇷' 
-                                        },
-                                        ]}
-                                    />
+                                    <View style={{display: "flex", flexDirection: "row", gap: 10, flexWrap: "wrap", justifyContent: "space-between"}}>
+                                        {languageSelection.map(langSelect =>{
+                                            return <Button key={langSelect.code} buttonColor={language === langSelect.code ? theme.colors.primaryContainer : theme.colors.background} onPress={()=>handleLanguageSwitch(langSelect.code)} mode="outlined">{langSelect.flag}</Button>
+                                        })}
+                                    </View>
+                                    
                                 </View>
                                 <Divider bold/>
                                 <View style={{marginLeft: 5, marginRight: 5, padding: 10, backgroundColor: theme.colors.background}}>
@@ -301,7 +264,7 @@ export default function mainMenu(){
                                     <Text variant="titleMedium" style={{marginBottom: 10, color: theme.colors.onBackground}}>{preferenceTitles.db_gun[language]}</Text>
                                     <View style={{display: "flex", flexDirection: "row", justifyContent: "space-between"}}>
                                         <Button style={{width: "45%"}} icon="content-save-move" onPress={()=>handleSaveGunDb()} mode="contained">{preferenceTitles.saveDb_gun[language]}</Button>
-                                        <Button style={{width: "45%"}} icon="application-import" onPress={()=>invokeAlertGun()} mode="contained">{preferenceTitles.importDb_gun[language]}</Button>
+                                        <Button style={{width: "45%"}} icon="application-import" onPress={()=>toggleImportDunDbVisible(true)} mode="contained">{preferenceTitles.importDb_gun[language]}</Button>
                                     </View>
                                 </View>
                                 <Divider bold/>
@@ -309,7 +272,7 @@ export default function mainMenu(){
                                     <Text variant="titleMedium" style={{marginBottom: 10, color: theme.colors.onBackground}}>{preferenceTitles.db_ammo[language]}</Text>
                                     <View style={{display: "flex", flexDirection: "row", justifyContent: "space-between"}}>
                                         <Button style={{width: "45%"}} icon="content-save-move" onPress={()=>handleSaveAmmoDb()} mode="contained">{preferenceTitles.saveDb_ammo[language]}</Button>
-                                        <Button style={{width: "45%"}} icon="application-import" onPress={()=>invokeAlertAmmo()} mode="contained">{preferenceTitles.importDb_ammo[language]}</Button>
+                                        <Button style={{width: "45%"}} icon="application-import" onPress={()=>toggleImportAmmoDbVisible(true)} mode="contained">{preferenceTitles.importDb_ammo[language]}</Button>
                                     </View>
                                 </View>
                                 <Divider bold/>
@@ -324,7 +287,7 @@ export default function mainMenu(){
                             </ScrollView>
                         </View>
                         <View style={{width: "100%", flex: 2, padding: 10, marginBottom: 10, elevation: 4}}>
-                            <Text style={{color: theme.colors.onBackground}} >Version Pre-Alpha</Text>
+                            <Text style={{color: theme.colors.onBackground}} >Version Alpha 3.0.0</Text>
                             <Text style={{color: theme.colors.onBackground}}>{`© ${currentYear === 2024 ? currentYear : `2024 - ${currentYear}`} Marcel Weber`} </Text>
                         </View>
                     </View>
@@ -341,6 +304,33 @@ export default function mainMenu(){
                 }}>
                 {snackbarText}
             </Snackbar>
+
+            <Dialog visible={importGunDbVisible} onDismiss={()=>toggleImportDunDbVisible(false)}>
+                    <Dialog.Title>
+                    {`${databaseImportAlert.title[language]}`}
+                    </Dialog.Title>
+                    <Dialog.Content>
+                        <Text>{`${databaseImportAlert.subtitle[language]}`}</Text>
+                    </Dialog.Content>
+                    <Dialog.Actions>
+                        <Button onPress={()=>handleImportGunDb()} icon="application-import" buttonColor={theme.colors.errorContainer} textColor={theme.colors.onErrorContainer}>{databaseImportAlert.yes[language]}</Button>
+                        <Button onPress={()=>toggleImportDunDbVisible(false)} icon="cancel" buttonColor={theme.colors.secondary} textColor={theme.colors.onSecondary}>{databaseImportAlert.no[language]}</Button>
+                    </Dialog.Actions>
+                </Dialog>
+
+                <Dialog visible={importAmmoDbVisible} onDismiss={()=>toggleImportAmmoDbVisible(false)}>
+                    <Dialog.Title>
+                    {`${databaseImportAlert.title[language]}`}
+                    </Dialog.Title>
+                    <Dialog.Content>
+                        <Text>{`${databaseImportAlert.subtitle[language]}`}</Text>
+                    </Dialog.Content>
+                    <Dialog.Actions>
+                        <Button onPress={()=>handleImportAmmoDb()} icon="application-import" buttonColor={theme.colors.errorContainer} textColor={theme.colors.onErrorContainer}>{databaseImportAlert.yes[language]}</Button>
+                        <Button onPress={()=>toggleImportAmmoDbVisible(false)} icon="cancel" buttonColor={theme.colors.secondary} textColor={theme.colors.onSecondary}>{databaseImportAlert.no[language]}</Button>
+                    </Dialog.Actions>
+                </Dialog>
+
             <Modal visible={dbModalVisible}>
                 <ActivityIndicator size="large" animating={true} />
                 <Text variant="bodyLarge" style={{width: "100%", textAlign: "center", color: theme.colors.onBackground, marginTop: 10, backgroundColor: "rgba(0,0,0,0.5)"}}>{dbModalText}</Text>

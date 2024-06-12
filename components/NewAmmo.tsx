@@ -32,7 +32,7 @@ export default function newAmmo(){
 
     const { language, theme } = usePreferenceStore()
     const { setNewAmmoOpen, setSeeAmmoOpen } = useViewStore()
-    const { setCurrentAmmo } = useAmmoStore()
+    const { setCurrentAmmo, ammoCollection, setAmmoCollection } = useAmmoStore()
 
     useEffect(()=>{
         setSaveState(false)
@@ -85,6 +85,8 @@ export default function newAmmo(){
         onToggleSnackBar()
         setNewAmmoOpen()
         setCurrentAmmo(ammoData)
+        const newCollection:AmmoType[] = [...ammoCollection, value]
+        setAmmoCollection(newCollection)
         setSeeAmmoOpen()
 
     }
