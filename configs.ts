@@ -1,3 +1,4 @@
+import { Languages } from "./interfaces"
 import { SimpleTranslation } from "./lib/textTemplates"
 
 export const defaultGridGap:number = 10
@@ -22,5 +23,15 @@ export const PREFERENCES:string = "pre0009"
 export const dateLocales:SimpleTranslation = {
     de: "de-CH",
     en: "en-US",
-    fr: "fr-CH"
+    fr: "fr-CH",
+    it: "it-CH", 
+    ch: "de-CH"
 }
+
+export const languageSelection:{flag:string, code:Languages}[] = [
+    {flag: "🇩🇪", code: "de"},
+    {flag: "🇬🇧", code: "en"},
+    {flag: "🇫🇷", code: "fr"},
+    {flag: "🇮🇹", code: "it"},
+    {flag: "🇨🇭", code: "ch"},
+]
