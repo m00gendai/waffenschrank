@@ -515,3 +515,10 @@ export const sorting:Sorting = {
     
 }
 
+export const search:SimpleTranslation = {
+    de: "Suchen", 
+    en: "search",
+    fr: "Chercher",
+    it: "Ricerca",
+    ch: "Tschertgar"
+}
