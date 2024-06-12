@@ -42,11 +42,11 @@ export default function AmmoCard({ammo, stockVisible, setStockVisible}:Props){
         >
             <Card.Title
                 titleStyle={{
-                width: displayAmmoAsGrid ? "100%" : "50%",
+                width: displayAmmoAsGrid ? "100%" : "60%",
                 color: ammo.currentStock !== null && ammo.currentStock !== undefined && ammo.criticalStock ? Number(ammo.currentStock.toString()) <= Number(ammo.criticalStock.toString()) ? theme.colors.error : theme.colors.onSurfaceVariant : theme.colors.onSurfaceVariant,
                 }}
                 subtitleStyle={{
-                width: displayAmmoAsGrid ? "100%" : "50%",
+                width: displayAmmoAsGrid ? "100%" : "60%",
                 color: ammo.currentStock !== null && ammo.currentStock !== undefined && ammo.criticalStock ? Number(ammo.currentStock.toString()) <= Number(ammo.criticalStock.toString()) ? theme.colors.error : theme.colors.onSurfaceVariant : theme.colors.onSurfaceVariant,
                 }}
                 title={`${ammo.designation}`} 
@@ -117,7 +117,7 @@ export default function AmmoCard({ammo, stockVisible, setStockVisible}:Props){
                             marginTop: "auto",
                             marginBottom: "auto",
                             marginLeft: 10,
-                            marginRight: 10,
+                            marginRight: 6,
                         }}
                         size={48}
                     >

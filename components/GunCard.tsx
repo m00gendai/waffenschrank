@@ -31,16 +31,16 @@ export default function GunCard({gun}:Props){
         <Card 
             style={{
                 width: (Dimensions.get("window").width / (displayAsGrid ? 2 : 1)) - (defaultGridGap + (defaultViewPadding/2)),
-
+                paddingRight: 6
             }}
         >
             <Card.Title
                 titleStyle={{
-                width: displayAsGrid ? "100%" : "50%",
+                width: displayAsGrid ? "100%" : "60%",
                 color: theme.colors.onSurfaceVariant
                 }}
                 subtitleStyle={{
-                width: displayAsGrid ? "100%" : "50%",
+                width: displayAsGrid ? "100%" : "60%",
                 color: theme.colors.onSurfaceVariant
                 }}
                 title={`${gun.manufacturer && gun.manufacturer.length != 0 ? gun.manufacturer : ""} ${gun.model}`}
