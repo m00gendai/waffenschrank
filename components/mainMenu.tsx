@@ -1,7 +1,7 @@
 import { Alert, ScrollView, TouchableNativeFeedback, View } from "react-native"
 import Animated, { LightSpeedInLeft, LightSpeedOutLeft } from "react-native-reanimated"
 import { useViewStore } from "../stores/useViewStore"
-import { ActivityIndicator, Button, Dialog, Divider, Icon, Modal, SegmentedButtons, Snackbar, Text } from "react-native-paper"
+import { ActivityIndicator, Button, Dialog, Divider, Icon, List, Modal, SegmentedButtons, Snackbar, Text } from "react-native-paper"
 import { databaseImportAlert, databaseOperations, preferenceTitles, toastMessages } from "../lib/textTemplates"
 import { usePreferenceStore } from "../stores/usePreferenceStore"
 import AsyncStorage from "@react-native-async-storage/async-storage"
@@ -226,75 +226,76 @@ export default function mainMenu(){
                     <View style={{padding: 0, display: "flex", height: "100%", flexDirection: "column", flexWrap: "wrap"}}>
                         <View style={{width: "100%", flex: 10}}>
                             <ScrollView>
-                                <View style={{marginLeft: 5, marginRight: 5, padding: 10, backgroundColor: theme.colors.background}}>
+                                <View style={{marginLeft: 5, marginRight: 5, marginBottom: 5, padding: defaultViewPadding, backgroundColor: theme.colors.background}}>
                                     <Text variant="titleMedium" style={{marginBottom: 10, color: theme.colors.onBackground}}>{preferenceTitles.language[language]}</Text>
-                                    <View style={{display: "flex", flexDirection: "row", gap: 10, flexWrap: "wrap", justifyContent: "space-between"}}>
+                                    <View style={{display: "flex", flexDirection: "row", gap: 0, flexWrap: "wrap", justifyContent: "flex-start"}}>
                                         {languageSelection.map(langSelect =>{
-                                            return <Button key={langSelect.code} buttonColor={language === langSelect.code ? theme.colors.primaryContainer : theme.colors.background} onPress={()=>handleLanguageSwitch(langSelect.code)} mode="outlined">{langSelect.flag}</Button>
+                                            return <Button style={{borderRadius: 0, width: "25%"}} key={langSelect.code} buttonColor={language === langSelect.code ? theme.colors.primaryContainer : theme.colors.background} onPress={()=>handleLanguageSwitch(langSelect.code)} mode="outlined">{langSelect.flag}</Button>
                                         })}
                                     </View>
-                                    
                                 </View>
-                                <Divider bold/>
-                                <View style={{marginLeft: 5, marginRight: 5, padding: 10, backgroundColor: theme.colors.background}}>
-                                    <Text variant="titleMedium" style={{marginBottom: 10, color: theme.colors.onBackground}}>{preferenceTitles.colors[language]}</Text>
-                                        <View style={{display: "flex", flexDirection: "row", flexWrap: "wrap", justifyContent: "space-between"}}>
-                                        {Object.entries(colorThemes).map(colorTheme =>{
-                                            return(    
-                                                <TouchableNativeFeedback onPress={()=>handleThemeSwitch(colorTheme[0])} key={colorTheme[0]}>
-                                                    <View style={{elevation: 4, backgroundColor: colorTheme[1].background, borderColor: theme.name === colorTheme[0] ? colorTheme[1].primary : colorTheme[1].primaryContainer, borderWidth: theme.name === colorTheme[0] ? 5 : 0, paddingTop: 5, paddingBottom: 5, paddingLeft:2, paddingRight:2, width: "45%", height: 50, display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-evenly", marginTop: 10, marginBottom: 10, borderRadius: 30}}>
-                                                       
-                                                        <View style={{height: "100%", width: "30%", display: "flex", justifyContent: "center", alignItems: "center", backgroundColor: colorTheme[1].primaryContainer, borderBottomLeftRadius: 50, borderTopLeftRadius: 50}}>
-                                                            <Text style={{color:colorTheme[1].onPrimaryContainer, fontSize: 10}}>A</Text>
-                                                        </View>
-                                                        <View style={{height: "100%", width: "30%", display: "flex", justifyContent: "center", alignItems: "center", backgroundColor: colorTheme[1].surfaceVariant}}>
-                                                            <Text style={{color:colorTheme[1].onSurfaceVariant, fontSize: 10}}>B</Text>
-                                                        </View>
-                                                        <View style={{height: "100%", width: "30%", display: "flex", justifyContent: "center", alignItems: "center", backgroundColor: colorTheme[1].primary, borderBottomRightRadius: 50, borderTopRightRadius: 50}}>
-                                                            <Text style={{color:colorTheme[1].onPrimary, fontSize: 10}}>C</Text>
-                                                        </View>
+                                <Divider style={{height: 2, backgroundColor: theme.colors.primary}} />
+                                    <List.Accordion left={props => <><List.Icon {...props} icon="palette" /><List.Icon {...props} icon="brush" /></>} title={preferenceTitles.colors[language]} titleStyle={{fontWeight: "700", color: theme.colors.onBackground}}>
+                                        <View style={{marginLeft: 5, marginRight: 5, padding: defaultViewPadding, backgroundColor: theme.colors.background, borderColor: theme.colors.primary, borderLeftWidth: 5}}>
+                                            <View style={{display: "flex", flexDirection: "row", flexWrap: "wrap", justifyContent: "space-between"}}>
+                                                {Object.entries(colorThemes).map(colorTheme =>{
+                                                    return(    
+                                                        <TouchableNativeFeedback onPress={()=>handleThemeSwitch(colorTheme[0])} key={colorTheme[0]}>
+                                                            <View style={{elevation: 4, backgroundColor: colorTheme[1].background, borderColor: theme.name === colorTheme[0] ? colorTheme[1].primary : colorTheme[1].primaryContainer, borderWidth: theme.name === colorTheme[0] ? 5 : 0, paddingTop: 5, paddingBottom: 5, paddingLeft:2, paddingRight:2, width: "45%", height: 50, display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-evenly", marginTop: 10, marginBottom: 10, borderRadius: 30}}>
+                                                            
+                                                                <View style={{height: "100%", width: "30%", display: "flex", justifyContent: "center", alignItems: "center", backgroundColor: colorTheme[1].primaryContainer, borderBottomLeftRadius: 50, borderTopLeftRadius: 50}}>
+                                                                    <Text style={{color:colorTheme[1].onPrimaryContainer, fontSize: 10}}>A</Text>
+                                                                </View>
+                                                                <View style={{height: "100%", width: "30%", display: "flex", justifyContent: "center", alignItems: "center", backgroundColor: colorTheme[1].surfaceVariant}}>
+                                                                    <Text style={{color:colorTheme[1].onSurfaceVariant, fontSize: 10}}>B</Text>
+                                                                </View>
+                                                                <View style={{height: "100%", width: "30%", display: "flex", justifyContent: "center", alignItems: "center", backgroundColor: colorTheme[1].primary, borderBottomRightRadius: 50, borderTopRightRadius: 50}}>
+                                                                    <Text style={{color:colorTheme[1].onPrimary, fontSize: 10}}>C</Text>
+                                                                </View>
 
-                                                    </View>
-                                                </TouchableNativeFeedback>
-                                            )})}
-                                    </View>
-                                </View>
-                                <Divider bold/>
-                                <View style={{ marginLeft: 5, marginRight: 5, padding: 10, backgroundColor: theme.colors.background}}>
-                                    <Text variant="titleMedium" style={{marginBottom: 10, color: theme.colors.onBackground}}>{preferenceTitles.db_gun[language]}</Text>
-                                    <View style={{display: "flex", flexDirection: "row", justifyContent: "space-between"}}>
-                                        <Button style={{width: "45%"}} icon="content-save-move" onPress={()=>handleSaveGunDb()} mode="contained">{preferenceTitles.saveDb_gun[language]}</Button>
-                                        <Button style={{width: "45%"}} icon="application-import" onPress={()=>toggleImportDunDbVisible(true)} mode="contained">{preferenceTitles.importDb_gun[language]}</Button>
-                                    </View>
-                                </View>
-                                <Divider bold/>
-                                <View style={{ marginLeft: 5, marginRight: 5, padding: 10, backgroundColor: theme.colors.background}}>
-                                    <Text variant="titleMedium" style={{marginBottom: 10, color: theme.colors.onBackground}}>{preferenceTitles.db_ammo[language]}</Text>
-                                    <View style={{display: "flex", flexDirection: "row", justifyContent: "space-between"}}>
-                                        <Button style={{width: "45%"}} icon="content-save-move" onPress={()=>handleSaveAmmoDb()} mode="contained">{preferenceTitles.saveDb_ammo[language]}</Button>
-                                        <Button style={{width: "45%"}} icon="application-import" onPress={()=>toggleImportAmmoDbVisible(true)} mode="contained">{preferenceTitles.importDb_ammo[language]}</Button>
-                                    </View>
-                                </View>
-                                <Divider bold/>
-                                <View style={{ marginLeft: 5, marginRight: 5, padding: 10, backgroundColor: theme.colors.background}}>
-                                    <Text variant="titleMedium" style={{marginBottom: 10, color: theme.colors.onBackground}}>{preferenceTitles.gunList[language]}</Text>
-                                    <View style={{display: "flex", flexDirection: "row", justifyContent: "space-between"}}>
-                                        <Button style={{width: "45%"}} icon="printer" onPress={()=>printGunCollection(gunCollection, language)} mode="contained">{preferenceTitles.printAllGuns[language]}</Button>
-                                        
-                                    </View>
-                                </View>
-                                <Divider bold/>
-                                <View style={{ marginLeft: 5, marginRight: 5, padding: 10, backgroundColor: theme.colors.background}}>
-                                    <Text variant="titleMedium" style={{marginBottom: 10, color: theme.colors.onBackground}}>{preferenceTitles.ammoList[language]}</Text>
-                                    <View style={{display: "flex", flexDirection: "row", justifyContent: "space-between"}}>
-                                        <Button style={{width: "45%"}} icon="printer" onPress={()=>printAmmoCollection(ammoCollection, language)} mode="contained">{preferenceTitles.printAllAmmo[language]}</Button>
-                                        
-                                    </View>
-                                </View>
+                                                            </View>
+                                                        </TouchableNativeFeedback>
+                                                    )
+                                                })}
+                                            </View>
+                                        </View>
+                                    </List.Accordion>
+                                    <List.Accordion left={props => <><List.Icon {...props} icon="floppy" /><List.Icon {...props} icon="pistol" /></>} title={preferenceTitles.db_gun[language]} titleStyle={{fontWeight: "700", color: theme.colors.onBackground}}>
+                                        <View style={{ marginLeft: 5, marginRight: 5, padding: defaultViewPadding, backgroundColor: theme.colors.background, borderColor: theme.colors.primary, borderLeftWidth: 5}}>
+                                            <View style={{display: "flex", flexDirection: "row", justifyContent: "space-between", alignItems: "center"}}>
+                                                <Button style={{width: "45%"}} icon="content-save-move" onPress={()=>handleSaveGunDb()} mode="contained">{preferenceTitles.saveDb_gun[language]}</Button>
+                                                <Button style={{width: "45%"}} icon="application-import" onPress={()=>toggleImportDunDbVisible(true)} mode="contained">{preferenceTitles.importDb_gun[language]}</Button>
+                                            </View>
+                                        </View>
+                                    </List.Accordion>
+                                    <List.Accordion left={props => <><List.Icon {...props} icon="floppy" /><List.Icon {...props} icon="bullet" /></>} title={preferenceTitles.db_ammo[language]} titleStyle={{fontWeight: "700", color: theme.colors.onBackground}}>
+                                        <View style={{ marginLeft: 5, marginRight: 5, padding: defaultViewPadding, backgroundColor: theme.colors.background, borderColor: theme.colors.primary, borderLeftWidth: 5}}>
+                                            <View style={{display: "flex", flexDirection: "row", justifyContent: "space-between"}}>
+                                                <Button style={{width: "45%"}} icon="content-save-move" onPress={()=>handleSaveAmmoDb()} mode="contained">{preferenceTitles.saveDb_ammo[language]}</Button>
+                                                <Button style={{width: "45%"}} icon="application-import" onPress={()=>toggleImportAmmoDbVisible(true)} mode="contained">{preferenceTitles.importDb_ammo[language]}</Button>
+                                            </View>
+                                        </View>
+                                    </List.Accordion>
+                                    <List.Accordion left={props => <><List.Icon {...props} icon="printer" /><List.Icon {...props} icon="pistol" /></>} title={preferenceTitles.gunList[language]} titleStyle={{fontWeight: "700", color: theme.colors.onBackground}}>
+                                        <View style={{ marginLeft: 5, marginRight: 5, padding: defaultViewPadding, backgroundColor: theme.colors.background, borderColor: theme.colors.primary, borderLeftWidth: 5}}>
+                                            <View style={{display: "flex", flexDirection: "row", justifyContent: "space-between"}}>
+                                                <Button style={{width: "45%"}} icon="printer" onPress={()=>printGunCollection(gunCollection, language)} mode="contained">{preferenceTitles.printAllGuns[language]}</Button>
+                                            </View>
+                                        </View>
+                                    </List.Accordion>
+                                    <List.Accordion left={props => <><List.Icon {...props} icon="printer" /><List.Icon {...props} icon="bullet" /></>} title={preferenceTitles.ammoList[language]} titleStyle={{fontWeight: "700", color: theme.colors.onBackground}}>
+                                        <View style={{ marginLeft: 5, marginRight: 5, padding: defaultViewPadding, backgroundColor: theme.colors.background, borderColor: theme.colors.primary, borderLeftWidth: 5}}>
+                                            <View style={{display: "flex", flexDirection: "row", justifyContent: "space-between"}}>
+                                                <Button style={{width: "45%"}} icon="printer" onPress={()=>printAmmoCollection(ammoCollection, language)} mode="contained">{preferenceTitles.printAllAmmo[language]}</Button>
+                                            </View>
+                                        </View>
+                                    </List.Accordion>
+                                
+
                                 
                             </ScrollView>
                         </View>
-                        <View style={{width: "100%", flex: 2, padding: 10, marginBottom: 10, elevation: 4}}>
+                        <View style={{width: "100%", flex: 2, padding: defaultViewPadding, marginBottom: 10, elevation: 4}}>
                             <Text style={{color: theme.colors.onBackground}} >Version Alpha 3.0.0</Text>
                             <Text style={{color: theme.colors.onBackground}}>{`© ${currentYear === 2024 ? currentYear : `2024 - ${currentYear}`} Marcel Weber`} </Text>
                         </View>
