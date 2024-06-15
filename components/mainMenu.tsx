@@ -14,7 +14,7 @@ import { AmmoType, GunType, Languages } from "../interfaces"
 import * as SecureStore from "expo-secure-store"
 import { useGunStore } from "../stores/useGunStore"
 import { SafeAreaView } from "react-native-safe-area-context"
-import { printGunCollection } from "../functions/printToPDF"
+import { printAmmoCollection, printGunCollection } from "../functions/printToPDF"
 import { useAmmoStore } from "../stores/useAmmoStore"
 
 
@@ -280,6 +280,14 @@ export default function mainMenu(){
                                     <Text variant="titleMedium" style={{marginBottom: 10, color: theme.colors.onBackground}}>{preferenceTitles.gunList[language]}</Text>
                                     <View style={{display: "flex", flexDirection: "row", justifyContent: "space-between"}}>
                                         <Button style={{width: "45%"}} icon="printer" onPress={()=>printGunCollection(gunCollection, language)} mode="contained">{preferenceTitles.printAllGuns[language]}</Button>
+                                        
+                                    </View>
+                                </View>
+                                <Divider bold/>
+                                <View style={{ marginLeft: 5, marginRight: 5, padding: 10, backgroundColor: theme.colors.background}}>
+                                    <Text variant="titleMedium" style={{marginBottom: 10, color: theme.colors.onBackground}}>{preferenceTitles.ammoList[language]}</Text>
+                                    <View style={{display: "flex", flexDirection: "row", justifyContent: "space-between"}}>
+                                        <Button style={{width: "45%"}} icon="printer" onPress={()=>printAmmoCollection(ammoCollection, language)} mode="contained">{preferenceTitles.printAllAmmo[language]}</Button>
                                         
                                     </View>
                                 </View>
