@@ -17,7 +17,7 @@ export const AMMO_DATABASE:string = "ammo0009"
 export const A_TAGS:string = "atag0009"
 
 /* Preferences database is shared */
-export const PREFERENCES:string = "pre0009"
+export const PREFERENCES:string = "pre0011"
 
 
 export const dateLocales:SimpleTranslation = {
