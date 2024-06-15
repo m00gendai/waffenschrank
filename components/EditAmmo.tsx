@@ -2,7 +2,7 @@ import { StyleSheet, View, ScrollView, Alert} from 'react-native';
 import { Appbar, Button, Dialog, Portal, SegmentedButtons, Snackbar, Text } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as ImagePicker from "expo-image-picker"
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import * as SecureStore from "expo-secure-store"
 import { ammoDataTemplate, ammoRemarks } from "../lib/ammoDataTemplate"
 import NewText from "./NewText"
@@ -22,10 +22,11 @@ import NewChipArea from './NewChipArea';
 export default function EditAmmo(){
 
     const { currentAmmo, setCurrentAmmo, ammoCollection, setAmmoCollection } = useAmmoStore()
-
+    const [initCheck, setInitCheck] = useState<boolean>(true)
     const [selectedImage, setSelectedImage] = useState<string[]>(currentAmmo.images && currentAmmo.images.length !== 0 ? currentAmmo.images : [])
     const [granted, setGranted] = useState<boolean>(false)
     const [ammoData, setAmmoData] = useState<AmmoType>(currentAmmo)
+    const [ammoDataCompare, setAmmoDataCompare] = useState<AmmoType>(currentAmmo)
     const [visible, setVisible] = useState<boolean>(false);
     const [snackbarText, setSnackbarText] = useState<string>("")
     const [saveState, setSaveState] = useState<boolean | null>(null)
@@ -39,6 +40,32 @@ export default function EditAmmo(){
   const onToggleSnackBar = () => setVisible(!visible);
 
   const onDismissSnackBar = () => setVisible(false);
+
+  useEffect(()=>{
+    if(initCheck){
+        setInitCheck(false)
+    }
+    if(!initCheck){
+        setSaveState(null)
+        for(const key in ammoData){
+            if(ammoData[key] !== ammoDataCompare[key]){
+                setSaveState(false)
+                if(ammoDataCompare[key] === null && ammoData[key].length === 0){
+                    setSaveState(null)
+                }
+            }
+            if(!(key in ammoDataCompare) && ammoData[key] !== ""){
+                setSaveState(false)
+            }
+            if(!(key in ammoDataCompare) && ammoData[key] === ""){
+                setSaveState(null)
+            }
+            if(!(key in ammoDataCompare) && ammoData[key].length === 0){
+                setSaveState(null)
+            }
+        }
+    }
+  },[ammoData])
 
     async function save(value: AmmoType) {
         await SecureStore.setItemAsync(`${AMMO_DATABASE}_${value.id}`, JSON.stringify(value)) // Save the ammo
@@ -85,7 +112,6 @@ export default function EditAmmo(){
                 setSelectedImage([result.assets[0].uri])
                 setAmmoData({...ammoData, images:[result.assets[0].uri]})
             }
-            setSaveState(false)
         }
     }   
 
@@ -112,13 +138,12 @@ export default function EditAmmo(){
                 setAmmoData({...ammoData, images:newImage})
             } else {
                 setSelectedImage([result.assets[0].uri])
-                if(ammoData.images.length !== 0){
+                if(ammoData && ammoData.images && ammoData.images.length !== 0){
                     setAmmoData({...ammoData, images:[...ammoData.images, result.assets[0].uri]})
                 } else {
                     setAmmoData({...ammoData, images: [result.assets[0].uri]})
                 }
             }
-            setSaveState(false)
         }
     }   
 
@@ -178,9 +203,9 @@ export default function EditAmmo(){
         <View style={{width: "100%", height: "100%", backgroundColor: theme.colors.background}}>
             
             <Appbar style={{width: "100%"}}>
-                <Appbar.BackAction  onPress={() => {saveState == true ? setEditAmmoOpen() : saveState === false ? toggleUnsavedDialogVisible(true) : setEditAmmoOpen()}} />
+                <Appbar.BackAction  onPress={() => {saveState === true ? setEditAmmoOpen() : saveState === false ? toggleUnsavedDialogVisible(true) : setEditAmmoOpen()}} />
                 <Appbar.Content title={editAmmoTitle[language]} />
-                <Appbar.Action icon="floppy" onPress={() => save({...ammoData, lastModifiedAt: new Date()})} color={saveState  == true ? "green" : saveState == false ? theme.colors.error : theme.colors.onBackground}/>
+                <Appbar.Action icon="floppy" onPress={() => save({...ammoData, lastModifiedAt: new Date()})} color={saveState === null ? theme.colors.onBackground : saveState === false ? theme.colors.error : "green"}/>
             </Appbar>
         
             <SafeAreaView style={styles.container}>
