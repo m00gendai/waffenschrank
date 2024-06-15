@@ -2,7 +2,7 @@ import { StyleSheet, View, ScrollView, Alert} from 'react-native';
 import { Appbar, Button, Dialog, SegmentedButtons, Snackbar, Text } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as ImagePicker from "expo-image-picker"
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import * as SecureStore from "expo-secure-store"
 import { gunDataTemplate, gunRemarks } from "../lib/gunDataTemplate"
 import NewText from "./NewText"
@@ -22,10 +22,11 @@ import NewChipArea from './NewChipArea';
 export default function EditGun(){
 
     const { currentGun, setCurrentGun, gunCollection, setGunCollection } = useGunStore()
-
+    const [initCheck, setInitCheck] = useState<boolean>(true)
     const [selectedImage, setSelectedImage] = useState<string[]>(currentGun.images && currentGun.images.length != 0 ? currentGun.images : [])
     const [granted, setGranted] = useState<boolean>(false)
     const [gunData, setGunData] = useState<GunType>(currentGun)
+    const [gunDataCompare, setGunDataCompare] = useState<GunType>(currentGun)
     const [visible, setVisible] = useState<boolean>(false);
     const [snackbarText, setSnackbarText] = useState<string>("")
     const [saveState, setSaveState] = useState<boolean | null>(null)
@@ -39,6 +40,32 @@ export default function EditGun(){
   const onToggleSnackBar = () => setVisible(!visible);
 
   const onDismissSnackBar = () => setVisible(false);
+
+  useEffect(()=>{
+    if(initCheck){
+        setInitCheck(false)
+    }
+    if(!initCheck){
+        setSaveState(null)
+        for(const key in gunData){
+            if(gunData[key] !== gunDataCompare[key]){
+                setSaveState(false)
+                if(gunDataCompare[key] === null && gunData[key].length === 0){
+                    setSaveState(null)
+                }
+            }
+            if(!(key in gunDataCompare) && gunData[key] !== ""){
+                setSaveState(false)
+            }
+            if(!(key in gunDataCompare) && gunData[key] === ""){
+                setSaveState(null)
+            }
+            if(!(key in gunDataCompare) && gunData[key].length === 0){
+                setSaveState(null)
+            }
+        }
+    }
+  },[gunData])
 
     async function save(value: GunType) {
         await SecureStore.setItemAsync(`${GUN_DATABASE}_${value.id}`, JSON.stringify(value)) // Save the gun
@@ -86,7 +113,6 @@ export default function EditGun(){
                 setSelectedImage([result.assets[0].uri])
                 setGunData({...gunData, images:[result.assets[0].uri]})
             }
-            setSaveState(false)
         }
     }   
 
@@ -113,13 +139,12 @@ export default function EditGun(){
                 setGunData({...gunData, images:newImage})
             } else {
                 setSelectedImage([result.assets[0].uri])
-                if(gunData.images.length !== 0){
+                if(gunData && gunData.images && gunData.images.length !== 0){
                     setGunData({...gunData, images:[...gunData.images, result.assets[0].uri]})
                 } else {
                     setGunData({...gunData, images: [result.assets[0].uri]})
                 }
             }
-            setSaveState(false)
         }
     }   
 
@@ -182,7 +207,7 @@ export default function EditGun(){
             <Appbar style={{width: "100%"}}>
                 <Appbar.BackAction  onPress={() => {saveState == true ? setEditGunOpen() : saveState === false ? toggleUnsavedDialogVisible(true) : setEditGunOpen()}} />
                 <Appbar.Content title={editGunTitle[language]} />
-                <Appbar.Action icon="floppy" onPress={() => save({...gunData, lastModifiedAt: new Date()})} color={saveState  == true ? "green" : saveState == false ? theme.colors.error : theme.colors.onBackground}/>
+                <Appbar.Action icon="floppy" onPress={() => save({...gunData, lastModifiedAt: new Date()})} color={saveState === null ? theme.colors.onBackground : saveState === false ? theme.colors.error : "green"}/>
             </Appbar>
         
             <SafeAreaView style={styles.container}>

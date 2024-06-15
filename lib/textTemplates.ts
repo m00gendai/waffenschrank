@@ -36,6 +36,8 @@ interface PreferenceTitle{
     importDb_ammo: SimpleTranslation
     gunList: SimpleTranslation
     printAllGuns: SimpleTranslation
+    ammoList: SimpleTranslation,
+    printAllAmmo: SimpleTranslation
 }
 
 interface DatabaseOperation{
@@ -394,7 +396,21 @@ export const preferenceTitles:PreferenceTitle = {
         fr: "Complet",
         it: "Completo",
         ch: "Cumpletta",
-    }
+    },
+    ammoList: {
+        de: "Munitionsverzeichnis",
+        en: "List of ammunition",
+        fr: "Liste des munitions",
+        it: "Elenco delle munizioni",
+        ch: "Register da muniziun",
+    },
+    printAllAmmo: {
+        de: "Komplett",
+        en: "Complete",
+        fr: "Complet",
+        it: "Completo",
+        ch: "Cumpletta",
+    },
 }
 
 export const databaseOperations:DatabaseOperation = {
@@ -420,6 +436,14 @@ export const pdfTitle:SimpleTranslation = {
     fr: "Liste des armes",
     it: "Elenco delle armi",
     ch: "Register da las armas",
+}
+
+export const pdfTitleAmmo:SimpleTranslation = {
+    de: "Munitionsverzeichnis",
+    en: "List of ammunition",
+    fr: "Liste des munitions",
+    it: "Elenco delle munizioni",
+    ch: "Register da muniziun",
 }
 
 export const pdfFooter:SimpleTranslation = {

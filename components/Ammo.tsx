@@ -11,7 +11,7 @@ import { usePreferenceStore } from '../stores/usePreferenceStore';
 import { useViewStore } from '../stores/useViewStore';
 import { useAmmoStore } from '../stores/useAmmoStore';
 import { ammoDeleteAlert } from '../lib/textTemplates';
-import { printSingleGun } from '../functions/printToPDF';
+import { printSingleAmmo, printSingleGun } from '../functions/printToPDF';
 import { AmmoType } from '../interfaces';
 
 
@@ -79,7 +79,7 @@ export default function Ammo(){
             <Appbar style={{width: "100%"}}>
                 <Appbar.BackAction  onPress={() => setSeeAmmoOpen()} />
                 <Appbar.Content title={`${currentAmmo.designation} ${currentAmmo.manufacturer}`} />
-               {/* <Appbar.Action icon="printer" onPress={()=>printSingleGun(currentGun, language)} /> */}
+                <Appbar.Action icon="printer" onPress={()=>printSingleAmmo(currentAmmo, language)} />
                 <Appbar.Action icon="pencil" onPress={setEditAmmoOpen} />
             </Appbar>
         
