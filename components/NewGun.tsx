@@ -19,6 +19,7 @@ import { usePreferenceStore } from '../stores/usePreferenceStore';
 import { useViewStore } from '../stores/useViewStore';
 import NewChipArea from './NewChipArea';
 import { useGunStore } from '../stores/useGunStore';
+import * as FileSystem from 'expo-file-system';
 
 
 export default function NewGun(){
@@ -107,18 +108,38 @@ export default function NewGun(){
         })
 
         if(!result.canceled){
-            const newImage:string[] = selectedImage
-            if(newImage && newImage.length != 0){
-                newImage.splice(indx, 1, result.assets[0].uri)
-                setSelectedImage(newImage)
-                setGunData({...gunData, images:newImage})
-            } else {
-                setSelectedImage([result.assets[0].uri])
-                setGunData({...gunData, images:[result.assets[0].uri]})
-            }
-        }
-    }   
 
+            // Create a unique file name for the new image
+        const newImageUri = result.assets[0].uri;
+        const fileName = newImageUri.split('/').pop();
+        const newPath = `${FileSystem.documentDirectory}${fileName}`;
+
+        // Move the image to a permanent directory
+        try {
+            await FileSystem.moveAsync({
+                from: newImageUri,
+                to: newPath,
+            });
+
+            const newImage = selectedImage;
+            if (newImage && newImage.length !== 0) {
+                newImage.splice(indx, 1, newPath);
+                setSelectedImage(newImage);
+                setGunData({ ...gunData, images: newImage });
+            } else {
+                setSelectedImage([newPath]);
+                if (gunData && gunData.images && gunData.images.length !== 0) {
+                    setGunData({ ...gunData, images: [...gunData.images, newPath] });
+                } else {
+                    setGunData({ ...gunData, images: [newPath] });
+                }
+            }
+        } catch (error) {
+            console.error('Error saving image:', error);
+        }
+    }  
+    }  
+     
     const pickCameraAsync = async (indx:number) =>{
         const permission: ImagePicker.MediaLibraryPermissionResponse = await ImagePicker.requestMediaLibraryPermissionsAsync()
 
@@ -135,18 +156,38 @@ export default function NewGun(){
         })
 
         if(!result.canceled){
-            const newImage:string[] = selectedImage
 
-            if(newImage && newImage.length != 0){
-                newImage.splice(indx, 1, result.assets[0].uri)
-                setSelectedImage(newImage)
-                setGunData({...gunData, images:newImage})
+            // Create a unique file name for the new image
+        const newImageUri = result.assets[0].uri;
+        const fileName = newImageUri.split('/').pop();
+        const newPath = `${FileSystem.documentDirectory}${fileName}`;
+
+        // Move the image to a permanent directory
+        try {
+            await FileSystem.moveAsync({
+                from: newImageUri,
+                to: newPath,
+            });
+
+            const newImage = selectedImage;
+            if (newImage && newImage.length !== 0) {
+                newImage.splice(indx, 1, newPath);
+                setSelectedImage(newImage);
+                setGunData({ ...gunData, images: newImage });
             } else {
-                setSelectedImage([result.assets[0].uri])
-                setGunData({...gunData, images:[result.assets[0].uri]})
+                setSelectedImage([newPath]);
+                if (gunData && gunData.images && gunData.images.length !== 0) {
+                    setGunData({ ...gunData, images: [...gunData.images, newPath] });
+                } else {
+                    setGunData({ ...gunData, images: [newPath] });
+                }
             }
+        } catch (error) {
+            console.error('Error saving image:', error);
         }
-    }   
+    }  
+} 
+ 
 
     return(
         <View style={{width: "100%", height: "100%", backgroundColor: theme.colors.background}}>
