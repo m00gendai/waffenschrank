@@ -259,7 +259,7 @@ function handleShotCount(){
           const stock:number[] = Object.entries(shotCountFromStock)
           .filter(([key]) => key.substring(0, key.length - 2) === ammo.id)
           .map(([key, value]) => Number(value));
-          const newStock = ammo.currentStock - Number(stock[0]);
+          const newStock = ammo.currentStock - Number(stock.length === 0 ? 0 : stock[0]);
           const newAmmo = { ...ammo, currentStock: newStock, previousStock: ammo.currentStock };
           saveNewStock(newAmmo)
           const itemIndex = updatedAmmoCollection.findIndex(({ id }) => id === ammo.id);
