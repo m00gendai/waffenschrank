@@ -104,7 +104,7 @@ useEffect(()=>{
     const isTagList:{label: string, status: boolean}[] = tagList === null ? null : JSON.parse(tagList)
    
     setDisplayAsGrid(isPreferences === null ? true : isPreferences.displayAsGrid === null ? true : isPreferences.displayAsGrid)
-    setSortBy(isPreferences === null ? "alphabetical" : isPreferences.sortBy === null ? "alphabetical" : isPreferences.sortBy)
+    setSortBy(isPreferences === null ? "alphabetical" : isPreferences.sortBy === undefined ? "alphabetical" : isPreferences.sortBy)
     setSortIcon(getIcon((isPreferences === null ? "alphabetical" : isPreferences.sortBy === null ? "alphabetical" : isPreferences.sortBy)))
 
     if(isTagList !== null && isTagList !== undefined){
@@ -194,8 +194,8 @@ async function handleFilterPress(tag:{label:string, status:boolean}){
 }
 
 const activeTags = tags.filter(tag => tag.status === true)
-           const sortedTags = sortTags(tags)
-              const gunList = gunCollection.filter(gun => activeTags.some(tag => gun.tags?.includes(tag.label)))
+const sortedTags = sortTags(tags)
+const gunList = activeTags.length !== 0  ? gunCollection.filter(gun => activeTags.some(tag => gun.tags?.includes(tag.label))) : gunCollection
 
               function handleSearch(){
                 !searchBannerVisible ? startAnimation() : endAnimation()
@@ -244,10 +244,11 @@ const activeTags = tags.filter(tag => tag.status === true)
             }
 
 function handleShotCount(){
+  const date:Date = new Date()
   const mapped:number[] = Object.entries(shotCountFromStock).map(item => item[1] === "" ? 0 : Number(item[1]))
   const currentShotCount:number = currentGun.shotCount === undefined ? 0 : currentGun.shotCount === null ? 0 : Number(currentGun.shotCount)
   const total: number = Number(shotCountNonStock) + mapped.reduce((acc, curr) => acc+Number(curr),0) + currentShotCount
-  const newGun:GunType = {...currentGun, shotCount: total}
+  const newGun:GunType = {...currentGun, shotCount: total, lastShotAt: date.toLocaleDateString(dateLocales.de)}
   save(newGun)
   if (shotCountFromStock.length !== 0) {
     const updatedAmmoCollection = [...ammoCollection];
@@ -255,11 +256,9 @@ function handleShotCount(){
     ammoCollection.forEach(ammo => {
       currentGun.caliber.forEach((caliber, index) => {
         if (ammo.caliber === caliber) {
-          console.log(shotCountFromStock)
           const stock:number[] = Object.entries(shotCountFromStock)
           .filter(([key]) => key.substring(0, key.length - 2) === ammo.id)
           .map(([key, value]) => Number(value));
-          console.log(stock)
           const newStock = ammo.currentStock - Number(stock[0]);
           const newAmmo = { ...ammo, currentStock: newStock, previousStock: ammo.currentStock };
           saveNewStock(newAmmo)

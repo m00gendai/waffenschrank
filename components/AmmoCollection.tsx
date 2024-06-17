@@ -86,7 +86,6 @@ export default function AmmoCollection(){
           }))
           const preferences:string = await AsyncStorage.getItem(PREFERENCES)
           const isPreferences = preferences === null ? null : JSON.parse(preferences)
-
           const sortedAmmo = doSortBy(isPreferences === null ? "alphabetical" : isPreferences.sortAmmoBy === undefined ? "alphabetical" : isPreferences.sortAmmoBy, isPreferences == null? true : isPreferences.sortAmmoOrder === undefined ? true : isPreferences.sortOrder, ammunitions) as AmmoType[]
           setAmmoCollection(sortedAmmo)
         }
@@ -103,7 +102,7 @@ useEffect(()=>{
     const isTagList:{label: string, status: boolean}[] = tagList === null ? null : JSON.parse(tagList)
    
     setDisplayAmmoAsGrid(isPreferences === null ? true : isPreferences.displayAmmoAsGrid === null ? true : isPreferences.displayAmmoAsGrid)
-    setSortAmmoBy(isPreferences === null ? "alphabetical" : isPreferences.sortAmmoBy === null ? "alphabetical" : isPreferences.sortAmmoBy)
+    setSortAmmoBy(isPreferences === null ? "alphabetical" : isPreferences.sortAmmoBy === undefined ? "alphabetical" : isPreferences.sortAmmoBy)
     setSortIcon(getIcon((isPreferences === null ? "alphabetical" : isPreferences.sortAmmoBy === null ? "alphabetical" : isPreferences.sortAmmoBy)))
 
     if(isTagList !== null && isTagList !== undefined){
@@ -191,10 +190,9 @@ async function handleFilterPress(tag:{label:string, status:boolean}){
             await AsyncStorage.setItem(A_TAGS, JSON.stringify(newPreferences))
  
 }
-
 const activeTags = ammo_tags.filter(tag => tag.status === true)
-           const sortedTags = sortTags(ammo_tags)
-              const ammoList = ammoCollection.filter(ammo => activeTags.some(tag => ammo.tags?.includes(tag.label)))
+const sortedTags = sortTags(ammo_tags)
+const ammoList = activeTags.length !== 0  ? ammoCollection.filter(gun => activeTags.some(tag => gun.tags?.includes(tag.label))) : ammoCollection
 
 
            
@@ -248,7 +246,6 @@ const startAnimation = () => {
 const endAnimation = () => {
   height.value = withTiming(0, { duration: 500 }); // 500 ms duration
 };
-
     return(
         <SafeAreaView 
         style={{
@@ -311,7 +308,7 @@ const endAnimation = () => {
           <View 
             style={styles.container}
           >
-            {ammoCollection.length != 0 && !isFilterOn ? ammoCollection.map(ammo =>{
+            {ammoCollection.length !== 0 && !isFilterOn ? ammoCollection.map(ammo =>{
               return (
                 searchQuery !== "" ? ammo.manufacturer.toLowerCase().includes(searchQuery.toLowerCase()) || ammo.designation.toLowerCase().includes(searchQuery.toLowerCase()) ? <AmmoCard key={ammo.id} ammo={ammo} stockVisible={stockVisible} setStockVisible={setStockVisible}/> : null : <AmmoCard key={ammo.id} ammo={ammo} stockVisible={stockVisible} setStockVisible={setStockVisible}/>
               )
