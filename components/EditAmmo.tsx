@@ -17,6 +17,7 @@ import { usePreferenceStore } from '../stores/usePreferenceStore';
 import { useViewStore } from '../stores/useViewStore';
 import { useAmmoStore } from '../stores/useAmmoStore';
 import NewChipArea from './NewChipArea';
+import * as FileSystem from 'expo-file-system';
 
 
 export default function EditAmmo(){
@@ -103,16 +104,36 @@ export default function EditAmmo(){
         })
 
         if(!result.canceled){
-            const newImage:string[] = selectedImage
-            if(newImage && newImage.length != 0){
-                newImage.splice(indx, 1, result.assets[0].uri)
-                setSelectedImage(newImage)
-                setAmmoData({...ammoData, images:newImage})
+
+            // Create a unique file name for the new image
+        const newImageUri = result.assets[0].uri;
+        const fileName = newImageUri.split('/').pop();
+        const newPath = `${FileSystem.documentDirectory}${fileName}`;
+
+        // Move the image to a permanent directory
+        try {
+            await FileSystem.moveAsync({
+                from: newImageUri,
+                to: newPath,
+            });
+
+            const newImage = selectedImage;
+            if (newImage && newImage.length !== 0) {
+                newImage.splice(indx, 1, newPath);
+                setSelectedImage(newImage);
+                setAmmoData({ ...ammoData, images: newImage });
             } else {
-                setSelectedImage([result.assets[0].uri])
-                setAmmoData({...ammoData, images:[result.assets[0].uri]})
+                setSelectedImage([newPath]);
+                if (ammoData && ammoData.images && ammoData.images.length !== 0) {
+                    setAmmoData({ ...ammoData, images: [...ammoData.images, newPath] });
+                } else {
+                    setAmmoData({ ...ammoData, images: [newPath] });
+                }
             }
+        } catch (error) {
+            console.error('Error saving image:', error);
         }
+    }  
     }   
 
     const pickCameraAsync = async (indx:number) =>{
@@ -131,20 +152,36 @@ export default function EditAmmo(){
         })
 
         if(!result.canceled){
-            const newImage = selectedImage
-            if(newImage && newImage.length != 0){
-                newImage.splice(indx, 1, result.assets[0].uri)
-                setSelectedImage(newImage)
-                setAmmoData({...ammoData, images:newImage})
+
+            // Create a unique file name for the new image
+        const newImageUri = result.assets[0].uri;
+        const fileName = newImageUri.split('/').pop();
+        const newPath = `${FileSystem.documentDirectory}${fileName}`;
+
+        // Move the image to a permanent directory
+        try {
+            await FileSystem.moveAsync({
+                from: newImageUri,
+                to: newPath,
+            });
+
+            const newImage = selectedImage;
+            if (newImage && newImage.length !== 0) {
+                newImage.splice(indx, 1, newPath);
+                setSelectedImage(newImage);
+                setAmmoData({ ...ammoData, images: newImage });
             } else {
-                setSelectedImage([result.assets[0].uri])
-                if(ammoData && ammoData.images && ammoData.images.length !== 0){
-                    setAmmoData({...ammoData, images:[...ammoData.images, result.assets[0].uri]})
+                setSelectedImage([newPath]);
+                if (ammoData && ammoData.images && ammoData.images.length !== 0) {
+                    setAmmoData({ ...ammoData, images: [...ammoData.images, newPath] });
                 } else {
-                    setAmmoData({...ammoData, images: [result.assets[0].uri]})
+                    setAmmoData({ ...ammoData, images: [newPath] });
                 }
             }
+        } catch (error) {
+            console.error('Error saving image:', error);
         }
+    }  
     }   
 
     function deleteImagePrompt(index:number){
