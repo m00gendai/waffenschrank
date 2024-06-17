@@ -17,6 +17,7 @@ import { usePreferenceStore } from '../stores/usePreferenceStore';
 import { useViewStore } from '../stores/useViewStore';
 import { useGunStore } from '../stores/useGunStore';
 import NewChipArea from './NewChipArea';
+import * as FileSystem from 'expo-file-system';
 
 
 export default function EditGun(){
@@ -60,7 +61,7 @@ export default function EditGun(){
             if(!(key in gunDataCompare) && gunData[key] === ""){
                 setSaveState(null)
             }
-            if(!(key in gunDataCompare) && gunData[key].length === 0){
+            if(!(key in gunDataCompare) && gunData[key] !== undefined && gunData[key].length === 0){
                 setSaveState(null)
             }
         }
@@ -104,16 +105,36 @@ export default function EditGun(){
         })
 
         if(!result.canceled){
-            const newImage:string[] = selectedImage
-            if(newImage && newImage.length != 0){
-                newImage.splice(indx, 1, result.assets[0].uri)
-                setSelectedImage(newImage)
-                setGunData({...gunData, images:newImage})
+
+            // Create a unique file name for the new image
+        const newImageUri = result.assets[0].uri;
+        const fileName = newImageUri.split('/').pop();
+        const newPath = `${FileSystem.documentDirectory}${fileName}`;
+
+        // Move the image to a permanent directory
+        try {
+            await FileSystem.moveAsync({
+                from: newImageUri,
+                to: newPath,
+            });
+
+            const newImage = selectedImage;
+            if (newImage && newImage.length !== 0) {
+                newImage.splice(indx, 1, newPath);
+                setSelectedImage(newImage);
+                setGunData({ ...gunData, images: newImage });
             } else {
-                setSelectedImage([result.assets[0].uri])
-                setGunData({...gunData, images:[result.assets[0].uri]})
+                setSelectedImage([newPath]);
+                if (gunData && gunData.images && gunData.images.length !== 0) {
+                    setGunData({ ...gunData, images: [...gunData.images, newPath] });
+                } else {
+                    setGunData({ ...gunData, images: [newPath] });
+                }
             }
+        } catch (error) {
+            console.error('Error saving image:', error);
         }
+    }  
     }   
 
     const pickCameraAsync = async (indx:number) =>{
@@ -132,21 +153,37 @@ export default function EditGun(){
         })
 
         if(!result.canceled){
-            const newImage = selectedImage
-            if(newImage && newImage.length != 0){
-                newImage.splice(indx, 1, result.assets[0].uri)
-                setSelectedImage(newImage)
-                setGunData({...gunData, images:newImage})
+
+            // Create a unique file name for the new image
+        const newImageUri = result.assets[0].uri;
+        const fileName = newImageUri.split('/').pop();
+        const newPath = `${FileSystem.documentDirectory}${fileName}`;
+
+        // Move the image to a permanent directory
+        try {
+            await FileSystem.moveAsync({
+                from: newImageUri,
+                to: newPath,
+            });
+
+            const newImage = selectedImage;
+            if (newImage && newImage.length !== 0) {
+                newImage.splice(indx, 1, newPath);
+                setSelectedImage(newImage);
+                setGunData({ ...gunData, images: newImage });
             } else {
-                setSelectedImage([result.assets[0].uri])
-                if(gunData && gunData.images && gunData.images.length !== 0){
-                    setGunData({...gunData, images:[...gunData.images, result.assets[0].uri]})
+                setSelectedImage([newPath]);
+                if (gunData && gunData.images && gunData.images.length !== 0) {
+                    setGunData({ ...gunData, images: [...gunData.images, newPath] });
                 } else {
-                    setGunData({...gunData, images: [result.assets[0].uri]})
+                    setGunData({ ...gunData, images: [newPath] });
                 }
             }
+        } catch (error) {
+            console.error('Error saving image:', error);
         }
-    }   
+    }  
+} 
 
     function deleteImagePrompt(index:number){
         setDeleteImageIndex(index)

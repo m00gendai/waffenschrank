@@ -1,10 +1,10 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useEffect, useState } from 'react';
 import { Dimensions, ScrollView, StyleSheet, TouchableNativeFeedback, View } from 'react-native';
-import { Appbar, Card, FAB, Menu, Modal, Portal, Switch, useTheme, Text, Tooltip, Banner, Searchbar } from 'react-native-paper';
+import { Appbar, Card, FAB, Menu, Modal, Portal, Switch, useTheme, Text, Tooltip, Banner, Searchbar, IconButton, TextInput, List, HelperText } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { GUN_DATABASE, KEY_DATABASE, PREFERENCES, TAGS, defaultGridGap, defaultViewPadding } from '../configs';
-import { GunType, MenuVisibility, SortingTypes } from '../interfaces';
+import { AMMO_DATABASE, GUN_DATABASE, KEY_DATABASE, PREFERENCES, TAGS, dateLocales, defaultGridGap, defaultViewPadding } from '../configs';
+import { GunType, MenuVisibility, SortingTypes, AmmoType, CaliberArray } from '../interfaces';
 import * as SecureStore from "expo-secure-store"
 import { getIcon, doSortBy } from '../utils';
 import NewGun from './NewGun';
@@ -15,8 +15,9 @@ import { usePreferenceStore } from '../stores/usePreferenceStore';
 import { useTagStore } from '../stores/useTagStore';
 import { Checkbox } from 'react-native-paper';
 import GunCard from './GunCard';
-import { search, sorting, tooltips } from '../lib/textTemplates';
+import { gunQuickShot, search, sorting, tooltips } from '../lib/textTemplates';
 import Animated, { FadeIn, FadeOut, LightSpeedOutRight, SlideInDown, SlideInLeft, SlideInUp, SlideOutDown, SlideOutRight, SlideOutUp, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
+import { useAmmoStore } from '../stores/useAmmoStore';
 
 export default function GunCollection(){
 
@@ -29,10 +30,14 @@ export default function GunCollection(){
   const [sortAscending, setSortAscending] = useState<boolean>(true)
   const [searchBannerVisible, toggleSearchBannerVisible] = useState<boolean>(false)
   const [searchQuery, setSearchQuery] = useState<string>("")
+  const [shotVisible, setShotVisible] = useState<boolean>(false)
+  const [shotCountNonStock, setShotCountNonStock] = useState<string>("")
+  const [shotCountFromStock, setShotCountFromStock] = useState<string[]>([])
 
   const { dbImport, displayAsGrid, setDisplayAsGrid, toggleDisplayAsGrid, sortBy, setSortBy, language } = usePreferenceStore()
   const { mainMenuOpen, setMainMenuOpen, newGunOpen, setNewGunOpen, editGunOpen, setEditGunOpen, seeGunOpen, setSeeGunOpen } = useViewStore()
   const { gunCollection, setGunCollection, currentGun, setCurrentGun } = useGunStore()
+  const { ammoCollection, setAmmoCollection, currentAmmo, setCurrentAmmo } = useAmmoStore()
   const { tags, setTags, overWriteTags } = useTagStore()
   const [isFilterOn, setIsFilterOn] = useState<boolean>(false);
 
@@ -99,7 +104,7 @@ useEffect(()=>{
     const isTagList:{label: string, status: boolean}[] = tagList === null ? null : JSON.parse(tagList)
    
     setDisplayAsGrid(isPreferences === null ? true : isPreferences.displayAsGrid === null ? true : isPreferences.displayAsGrid)
-    setSortBy(isPreferences === null ? "alphabetical" : isPreferences.sortBy === null ? "alphabetical" : isPreferences.sortBy)
+    setSortBy(isPreferences === null ? "alphabetical" : isPreferences.sortBy === undefined ? "alphabetical" : isPreferences.sortBy)
     setSortIcon(getIcon((isPreferences === null ? "alphabetical" : isPreferences.sortBy === null ? "alphabetical" : isPreferences.sortBy)))
 
     if(isTagList !== null && isTagList !== undefined){
@@ -189,8 +194,8 @@ async function handleFilterPress(tag:{label:string, status:boolean}){
 }
 
 const activeTags = tags.filter(tag => tag.status === true)
-           const sortedTags = sortTags(tags)
-              const gunList = gunCollection.filter(gun => activeTags.some(tag => gun.tags?.includes(tag.label)))
+const sortedTags = sortTags(tags)
+const gunList = activeTags.length !== 0  ? gunCollection.filter(gun => activeTags.some(tag => gun.tags?.includes(tag.label))) : gunCollection
 
               function handleSearch(){
                 !searchBannerVisible ? startAnimation() : endAnimation()
@@ -217,6 +222,72 @@ const activeTags = tags.filter(tag => tag.status === true)
               const endAnimation = () => {
                 height.value = withTiming(0, { duration: 500 }); // 500 ms duration
               };
+
+              async function save(value: GunType) {
+                await SecureStore.setItemAsync(`${GUN_DATABASE}_${value.id}`, JSON.stringify(value)) // Save the gun
+                console.log(`Saved item ${JSON.stringify(value)} with key ${GUN_DATABASE}_${value.id}`)
+                setCurrentGun(value)
+                const currentObj:GunType = gunCollection.find(({id}) => id === value.id)
+                const index:number = gunCollection.indexOf(currentObj)
+                const newCollection:GunType[] = gunCollection.toSpliced(index, 1, value)
+                setGunCollection(newCollection)
+              }
+
+              async function saveNewStock(ammo:AmmoType){
+                const date:Date = new Date()
+
+                await SecureStore.setItemAsync(`${AMMO_DATABASE}_${ammo.id}`, JSON.stringify({...ammo, lastTopUpAt: ammo.currentStock === ammo.previousStock ? ammo.lastTopUpAt : date.toLocaleDateString(dateLocales.de)})) // Save the ammo
+                    console.log(`Updated item ${JSON.stringify(ammo)} with key ${AMMO_DATABASE}_${ammo.id}`)
+                    
+            
+
+            }
+
+function handleShotCount(){
+  const date:Date = new Date()
+  const mapped:number[] = Object.entries(shotCountFromStock).map(item => item[1] === "" ? 0 : Number(item[1]))
+  const currentShotCount:number = currentGun.shotCount === undefined ? 0 : currentGun.shotCount === null ? 0 : Number(currentGun.shotCount)
+  const total: number = Number(shotCountNonStock) + mapped.reduce((acc, curr) => acc+Number(curr),0) + currentShotCount
+  const newGun:GunType = {...currentGun, shotCount: total, lastShotAt: date.toLocaleDateString(dateLocales.de)}
+  save(newGun)
+  if (shotCountFromStock.length !== 0) {
+    const updatedAmmoCollection = [...ammoCollection];
+  
+    ammoCollection.forEach(ammo => {
+      currentGun.caliber.forEach((caliber, index) => {
+        if (ammo.caliber === caliber) {
+          const stock:number[] = Object.entries(shotCountFromStock)
+          .filter(([key]) => key.substring(0, key.length - 2) === ammo.id)
+          .map(([key, value]) => Number(value));
+          const newStock = ammo.currentStock - Number(stock[0]);
+          const newAmmo = { ...ammo, currentStock: newStock, previousStock: ammo.currentStock };
+          saveNewStock(newAmmo)
+          const itemIndex = updatedAmmoCollection.findIndex(({ id }) => id === ammo.id);
+          if (itemIndex !== -1) {
+            updatedAmmoCollection[itemIndex] = newAmmo;
+          }
+        }
+      });
+    });
+  
+    setAmmoCollection(updatedAmmoCollection);
+  }
+  setShotCountNonStock("")
+  setShotCountFromStock([])
+  setShotVisible(false)
+}
+
+const handleInputChange = (ammoId:string, index:number, value:string) => {
+  const newValue = value.replace(/[^0-9]/g, '');
+  setShotCountFromStock(prevState => ({
+    ...prevState,
+    [`${ammoId}-${index}`]: newValue
+  }));
+};
+
+function handleErrorMessage(ammo:AmmoType, val:string){
+ return (ammo.currentStock === undefined ? 0 : ammo.currentStock === null ? 0 : ammo.currentStock) < Number(val)
+}
 
     return(
         <SafeAreaView 
@@ -281,13 +352,13 @@ const activeTags = tags.filter(tag => tag.status === true)
           >
             {gunCollection.length !== 0 && !isFilterOn ? gunCollection.map(gun =>{
               return(
-                searchQuery !== "" ? gun.manufacturer.toLowerCase().includes(searchQuery.toLowerCase()) || gun.model.toLowerCase().includes(searchQuery.toLowerCase()) ? <GunCard key={gun.id} gun={gun}/> : null : <GunCard key={gun.id} gun={gun}/>
+                searchQuery !== "" ? gun.manufacturer.toLowerCase().includes(searchQuery.toLowerCase()) || gun.model.toLowerCase().includes(searchQuery.toLowerCase()) ? <GunCard key={gun.id} gun={gun} shotVisible={shotVisible} setShotVisible={setShotVisible}/> : null : <GunCard key={gun.id} gun={gun} shotVisible={shotVisible} setShotVisible={setShotVisible}/>
               )
             }) 
             :
             gunCollection.length !== 0 && isFilterOn ? gunList.map(gun =>{
               return (
-                searchQuery !== "" ? gun.manufacturer.toLowerCase().includes(searchQuery.toLowerCase()) || gun.model.toLowerCase().includes(searchQuery.toLowerCase()) ? <GunCard key={gun.id} gun={gun}/> : null : <GunCard key={gun.id} gun={gun}/>
+                searchQuery !== "" ? gun.manufacturer.toLowerCase().includes(searchQuery.toLowerCase()) || gun.model.toLowerCase().includes(searchQuery.toLowerCase()) ? <GunCard key={gun.id} gun={gun} shotVisible={shotVisible} setShotVisible={setShotVisible}/> : null : <GunCard key={gun.id} gun={gun} shotVisible={shotVisible} setShotVisible={setShotVisible}/>
               )
             })
             :
@@ -305,6 +376,63 @@ const activeTags = tags.filter(tag => tag.status === true)
         <Modal visible={seeGunOpen} contentContainerStyle={{height: "100%"}} onDismiss={setSeeGunOpen}>
           <Gun />
         </Modal>
+      </Portal>
+
+      <Portal>
+      <Modal visible={shotVisible} >
+      <View style={{width: "100%", height: "100%", display: "flex", flexDirection: "row", justifyContent: "center", alignItems: "center", flexWrap: "wrap", backgroundColor: theme.colors.backdrop}}>
+                    <View style={{width: "85%", height: "100%", display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", flexWrap: "wrap"}}>
+                        <View style={{backgroundColor: theme.colors.background, width: "100%", height: "75%"}}>
+                            <List.Section style={{flex: 1}}>
+                  <View style={{padding: defaultViewPadding}}>
+                      <Text variant="titleMedium" style={{color: theme.colors.primary}}>{`${gunQuickShot.title[language]}`}</Text>
+                  </View>
+                  <ScrollView>
+                  {currentGun !== null && currentGun.caliber !== undefined && currentGun.caliber !== null && currentGun.caliber.length !== 0 ? 
+                    <List.Accordion title={gunQuickShot.updateFromStock[language]} titleStyle={{color: theme.colors.onBackground}}>
+                    <View style={{width: "100%", padding: defaultViewPadding, display: "flex", alignItems: "flex-start", flexDirection: "row", flexWrap: "wrap"}}>
+                      {ammoCollection.map(ammo =>{
+                        return currentGun.caliber.map((caliber, index) =>{
+                          if(ammo.caliber === caliber){
+                            const key = `${ammo.id}-${index}`;
+                            const val = shotCountFromStock[key] || '';
+                            return (
+                              <View key={ammo.id} style={{width: "100%", marginTop: defaultViewPadding, marginBottom: defaultViewPadding}}>
+                                <Text>{ammo.caliber}</Text>
+                                <TextInput 
+                                  label={`${ammo.manufacturer ? ammo.manufacturer : ""} ${ammo.designation}`}
+                                  value={val}
+                                  onChangeText={val => handleInputChange(ammo.id, index, val)}
+                                />
+                                {handleErrorMessage(ammo, val) ? <HelperText type="error" visible={handleErrorMessage(ammo, val)}>
+                                  {ammo.currentStock === null ? gunQuickShot.errorNoAmountDefined[language] : ammo.currentStock === undefined ? gunQuickShot.errorNoAmountDefined[language] : gunQuickShot.errorAmountTooLow[language].replace("{{AMOUNT}}", ammo.currentStock)}
+                                </HelperText> : null}
+                              </View>
+                            )
+                          }
+                        })
+                      })}
+                    </View>
+                    </List.Accordion> : null}
+                  <List.Accordion title={gunQuickShot.updateNonStock[language]} titleStyle={{color: theme.colors.onBackground}}>
+                    <View style={{width: "100%", padding: defaultViewPadding}}>
+                      <TextInput
+                        value={shotCountNonStock}
+                        onChangeText={shotCountNonStock => setShotCountNonStock(shotCountNonStock.replace(/[^0-9]/g, ''))}
+                        label={gunQuickShot.updateNonStockInput[language]}
+                      ></TextInput>
+                    </View>
+                    </List.Accordion>
+                    </ScrollView>
+                            </List.Section>
+                            <View style={{width: "100%", marginTop: 10, display: "flex", flexDirection: "row", justifyContent: "space-between"}}>
+                      <IconButton mode="contained" onPress={()=>handleShotCount()} icon={"check"} style={{width: 50, backgroundColor: theme.colors.primary}} iconColor={theme.colors.onPrimary}/>
+                      <IconButton mode="contained" onPress={()=>setShotVisible(false)} icon={"cancel"} style={{width: 50, backgroundColor: theme.colors.secondaryContainer}} />
+                      </View>
+                        </View>
+                    </View>
+                </View>
+      </Modal>
       </Portal>
 
       <FAB

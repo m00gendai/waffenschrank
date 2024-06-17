@@ -49,11 +49,11 @@ export const ammoDataTemplate:{name:string, de:string, en:string, fr:string, it:
     },
     {
         name: "lastTopUpAt",
-        de: "Zuletzt aufgestockt",
-        en: "Last topped up",
-        fr: "Dernièrement augmenté",
-        it: "Ultimo rifornimento",
-        ch: "L'ultim augment",
+        de: "Letzte Mengenänderung",
+        en: "Last change of stock",
+        fr: "Dernier changement de quantité",
+        it: "Ultima variazione di quantità",
+        ch: "Ultima midada da la quantitad",
     },
     {
         name: "criticalStock",
