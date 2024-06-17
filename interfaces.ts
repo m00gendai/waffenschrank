@@ -18,6 +18,7 @@ export interface GunType{
   status?: GunTypeStatus
   shotCount?: number
   tags: string[]
+  lastShotAt?: string
 }
 
 export interface GunTypeStatus{
