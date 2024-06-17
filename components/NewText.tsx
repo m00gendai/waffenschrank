@@ -114,6 +114,7 @@ export default function NewText({data, gunData, setGunData, ammoData, setAmmoDat
                 onPress={()=>{
                     data === "acquisitionDate" ? setShowDateTime(true) :
                     data === "lastCleanedAt" ? setShowDateTime(true) : 
+                    data === "lastShotAt" ? setShowDateTime(true) : 
                     data === "mainColor" ? setShowModal(true) : 
                     data === "caliber" ? setShowModalCaliber(true) : 
                     null}}
@@ -125,7 +126,7 @@ export default function NewText({data, gunData, setGunData, ammoData, setAmmoDat
                             flex: 1,
                         }}
                         value={input === undefined ? "" : input.toString()}
-                        editable={data === "acquisitionDate" ? false : data === "mainColor" ? false : data === "caliber" ? false : data === "lastCleanedAt" ? false : true}
+                        editable={data === "acquisitionDate" ? false : data === "mainColor" ? false : data === "caliber" ? false : data === "lastCleanedAt" ? false : data === "lastShotAt" ? false : true}
                         showSoftInputOnFocus={data === "acquisitionDate" ? false : true}
                         onChangeText={input => gunData !== undefined ? updateGunData(input) : updateAmmoData(input)}
                         onKeyPress={(e) => data === "acquisitionDate" ? e.preventDefault() : null}
