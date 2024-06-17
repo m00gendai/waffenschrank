@@ -19,6 +19,7 @@ interface Props{
 }
 
 export default function NewText({data, gunData, setGunData, ammoData, setAmmoData, label}: Props){
+
     const [input, setInput] = useState<string>(gunData ? Array.isArray(gunData[data]) ? gunData[data].join("\n") : gunData[data] : ammoData ? ammoData[data] : "")
     const [showDateTime, setShowDateTime] = useState<boolean>(false)
     const [date, setDate] = useState<(string | number | Date | dayjs.Dayjs)>(dayjs());
@@ -26,7 +27,7 @@ export default function NewText({data, gunData, setGunData, ammoData, setAmmoDat
     const [showModal, setShowModal] = useState(false);
     const [showModalCaliber, setShowModalCaliber] = useState<boolean>(false)
     const [color, setColor] = useState<string>(gunData ? gunData[data] : "#000")
-    const [activeCaliber, setActiveCaliber] = useState<string[]>(gunData && gunData[data] !== undefined ? gunData[data] : ammoData && ammoData[data] !== undefined ? [ammoData[data]] : [])
+    const [activeCaliber, setActiveCaliber] = useState<string[]>(gunData && data === "caliber" && gunData[data] !== undefined ? gunData[data] : ammoData && data === "caliber" && ammoData[data] !== undefined ? [ammoData[data]] : [])
 
     const { language, theme } = usePreferenceStore()
 
@@ -123,7 +124,7 @@ export default function NewText({data, gunData, setGunData, ammoData, setAmmoDat
                         style={{
                             flex: 1,
                         }}
-                        value={input}
+                        value={input === undefined ? "" : input.toString()}
                         editable={data === "acquisitionDate" ? false : data === "mainColor" ? false : data === "caliber" ? false : data === "lastCleanedAt" ? false : true}
                         showSoftInputOnFocus={data === "acquisitionDate" ? false : true}
                         onChangeText={input => gunData !== undefined ? updateGunData(input) : updateAmmoData(input)}
@@ -208,7 +209,7 @@ export default function NewText({data, gunData, setGunData, ammoData, setAmmoDat
                                                 <View style={{backgroundColor: theme.colors.tertiaryContainer}}>
                                                     {caliber.variants.map((variant, index)=>{
                                                         return(
-                                                            <List.Item key={`${variant.name}_${index}`} title={variant.name} titleStyle={{color: activeCaliber.includes(variant.name) ? theme.colors.onTertiary : theme.colors.onTertiaryContainer}} onPress={()=>handleCaliberItemSelect(variant.name)} style={{backgroundColor: activeCaliber.includes(variant.name) ? theme.colors.tertiary : "transparent"}}/>
+                                                            <List.Item key={`${variant.name}_${index}`} title={variant.name} titleStyle={{color: activeCaliber !== undefined && activeCaliber !== null && activeCaliber.length !== 0 && activeCaliber.includes(variant.name) ? theme.colors.onTertiary : theme.colors.onTertiaryContainer}} onPress={()=>handleCaliberItemSelect(variant.name)} style={{backgroundColor: activeCaliber.includes(variant.name) ? theme.colors.tertiary : "transparent"}}/>
                                                         )
                                                     })}
                                                 </View>
