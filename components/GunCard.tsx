@@ -10,9 +10,11 @@ import { useGunStore } from '../stores/useGunStore';
 
 interface Props{
     gun: GunType
+    shotVisible: boolean
+    setShotVisible: React.Dispatch<React.SetStateAction<boolean>>
 }
 
-export default function GunCard({gun}:Props){
+export default function GunCard({gun, shotVisible, setShotVisible}:Props){
 
     const { ammoDbImport, displayAsGrid, setDisplayAsGrid, toggleDisplayAsGrid, sortAmmoBy, setSortAmmoBy, language, theme } = usePreferenceStore()
     const { mainMenuOpen, setMainMenuOpen, newGunOpen, setNewGunOpen, editGunOpen, setEditGunOpen, seeGunOpen, setSeeGunOpen } = useViewStore()
@@ -21,6 +23,11 @@ export default function GunCard({gun}:Props){
     function handleGunCardPress(gun){
         setCurrentGun(gun)
         setSeeGunOpen()
+      }
+
+      function handleShotButtonPress(gun){
+        setCurrentGun(gun)
+        setShotVisible(true)
       }
     
     return(
@@ -31,7 +38,6 @@ export default function GunCard({gun}:Props){
         <Card 
             style={{
                 width: (Dimensions.get("window").width / (displayAsGrid ? 2 : 1)) - (defaultGridGap + (defaultViewPadding/2)),
-                paddingRight: 6
             }}
         >
             <Card.Title
@@ -58,20 +64,18 @@ export default function GunCard({gun}:Props){
                         height: 100
                     }}
                 /> 
-                {/*
-                
-                This can be used for other quick actions
-
                 <IconButton 
                     mode="contained" 
-                    icon={"plus-minus-variant"} 
-                    onPress={()=>handleStockButtonPress(ammo)} 
+                    icon={"bullet"} 
+                    onPress={()=>handleShotButtonPress(gun)} 
                     style={{
                         position: "absolute", 
                         bottom: 1, 
-                        right: 1
+                        right: 1,
+                        backgroundColor: theme.colors.primary
                     }} 
-                /> */}
+                    iconColor={theme.colors.onPrimary}
+                />
             </>
             : 
             null}
@@ -98,15 +102,16 @@ export default function GunCard({gun}:Props){
                         aspectRatio: "4/3"
                     }}
                 /> 
-                {/*
-                
-                This can be used for other quick acions
-                
                 <IconButton 
                     mode="contained" 
-                    icon={"plus-minus-variant"} 
-                    onPress={()=>handleStockButtonPress(ammo)} 
-                />  */}
+                    icon={"bullet"} 
+                    size={32}
+                    style={{
+                        marginLeft: 10,
+                        marginRight: 6
+                    }}
+                    onPress={()=>handleShotButtonPress(gun)} 
+                /> 
             </View>}
         </Card>
         </TouchableNativeFeedback>

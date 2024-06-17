@@ -61,7 +61,7 @@ export default function EditGun(){
             if(!(key in gunDataCompare) && gunData[key] === ""){
                 setSaveState(null)
             }
-            if(!(key in gunDataCompare) && gunData[key].length === 0){
+            if(!(key in gunDataCompare) && gunData[key] !== undefined && gunData[key].length === 0){
                 setSaveState(null)
             }
         }

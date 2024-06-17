@@ -19,6 +19,9 @@ export const A_TAGS:string = "atag0009"
 /* Preferences database is shared */
 export const PREFERENCES:string = "pre0010"
 
+/* Range Log Database */
+export const RANGELOG:string = "rlog0001"
+
 
 export const dateLocales:SimpleTranslation = {
     de: "de-CH",

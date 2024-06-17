@@ -16,6 +16,7 @@ export interface GunType{
   createdAt: Date
   lastModifiedAt: Date
   status?: GunTypeStatus
+  shotCount?: number
   tags: string[]
 }
 
@@ -100,5 +101,6 @@ export interface Elevation {
   level5: string
 }
 
-export type SortingTypes = "alphabetical" | "lastAdded" | "lastModified"
+export type SortingTypes = "alphabetical" | "lastAdded" | "lastModified" | "caliber"
 export type Languages = "de" | "en" | "fr" | "it" | "ch"
+export type CaliberArray = {id: string, amount: string }

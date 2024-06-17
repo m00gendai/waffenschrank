@@ -66,6 +66,15 @@ interface Sorting{
     lastAdded: SimpleTranslation
 }
 
+interface GunQuickShot{
+    title: SimpleTranslation
+    updateNonStock: SimpleTranslation
+    updateNonStockInput: SimpleTranslation
+    updateFromStock: SimpleTranslation
+    errorNoAmountDefined: SimpleTranslation
+    errorAmountTooLow: SimpleTranslation
+}
+
 export const editGunTitle:SimpleTranslation = {
     de: "Waffe bearbeiten",
     en: "Edit Gun",
@@ -545,4 +554,49 @@ export const search:SimpleTranslation = {
     fr: "Chercher",
     it: "Ricerca",
     ch: "Tschertgar"
+}
+
+export const gunQuickShot:GunQuickShot = {
+    title:{
+        de: "Schussbelastung erhöhen", 
+        en: "Increase shot count",
+        fr: "Augmenter la charge de tir",
+        it: "Aumentare il carico di pallini",
+        ch: "Augmentar la chargia da tir"  
+    },
+    updateNonStock:{
+        de: "Munition nicht aus Bestand", 
+        en: "Ammunition not from stock",
+        fr: "Munitions non issues de stocks",
+        it: "Munizioni non di scorta",
+        ch: "Muniziun betg or da l'effectiv"  
+    },
+    updateNonStockInput:{
+        de: "Menge eingeben", 
+        en: "Input amount",
+        fr: "Saisir la quantité",
+        it: "Inserire la quantità",
+        ch: "S'approfundar"  
+    },
+    updateFromStock:{
+        de: "Munition aus Bestand", 
+        en: "Ammunition from stock",
+        fr: "Munitions de stocks",
+        it: "Munizioni di scorta",
+        ch: "Muniziun da plantadi"  
+    },
+    errorNoAmountDefined:{
+        de: "Achtung: Kein Bestand dieses Kalibers definiert!", 
+        en: "Ammunition from stock",
+        fr: "Munitions de stocks",
+        it: "Munizioni di scorta",
+        ch: "Muniziun da plantadi"  
+    },
+    errorAmountTooLow:{
+        de: "Achtung: Bestand dieses Kalibers ({{AMOUNT}}) ist weniger als der eingegebene Verbrauch!", 
+        en: "Ammunition from stock",
+        fr: "Munitions de stocks",
+        it: "Munizioni di scorta",
+        ch: "Muniziun da plantadi"  
+    }
 }
