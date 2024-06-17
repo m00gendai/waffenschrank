@@ -47,6 +47,17 @@ export function doSortBy(value: SortingTypes, ascending: boolean, items: GunType
         }})
         return sorted
     }
+    if(value === "caliber"){
+        const sorted = items.sort((a, b) =>{
+            const x = a.caliber !== undefined ? a.caliber : a.designation
+            const y = b.caliber !== undefined ? b.caliber : b.designation
+            if(ascending){
+                return x > y ? 1 : x < y ? -1 : 0
+            } else {
+                return x < y ? 1 : x > y ? -1 : 0
+        }})
+        return sorted
+    }
 }
 
 export function getIcon(type:SortingTypes){
