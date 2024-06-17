@@ -91,6 +91,14 @@ export const gunDataTemplate:{name:string, de:string, en:string, fr:string, it: 
         ch: "Il davos purifitgà",
     },
     {
+        name: "lastShotAt",
+        de: "Zuletzt geschossen",
+        en: "Last shot",
+        fr: "Derniers tirs",
+        it: "Ultimo colpo",
+        ch: "L'ultim culp",
+    },
+    {
             name: "mainColor",
             de: "Hauptfarbe",
             en: "Main Color",
