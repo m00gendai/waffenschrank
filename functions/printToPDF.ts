@@ -2,9 +2,9 @@ import * as Print from 'expo-print';
 import { shareAsync } from 'expo-sharing';
 import * as IntentLauncher from 'expo-intent-launcher';
 import * as FileSystem from 'expo-file-system';
-import { AmmoType, GunType } from '../interfaces';
+import { AmmoType, CommonStyles, GunType } from '../interfaces';
 import { checkBoxes, gunDataTemplate, gunRemarks } from '../lib/gunDataTemplate';
-import { newTags, pdfTitleAmmo } from '../lib/textTemplates';
+import { newTags, pdfTitleAmmo, pdfTitleArt5 } from '../lib/textTemplates';
 import { usePreferenceStore } from '../stores/usePreferenceStore';
 import { pdfFooter, pdfTitle } from '../lib/textTemplates';
 import { dateLocales } from '../configs';
@@ -28,6 +28,26 @@ const getTranslation = (key: string, language: string): string => {
     const tags = newTags.name === key ? newTags[language] : null
     return data ? data[language] : remarks ? remarks : boxes ? boxes[language] : tags ? tags : key;
   };
+
+  const commonStyles:CommonStyles={
+    allPageMargin: "15mm",
+    allTitleFontSize: "30px",
+    allSubtitleFontSize: "12px",
+    allTableFontSize: "15px",
+    imageGap: "20px",
+    tableVerticalMargin: "20px",
+    tableRowVerticalPadding: "5px",
+    tableCellPadding: "5px",
+    footerWidth: "calc(100% - 30mm)",
+    footerFontSize: "8px",
+    footerTopBorder: "1px solid grey",
+    footerPaddingTop: "5px",
+    footerMarginTop: "5mm",
+    tagPadding: "5px",
+    tagFontSize: "10px",
+    tagContainerGap: "10px"
+  }
+  
 
 export async function printSingleGun(gun:GunType, language: string){
 
@@ -79,10 +99,9 @@ export async function printSingleGun(gun:GunType, language: string){
       <style>
       @page {
         size: A4;
-        margin: 15mm; /* Set your desired margin here */;
+        margin: ${commonStyles.allPageMargin};
       }
       body{
-        font-size: 20px;
         display: flex;
         justify-content: center;
         align-items: flex-start;
@@ -96,27 +115,22 @@ export async function printSingleGun(gun:GunType, language: string){
         text-align: left;
         margin: 0;
         padding: 0;
+        font-size: ${commonStyles.allTitleFontSize};
       }
       hr{
         width: 100%;
       }
       .bodyContent{
-        position: relative;
         width: 100%;
-        height: calc(100% - 15mm);
-        display: flex;
-        justify-content: center;
-        align-items: flex-start;
-        align-content: flex-start;
-        flex-wrap: wrap;
-        page-break-after: always;
+        padding: 0;
+        box-sizing: border-box;
       }
       .imageContainer{
         position: relative;
         width: 100%;
         aspect-ratio: 30/10;
         display: flex;
-        gap: 20px;
+        gap: ${commonStyles.imageGap};
         justify-content: center;
         align-items: center;
         flex-wrap: nowrap;
@@ -140,43 +154,32 @@ export async function printSingleGun(gun:GunType, language: string){
         justify-content: flex-start;
         align-items: flex-start; 
         flex-wrap: wrap;
-        gap: 10px;
+        gap: ${commonStyles.tagContainerGap};
     }
         .tag{
             position: relative;
             border: 1px solid black;
-            padding: 5px;
+            padding: ${commonStyles.tagPadding};
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 10px;
+            font-size: ${commonStyles.tagFontSize};
         }
     table {
         position: relative;
-        margin: 20px 0;
+        margin: ${commonStyles.tableVerticalMargin} 0;
         width: 100%;
-        font-size: 20px;
+        font-size: ${commonStyles.allTableFontSize};
         border-collapse: collapse;
     }
-    .art5container{
-      position: relative;
-      width: 100%;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      flex-wrap: nowrap;
-    }
-    .art5{
-      font-size: 10px;
-    }
     table > tbody > tr {
-        padding: 5px 0;
+        padding: ${commonStyles.tableRowVerticalPadding} 0;
     }
     table > tbody > tr:nth-child(even){
         background-color: #f5f5f5;
     }
     table > tbody > tr > td {
-        padding: 5px;
+        padding: ${commonStyles.tableCellPadding};
         
     }
     .remarkContainer{
@@ -200,18 +203,18 @@ export async function printSingleGun(gun:GunType, language: string){
         white-space: pre-wrap;
     }
     .footer{
-        position: fixed;
-        bottom: 0;
-        width: 100%;
-        font-size: 8px;
-        border-top: 1px solid grey;
-        padding-top: 5px;
-        margin-top: 5mm;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        align-content: center;
-    }
+      position: fixed;
+      bottom: 0;
+      width: ${commonStyles.footerWidth};
+      font-size: ${commonStyles.footerFontSize};
+      border-top: ${commonStyles.footerTopBorder};
+      padding-top: ${commonStyles.footerPaddingTop};
+      margin-top: ${commonStyles.footerMarginTop};
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      align-content: center;
+  }
       </style>
     </html>
     `;
@@ -280,143 +283,126 @@ export async function printSingleAmmo(ammo:AmmoType, language: string){
       
    </body>
    <div class="footer">${ammo.manufacturer ? ammo.manufacturer : ""} ${ammo.designation}: ${pdfFooter[language]}, ${generatedDate}</div>
-    <style>
-    @page {
-      size: A4;
-      margin: 15mm; /* Set your desired margin here */;
-    }
-    body{
-      font-size: 20px;
-      display: flex;
-      justify-content: center;
-      align-items: flex-start;
-      align-content: flex-start;
-      margin: 0;
-      padding: 0;
-    }
-    h1{
-      position: relative;
-      width: 100%;
-      text-align: left;
-      margin: 0;
-      padding: 0;
-    }
-    hr{
-      width: 100%;
-    }
-    .bodyContent{
-      position: relative;
-      width: 100%;
-      height: calc(100% - 15mm);
-      display: flex;
-      justify-content: center;
-      align-items: flex-start;
-      align-content: flex-start;
-      flex-wrap: wrap;
-      page-break-after: always;
-    }
-    .imageContainer{
-      position: relative;
-      width: 100%;
-      aspect-ratio: 30/10;
-      display: flex;
-      gap: 20px;
-      justify-content: center;
-      align-items: center;
-      flex-wrap: nowrap;
-      margin: 10px 0;
-      box-shadow: 0px 2px 5px -2px black;
-      padding: 5px;
-    }
-      .image{
-          position: relative;
-          width: 100%;
-          height: 100%;
-          
-          background-size:contain;
-          background-position: top;
-          background-repeat: no-repeat;
-      }
-  .tagContainer{
-      position: relative;
-      width: 100%;
-      display: flex;
-      justify-content: flex-start;
-      align-items: flex-start; 
-      flex-wrap: wrap;
-      gap: 10px;
-  }
-      .tag{
-          position: relative;
-          border: 1px solid black;
-          padding: 5px;
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          font-size: 10px;
-      }
-  table {
-      position: relative;
-      margin: 20px 0;
-      width: 100%;
-      font-size: 20px;
-      border-collapse: collapse;
-  }
-  .art5container{
-    position: relative;
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-wrap: nowrap;
-  }
-  .art5{
-    font-size: 10px;
-  }
-  table > tbody > tr {
-      padding: 5px 0;
-  }
-  table > tbody > tr:nth-child(even){
-      background-color: #f5f5f5;
-  }
-  table > tbody > tr > td {
-      padding: 5px;
-      
-  }
-  .remarkContainer{
-      position: relative;
-      width: 100%;
-      display: flex;
-      justify-content: center;
-      align-items: flex-start;
-      flex-wrap: wrap;
-  }
-  .remarkContainerTitle{
-      position: relative;
-      width: 100%;
-      display: flex;
-      justify-content: flex-start;
-      align-items: center;
-  }
-  .remarkContainerContent{
-      position: relative;
-      width: 100%;
-      white-space: pre-wrap;
-  }
-  .footer{
-      position: fixed;
-      bottom: 0;
-      width: 100%;
-      font-size: 8px;
-      border-top: 1px solid grey;
-      padding-top: 5px;
-      margin-top: 5mm;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      align-content: center;
-  }
-    </style>
+   <style>
+   @page {
+     size: A4;
+     margin: ${commonStyles.allPageMargin};
+   }
+   body{
+     display: flex;
+     justify-content: center;
+     align-items: flex-start;
+     align-content: flex-start;
+     margin: 0;
+     padding: 0;
+   }
+   h1{
+     position: relative;
+     width: 100%;
+     text-align: left;
+     margin: 0;
+     padding: 0;
+     font-size: ${commonStyles.allTitleFontSize};
+   }
+   hr{
+     width: 100%;
+   }
+   .bodyContent{
+     width: 100%;
+     padding: 0;
+     box-sizing: border-box;
+   }
+   .imageContainer{
+     position: relative;
+     width: 100%;
+     aspect-ratio: 30/10;
+     display: flex;
+     gap: ${commonStyles.imageGap};
+     justify-content: center;
+     align-items: center;
+     flex-wrap: nowrap;
+     margin: 10px 0;
+     box-shadow: 0px 2px 5px -2px black;
+     padding: 5px;
+   }
+     .image{
+         position: relative;
+         width: 100%;
+         height: 100%;
+         
+         background-size:contain;
+         background-position: top;
+         background-repeat: no-repeat;
+     }
+ .tagContainer{
+     position: relative;
+     width: 100%;
+     display: flex;
+     justify-content: flex-start;
+     align-items: flex-start; 
+     flex-wrap: wrap;
+     gap: ${commonStyles.tagContainerGap};
+ }
+     .tag{
+         position: relative;
+         border: 1px solid black;
+         padding: ${commonStyles.tagPadding};
+         display: flex;
+         justify-content: center;
+         align-items: center;
+         font-size: ${commonStyles.tagFontSize};
+     }
+ table {
+     position: relative;
+     margin: ${commonStyles.tableVerticalMargin} 0;
+     width: 100%;
+     font-size: ${commonStyles.allTableFontSize};
+     border-collapse: collapse;
+ }
+ table > tbody > tr {
+     padding: ${commonStyles.tableRowVerticalPadding} 0;
+ }
+ table > tbody > tr:nth-child(even){
+     background-color: #f5f5f5;
+ }
+ table > tbody > tr > td {
+     padding: ${commonStyles.tableCellPadding};
+     
+ }
+ .remarkContainer{
+     position: relative;
+     width: 100%;
+     display: flex;
+     justify-content: center;
+     align-items: flex-start;
+     flex-wrap: wrap;
+ }
+ .remarkContainerTitle{
+     position: relative;
+     width: 100%;
+     display: flex;
+     justify-content: flex-start;
+     align-items: center;
+ }
+ .remarkContainerContent{
+     position: relative;
+     width: 100%;
+     white-space: pre-wrap;
+ }
+ .footer{
+   position: fixed;
+   bottom: 0;
+   width: ${commonStyles.footerWidth};
+   font-size: ${commonStyles.footerFontSize};
+   border-top: ${commonStyles.footerTopBorder};
+   padding-top: ${commonStyles.footerPaddingTop};
+   margin-top: ${commonStyles.footerMarginTop};
+   display: flex;
+   justify-content: center;
+   align-items: center;
+   align-content: center;
+}
+   </style>
   </html>
   `;
 
@@ -462,146 +448,236 @@ export async function printGunCollection(guns:GunType[], language: string){
         <table>
         <thead>
           <tr>
-          ${gunDataTemplate.map(data=>{return excludedKeys.includes(data.name) ? "" : `<th>${data[language]}</th>`}).join("")}
+          ${gunDataTemplate.map(data=>{return excludedKeys.includes(data.name) ? null : `<th>${data[language]}</th>`}).join("")}
           </tr>
         </thead>
           <tbody>
               ${guns.map(gun =>{
-                return `<tr>${gunDataTemplate.map(data=>{return data.name in gun && !excludedKeys.includes(data.name) ? `<td>${gun[data.name]}</td>` : !(data.name in gun) && !excludedKeys.includes(data.name) ? `<td></td>`: `""`}).join("")}</tr>`}).join("")}
+                return `<tr>${gunDataTemplate.map(data=>{return data.name in gun && !excludedKeys.includes(data.name) ? `<td>${gun[data.name]}</td>` : !(data.name in gun) && !excludedKeys.includes(data.name) ? `<td></td>`: null}).join("")}</tr>`}).join("")}
           </tbody>
       </table>
     </div>
       
    </body>
    <div class="footer">${pdfFooter[language]}, ${generatedDate}</div>
-    <style>
-    @page {
-      size: A4 landscape;
-      margin: 15mm; /* Set your desired margin here */;
-    }
-    body{
-      font-size: 20px;
-      display: flex;
-      justify-content: center;
-      align-items: flex-start;
-      align-content: flex-start;
-      margin: 0;
-      padding: 0;
-    }
-    h1{
-      position: relative;
-      width: 100%;
-      text-align: left;
-      margin: 0;
-      padding: 0;
-    }
-    .bodyContent{
-      position: relative;
-      width: 100%;
-      height: calc(100% - 15mm);
-      display: flex;
-      justify-content: center;
-      align-items: flex-start;
-      align-content: flex-start;
-      flex-wrap: wrap;
-      page-break-after: always;
-    }
-    .imageContainer{
-      position: relative;
-      width: 100%;
-      aspect-ratio: 30/10;
-      display: flex;
-      gap: 20px;
-      justify-content: center;
-      align-items: center;
-      flex-wrap: nowrap;
-      margin: 10px 0;
-      box-shadow: 0px 2px 5px -2px black;
-      padding: 5px;
-    }
-      .image{
-          position: relative;
-          width: 100%;
-          height: 100%;
-          
-          background-size:contain;
-          background-position: top;
-          background-repeat: no-repeat;
-      }
-  .tagContainer{
-      position: relative;
-      width: 100%;
-      display: flex;
-      justify-content: flex-start;
-      align-items: flex-start; 
-      flex-wrap: wrap;
-      gap: 10px;
-      margin: 10px 0 20px 0;
-  }
-      .tag{
-          position: relative;
-          border: 1px solid black;
-          padding: 5px;
-          display: flex;
-          justify-content: center;
-          align-items: center;
-      }
-  table {
-      position: relative;
-      margin: 20px 0;
-      width: 100%;
-      font-size: 20px;
-      border-collapse: collapse;
-  }
+   <style>
+   @page {
+     size: A4 landscape;
+     margin:${commonStyles.allPageMargin};
+   }
+   body{
+     display: flex;
+     justify-content: center;
+     align-items: flex-start;
+     align-content: flex-start;
+     margin: 0;
+     padding: 0;
+   }
+   h1{
+     position: relative;
+     width: 100%;
+     text-align: left;
+     margin: 0;
+     padding: 0;
+     font-size: ${commonStyles.allTitleFontSize};
+   }
+   .legend{
+     width: 100%;
+     text-align: left;
+     font-size: ${commonStyles.allSubtitleFontSize};
+   }
+   .bodyContent{
+     width: 100%;
+     padding: 0;
+     box-sizing: border-box;
+   }
+ table {
+     position: relative;
+     margin: ${commonStyles.tableVerticalMargin} 0;
+     width: 100%;
+     font-size: ${commonStyles.allTableFontSize};
+     border-collapse: collapse;
+ }
 
-  tr {
-    position: relative;
-      padding: 5px 0;
-      width: 100%;
-  }
-  tr:nth-child(even){
-      background-color: #f5f5f5;
-  }
-  td {
-      padding: 5px;
-  }
-  th, td{
-    border: 1px solid #ddd;
-  }
-  .remarkContainer{
-      position: relative;
-      width: 100%;
-      display: flex;
-      justify-content: center;
-      align-items: flex-start;
-      flex-wrap: wrap;
-  }
-  .remarkContainerTitle{
-      position: relative;
-      width: 100%;
-      display: flex;
-      justify-content: flex-start;
-      align-items: center;
-  }
-  .remarkContainerContent{
-      position: relative;
-      width: 100%;
-      white-space: pre-wrap;
-  }
-  .footer{
-      position: fixed;
-      bottom: 0;
-      width: 100%;
-      font-size: 8px;
-      border-top: 1px solid grey;
-      padding-top: 5px;
-      margin-top: 5mm;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      align-content: center;
-  }
-    </style>
+ tr {
+   position: relative;
+     padding: ${commonStyles.tableRowVerticalPadding} 0;
+     width: 100%;
+ }
+ tr:nth-child(even){
+     background-color: #f5f5f5;
+ }
+ td {
+     padding: ${commonStyles.tableCellPadding};
+     vertical-align: top;
+ }
+ th{
+   text-align: left;
+   padding: ${commonStyles.tableCellPadding};
+ }
+ th, td{
+   border: 1px solid #ddd;
+ }
+ .hidden{
+   color: transparent;
+ }
+ .whitespace{
+   white-space: pre-wrap;
+ }
+ .footer{
+     position: fixed;
+     bottom: 0;
+     width: ${commonStyles.footerWidth};
+     font-size: ${commonStyles.footerFontSize};
+     border-top: ${commonStyles.footerTopBorder};
+     padding-top: ${commonStyles.footerPaddingTop};
+     margin-top: ${commonStyles.footerMarginTop};
+     display: flex;
+     justify-content: center;
+     align-items: center;
+     align-content: center;
+ }
+   </style>
+  </html>
+  `;
+
+
+      // On iOS/android prints the given html. On web prints the HTML from the current page.
+      const { uri } = await Print.printToFileAsync({html, height:595, width:842});
+      console.log('File has been saved to:', uri);
+     
+     // await shareAsync(uri, { UTI: '.pdf', mimeType: 'application/pdf' });
+     FileSystem.getContentUriAsync(uri).then(cUri => {
+      /* if (Platform.OS === 'ios') {
+        Sharing.shareAsync(cUri); */
+      IntentLauncher.startActivityAsync('android.intent.action.VIEW', {
+          data: cUri,
+          flags: 1,
+          type: 'application/pdf'
+       });
+    });
+    
+}
+
+export async function printGunCollectionArt5(guns:GunType[], language: string){
+
+  const date:Date = new Date()
+  const dateOptions:Intl.DateTimeFormatOptions = {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: "2-digit",
+      minute: "2-digit"
+    };
+  const generatedDate:string = date.toLocaleDateString(dateLocales[language], dateOptions)
+  const excludedKeys = ["images", "createdAt", "lastModifiedAt", "status", "id", "tags", "remarks", "manufacturingDate", "originCountry", "paidPrice", "shotCount", "mainColor", "lastCleanedAt", "lastShotAt"];
+  const html = `
+  <html>
+    <head>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no" />
+    </head>
+    <body>
+    <div class="bodyContent">
+      <h1>${pdfTitleArt5[language]}</h1>
+      <p class="legend">${checkBoxes.map((box, index) => `${index+1}: ${box[language]}`).join(", ")}<p>
+        <table>
+        <thead>
+          <tr>
+          ${gunDataTemplate.map(data=>{return excludedKeys.includes(data.name) ? null : `<th>${data[language]}</th>`}).join("")}${checkBoxes.map((box, index) => `<th>${index+1}</th>`).join("")}
+          </tr>
+        </thead>
+          <tbody>
+              ${guns.map(gun =>{
+                if(gun.status !== undefined && Object.entries(gun.status).some(stat => stat[1] === true)){
+                  return `<tr>${gunDataTemplate.map(data=>{return data.name in gun && !excludedKeys.includes(data.name) ? `<td class=${data.name === "caliber" ? "whitespace" : ""}>${data.name === "caliber" ? gun[data.name].map(dat => `${dat}`).join("\n") : gun[data.name]}</td>` : !(data.name in gun) && !excludedKeys.includes(data.name) ? `<td></td>`: null}).join("")}${Object.entries(gun.status).map(stat => {return stat[1] === true ? "<td>X</td>" : `<td class="hidden">X</td>` }).join("")}</tr>`
+                }
+              }).join("")
+            }
+          </tbody>
+      </table>
+    </div>
+      
+   </body>
+   <div class="footer">${pdfFooter[language]}, ${generatedDate}</div>
+   <style>
+   @page {
+     size: A4 landscape;
+     margin:${commonStyles.allPageMargin};
+   }
+   body{
+     display: flex;
+     justify-content: center;
+     align-items: flex-start;
+     align-content: flex-start;
+     margin: 0;
+     padding: 0;
+   }
+   h1{
+     position: relative;
+     width: 100%;
+     text-align: left;
+     margin: 0;
+     padding: 0;
+     font-size: ${commonStyles.allTitleFontSize};
+   }
+   .legend{
+     width: 100%;
+     text-align: left;
+     font-size: ${commonStyles.allSubtitleFontSize};
+   }
+   .bodyContent{
+     width: 100%;
+     padding: 0;
+     box-sizing: border-box;
+   }
+ table {
+     position: relative;
+     margin: ${commonStyles.tableVerticalMargin} 0;
+     width: 100%;
+     font-size: ${commonStyles.allTableFontSize};
+     border-collapse: collapse;
+ }
+
+ tr {
+   position: relative;
+     padding: ${commonStyles.tableRowVerticalPadding} 0;
+     width: 100%;
+ }
+ tr:nth-child(even){
+     background-color: #f5f5f5;
+ }
+ td {
+     padding: ${commonStyles.tableCellPadding};
+     vertical-align: top;
+ }
+ th{
+   text-align: left;
+   padding: ${commonStyles.tableCellPadding};
+ }
+ th, td{
+   border: 1px solid #ddd;
+ }
+ .hidden{
+   color: transparent;
+ }
+ .whitespace{
+   white-space: pre-wrap;
+ }
+ .footer{
+     position: fixed;
+     bottom: 0;
+     width: ${commonStyles.footerWidth};
+     font-size: ${commonStyles.footerFontSize};
+     border-top: ${commonStyles.footerTopBorder};
+     padding-top: ${commonStyles.footerPaddingTop};
+     margin-top: ${commonStyles.footerMarginTop};
+     display: flex;
+     justify-content: center;
+     align-items: center;
+     align-content: center;
+ }
+   </style>
   </html>
   `;
 
@@ -647,146 +723,96 @@ export async function printAmmoCollection(ammunition:AmmoType[], language: strin
         <table>
         <thead>
           <tr>
-          ${ammoDataTemplate.map(data=>{return excludedKeys.includes(data.name) ? "" : `<th>${data[language]}</th>`}).join("")}
+          ${ammoDataTemplate.map(data=>{return excludedKeys.includes(data.name) ? null : `<th>${data[language]}</th>`}).join("")}
           </tr>
         </thead>
           <tbody>
               ${ammunition.map(ammo =>{
-                return `<tr>${ammoDataTemplate.map(data=>{return data.name in ammo && !excludedKeys.includes(data.name) ? `<td>${ammo[data.name]}</td>` : !(data.name in ammo) && !excludedKeys.includes(data.name) ? `<td></td>`: `""`}).join("")}</tr>`}).join("")}
+                return `<tr>${ammoDataTemplate.map(data=>{return data.name in ammo && !excludedKeys.includes(data.name) ? `<td>${ammo[data.name]}</td>` : !(data.name in ammo) && !excludedKeys.includes(data.name) ? `<td></td>`: null}).join("")}</tr>`}).join("")}
           </tbody>
       </table>
     </div>
       
    </body>
    <div class="footer">${pdfFooter[language]}, ${generatedDate}</div>
-    <style>
-    @page {
-      size: A4 landscape;
-      margin: 15mm; /* Set your desired margin here */;
-    }
-    body{
-      font-size: 20px;
-      display: flex;
-      justify-content: center;
-      align-items: flex-start;
-      align-content: flex-start;
-      margin: 0;
-      padding: 0;
-    }
-    h1{
-      position: relative;
-      width: 100%;
-      text-align: left;
-      margin: 0;
-      padding: 0;
-    }
-    .bodyContent{
-      position: relative;
-      width: 100%;
-      height: calc(100% - 15mm);
-      display: flex;
-      justify-content: center;
-      align-items: flex-start;
-      align-content: flex-start;
-      flex-wrap: wrap;
-      page-break-after: always;
-    }
-    .imageContainer{
-      position: relative;
-      width: 100%;
-      aspect-ratio: 30/10;
-      display: flex;
-      gap: 20px;
-      justify-content: center;
-      align-items: center;
-      flex-wrap: nowrap;
-      margin: 10px 0;
-      box-shadow: 0px 2px 5px -2px black;
-      padding: 5px;
-    }
-      .image{
-          position: relative;
-          width: 100%;
-          height: 100%;
-          
-          background-size:contain;
-          background-position: top;
-          background-repeat: no-repeat;
-      }
-  .tagContainer{
-      position: relative;
-      width: 100%;
-      display: flex;
-      justify-content: flex-start;
-      align-items: flex-start; 
-      flex-wrap: wrap;
-      gap: 10px;
-      margin: 10px 0 20px 0;
-  }
-      .tag{
-          position: relative;
-          border: 1px solid black;
-          padding: 5px;
-          display: flex;
-          justify-content: center;
-          align-items: center;
-      }
-  table {
-      position: relative;
-      margin: 20px 0;
-      width: 100%;
-      font-size: 20px;
-      border-collapse: collapse;
-  }
+   <style>
+   @page {
+     size: A4 landscape;
+     margin:${commonStyles.allPageMargin};
+   }
+   body{
+     display: flex;
+     justify-content: center;
+     align-items: flex-start;
+     align-content: flex-start;
+     margin: 0;
+     padding: 0;
+   }
+   h1{
+     position: relative;
+     width: 100%;
+     text-align: left;
+     margin: 0;
+     padding: 0;
+     font-size: ${commonStyles.allTitleFontSize};
+   }
+   .legend{
+     width: 100%;
+     text-align: left;
+     font-size: ${commonStyles.allSubtitleFontSize};
+   }
+   .bodyContent{
+     width: 100%;
+     padding: 0;
+     box-sizing: border-box;
+   }
+ table {
+     position: relative;
+     margin: ${commonStyles.tableVerticalMargin} 0;
+     width: 100%;
+     font-size: ${commonStyles.allTableFontSize};
+     border-collapse: collapse;
+ }
 
-  tr {
-    position: relative;
-      padding: 5px 0;
-      width: 100%;
-  }
-  tr:nth-child(even){
-      background-color: #f5f5f5;
-  }
-  td {
-      padding: 5px;
-  }
-  th, td{
-    border: 1px solid #ddd;
-  }
-  .remarkContainer{
-      position: relative;
-      width: 100%;
-      display: flex;
-      justify-content: center;
-      align-items: flex-start;
-      flex-wrap: wrap;
-  }
-  .remarkContainerTitle{
-      position: relative;
-      width: 100%;
-      display: flex;
-      justify-content: flex-start;
-      align-items: center;
-  }
-  .remarkContainerContent{
-      position: relative;
-      width: 100%;
-      white-space: pre-wrap;
-  }
-  .footer{
-      position: fixed;
-      bottom: 0;
-      width: 100%;
-      font-size: 8px;
-      border-top: 1px solid grey;
-      padding-top: 5px;
-      margin-top: 5mm;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      align-content: center;
-  }
-    </style>
+ tr {
+   position: relative;
+     padding: ${commonStyles.tableRowVerticalPadding} 0;
+     width: 100%;
+ }
+ tr:nth-child(even){
+     background-color: #f5f5f5;
+ }
+ td {
+     padding: ${commonStyles.tableCellPadding};
+     vertical-align: top;
+ }
+ th{
+   text-align: left;
+   padding: ${commonStyles.tableCellPadding};
+ }
+ th, td{
+   border: 1px solid #ddd;
+ }
+ .hidden{
+   color: transparent;
+ }
+ .whitespace{
+   white-space: pre-wrap;
+ }
+ .footer{
+     position: fixed;
+     bottom: 0;
+     width: ${commonStyles.footerWidth};
+     font-size: ${commonStyles.footerFontSize};
+     border-top: ${commonStyles.footerTopBorder};
+     padding-top: ${commonStyles.footerPaddingTop};
+     margin-top: ${commonStyles.footerMarginTop};
+     display: flex;
+     justify-content: center;
+     align-items: center;
+     align-content: center;
+ }
+   </style>
   </html>
   `;
 

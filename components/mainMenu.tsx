@@ -14,7 +14,7 @@ import { AmmoType, GunType, Languages } from "../interfaces"
 import * as SecureStore from "expo-secure-store"
 import { useGunStore } from "../stores/useGunStore"
 import { SafeAreaView } from "react-native-safe-area-context"
-import { printAmmoCollection, printGunCollection } from "../functions/printToPDF"
+import { printAmmoCollection, printGunCollection, printGunCollectionArt5 } from "../functions/printToPDF"
 import { useAmmoStore } from "../stores/useAmmoStore"
 
 
@@ -279,7 +279,8 @@ export default function mainMenu(){
                                     <List.Accordion left={props => <><List.Icon {...props} icon="printer" /><List.Icon {...props} icon="pistol" /></>} title={preferenceTitles.gunList[language]} titleStyle={{fontWeight: "700", color: theme.colors.onBackground}}>
                                         <View style={{ marginLeft: 5, marginRight: 5, padding: defaultViewPadding, backgroundColor: theme.colors.background, borderColor: theme.colors.primary, borderLeftWidth: 5}}>
                                             <View style={{display: "flex", flexDirection: "row", justifyContent: "space-between"}}>
-                                                <Button style={{width: "45%"}} icon="printer" onPress={()=>printGunCollection(gunCollection, language)} mode="contained">{preferenceTitles.printAllGuns[language]}</Button>
+                                                <Button style={{width: "45%"}} icon="table-eye" onPress={()=>printGunCollection(gunCollection, language)} mode="contained">{preferenceTitles.printAllGuns[language]}</Button>
+                                                <Button style={{width: "45%"}} icon="table-key" onPress={()=>printGunCollectionArt5(gunCollection, language)} mode="contained">{preferenceTitles.printArt5[language]}</Button>
                                             </View>
                                         </View>
                                     </List.Accordion>
