@@ -257,7 +257,7 @@ function handleShotCount(){
       currentGun.caliber.forEach((caliber, index) => {
         if (ammo.caliber === caliber) {
           const stock:number[] = Object.entries(shotCountFromStock)
-          .filter(([key]) => key.substring(0, key.length - 2) === ammo.id)
+          .filter(([key]) => key === ammo.id)
           .map(([key, value]) => Number(value));
           const newStock = ammo.currentStock - Number(stock.length === 0 ? 0 : stock[0]);
           const newAmmo = { ...ammo, currentStock: newStock, previousStock: ammo.currentStock };
@@ -281,7 +281,7 @@ const handleInputChange = (ammoId:string, index:number, value:string) => {
   const newValue = value.replace(/[^0-9]/g, '');
   setShotCountFromStock(prevState => ({
     ...prevState,
-    [`${ammoId}-${index}`]: newValue
+    [`${ammoId}`]: newValue
   }));
 };
 
@@ -394,7 +394,7 @@ function handleErrorMessage(ammo:AmmoType, val:string){
                       {ammoCollection.map(ammo =>{
                         return currentGun.caliber.map((caliber, index) =>{
                           if(ammo.caliber === caliber){
-                            const key = `${ammo.id}-${index}`;
+                            const key = `${ammo.id}`;
                             const val = shotCountFromStock[key] || '';
                             return (
                               <View key={ammo.id} style={{width: "100%", marginTop: defaultViewPadding, marginBottom: defaultViewPadding}}>
