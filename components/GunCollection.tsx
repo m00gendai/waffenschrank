@@ -248,7 +248,7 @@ function handleShotCount(){
   const mapped:number[] = Object.entries(shotCountFromStock).map(item => item[1] === "" ? 0 : Number(item[1]))
   const currentShotCount:number = currentGun.shotCount === undefined ? 0 : currentGun.shotCount === null ? 0 : Number(currentGun.shotCount)
   const total: number = Number(shotCountNonStock) + mapped.reduce((acc, curr) => acc+Number(curr),0) + currentShotCount
-  const newGun:GunType = {...currentGun, shotCount: total, lastShotAt: date.toLocaleDateString(dateLocales.de)}
+  const newGun:GunType = {...currentGun, shotCount: `${total}`, lastShotAt: date.toLocaleDateString(dateLocales.de)}
   save(newGun)
   if (shotCountFromStock.length !== 0) {
     const updatedAmmoCollection = [...ammoCollection];

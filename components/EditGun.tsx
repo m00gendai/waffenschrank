@@ -244,7 +244,7 @@ export default function EditGun(){
             <Appbar style={{width: "100%"}}>
                 <Appbar.BackAction  onPress={() => {saveState == true ? setEditGunOpen() : saveState === false ? toggleUnsavedDialogVisible(true) : setEditGunOpen()}} />
                 <Appbar.Content title={editGunTitle[language]} />
-                <Appbar.Action icon="floppy" onPress={() => save({...gunData, lastModifiedAt: new Date()})} color={saveState === null ? theme.colors.onBackground : saveState === false ? theme.colors.error : "green"}/>
+                <Appbar.Action icon="floppy" onPress={() => save({...gunData, lastModifiedAt: `${new Date()}`})} color={saveState === null ? theme.colors.onBackground : saveState === false ? theme.colors.error : "green"}/>
             </Appbar>
         
             <SafeAreaView style={styles.container}>
