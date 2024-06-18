@@ -20,37 +20,50 @@ import { useViewStore } from '../stores/useViewStore';
 import NewChipArea from './NewChipArea';
 import { useAmmoStore } from '../stores/useAmmoStore';
 import * as FileSystem from 'expo-file-system';
+import { exampleAmmoEmpty } from '../lib/examples';
 
 
 export default function newAmmo(){
 
     const [selectedImage, setSelectedImage] = useState<string[]>(null)
+    const [initCheck, setInitCheck] = useState<boolean>(true)
     const [granted, setGranted] = useState<boolean>(false)
     const [ammoData, setAmmoData] = useState<AmmoType>(null)
+    const [ammoDataCompare, setAmmoDataCompare] = useState<AmmoType>(exampleAmmoEmpty)
     const [visible, setVisible] = useState<boolean>(false);
     const [snackbarText, setSnackbarText] = useState<string>("")
-    const [saveState, setSaveState] = useState<boolean>(false)
+    const [saveState, setSaveState] = useState<boolean>(null)
+    const [unsavedVisible, toggleUnsavedDialogVisible] = useState<boolean>(false)
 
     const { language, theme } = usePreferenceStore()
     const { setNewAmmoOpen, setSeeAmmoOpen } = useViewStore()
     const { setCurrentAmmo, ammoCollection, setAmmoCollection } = useAmmoStore()
 
     useEffect(()=>{
-        setSaveState(false)
-    },[ammoData])
-
-    function invokeAlert(){
-        Alert.alert(unsavedChangesAlert.title[language], unsavedChangesAlert.subtitle[language], [
-            {
-                text: unsavedChangesAlert.yes[language],
-                onPress: setNewAmmoOpen
-            },
-            {
-                text: unsavedChangesAlert.no[language],
-                style: "cancel"
+        if(initCheck){
+            setInitCheck(false)
+        }
+        if(!initCheck){
+            setSaveState(null)
+            for(const key in ammoData){
+                if(ammoData[key] !== ammoDataCompare[key]){
+                    setSaveState(false)
+                    if(ammoDataCompare[key] === null && ammoData[key].length === 0){
+                        setSaveState(null)
+                    }
+                }
+                if(!(key in ammoDataCompare) && ammoData[key] !== ""){
+                    setSaveState(false)
+                }
+                if(!(key in ammoDataCompare) && ammoData[key] === ""){
+                    setSaveState(null)
+                }
+                if(!(key in ammoDataCompare) && ammoData[key] !== undefined && ammoData[key].length === 0){
+                    setSaveState(null)
+                }
             }
-        ])
-    }
+        }
+      },[ammoData])
 
   const onToggleSnackBar = () => setVisible(!visible);
 
@@ -232,9 +245,9 @@ export default function newAmmo(){
         <View style={{width: "100%", height: "100%", backgroundColor: theme.colors.background}}>
             
             <Appbar style={{width: "100%"}}>
-                <Appbar.BackAction  onPress={() => {saveState ? setNewAmmoOpen() : invokeAlert()}} />
+                <Appbar.BackAction  onPress={() => {saveState == true ? setNewAmmoOpen() : saveState === false ? toggleUnsavedDialogVisible(true) : setNewAmmoOpen()}} />
                 <Appbar.Content title={newAmmoTitle[language]} />
-                <Appbar.Action icon="floppy" onPress={() => save({...ammoData, id: uuidv4(), images:selectedImage, createdAt: new Date(), lastModifiedAt: new Date()})} color={saveState  == true ? "green" : saveState == false ? theme.colors.error : theme.colors.onBackground} />
+                <Appbar.Action icon="floppy" onPress={() => save({...ammoData, id: uuidv4(), images:selectedImage, createdAt: `${new Date()}`, lastModifiedAt: `${new Date()}`})} color={saveState === null ? theme.colors.onBackground : saveState === false ? theme.colors.error : "green"} />
             </Appbar>
 
             <View style={styles.container}>

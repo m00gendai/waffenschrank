@@ -242,7 +242,7 @@ export default function EditAmmo(){
             <Appbar style={{width: "100%"}}>
                 <Appbar.BackAction  onPress={() => {saveState === true ? setEditAmmoOpen() : saveState === false ? toggleUnsavedDialogVisible(true) : setEditAmmoOpen()}} />
                 <Appbar.Content title={editAmmoTitle[language]} />
-                <Appbar.Action icon="floppy" onPress={() => save({...ammoData, lastModifiedAt: new Date()})} color={saveState === null ? theme.colors.onBackground : saveState === false ? theme.colors.error : "green"}/>
+                <Appbar.Action icon="floppy" onPress={() => save({...ammoData, lastModifiedAt: `${new Date()}`})} color={saveState === null ? theme.colors.onBackground : saveState === false ? theme.colors.error : "green"}/>
             </Appbar>
         
             <SafeAreaView style={styles.container}>

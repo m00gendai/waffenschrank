@@ -20,37 +20,50 @@ import { useViewStore } from '../stores/useViewStore';
 import NewChipArea from './NewChipArea';
 import { useGunStore } from '../stores/useGunStore';
 import * as FileSystem from 'expo-file-system';
+import { exampleGun, exampleGunEmpty } from '../lib/examples';
 
 
 export default function NewGun(){
 
     const [selectedImage, setSelectedImage] = useState<string[]>(null)
+    const [initCheck, setInitCheck] = useState<boolean>(true)
     const [granted, setGranted] = useState<boolean>(false)
     const [gunData, setGunData] = useState<GunType>(null)
+    const [gunDataCompare, setGunDataCompare] = useState<GunType>(exampleGunEmpty)
     const [visible, setVisible] = useState<boolean>(false);
     const [snackbarText, setSnackbarText] = useState<string>("")
-    const [saveState, setSaveState] = useState<boolean>(false)
+    const [saveState, setSaveState] = useState<boolean>(null)
+    const [unsavedVisible, toggleUnsavedDialogVisible] = useState<boolean>(false)
 
     const { language, theme } = usePreferenceStore()
     const { setNewGunOpen, setSeeGunOpen } = useViewStore()
     const { setCurrentGun, gunCollection, setGunCollection } = useGunStore()
 
     useEffect(()=>{
-        setSaveState(false)
-    },[gunData])
-
-    function invokeAlert(){
-        Alert.alert(unsavedChangesAlert.title[language], unsavedChangesAlert.subtitle[language], [
-            {
-                text: unsavedChangesAlert.yes[language],
-                onPress: setNewGunOpen
-            },
-            {
-                text: unsavedChangesAlert.no[language],
-                style: "cancel"
+        if(initCheck){
+            setInitCheck(false)
+        }
+        if(!initCheck){
+            setSaveState(null)
+            for(const key in gunData){
+                if(gunData[key] !== gunDataCompare[key]){
+                    setSaveState(false)
+                    if(gunDataCompare[key] === null && gunData[key].length === 0){
+                        setSaveState(null)
+                    }
+                }
+                if(!(key in gunDataCompare) && gunData[key] !== ""){
+                    setSaveState(false)
+                }
+                if(!(key in gunDataCompare) && gunData[key] === ""){
+                    setSaveState(null)
+                }
+                if(!(key in gunDataCompare) && gunData[key] !== undefined && gunData[key].length === 0){
+                    setSaveState(null)
+                }
             }
-        ])
-    }
+        }
+      },[gunData])
 
   const onToggleSnackBar = () => setVisible(!visible);
 
@@ -193,9 +206,9 @@ export default function NewGun(){
         <View style={{width: "100%", height: "100%", backgroundColor: theme.colors.background}}>
             
             <Appbar style={{width: "100%"}}>
-                <Appbar.BackAction  onPress={() => {saveState ? setNewGunOpen() : invokeAlert()}} />
+                <Appbar.BackAction  onPress={() => {saveState == true ? setNewGunOpen() : saveState === false ? toggleUnsavedDialogVisible(true) : setNewGunOpen()}} />
                 <Appbar.Content title={newGunTitle[language]} />
-                <Appbar.Action icon="floppy" onPress={() => save({...gunData, id: uuidv4(), images:selectedImage, createdAt: new Date(), lastModifiedAt: new Date()})} color={saveState  == true ? "green" : saveState == false ? theme.colors.error : theme.colors.onBackground} />
+                <Appbar.Action icon="floppy" onPress={() => save({...gunData, id: uuidv4(), images:selectedImage, createdAt: `${new Date()}`, lastModifiedAt: `${new Date()}`})} color={saveState === null ? theme.colors.onBackground : saveState === false ? theme.colors.error : "green"} />
             </Appbar>
 
             <View style={styles.container}>
