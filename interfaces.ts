@@ -102,6 +102,25 @@ export interface Elevation {
   level5: string
 }
 
+export interface CommonStyles {
+  allPageMargin: string
+  allTitleFontSize: string
+  allSubtitleFontSize: string
+  allTableFontSize: string
+  imageGap: string
+  tableVerticalMargin: string
+  tableRowVerticalPadding: string
+  tableCellPadding: string
+  footerWidth: string
+  footerFontSize: string
+  footerTopBorder: string
+  footerPaddingTop: string
+  footerMarginTop: string
+  tagPadding: string
+  tagFontSize: string
+  tagContainerGap: string
+}
+
 export type SortingTypes = "alphabetical" | "lastAdded" | "lastModified" | "caliber"
 export type Languages = "de" | "en" | "fr" | "it" | "ch"
 export type CaliberArray = {id: string, amount: string }
