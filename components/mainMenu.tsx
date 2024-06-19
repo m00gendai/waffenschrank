@@ -27,11 +27,12 @@ export default function mainMenu(){
 
     const [toastVisible, setToastVisible] = useState<boolean>(false)
     const [snackbarText, setSnackbarText] = useState<string>("")
-    const [dbModalVisible, setDbModalVisible] = useState<boolean>(false)
+    const [dbModalVisible, setDbModalVisible] = useState<boolean>(true)
     const [dbModalText, setDbModalText] = useState<string>("")
     const [importGunDbVisible, toggleImportDunDbVisible] = useState<boolean>(false)
     const [importAmmoDbVisible, toggleImportAmmoDbVisible] = useState<boolean>(false)
-
+    const [importProgress, setImportProgress] = useState<number>(0)
+    const [importSize, setImportSize] = useState<number>(0)
     const onToggleSnackBar = () => setToastVisible(!toastVisible);
     const onDismissSnackBar = () => setToastVisible(false);
 
@@ -127,6 +128,19 @@ export default function mainMenu(){
         setSnackbarText(toastMessages.dbSaveSuccess[language])
         onToggleSnackBar()
     }
+
+    function sanitizeFileName(fileName) {
+        // Define the forbidden characters for Windows, macOS, and Linux
+        const forbiddenCharacters = /[\\/:*?"<>|]/g;
+        
+        // Replace forbidden characters with an underscore
+        let sanitized = fileName.replace(forbiddenCharacters, '_');
+        
+        // Trim leading and trailing spaces and periods
+        sanitized = sanitized.replace(/^[\s.]+|[\s.]+$/g, '');
+        
+        return sanitized;
+    }
   
     async function handleImportGunDb(){
         const result = await DocumentPicker.getDocumentAsync({copyToCacheDirectory: true})
@@ -134,24 +148,28 @@ export default function mainMenu(){
             return
         }
         toggleImportDunDbVisible(false)
-        setDbModalVisible(true)
+        
         setDbModalText(databaseOperations.import[language])
         const content = await FileSystem.readAsStringAsync(result.assets[0].uri)
         const guns:GunType[] = JSON.parse(content)
-
+        setImportSize(guns.length)
+        setDbModalVisible(true)
         const importableGunCollection:GunType[] = await Promise.all(guns.map(async gun=>{
             if(gun.images !== null && gun.images.length !== 0){
                 const base64images:string[] = await Promise.all(gun.images.map(async (image, index) =>{
                     const base64Image = image;
-                    const fileUri = FileSystem.documentDirectory + `${gun.manufacturer ? gun.manufacturer : ""}_${gun.model}_image_${index}`;
+                    const fileUri = FileSystem.documentDirectory + `${gun.manufacturer ? sanitizeFileName(gun.manufacturer) : ""}_${sanitizeFileName(gun.model)}_image_${index}`;
+                    console.log(fileUri)
                     await FileSystem.writeAsStringAsync(fileUri, base64Image, {
                         encoding: FileSystem.EncodingType.Base64,
                     })
                     return fileUri
                 }))
                 const importableGun:GunType = {...gun, images: base64images}
+                setImportProgress(importProgress => importProgress+1)
                 return importableGun
             } else {
+                setImportProgress(importProgress => importProgress+1)
                 return gun
             }
         }))
@@ -166,6 +184,8 @@ export default function mainMenu(){
     
         await AsyncStorage.setItem(KEY_DATABASE, JSON.stringify(newKeys)) // Save the key object
         setDbModalVisible(false)
+        setImportProgress(0)
+        setImportSize(0)
         setDbImport(new Date())  
         setSnackbarText(`${JSON.parse(content).length} ${toastMessages.dbImportSuccess[language]}`)
         onToggleSnackBar()
@@ -177,24 +197,26 @@ export default function mainMenu(){
             return
         }
         toggleImportAmmoDbVisible(false)
-        setDbModalVisible(true)
         setDbModalText(databaseOperations.import[language])
         const content = await FileSystem.readAsStringAsync(result.assets[0].uri)
         const ammunitions:AmmoType[] = JSON.parse(content)
-
+        setImportSize(ammunitions.length)
+        setDbModalVisible(true)
         const importableAmmoCollection:AmmoType[] = await Promise.all(ammunitions.map(async ammo=>{
             if(ammo.images !== null && ammo.images.length !== 0){
                 const base64images:string[] = await Promise.all(ammo.images.map(async (image, index) =>{
                     const base64Image = image;
-                    const fileUri = FileSystem.documentDirectory + `${ammo.designation}_image_${index}`;
+                    const fileUri = FileSystem.documentDirectory + `${sanitizeFileName(ammo.designation)}_image_${index}`;
                     await FileSystem.writeAsStringAsync(fileUri, base64Image, {
                         encoding: FileSystem.EncodingType.Base64,
                     })
                     return fileUri
                 }))
                 const importableAmmo:AmmoType = {...ammo, images: base64images}
+                setImportProgress(importProgress => importProgress+1)
                 return importableAmmo
             } else {
+                setImportProgress(importProgress => importProgress+1)
                 return ammo
             }
         }))
@@ -209,6 +231,8 @@ export default function mainMenu(){
     
         await AsyncStorage.setItem(A_KEY_DATABASE, JSON.stringify(newKeys)) // Save the key object
         setDbModalVisible(false)
+        setImportProgress(0)
+        setImportSize(0)
         setAmmoDbImport(new Date())  
         setSnackbarText(`${JSON.parse(content).length} ${toastMessages.dbImportSuccess[language]}`)
         onToggleSnackBar()
@@ -346,7 +370,7 @@ export default function mainMenu(){
 
             <Modal visible={dbModalVisible}>
                 <ActivityIndicator size="large" animating={true} />
-                <Text variant="bodyLarge" style={{width: "100%", textAlign: "center", color: theme.colors.onBackground, marginTop: 10, backgroundColor: "rgba(0,0,0,0.5)"}}>{dbModalText}</Text>
+                <Text variant="bodyLarge" style={{width: "100%", textAlign: "center", color: theme.colors.onBackground, marginTop: 10, backgroundColor: theme.colors.background}}>{`${dbModalText}: ${importProgress}/${importSize}`}</Text>
             </Modal>
         </Animated.View> 
     )
