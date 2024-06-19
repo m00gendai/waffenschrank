@@ -27,7 +27,7 @@ export default function mainMenu(){
 
     const [toastVisible, setToastVisible] = useState<boolean>(false)
     const [snackbarText, setSnackbarText] = useState<string>("")
-    const [dbModalVisible, setDbModalVisible] = useState<boolean>(true)
+    const [dbModalVisible, setDbModalVisible] = useState<boolean>(false)
     const [dbModalText, setDbModalText] = useState<string>("")
     const [importGunDbVisible, toggleImportDunDbVisible] = useState<boolean>(false)
     const [importAmmoDbVisible, toggleImportAmmoDbVisible] = useState<boolean>(false)
