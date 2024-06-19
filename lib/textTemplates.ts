@@ -36,6 +36,8 @@ interface PreferenceTitle{
     importDb_ammo: SimpleTranslation
     gunList: SimpleTranslation
     printAllGuns: SimpleTranslation
+    printArt5: SimpleTranslation
+    printGallery: SimpleTranslation
     ammoList: SimpleTranslation,
     printAllAmmo: SimpleTranslation
 }
@@ -406,6 +408,20 @@ export const preferenceTitles:PreferenceTitle = {
         it: "Completo",
         ch: "Cumpletta",
     },
+    printArt5:{
+        de: "WG Art. 5",
+        en: "WA Art. 5",
+        fr: "LArm Art. 5",
+        it: "LArm Art. 5",
+        ch: "LArm Art. 5",
+    },
+    printGallery:{
+        de: "Galerie",
+        en: "Gallery",
+        fr: "Galerie",
+        it: "Galleria",
+        ch: "Galaria",
+    },
     ammoList: {
         de: "Munitionsverzeichnis",
         en: "List of ammunition",
@@ -453,6 +469,14 @@ export const pdfTitleAmmo:SimpleTranslation = {
     fr: "Liste des munitions",
     it: "Elenco delle munizioni",
     ch: "Register da muniziun",
+}
+
+export const pdfTitleArt5:SimpleTranslation = {
+    de: "Waffenverzeichnis gemäss Waffengesetz Artikel 5",
+    en: "List of weapons according to Weapons Act article 5",
+    fr: "Liste des armes conformément à la loi sur les armes, article 5",
+    it: "Elenco delle armi ai sensi dell'articolo 5 della Legge sulle armi",
+    ch: "Register da las armas tenor la lescha davart las armas Artitgel 5",
 }
 
 export const pdfFooter:SimpleTranslation = {

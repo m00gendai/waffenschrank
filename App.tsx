@@ -14,6 +14,7 @@ import { Text, BottomNavigation } from 'react-native-paper';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { tabBarLabels } from './lib/textTemplates';
 import AmmoCollection from './components/AmmoCollection';
+import { StatusBar } from 'expo-status-bar';
 
 export default function App() {
 
@@ -38,6 +39,7 @@ export default function App() {
   return (
     <NavigationContainer>
     <PaperProvider theme={currentTheme}>
+    <StatusBar backgroundColor={mainMenuOpen ? theme.colors.primary : theme.colors.background} style="auto" />
     <Tab.Navigator screenOptions={{
         headerShown: false
         
@@ -83,7 +85,7 @@ export default function App() {
       )}
     >
       <Tab.Screen
-        name="Gun Collection"
+        name="GunCollection"
         component={GunCollection}
         options={{
           tabBarLabel: tabBarLabels.gunCollection[language],
@@ -93,7 +95,7 @@ export default function App() {
         }}
       />
       <Tab.Screen
-        name="Settings"
+        name="AmmoCollection"
         component={AmmoCollection}
         options={{
           tabBarLabel: tabBarLabels.ammoCollection[language],

@@ -14,7 +14,7 @@ import { AmmoType, GunType, Languages } from "../interfaces"
 import * as SecureStore from "expo-secure-store"
 import { useGunStore } from "../stores/useGunStore"
 import { SafeAreaView } from "react-native-safe-area-context"
-import { printAmmoCollection, printGunCollection } from "../functions/printToPDF"
+import { printAmmoCollection, printAmmoGallery, printGunCollection, printGunCollectionArt5, printGunGallery } from "../functions/printToPDF"
 import { useAmmoStore } from "../stores/useAmmoStore"
 
 
@@ -31,7 +31,8 @@ export default function mainMenu(){
     const [dbModalText, setDbModalText] = useState<string>("")
     const [importGunDbVisible, toggleImportDunDbVisible] = useState<boolean>(false)
     const [importAmmoDbVisible, toggleImportAmmoDbVisible] = useState<boolean>(false)
-
+    const [importProgress, setImportProgress] = useState<number>(0)
+    const [importSize, setImportSize] = useState<number>(0)
     const onToggleSnackBar = () => setToastVisible(!toastVisible);
     const onDismissSnackBar = () => setToastVisible(false);
 
@@ -127,6 +128,19 @@ export default function mainMenu(){
         setSnackbarText(toastMessages.dbSaveSuccess[language])
         onToggleSnackBar()
     }
+
+    function sanitizeFileName(fileName) {
+        // Define the forbidden characters for Windows, macOS, and Linux
+        const forbiddenCharacters = /[\\/:*?"<>|]/g;
+        
+        // Replace forbidden characters with an underscore
+        let sanitized = fileName.replace(forbiddenCharacters, '_');
+        
+        // Trim leading and trailing spaces and periods
+        sanitized = sanitized.replace(/^[\s.]+|[\s.]+$/g, '');
+        
+        return sanitized;
+    }
   
     async function handleImportGunDb(){
         const result = await DocumentPicker.getDocumentAsync({copyToCacheDirectory: true})
@@ -134,24 +148,28 @@ export default function mainMenu(){
             return
         }
         toggleImportDunDbVisible(false)
-        setDbModalVisible(true)
+        
         setDbModalText(databaseOperations.import[language])
         const content = await FileSystem.readAsStringAsync(result.assets[0].uri)
         const guns:GunType[] = JSON.parse(content)
-
+        setImportSize(guns.length)
+        setDbModalVisible(true)
         const importableGunCollection:GunType[] = await Promise.all(guns.map(async gun=>{
             if(gun.images !== null && gun.images.length !== 0){
                 const base64images:string[] = await Promise.all(gun.images.map(async (image, index) =>{
                     const base64Image = image;
-                    const fileUri = FileSystem.documentDirectory + `${gun.manufacturer ? gun.manufacturer : ""}_${gun.model}_image_${index}`;
+                    const fileUri = FileSystem.documentDirectory + `${gun.manufacturer ? sanitizeFileName(gun.manufacturer) : ""}_${sanitizeFileName(gun.model)}_image_${index}`;
+                    console.log(fileUri)
                     await FileSystem.writeAsStringAsync(fileUri, base64Image, {
                         encoding: FileSystem.EncodingType.Base64,
                     })
                     return fileUri
                 }))
                 const importableGun:GunType = {...gun, images: base64images}
+                setImportProgress(importProgress => importProgress+1)
                 return importableGun
             } else {
+                setImportProgress(importProgress => importProgress+1)
                 return gun
             }
         }))
@@ -166,6 +184,8 @@ export default function mainMenu(){
     
         await AsyncStorage.setItem(KEY_DATABASE, JSON.stringify(newKeys)) // Save the key object
         setDbModalVisible(false)
+        setImportProgress(0)
+        setImportSize(0)
         setDbImport(new Date())  
         setSnackbarText(`${JSON.parse(content).length} ${toastMessages.dbImportSuccess[language]}`)
         onToggleSnackBar()
@@ -177,24 +197,26 @@ export default function mainMenu(){
             return
         }
         toggleImportAmmoDbVisible(false)
-        setDbModalVisible(true)
         setDbModalText(databaseOperations.import[language])
         const content = await FileSystem.readAsStringAsync(result.assets[0].uri)
         const ammunitions:AmmoType[] = JSON.parse(content)
-
+        setImportSize(ammunitions.length)
+        setDbModalVisible(true)
         const importableAmmoCollection:AmmoType[] = await Promise.all(ammunitions.map(async ammo=>{
             if(ammo.images !== null && ammo.images.length !== 0){
                 const base64images:string[] = await Promise.all(ammo.images.map(async (image, index) =>{
                     const base64Image = image;
-                    const fileUri = FileSystem.documentDirectory + `${ammo.designation}_image_${index}`;
+                    const fileUri = FileSystem.documentDirectory + `${sanitizeFileName(ammo.designation)}_image_${index}`;
                     await FileSystem.writeAsStringAsync(fileUri, base64Image, {
                         encoding: FileSystem.EncodingType.Base64,
                     })
                     return fileUri
                 }))
                 const importableAmmo:AmmoType = {...ammo, images: base64images}
+                setImportProgress(importProgress => importProgress+1)
                 return importableAmmo
             } else {
+                setImportProgress(importProgress => importProgress+1)
                 return ammo
             }
         }))
@@ -209,6 +231,8 @@ export default function mainMenu(){
     
         await AsyncStorage.setItem(A_KEY_DATABASE, JSON.stringify(newKeys)) // Save the key object
         setDbModalVisible(false)
+        setImportProgress(0)
+        setImportSize(0)
         setAmmoDbImport(new Date())  
         setSnackbarText(`${JSON.parse(content).length} ${toastMessages.dbImportSuccess[language]}`)
         onToggleSnackBar()
@@ -216,21 +240,21 @@ export default function mainMenu(){
 
     return(
         <Animated.View entering={LightSpeedInLeft} exiting={LightSpeedOutLeft} style={{position: "absolute", left: 0, width: "100%", height: "100%"}}>
-            <SafeAreaView style={{display: "flex", flexDirection: "row", flexWrap: "nowrap", backgroundColor: theme.colors.background}}>
+            <SafeAreaView style={{display: "flex", flexDirection: "row", flexWrap: "nowrap", backgroundColor: theme.colors.primary}}>
                 <View style={{width: "100%", height: "100%", backgroundColor: theme.colors.background}}>
                     <TouchableNativeFeedback onPress={setMainMenuOpen}>
-                        <View style={{width: "100%", height: 50, display: "flex", flexDirection: "row", justifyContent: "flex-start", alignItems: "center", paddingLeft: 20}}>
-                            <Icon source="arrow-left" size={20} color={theme.colors.onBackground}/>
+                        <View style={{width: "100%", height: 50, display: "flex", flexDirection: "row", justifyContent: "flex-start", alignItems: "center", paddingLeft: 20, backgroundColor: theme.colors.primary}}>
+                            <Icon source="arrow-left" size={20} color={theme.colors.onPrimary}/>
                         </View>
                     </TouchableNativeFeedback>
                     <View style={{padding: 0, display: "flex", height: "100%", flexDirection: "column", flexWrap: "wrap"}}>
                         <View style={{width: "100%", flex: 10}}>
                             <ScrollView>
-                                <View style={{marginLeft: 5, marginRight: 5, marginBottom: 5, padding: defaultViewPadding, backgroundColor: theme.colors.background}}>
-                                    <Text variant="titleMedium" style={{marginBottom: 10, color: theme.colors.onBackground}}>{preferenceTitles.language[language]}</Text>
-                                    <View style={{display: "flex", flexDirection: "row", gap: 0, flexWrap: "wrap", justifyContent: "flex-start"}}>
+                                <View style={{padding: defaultViewPadding, backgroundColor: theme.colors.primary}}>
+                                    <Text variant="titleMedium" style={{marginBottom: 10, color: theme.colors.onPrimary}}>{preferenceTitles.language[language]}</Text>
+                                    <View style={{display: "flex", flexDirection: "row", gap: 0, flexWrap: "wrap", justifyContent: "center"}}>
                                         {languageSelection.map(langSelect =>{
-                                            return <Button style={{borderRadius: 0, width: "25%"}} key={langSelect.code} buttonColor={language === langSelect.code ? theme.colors.primaryContainer : theme.colors.background} onPress={()=>handleLanguageSwitch(langSelect.code)} mode="outlined">{langSelect.flag}</Button>
+                                            return <Button style={{borderRadius: 0, marginRight: -1, marginBottom: -1}} key={langSelect.code} buttonColor={language === langSelect.code ? theme.colors.primaryContainer : theme.colors.background} onPress={()=>handleLanguageSwitch(langSelect.code)} mode="outlined">{langSelect.flag}</Button>
                                         })}
                                     </View>
                                 </View>
@@ -262,7 +286,7 @@ export default function mainMenu(){
                                     </List.Accordion>
                                     <List.Accordion left={props => <><List.Icon {...props} icon="floppy" /><List.Icon {...props} icon="pistol" /></>} title={preferenceTitles.db_gun[language]} titleStyle={{fontWeight: "700", color: theme.colors.onBackground}}>
                                         <View style={{ marginLeft: 5, marginRight: 5, padding: defaultViewPadding, backgroundColor: theme.colors.background, borderColor: theme.colors.primary, borderLeftWidth: 5}}>
-                                            <View style={{display: "flex", flexDirection: "row", justifyContent: "space-between", alignItems: "center"}}>
+                                            <View style={{display: "flex", flexDirection: "row", justifyContent: "flex-start", flexWrap: "wrap", gap: 5}}>
                                                 <Button style={{width: "45%"}} icon="content-save-move" onPress={()=>handleSaveGunDb()} mode="contained">{preferenceTitles.saveDb_gun[language]}</Button>
                                                 <Button style={{width: "45%"}} icon="application-import" onPress={()=>toggleImportDunDbVisible(true)} mode="contained">{preferenceTitles.importDb_gun[language]}</Button>
                                             </View>
@@ -270,7 +294,7 @@ export default function mainMenu(){
                                     </List.Accordion>
                                     <List.Accordion left={props => <><List.Icon {...props} icon="floppy" /><List.Icon {...props} icon="bullet" /></>} title={preferenceTitles.db_ammo[language]} titleStyle={{fontWeight: "700", color: theme.colors.onBackground}}>
                                         <View style={{ marginLeft: 5, marginRight: 5, padding: defaultViewPadding, backgroundColor: theme.colors.background, borderColor: theme.colors.primary, borderLeftWidth: 5}}>
-                                            <View style={{display: "flex", flexDirection: "row", justifyContent: "space-between"}}>
+                                            <View style={{display: "flex", flexDirection: "row", justifyContent: "flex-start", flexWrap: "wrap", gap: 5}}>
                                                 <Button style={{width: "45%"}} icon="content-save-move" onPress={()=>handleSaveAmmoDb()} mode="contained">{preferenceTitles.saveDb_ammo[language]}</Button>
                                                 <Button style={{width: "45%"}} icon="application-import" onPress={()=>toggleImportAmmoDbVisible(true)} mode="contained">{preferenceTitles.importDb_ammo[language]}</Button>
                                             </View>
@@ -278,15 +302,19 @@ export default function mainMenu(){
                                     </List.Accordion>
                                     <List.Accordion left={props => <><List.Icon {...props} icon="printer" /><List.Icon {...props} icon="pistol" /></>} title={preferenceTitles.gunList[language]} titleStyle={{fontWeight: "700", color: theme.colors.onBackground}}>
                                         <View style={{ marginLeft: 5, marginRight: 5, padding: defaultViewPadding, backgroundColor: theme.colors.background, borderColor: theme.colors.primary, borderLeftWidth: 5}}>
-                                            <View style={{display: "flex", flexDirection: "row", justifyContent: "space-between"}}>
-                                                <Button style={{width: "45%"}} icon="printer" onPress={()=>printGunCollection(gunCollection, language)} mode="contained">{preferenceTitles.printAllGuns[language]}</Button>
+                                            <View style={{display: "flex", flexDirection: "row", justifyContent: "flex-start", flexWrap: "wrap", gap: 5}}>
+                                                <Button style={{width: "45%"}} icon="table-large" onPress={()=>printGunCollection(gunCollection, language)} mode="contained">{preferenceTitles.printAllGuns[language]}</Button>
+                                                <Button style={{width: "45%"}} icon="table-large" onPress={()=>printGunCollectionArt5(gunCollection, language)} mode="contained">{preferenceTitles.printArt5[language]}</Button>
+                                                <Button style={{width: "45%"}} icon="badge-account-outline" onPress={()=>printGunGallery(gunCollection, language)} mode="contained">{preferenceTitles.printGallery[language]}</Button>
+
                                             </View>
                                         </View>
                                     </List.Accordion>
                                     <List.Accordion left={props => <><List.Icon {...props} icon="printer" /><List.Icon {...props} icon="bullet" /></>} title={preferenceTitles.ammoList[language]} titleStyle={{fontWeight: "700", color: theme.colors.onBackground}}>
                                         <View style={{ marginLeft: 5, marginRight: 5, padding: defaultViewPadding, backgroundColor: theme.colors.background, borderColor: theme.colors.primary, borderLeftWidth: 5}}>
-                                            <View style={{display: "flex", flexDirection: "row", justifyContent: "space-between"}}>
-                                                <Button style={{width: "45%"}} icon="printer" onPress={()=>printAmmoCollection(ammoCollection, language)} mode="contained">{preferenceTitles.printAllAmmo[language]}</Button>
+                                            <View style={{display: "flex", flexDirection: "row", justifyContent: "flex-start", flexWrap: "wrap", gap: 5}}>
+                                                <Button style={{width: "45%"}} icon="table-large" onPress={()=>printAmmoCollection(ammoCollection, language)} mode="contained">{preferenceTitles.printAllAmmo[language]}</Button>
+                                                <Button style={{width: "45%"}} icon="badge-account-outline" onPress={()=>printAmmoGallery(ammoCollection, language)} mode="contained">{preferenceTitles.printGallery[language]}</Button>
                                             </View>
                                         </View>
                                     </List.Accordion>
@@ -296,7 +324,7 @@ export default function mainMenu(){
                             </ScrollView>
                         </View>
                         <View style={{width: "100%", flex: 2, padding: defaultViewPadding, marginBottom: 10, elevation: 4}}>
-                            <Text style={{color: theme.colors.onBackground}} >Version Alpha 5.0.1</Text>
+                            <Text style={{color: theme.colors.onBackground}} >Version Alpha 6.0.0</Text>
                             <Text style={{color: theme.colors.onBackground}}>{`© ${currentYear === 2024 ? currentYear : `2024 - ${currentYear}`} Marcel Weber`} </Text>
                         </View>
                     </View>
@@ -342,7 +370,7 @@ export default function mainMenu(){
 
             <Modal visible={dbModalVisible}>
                 <ActivityIndicator size="large" animating={true} />
-                <Text variant="bodyLarge" style={{width: "100%", textAlign: "center", color: theme.colors.onBackground, marginTop: 10, backgroundColor: "rgba(0,0,0,0.5)"}}>{dbModalText}</Text>
+                <Text variant="bodyLarge" style={{width: "100%", textAlign: "center", color: theme.colors.onBackground, marginTop: 10, backgroundColor: theme.colors.background}}>{`${dbModalText}: ${importProgress}/${importSize}`}</Text>
             </Modal>
         </Animated.View> 
     )

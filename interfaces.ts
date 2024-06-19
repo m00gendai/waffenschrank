@@ -13,21 +13,21 @@ export interface GunType{
   mainColor?: string | null
   remarks? : string | null
   images: string[]
-  createdAt: Date
-  lastModifiedAt: Date
+  createdAt: string
+  lastModifiedAt: string
   status?: GunTypeStatus
-  shotCount?: number
+  shotCount?: string
   tags: string[]
   lastShotAt?: string
+  lastCleanedAt?: string
+  paidPrice?: string
 }
 
 export interface GunTypeStatus{
-  secondHand: boolean
   exFullAuto: boolean
   highCapacityMagazine: boolean
   short: boolean
-  serviceRifle: boolean
-  loanerGun: boolean
+  fullAuto: boolean
 }
 
 export interface AmmoType{
@@ -36,13 +36,13 @@ export interface AmmoType{
   caliber: string | null
   designation: string
   originCountry?: string | null
-  createdAt: Date,
-  lastModifiedAt: Date,
+  createdAt: string,
+  lastModifiedAt: string,
   headstamp?: string | null
   currentStock?: number
   previousStock?: number
   lastTopUpAt?: string
-  criticalStock?: number
+  criticalStock?: string
   tags: string[]
   images: string[]
   remarks?: string
@@ -100,6 +100,25 @@ export interface Elevation {
   level3: string
   level4: string
   level5: string
+}
+
+export interface CommonStyles {
+  allPageMargin: string
+  allTitleFontSize: string
+  allSubtitleFontSize: string
+  allTableFontSize: string
+  imageGap: string
+  tableVerticalMargin: string
+  tableRowVerticalPadding: string
+  tableCellPadding: string
+  footerWidth: string
+  footerFontSize: string
+  footerTopBorder: string
+  footerPaddingTop: string
+  footerMarginTop: string
+  tagPadding: string
+  tagFontSize: string
+  tagContainerGap: string
 }
 
 export type SortingTypes = "alphabetical" | "lastAdded" | "lastModified" | "caliber"
