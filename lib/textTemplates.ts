@@ -37,6 +37,7 @@ interface PreferenceTitle{
     gunList: SimpleTranslation
     printAllGuns: SimpleTranslation
     printArt5: SimpleTranslation
+    printGallery: SimpleTranslation
     ammoList: SimpleTranslation,
     printAllAmmo: SimpleTranslation
 }
@@ -413,6 +414,13 @@ export const preferenceTitles:PreferenceTitle = {
         fr: "LArm Art. 5",
         it: "LArm Art. 5",
         ch: "LArm Art. 5",
+    },
+    printGallery:{
+        de: "Galerie",
+        en: "Gallery",
+        fr: "Galerie",
+        it: "Galleria",
+        ch: "Galaria",
     },
     ammoList: {
         de: "Munitionsverzeichnis",

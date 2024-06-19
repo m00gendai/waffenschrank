@@ -10,7 +10,39 @@ import { pdfFooter, pdfTitle } from '../lib/textTemplates';
 import { dateLocales } from '../configs';
 import { ammoDataTemplate, ammoRemarks } from '../lib/ammoDataTemplate';
 
+async function getGunImages(guns:GunType[]){
+  const imageArray: null | string[][] = []
+  
+  for(const gun of guns){
+    let imgs: null | string[] = null
+    if(gun.images && gun.images.length !== 0){
+        imgs = await Promise.all(gun.images.map(async image =>{
+            return await FileSystem.readAsStringAsync(image, { encoding: 'base64' });
+        }))
+        imageArray.push(imgs)
+    } else {
+      imageArray.push([])
+    }
+  }
+  return imageArray
+}
 
+async function getAmmoImages(ammunition:AmmoType[]){
+  const imageArray: null | string[][] = []
+  
+  for(const ammo of ammunition){
+    let imgs: null | string[] = null
+    if(ammo.images && ammo.images.length !== 0){
+        imgs = await Promise.all(ammo.images.map(async image =>{
+            return await FileSystem.readAsStringAsync(image, { encoding: 'base64' });
+        }))
+        imageArray.push(imgs)
+    } else {
+      imageArray.push([])
+    }
+  }
+  return imageArray
+}
 
 const getTranslation = (key: string, language: string): string => {
     const data = gunDataTemplate.find(item => item.name === key);
@@ -424,6 +456,192 @@ export async function printSingleAmmo(ammo:AmmoType, language: string){
     
 }
 
+export async function printAmmoGallery(ammunition:AmmoType[], language: string){
+
+  const imageArray:null | string[][] = await getAmmoImages(ammunition)
+
+  const date:Date = new Date()
+  const dateOptions:Intl.DateTimeFormatOptions = {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: "2-digit",
+      minute: "2-digit"
+    };
+  const generatedDate:string = date.toLocaleDateString(dateLocales[language], dateOptions)
+  const excludedKeys = ["images", "createdAt", "lastModifiedAt", "lastTopUpAt", "id", "tags", "remarks", "previousStock", "currentStock", "criticalStock"];
+
+  const html = `
+  <html>
+    <head>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no" />
+    </head>
+    <body>
+    ${ammunition.map((ammo, index) =>{
+return(
+    `
+    <div class="bodyContent">
+      <h1>${ammo.manufacturer ? ammo.manufacturer : ""} ${ammo.designation}</h1>
+      ${imageArray[index].length !== 0 ? `<div class="imageContainer">${imageArray[index].map(img => {return `<div class="image" style="background-image: url(data:image/jpeg;base64,${img});"></div>`}).join("")}</div>`: ""}
+      ${ammo.tags && ammo.tags.length !== 0 ? `<div class="tagContainer">${ammo.tags.map(tag => {return `<div class="tag">${tag}</div>`}).join("")}</div>` : ""}
+      ${ammo.tags && ammo.tags.length !== 0 ? `<hr />` : ""}
+      <table>
+          <tbody>
+              ${Object.entries(ammo).map(entry =>{
+                  
+                  return excludedKeys.includes(entry[0]) ? null :`<tr><td><strong>${getTranslationAmmo(entry[0], language)}</strong></td><td>${entry[1]}</td></tr>`
+              }).join("")}
+          </tbody>
+      </table>
+      ${ammo.remarks && ammo.remarks.length !== 0 ? `<div class="remarkContainer"><div class="remarkContainerTitle"><strong>${ammoRemarks[language]}</strong></div><div class="remarkContainerContent">${ammo.remarks}</div></div>`: ""}
+    </div>`
+  )}).join("")}
+   </body>
+   <div class="footer">${pdfFooter[language]}, ${generatedDate}</div>
+   <style>
+   @page {
+     size: A4;
+     margin: ${commonStyles.allPageMargin};
+   }
+   body{
+     display: flex;
+     justify-content: center;
+     align-items: flex-start;
+     align-content: flex-start;
+     flex-wrap: wrap;
+     margin: 0;
+     padding: 0;
+   }
+   h1{
+     position: relative;
+     width: 100%;
+     text-align: left;
+     margin: 0;
+     padding: 0;
+     font-size: ${commonStyles.allTitleFontSize};
+   }
+   hr{
+     width: 100%;
+   }
+   .bodyContent{
+     width: 100%;
+     height: 100%;
+     padding: 0;
+     box-sizing: border-box;
+   }
+   .imageContainer{
+     position: relative;
+     width: 100%;
+     aspect-ratio: 30/10;
+     display: flex;
+     gap: ${commonStyles.imageGap};
+     justify-content: center;
+     align-items: center;
+     flex-wrap: nowrap;
+     margin: 10px 0;
+     box-shadow: 0px 2px 5px -2px black;
+     padding: 5px;
+   }
+     .image{
+         position: relative;
+         width: 100%;
+         height: 100%;
+         
+         background-size:contain;
+         background-position: top;
+         background-repeat: no-repeat;
+     }
+ .tagContainer{
+     position: relative;
+     width: 100%;
+     display: flex;
+     justify-content: flex-start;
+     align-items: flex-start; 
+     flex-wrap: wrap;
+     gap: ${commonStyles.tagContainerGap};
+ }
+     .tag{
+         position: relative;
+         border: 1px solid black;
+         padding: ${commonStyles.tagPadding};
+         display: flex;
+         justify-content: center;
+         align-items: center;
+         font-size: ${commonStyles.tagFontSize};
+     }
+ table {
+     position: relative;
+     margin: ${commonStyles.tableVerticalMargin} 0;
+     width: 100%;
+     font-size: ${commonStyles.allTableFontSize};
+     border-collapse: collapse;
+ }
+ table > tbody > tr {
+     padding: ${commonStyles.tableRowVerticalPadding} 0;
+ }
+ table > tbody > tr:nth-child(even){
+     background-color: #f5f5f5;
+ }
+ table > tbody > tr > td {
+     padding: ${commonStyles.tableCellPadding};
+     
+ }
+ .remarkContainer{
+     position: relative;
+     width: 100%;
+     display: flex;
+     justify-content: center;
+     align-items: flex-start;
+     flex-wrap: wrap;
+ }
+ .remarkContainerTitle{
+     position: relative;
+     width: 100%;
+     display: flex;
+     justify-content: flex-start;
+     align-items: center;
+ }
+ .remarkContainerContent{
+     position: relative;
+     width: 100%;
+     white-space: pre-wrap;
+ }
+ .footer{
+   position: fixed;
+   bottom: 0;
+   width: ${commonStyles.footerWidth};
+   font-size: ${commonStyles.footerFontSize};
+   border-top: ${commonStyles.footerTopBorder};
+   padding-top: ${commonStyles.footerPaddingTop};
+   margin-top: ${commonStyles.footerMarginTop};
+   display: flex;
+   justify-content: center;
+   align-items: center;
+   align-content: center;
+}
+   </style>
+  </html>
+  `;
+
+
+      // On iOS/android prints the given html. On web prints the HTML from the current page.
+      const { uri } = await Print.printToFileAsync({html, height:842, width:595});
+      console.log('File has been saved to:', uri);
+     
+     // await shareAsync(uri, { UTI: '.pdf', mimeType: 'application/pdf' });
+     FileSystem.getContentUriAsync(uri).then(cUri => {
+      /* if (Platform.OS === 'ios') {
+        Sharing.shareAsync(cUri); */
+      IntentLauncher.startActivityAsync('android.intent.action.VIEW', {
+          data: cUri,
+          flags: 1,
+          type: 'application/pdf'
+       });
+    });
+    
+}
+
 export async function printGunCollection(guns:GunType[], language: string){
 
   const date:Date = new Date()
@@ -697,6 +915,195 @@ export async function printGunCollectionArt5(guns:GunType[], language: string){
        });
     });
     
+}
+
+export async function printGunGallery(guns:GunType[], language: string){
+
+    const date:Date = new Date()
+    const dateOptions:Intl.DateTimeFormatOptions = {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: "2-digit",
+        minute: "2-digit"
+      };
+    const generatedDate:string = date.toLocaleDateString(dateLocales[language], dateOptions)
+    const excludedKeys = ["images", "createdAt", "lastModifiedAt", "status", "id", "tags", "remarks", "lastCleanedAt", "lastShotAt"];
+    const art5Keys = checkBoxes.map(checkBox => checkBox.name)
+
+    const imageArray:null | string[][] = await getGunImages(guns)
+
+    const html = `
+    <html>
+      <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no" />
+      </head>
+      <body>
+      ${guns.map((gun, index) =>{
+        
+        return(
+         `<div class="bodyContent">
+        <h1>${gun.manufacturer ? gun.manufacturer : ""} ${gun.model}</h1>
+        ${imageArray[index].length !== 0 ? `<div class="imageContainer">${imageArray[index].map(img => {return `<div class="image" style="background-image: url(data:image/jpeg;base64,${img});"></div>`}).join("")}</div>`: ""}
+        ${gun.tags && gun.tags.length !== 0 ? `<div class="tagContainer">${gun.tags.map(tag => {return `<div class="tag">${tag}</div>`}).join("")}</div>` : ""}
+        ${gun.tags && gun.tags.length !== 0 ? `<hr />` : ""}
+        ${gun.status && Object.entries(gun.status).length !== 0 ? `<div class="tagContainer">${Object.entries(gun.status).map(status => {return status[1] && art5Keys.includes(status[0]) ? `<div class="tag">${getTranslation(status[0], language)}</div>` : ""}).join("")}</div>` : ""}
+        <table>
+            <tbody>
+                ${Object.entries(gun).map(entry =>{
+                    
+                    return excludedKeys.includes(entry[0]) ? null :`<tr><td><strong>${getTranslation(entry[0], language)}</strong></td><td>${entry[1]}</td></tr>`
+                }).join("")}
+            </tbody>
+        </table>
+        ${gun.remarks && gun.remarks.length !== 0 ? `<div class="remarkContainer"><div class="remarkContainerTitle"><strong>${gunRemarks[language]}</strong></div><div class="remarkContainerContent">${gun.remarks}</div></div>`: ""}
+      
+        </div>`
+        )
+              }).join("")}
+      </body>
+     <div class="footer">${pdfFooter[language]}, ${generatedDate}</div>
+      <style>
+      @page {
+        size: A4;
+        margin: ${commonStyles.allPageMargin};
+      }
+      body{
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        align-content: flex-start;
+        flex-wrap: wrap;
+        margin: 0;
+        padding: 0;
+      }
+      h1{
+        position: relative;
+        width: 100%;
+        text-align: left;
+        margin: 0;
+        padding: 0;
+        font-size: ${commonStyles.allTitleFontSize};
+      }
+      hr{
+        width: 100%;
+      }
+      .bodyContent{
+        width: 100%;
+        height: 100%;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      .imageContainer{
+        position: relative;
+        width: 100%;
+        aspect-ratio: 30/10;
+        display: flex;
+        gap: ${commonStyles.imageGap};
+        justify-content: center;
+        align-items: center;
+        flex-wrap: nowrap;
+        margin: 10px 0;
+        box-shadow: 0px 2px 5px -2px black;
+        padding: 5px;
+      }
+        .image{
+            position: relative;
+            width: 100%;
+            height: 100%;
+            
+            background-size:contain;
+            background-position: top;
+            background-repeat: no-repeat;
+        }
+    .tagContainer{
+        position: relative;
+        width: 100%;
+        display: flex;
+        justify-content: flex-start;
+        align-items: flex-start; 
+        flex-wrap: wrap;
+        gap: ${commonStyles.tagContainerGap};
+    }
+        .tag{
+            position: relative;
+            border: 1px solid black;
+            padding: ${commonStyles.tagPadding};
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: ${commonStyles.tagFontSize};
+        }
+    table {
+        position: relative;
+        margin: ${commonStyles.tableVerticalMargin} 0;
+        width: 100%;
+        font-size: ${commonStyles.allTableFontSize};
+        border-collapse: collapse;
+    }
+    table > tbody > tr {
+        padding: ${commonStyles.tableRowVerticalPadding} 0;
+    }
+    table > tbody > tr:nth-child(even){
+        background-color: #f5f5f5;
+    }
+    table > tbody > tr > td {
+        padding: ${commonStyles.tableCellPadding};
+        
+    }
+    .remarkContainer{
+        position: relative;
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        flex-wrap: wrap;
+    }
+    .remarkContainerTitle{
+        position: relative;
+        width: 100%;
+        display: flex;
+        justify-content: flex-start;
+        align-items: center;
+    }
+    .remarkContainerContent{
+        position: relative;
+        width: 100%;
+        white-space: pre-wrap;
+    }
+    .footer{
+      position: fixed;
+      bottom: 0;
+      width: ${commonStyles.footerWidth};
+      font-size: ${commonStyles.footerFontSize};
+      border-top: ${commonStyles.footerTopBorder};
+      padding-top: ${commonStyles.footerPaddingTop};
+      margin-top: ${commonStyles.footerMarginTop};
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      align-content: center;
+  }
+      </style>
+    </html>
+    `;
+
+
+        // On iOS/android prints the given html. On web prints the HTML from the current page.
+        const { uri } = await Print.printToFileAsync({html, height:842, width:595});
+        console.log('File has been saved to:', uri);
+       
+       // await shareAsync(uri, { UTI: '.pdf', mimeType: 'application/pdf' });
+       FileSystem.getContentUriAsync(uri).then(cUri => {
+        /* if (Platform.OS === 'ios') {
+          Sharing.shareAsync(cUri); */
+        IntentLauncher.startActivityAsync('android.intent.action.VIEW', {
+            data: cUri,
+            flags: 1,
+            type: 'application/pdf'
+         });
+      });
 }
 
 export async function printAmmoCollection(ammunition:AmmoType[], language: string){
