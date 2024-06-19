@@ -216,21 +216,21 @@ export default function mainMenu(){
 
     return(
         <Animated.View entering={LightSpeedInLeft} exiting={LightSpeedOutLeft} style={{position: "absolute", left: 0, width: "100%", height: "100%"}}>
-            <SafeAreaView style={{display: "flex", flexDirection: "row", flexWrap: "nowrap", backgroundColor: theme.colors.background}}>
+            <SafeAreaView style={{display: "flex", flexDirection: "row", flexWrap: "nowrap", backgroundColor: theme.colors.primary}}>
                 <View style={{width: "100%", height: "100%", backgroundColor: theme.colors.background}}>
                     <TouchableNativeFeedback onPress={setMainMenuOpen}>
-                        <View style={{width: "100%", height: 50, display: "flex", flexDirection: "row", justifyContent: "flex-start", alignItems: "center", paddingLeft: 20}}>
-                            <Icon source="arrow-left" size={20} color={theme.colors.onBackground}/>
+                        <View style={{width: "100%", height: 50, display: "flex", flexDirection: "row", justifyContent: "flex-start", alignItems: "center", paddingLeft: 20, backgroundColor: theme.colors.primary}}>
+                            <Icon source="arrow-left" size={20} color={theme.colors.onPrimary}/>
                         </View>
                     </TouchableNativeFeedback>
                     <View style={{padding: 0, display: "flex", height: "100%", flexDirection: "column", flexWrap: "wrap"}}>
                         <View style={{width: "100%", flex: 10}}>
                             <ScrollView>
-                                <View style={{marginLeft: 5, marginRight: 5, marginBottom: 5, padding: defaultViewPadding, backgroundColor: theme.colors.background}}>
-                                    <Text variant="titleMedium" style={{marginBottom: 10, color: theme.colors.onBackground}}>{preferenceTitles.language[language]}</Text>
-                                    <View style={{display: "flex", flexDirection: "row", gap: 0, flexWrap: "wrap", justifyContent: "flex-start"}}>
+                                <View style={{padding: defaultViewPadding, backgroundColor: theme.colors.primary}}>
+                                    <Text variant="titleMedium" style={{marginBottom: 10, color: theme.colors.onPrimary}}>{preferenceTitles.language[language]}</Text>
+                                    <View style={{display: "flex", flexDirection: "row", gap: 0, flexWrap: "wrap", justifyContent: "center"}}>
                                         {languageSelection.map(langSelect =>{
-                                            return <Button style={{borderRadius: 0, width: "25%"}} key={langSelect.code} buttonColor={language === langSelect.code ? theme.colors.primaryContainer : theme.colors.background} onPress={()=>handleLanguageSwitch(langSelect.code)} mode="outlined">{langSelect.flag}</Button>
+                                            return <Button style={{borderRadius: 0, marginRight: -1, marginBottom: -1}} key={langSelect.code} buttonColor={language === langSelect.code ? theme.colors.primaryContainer : theme.colors.background} onPress={()=>handleLanguageSwitch(langSelect.code)} mode="outlined">{langSelect.flag}</Button>
                                         })}
                                     </View>
                                 </View>
