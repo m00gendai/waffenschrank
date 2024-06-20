@@ -158,8 +158,7 @@ export default function mainMenu(){
             if(gun.images !== null && gun.images.length !== 0){
                 const base64images:string[] = await Promise.all(gun.images.map(async (image, index) =>{
                     const base64Image = image;
-                    const fileUri = FileSystem.documentDirectory + `${gun.manufacturer ? sanitizeFileName(gun.manufacturer) : ""}_${sanitizeFileName(gun.model)}_image_${index}`;
-                    console.log(fileUri)
+                    const fileUri = FileSystem.documentDirectory + `${sanitizeFileName(gun.id)}_image_${index}`;
                     await FileSystem.writeAsStringAsync(fileUri, base64Image, {
                         encoding: FileSystem.EncodingType.Base64,
                     })
@@ -206,7 +205,7 @@ export default function mainMenu(){
             if(ammo.images !== null && ammo.images.length !== 0){
                 const base64images:string[] = await Promise.all(ammo.images.map(async (image, index) =>{
                     const base64Image = image;
-                    const fileUri = FileSystem.documentDirectory + `${sanitizeFileName(ammo.designation)}_image_${index}`;
+                    const fileUri = FileSystem.documentDirectory + `${sanitizeFileName(ammo.id)}_image_${index}`;
                     await FileSystem.writeAsStringAsync(fileUri, base64Image, {
                         encoding: FileSystem.EncodingType.Base64,
                     })
