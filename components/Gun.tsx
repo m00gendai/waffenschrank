@@ -80,7 +80,7 @@ export default function Gun(){
             
             <Appbar style={{width: "100%"}}>
                 <Appbar.BackAction  onPress={() => setSeeGunOpen()} />
-                <Appbar.Content title={`${currentGun.manufacturer} ${currentGun.model}`} />
+                <Appbar.Content title={`${currentGun.manufacturer !== undefined? currentGun.manufacturer : ""} ${currentGun.model}`} />
                 <Appbar.Action icon="printer" onPress={()=>printSingleGun(currentGun, language)} />
                 <Appbar.Action icon="pencil" onPress={setEditGunOpen} />
             </Appbar>
