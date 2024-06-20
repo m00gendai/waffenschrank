@@ -77,6 +77,14 @@ interface GunQuickShot{
     errorAmountTooLow: SimpleTranslation
 }
 
+interface TagModal{
+    title: SimpleTranslation
+    subtitle: SimpleTranslation
+    existingTags: SimpleTranslation
+    inputTags: SimpleTranslation
+    selectedTags: SimpleTranslation
+}
+
 export const editGunTitle:SimpleTranslation = {
     de: "Waffe bearbeiten",
     en: "Edit Gun",
@@ -274,6 +282,37 @@ export const databaseImportAlert:Alert = {
     },
     subtitle: {
         de: "Die aktuelle Datenbank wird unwiderruflich mit der importierten überschrieben. Wirklich fortfahren?",
+        en: "The current database will be irrevocally overwritten. Really continue?",
+        fr: "La base de données actuelle est irrémédiablement écrasée par celle qui a été importée. Vraiment continuer?",
+        it: "Il database attuale sarà sovrascritto in modo irrevocabile. Continuare davvero?",
+        ch: "La banca da datas actuala vegn transcritta irrevocablamain cun ils importads. Propi cuntinuar?",
+    },
+    yes: {
+        de: "Ja",
+        en: "Yes",
+        fr: "Oui",
+        it: "Sì",
+        ch: "Gea",
+    },
+    no: {
+        de: "Nein",
+        en: "No",
+        fr: "Non",
+        it: "No",
+        ch: "Na",
+    }
+}
+
+export const deleteTagFromListAlert:Alert = {
+    title: {
+        de: "Schlagwort wirklich löschen?",
+        en: "Import database and overwrite current?",
+        fr: "Importer la base de données et remplacer l'actuelle?",
+        it: "Importare il database e sovrascrivere l'attuale?",
+        ch: "Importar la banca da datas e transcriver il scriver actual?",
+    },
+    subtitle: {
+        de: "Das Schlagwort wird sowohl aus der Liste wie auch aus dem Eintrag gelöscht",
         en: "The current database will be irrevocally overwritten. Really continue?",
         fr: "La base de données actuelle est irrémédiablement écrasée par celle qui a été importée. Vraiment continuer?",
         it: "Il database attuale sarà sovrascritto in modo irrevocabile. Continuare davvero?",
@@ -622,5 +661,43 @@ export const gunQuickShot:GunQuickShot = {
         fr: "Munitions de stocks",
         it: "Munizioni di scorta",
         ch: "Muniziun da plantadi"  
+    }
+}
+
+export const tagModal:TagModal ={
+    title: {
+        de: "Schlagworte", 
+        en: "Tags",
+        fr: "Mots-clés",
+        it: "Parole chiave",
+        ch: "pleds caracteristics"  
+    },
+    subtitle: {
+        de: "Hier können Schlagworte erfasst werden, nach denen in der Übersicht gefiltert werden kann.", 
+        en: "Here you can define tags, by which you can filter in the collection view.",
+        fr: "Il est possible de saisir ici des mots-clés qui serviront à filtrer l'aperçu.",
+        it: "Qui si possono inserire parole chiave, che possono poi essere filtrate nella panoramica.",
+        ch: "Qua pon ins registrar chavazzins, tenor ils quals ins po filtrar en la survista."  
+    },
+    existingTags: {
+        de: "Bereits vorhandene Schlagwörter", 
+        en: "Existing tags",
+        fr: "Mots-clés déjà existants",
+        it: "Parole chiave esistenti",
+        ch: "Pleds gia existents"  
+    },
+    inputTags: {
+        de: "Schlagwort eingeben", 
+        en: "Enter tag",
+        fr: "Saisir un mot-clé",
+        it: "Inserire la parola chiave",
+        ch: "Dar il pled da tagl"  
+    },
+    selectedTags: {
+        de: "Ausgewählte Schlagworte", 
+        en: "Selected tags",
+        fr: "Mots-clés sélectionnés",
+        it: "Parole chiave selezionate",
+        ch: "Pleds selecziunads"  
     }
 }
