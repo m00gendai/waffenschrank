@@ -1,8 +1,8 @@
 import { Alert, ScrollView, TouchableNativeFeedback, View } from "react-native"
 import Animated, { LightSpeedInLeft, LightSpeedOutLeft } from "react-native-reanimated"
 import { useViewStore } from "../stores/useViewStore"
-import { ActivityIndicator, Button, Dialog, Divider, Icon, List, Modal, SegmentedButtons, Snackbar, Text } from "react-native-paper"
-import { databaseImportAlert, databaseOperations, preferenceTitles, toastMessages } from "../lib/textTemplates"
+import { ActivityIndicator, Button, Dialog, Divider, Icon, List, Modal, SegmentedButtons, Snackbar, Switch, Text } from "react-native-paper"
+import { databaseImportAlert, databaseOperations, generalSettingsLabels, preferenceTitles, toastMessages } from "../lib/textTemplates"
 import { usePreferenceStore } from "../stores/usePreferenceStore"
 import AsyncStorage from "@react-native-async-storage/async-storage"
 import { AMMO_DATABASE, A_KEY_DATABASE, A_TAGS, GUN_DATABASE, KEY_DATABASE, PREFERENCES, TAGS, defaultViewPadding, languageSelection } from "../configs"
@@ -22,7 +22,7 @@ import { useTagStore } from "../stores/useTagStore"
 export default function mainMenu(){
 
     const { setMainMenuOpen } = useViewStore()
-    const { language, switchLanguage, theme, switchTheme, dbImport, setDbImport, setAmmoDbImport } = usePreferenceStore()
+    const { language, switchLanguage, theme, switchTheme, dbImport, setDbImport, setAmmoDbImport, listImages, setListImages } = usePreferenceStore()
     const { gunCollection } = useGunStore()
     const { ammoCollection } = useAmmoStore()
     const {tags, setTags, ammo_tags, setAmmoTags, overWriteAmmoTags, overWriteTags} = useTagStore()
@@ -271,6 +271,15 @@ export default function mainMenu(){
         onToggleSnackBar()
     }
 
+    async function handleSwitches(setting: string){
+        if(setting === "listImages"){
+            setListImages(!listImages)
+            const preferences:string = await AsyncStorage.getItem(PREFERENCES)
+            const newPreferences:{[key:string] : string} = preferences == null ? {"listImages": !listImages} : {...JSON.parse(preferences), "listImages": !listImages} 
+            await AsyncStorage.setItem(PREFERENCES, JSON.stringify(newPreferences))
+        }
+    }
+
     return(
         <Animated.View entering={LightSpeedInLeft} exiting={LightSpeedOutLeft} style={{position: "absolute", left: 0, width: "100%", height: "100%"}}>
             <SafeAreaView style={{display: "flex", flexDirection: "row", flexWrap: "nowrap", backgroundColor: theme.colors.primary}}>
@@ -348,6 +357,16 @@ export default function mainMenu(){
                                             <View style={{display: "flex", flexDirection: "row", justifyContent: "flex-start", flexWrap: "wrap", gap: 5}}>
                                                 <Button style={{width: "45%"}} icon="table-large" onPress={()=>printAmmoCollection(ammoCollection, language)} mode="contained">{preferenceTitles.printAllAmmo[language]}</Button>
                                                 <Button style={{width: "45%"}} icon="badge-account-outline" onPress={()=>printAmmoGallery(ammoCollection, language)} mode="contained">{preferenceTitles.printGallery[language]}</Button>
+                                            </View>
+                                        </View>
+                                    </List.Accordion>
+                                    <List.Accordion left={props => <><List.Icon {...props} icon="cog-outline" /><List.Icon {...props} icon="tune" /></>} title={preferenceTitles.generalSettings[language]} titleStyle={{fontWeight: "700", color: theme.colors.onBackground}}>
+                                        <View style={{ marginLeft: 5, marginRight: 5, padding: defaultViewPadding, backgroundColor: theme.colors.background, borderColor: theme.colors.primary, borderLeftWidth: 5}}>
+                                            <View style={{display: "flex", flexDirection: "row", justifyContent: "flex-start", flexWrap: "wrap", gap: 5}}>
+                                                <View style={{display: "flex", flexWrap: "nowrap", justifyContent: "space-between", alignItems: "center", flexDirection: "row", width: "100%"}}>
+                                                    <Text style={{flex: 7}}>{generalSettingsLabels.listImages[language]}</Text>
+                                                    <Switch style={{flex: 3}} value={listImages} onValueChange={()=>handleSwitches("listImages")} />
+                                                </View>
                                             </View>
                                         </View>
                                     </List.Accordion>
