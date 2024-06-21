@@ -38,8 +38,9 @@ interface PreferenceTitle{
     printAllGuns: SimpleTranslation
     printArt5: SimpleTranslation
     printGallery: SimpleTranslation
-    ammoList: SimpleTranslation,
+    ammoList: SimpleTranslation
     printAllAmmo: SimpleTranslation
+    generalSettings: SimpleTranslation
 }
 
 interface DatabaseOperation{
@@ -83,6 +84,10 @@ interface TagModal{
     existingTags: SimpleTranslation
     inputTags: SimpleTranslation
     selectedTags: SimpleTranslation
+}
+
+interface GeneralSettingsLabels{
+    listImages: SimpleTranslation
 }
 
 export const editGunTitle:SimpleTranslation = {
@@ -475,6 +480,13 @@ export const preferenceTitles:PreferenceTitle = {
         it: "Completo",
         ch: "Cumpletta",
     },
+    generalSettings:{
+        de: "Allgemeine Einstellungen",
+        en: "General settings",
+        fr: "Paramètres généraux",
+        it: "Impostazioni generali",
+        ch: "Parameters generals",
+    }
 }
 
 export const databaseOperations:DatabaseOperation = {
@@ -699,5 +711,15 @@ export const tagModal:TagModal ={
         fr: "Mots-clés sélectionnés",
         it: "Parole chiave selezionate",
         ch: "Pleds selecziunads"  
+    }
+}
+
+export const generalSettingsLabels: GeneralSettingsLabels = {
+    listImages: {
+        de: "Bilder in Listenansicht anzeigen", 
+        en: "Show images in list view",
+        fr: "Afficher les images dans la liste",
+        it: "Mostra le immagini nella vista elenco",
+        ch: "Mussar maletgs cun ina glista"  
     }
 }
