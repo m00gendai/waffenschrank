@@ -39,7 +39,7 @@ export default function App() {
   return (
     <NavigationContainer>
     <PaperProvider theme={currentTheme}>
-    <StatusBar backgroundColor={mainMenuOpen ? theme.colors.primary : theme.colors.background} style="auto" />
+    <StatusBar backgroundColor={mainMenuOpen ? theme.colors.primary : theme.colors.background} style={theme.name.includes("dark") ? "light" : "dark"} />
     <Tab.Navigator screenOptions={{
         headerShown: false
         

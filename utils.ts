@@ -2,6 +2,7 @@ import { AmmoType, GunType, SortingTypes } from "./interfaces";
 import { gunDataTemplate } from "./lib/gunDataTemplate";
 import { validationErros } from "./lib//textTemplates";
 import { ammoDataTemplate } from "./lib/ammoDataTemplate";
+import { requiredFieldsAmmo, requiredFieldsGun } from "./configs";
 
 export function doSortBy(value: SortingTypes, ascending: boolean, items: GunType[] | AmmoType[]){
     if(value === "alphabetical"){
@@ -75,7 +76,7 @@ export function getIcon(type:SortingTypes){
 
 export function gunDataValidation(value:GunType, lang:string){
     let validationResponse: {field: string, error: string}[] = []
-    const requiredFields: string[] = ["model"]
+    const requiredFields: string[] = requiredFieldsGun
     const x:{de: string, en: string, fr: string}[] = gunDataTemplate.filter(item => requiredFields.includes(item.name))
     for(const entry of requiredFields){
        if( !(entry in value) || value[entry].length == 0 ){
@@ -87,7 +88,7 @@ export function gunDataValidation(value:GunType, lang:string){
 
 export function ammoDataValidation(value:AmmoType, lang:string){
     let validationResponse: {field: string, error: string}[] = []
-    const requiredFields: string[] = ["designation"]
+    const requiredFields: string[] = requiredFieldsAmmo
     const x:{de: string, en: string, fr: string}[] = ammoDataTemplate.filter(item => requiredFields.includes(item.name))
     for(const entry of requiredFields){
        if( !(entry in value) || value[entry].length == 0 ){

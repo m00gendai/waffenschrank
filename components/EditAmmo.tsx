@@ -12,12 +12,13 @@ import { AMMO_DATABASE } from '../configs';
 import { AmmoType } from '../interfaces';
 import NewTextArea from './NewTextArea';
 import NewCheckboxArea from './NewCheckboxArea';
-import { editAmmoTitle, editGunTitle, imageDeleteAlert, toastMessages, unsavedChangesAlert } from '../lib/textTemplates';
+import { editAmmoTitle, editGunTitle, imageDeleteAlert, toastMessages, unsavedChangesAlert, validationFailedAlert } from '../lib/textTemplates';
 import { usePreferenceStore } from '../stores/usePreferenceStore';
 import { useViewStore } from '../stores/useViewStore';
 import { useAmmoStore } from '../stores/useAmmoStore';
 import NewChipArea from './NewChipArea';
 import * as FileSystem from 'expo-file-system';
+import { ammoDataValidation } from '../utils';
 
 
 export default function EditAmmo(){
@@ -69,6 +70,16 @@ export default function EditAmmo(){
   },[ammoData])
 
     async function save(value: AmmoType) {
+        const validationResult:{field: string, error: string}[] = ammoDataValidation(value, language)
+        if(validationResult.length != 0){
+            Alert.alert(validationFailedAlert.title[language], `${validationResult.map(result => `${result.field}: ${result.error}`)}`, [
+                {
+                    text: validationFailedAlert.no[language],
+                    style: "cancel"
+                }
+            ])
+            return
+        }
         await SecureStore.setItemAsync(`${AMMO_DATABASE}_${value.id}`, JSON.stringify(value)) // Save the ammo
         setCurrentAmmo({...value, images:selectedImage})
         setSaveState(true)

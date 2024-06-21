@@ -12,12 +12,13 @@ import { GUN_DATABASE } from '../configs';
 import { GunType } from '../interfaces';
 import NewTextArea from './NewTextArea';
 import NewCheckboxArea from './NewCheckboxArea';
-import { editGunTitle, imageDeleteAlert, toastMessages, unsavedChangesAlert } from '../lib/textTemplates';
+import { editGunTitle, imageDeleteAlert, toastMessages, unsavedChangesAlert, validationFailedAlert } from '../lib/textTemplates';
 import { usePreferenceStore } from '../stores/usePreferenceStore';
 import { useViewStore } from '../stores/useViewStore';
 import { useGunStore } from '../stores/useGunStore';
 import NewChipArea from './NewChipArea';
 import * as FileSystem from 'expo-file-system';
+import { gunDataValidation } from '../utils';
 
 
 export default function EditGun(){
@@ -69,6 +70,16 @@ export default function EditGun(){
   },[gunData])
 
     async function save(value: GunType) {
+        const validationResult:{field: string, error: string}[] = gunDataValidation(value, language)
+        if(validationResult.length != 0){
+            Alert.alert(validationFailedAlert.title[language], `${validationResult.map(result => `${result.field}: ${result.error}`)}`, [
+                {
+                    text: validationFailedAlert.no[language],
+                    style: "cancel"
+                }
+            ])
+            return
+        }
         await SecureStore.setItemAsync(`${GUN_DATABASE}_${value.id}`, JSON.stringify(value)) // Save the gun
         console.log(`Saved item ${JSON.stringify(value)} with key ${GUN_DATABASE}_${value.id}`)
         setCurrentGun({...value, images:selectedImage})

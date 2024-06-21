@@ -38,3 +38,6 @@ export const languageSelection:{flag:string, code:Languages}[] = [
     {flag: "🇮🇹", code: "it"},
     {flag: "🇬🇧", code: "en"},
 ]
+
+export const requiredFieldsGun:string[] = ["model"]
+export const requiredFieldsAmmo:string[] = ["designation"]
