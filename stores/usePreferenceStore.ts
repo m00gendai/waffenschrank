@@ -21,6 +21,8 @@ interface PreferenceStore {
     toggleDisplayAmmoAsGrid: () => void
     sortAmmoBy: SortingTypes
     setSortAmmoBy: (type: SortingTypes) => void
+    listImages: boolean
+    setListImages: (status: boolean) => void
   }
 
   export const usePreferenceStore = create<PreferenceStore>((set) => ({
@@ -42,4 +44,6 @@ interface PreferenceStore {
     toggleDisplayAmmoAsGrid: () => set((state) => ({displayAmmoAsGrid: !state.displayAmmoAsGrid})),
     sortAmmoBy: "alphabetical",
     setSortAmmoBy: (type: SortingTypes) => set((state) => ({sortAmmoBy: type})),
+    listImages: true,
+    setListImages: (status: boolean) => set((state) => ({listImages: status}))
   }))
