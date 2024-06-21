@@ -5,7 +5,7 @@ import { ActivityIndicator, Button, Dialog, Divider, Icon, List, Modal, Segmente
 import { databaseImportAlert, databaseOperations, preferenceTitles, toastMessages } from "../lib/textTemplates"
 import { usePreferenceStore } from "../stores/usePreferenceStore"
 import AsyncStorage from "@react-native-async-storage/async-storage"
-import { AMMO_DATABASE, A_KEY_DATABASE, GUN_DATABASE, KEY_DATABASE, PREFERENCES, defaultViewPadding, languageSelection } from "../configs"
+import { AMMO_DATABASE, A_KEY_DATABASE, A_TAGS, GUN_DATABASE, KEY_DATABASE, PREFERENCES, TAGS, defaultViewPadding, languageSelection } from "../configs"
 import { colorThemes } from "../lib/colorThemes"
 import { useState } from "react"
 import * as FileSystem from 'expo-file-system';
@@ -16,6 +16,7 @@ import { useGunStore } from "../stores/useGunStore"
 import { SafeAreaView } from "react-native-safe-area-context"
 import { printAmmoCollection, printAmmoGallery, printGunCollection, printGunCollectionArt5, printGunGallery } from "../functions/printToPDF"
 import { useAmmoStore } from "../stores/useAmmoStore"
+import { useTagStore } from "../stores/useTagStore"
 
 
 export default function mainMenu(){
@@ -24,6 +25,7 @@ export default function mainMenu(){
     const { language, switchLanguage, theme, switchTheme, dbImport, setDbImport, setAmmoDbImport } = usePreferenceStore()
     const { gunCollection } = useGunStore()
     const { ammoCollection } = useAmmoStore()
+    const {tags, setTags, ammo_tags, setAmmoTags, overWriteAmmoTags, overWriteTags} = useTagStore()
 
     const [toastVisible, setToastVisible] = useState<boolean>(false)
     const [snackbarText, setSnackbarText] = useState<string>("")
@@ -154,6 +156,7 @@ export default function mainMenu(){
         const guns:GunType[] = JSON.parse(content)
         setImportSize(guns.length)
         setDbModalVisible(true)
+        const importTags:{label:string, status:boolean}[] = []
         const importableGunCollection:GunType[] = await Promise.all(guns.map(async gun=>{
             if(gun.images !== null && gun.images.length !== 0){
                 const base64images:string[] = await Promise.all(gun.images.map(async (image, index) =>{
@@ -165,14 +168,29 @@ export default function mainMenu(){
                     return fileUri
                 }))
                 const importableGun:GunType = {...gun, images: base64images}
+                if(gun.tags !== undefined && gun.tags.length !== 0){
+                    for(const tag of gun.tags){
+                        if(!importTags.some(importTag => importTag.label === tag)){
+                            importTags.push({label: tag, status: true})
+                        }
+                    }
+                }
                 setImportProgress(importProgress => importProgress+1)
                 return importableGun
             } else {
+                if(gun.tags !== undefined && gun.tags.length !== 0){
+                    for(const tag in gun.tags){
+                        if(!importTags.some(importTag => importTag.label === tag)){
+                            importTags.push({label: tag, status: true})
+                        }
+                    }
+                }
                 setImportProgress(importProgress => importProgress+1)
                 return gun
             }
         }))
-        
+        overWriteTags(importTags)
+        await AsyncStorage.setItem(TAGS, JSON.stringify(importTags)) // Save the key object
         const allKeys:string = await AsyncStorage.getItem(KEY_DATABASE) // gets the object that holds all key values
         let newKeys:string[] = []
         
@@ -201,6 +219,7 @@ export default function mainMenu(){
         const ammunitions:AmmoType[] = JSON.parse(content)
         setImportSize(ammunitions.length)
         setDbModalVisible(true)
+        const importTags:{label:string, status:boolean}[] = []
         const importableAmmoCollection:AmmoType[] = await Promise.all(ammunitions.map(async ammo=>{
             if(ammo.images !== null && ammo.images.length !== 0){
                 const base64images:string[] = await Promise.all(ammo.images.map(async (image, index) =>{
@@ -212,14 +231,29 @@ export default function mainMenu(){
                     return fileUri
                 }))
                 const importableAmmo:AmmoType = {...ammo, images: base64images}
+                if(ammo.tags !== undefined && ammo.tags.length !== 0){
+                    for(const tag of ammo.tags){
+                        if(!importTags.some(importTag => importTag.label === tag)){
+                            importTags.push({label: tag, status: true})
+                        }
+                    }
+                }
                 setImportProgress(importProgress => importProgress+1)
                 return importableAmmo
             } else {
+                if(ammo.tags !== undefined && ammo.tags.length !== 0){
+                    for(const tag of ammo.tags){
+                        if(!importTags.some(importTag => importTag.label === tag)){
+                            importTags.push({label: tag, status: true})
+                        }
+                    }
+                }
                 setImportProgress(importProgress => importProgress+1)
                 return ammo
             }
         }))
-        
+        overWriteAmmoTags(importTags)
+        await AsyncStorage.setItem(A_TAGS, JSON.stringify(importTags)) // Save the key object
         const allKeys:string = await AsyncStorage.getItem(A_KEY_DATABASE) // gets the object that holds all key values
         let newKeys:string[] = []
         
