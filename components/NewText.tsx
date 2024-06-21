@@ -7,7 +7,7 @@ import dayjs from 'dayjs';
 import ColorPicker, { Panel1, Swatches, Preview, HueSlider } from 'reanimated-color-picker';
 import { calibers } from '../lib/caliberData';
 import { usePreferenceStore } from '../stores//usePreferenceStore';
-import { defaultViewPadding } from '../configs';
+import { defaultViewPadding, requiredFieldsAmmo, requiredFieldsGun } from '../configs';
 
 interface Props{
     data: string
@@ -150,7 +150,7 @@ function handleFocus(){
             >          
                 <View style={{flex: 1}}>
                     <TextInput
-                        label={`${label} ${isFocus ? `${charCount}/${MAX_CHAR_COUNT}` : ``}`} 
+                        label={`${label}${gunData !== undefined ? requiredFieldsGun.includes(data) ? "*" : "" : requiredFieldsAmmo.includes(data) ? "*" : ""} ${isFocus ? `${charCount}/${MAX_CHAR_COUNT}` : ``}`} 
                         style={{
                             flex: 1,
                         }}
