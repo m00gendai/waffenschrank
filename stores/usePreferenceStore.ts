@@ -1,6 +1,12 @@
 import { create } from "zustand"
 import { colorThemes } from "../lib/colorThemes"
 import { Color, Languages, SortingTypes} from "../interfaces"
+import { GeneratedIdentifierFlags } from "typescript"
+
+interface GeneralSettings{
+  displayImagesInListViewGun: boolean
+  displayImagesInListViewAmmo: boolean
+}
 
 interface PreferenceStore {
     language: string
@@ -21,8 +27,8 @@ interface PreferenceStore {
     toggleDisplayAmmoAsGrid: () => void
     sortAmmoBy: SortingTypes
     setSortAmmoBy: (type: SortingTypes) => void
-    listImages: boolean
-    setListImages: (status: boolean) => void
+    generalSettings: GeneralSettings
+    setGeneralSettings: (settings: GeneralSettings) => void
   }
 
   export const usePreferenceStore = create<PreferenceStore>((set) => ({
@@ -44,6 +50,9 @@ interface PreferenceStore {
     toggleDisplayAmmoAsGrid: () => set((state) => ({displayAmmoAsGrid: !state.displayAmmoAsGrid})),
     sortAmmoBy: "alphabetical",
     setSortAmmoBy: (type: SortingTypes) => set((state) => ({sortAmmoBy: type})),
-    listImages: true,
-    setListImages: (status: boolean) => set((state) => ({listImages: status}))
+    generalSettings: {
+      displayImagesInListViewGun: true,
+      displayImagesInListViewAmmo: true
+    },
+    setGeneralSettings: (settings: GeneralSettings) => set((state) => ({generalSettings: settings}))
   }))
