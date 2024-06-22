@@ -16,7 +16,7 @@ interface Props{
 
 export default function GunCard({gun, shotVisible, setShotVisible}:Props){
 
-    const { ammoDbImport, displayAsGrid, setDisplayAsGrid, toggleDisplayAsGrid, sortAmmoBy, setSortAmmoBy, language, theme, listImages } = usePreferenceStore()
+    const { ammoDbImport, displayAsGrid, setDisplayAsGrid, toggleDisplayAsGrid, sortAmmoBy, setSortAmmoBy, language, theme, generalSettings } = usePreferenceStore()
     const { mainMenuOpen, setMainMenuOpen, newGunOpen, setNewGunOpen, editGunOpen, setEditGunOpen, seeGunOpen, setSeeGunOpen } = useViewStore()
     const { gunCollection, setGunCollection, currentGun, setCurrentGun } = useGunStore()    
 
@@ -42,11 +42,11 @@ export default function GunCard({gun, shotVisible, setShotVisible}:Props){
         >
             <Card.Title
                 titleStyle={{
-                width: displayAsGrid ? "100%" : listImages ? "60%" : "80%",
+                width: displayAsGrid ? "100%" : generalSettings.displayImagesInListViewGun ? "60%" : "80%",
                 color: theme.colors.onSurfaceVariant
                 }}
                 subtitleStyle={{
-                width: displayAsGrid ? "100%" : listImages ? "60%" : "80%",
+                width: displayAsGrid ? "100%" : generalSettings.displayImagesInListViewGun ? "60%" : "80%",
                 color: theme.colors.onSurfaceVariant
                 }}
                 title={`${gun.manufacturer && gun.manufacturer.length != 0 ? gun.manufacturer : ""} ${gun.model}`}
@@ -95,7 +95,7 @@ export default function GunCard({gun, shotVisible, setShotVisible}:Props){
                     flexDirection: "row"
                 }}
             >
-                {listImages ? <Card.Cover 
+                {generalSettings.displayImagesInListViewGun ? <Card.Cover 
                     source={gun.images && gun.images.length != 0 ? { uri: gun.images[0] } : require(`../assets//775788_several different realistic rifles and pistols on _xl-1024-v1-0.png`)} 
                     style={{
                         height: "75%",

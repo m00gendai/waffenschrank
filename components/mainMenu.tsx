@@ -22,7 +22,7 @@ import { useTagStore } from "../stores/useTagStore"
 export default function mainMenu(){
 
     const { setMainMenuOpen } = useViewStore()
-    const { language, switchLanguage, theme, switchTheme, dbImport, setDbImport, setAmmoDbImport, listImages, setListImages } = usePreferenceStore()
+    const { language, switchLanguage, theme, switchTheme, dbImport, setDbImport, setAmmoDbImport, generalSettings, setGeneralSettings } = usePreferenceStore()
     const { gunCollection } = useGunStore()
     const { ammoCollection } = useAmmoStore()
     const {tags, setTags, ammo_tags, setAmmoTags, overWriteAmmoTags, overWriteTags} = useTagStore()
@@ -272,13 +272,12 @@ export default function mainMenu(){
     }
 
     async function handleSwitches(setting: string){
-        if(setting === "listImages"){
-            setListImages(!listImages)
+        const newSettings = {...generalSettings, [setting]: !generalSettings[setting]}
+            setGeneralSettings(newSettings)
             const preferences:string = await AsyncStorage.getItem(PREFERENCES)
-            const newPreferences:{[key:string] : string} = preferences == null ? {"listImages": !listImages} : {...JSON.parse(preferences), "listImages": !listImages} 
+            const newPreferences:{[key:string] : string} = preferences == null ? {"generalSettings": newSettings} : {...JSON.parse(preferences), "generalSettings": newSettings} 
             await AsyncStorage.setItem(PREFERENCES, JSON.stringify(newPreferences))
         }
-    }
 
     return(
         <Animated.View entering={LightSpeedInLeft} exiting={LightSpeedOutLeft} style={{position: "absolute", left: 0, width: "100%", height: "100%"}}>
@@ -364,8 +363,12 @@ export default function mainMenu(){
                                         <View style={{ marginLeft: 5, marginRight: 5, padding: defaultViewPadding, backgroundColor: theme.colors.background, borderColor: theme.colors.primary, borderLeftWidth: 5}}>
                                             <View style={{display: "flex", flexDirection: "row", justifyContent: "flex-start", flexWrap: "wrap", gap: 5}}>
                                                 <View style={{display: "flex", flexWrap: "nowrap", justifyContent: "space-between", alignItems: "center", flexDirection: "row", width: "100%"}}>
-                                                    <Text style={{flex: 7}}>{generalSettingsLabels.listImages[language]}</Text>
-                                                    <Switch style={{flex: 3}} value={listImages} onValueChange={()=>handleSwitches("listImages")} />
+                                                    <Text style={{flex: 7}}>{generalSettingsLabels.displayImagesInListViewGun[language]}</Text>
+                                                    <Switch style={{flex: 3}} value={generalSettings.displayImagesInListViewGun} onValueChange={()=>handleSwitches("displayImagesInListViewGun")} />
+                                                </View>
+                                                <View style={{display: "flex", flexWrap: "nowrap", justifyContent: "space-between", alignItems: "center", flexDirection: "row", width: "100%"}}>
+                                                    <Text style={{flex: 7}}>{generalSettingsLabels.displayImagesInListViewAmmo[language]}</Text>
+                                                    <Switch style={{flex: 3}} value={generalSettings.displayImagesInListViewAmmo} onValueChange={()=>handleSwitches("displayImagesInListViewAmmo")} />
                                                 </View>
                                             </View>
                                         </View>

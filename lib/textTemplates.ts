@@ -87,7 +87,8 @@ interface TagModal{
 }
 
 interface GeneralSettingsLabels{
-    listImages: SimpleTranslation
+    displayImagesInListViewGun: SimpleTranslation
+    displayImagesInListViewAmmo: SimpleTranslation
 }
 
 export const editGunTitle:SimpleTranslation = {
@@ -715,11 +716,18 @@ export const tagModal:TagModal ={
 }
 
 export const generalSettingsLabels: GeneralSettingsLabels = {
-    listImages: {
-        de: "Bilder in Listenansicht anzeigen", 
-        en: "Show images in list view",
-        fr: "Afficher les images dans la liste",
-        it: "Mostra le immagini nella vista elenco",
-        ch: "Mussar maletgs cun ina glista"  
-    }
+    displayImagesInListViewGun: {
+        de: "Bilder in Listenansicht Waffen anzeigen", 
+        en: "Show images in gun list view",
+        fr: "Afficher les images dans la vue en liste armes",
+        it: "Visualizzare le immagini nella vista elenco armi",
+        ch: "Mussar armas cun ina glista"  
+    },
+    displayImagesInListViewAmmo: {
+        de: "Bilder in Listenansicht Munition anzeigen", 
+        en: "Show images in ammunition list view",
+        fr: "Afficher les images dans la vue en liste munitions",
+        it: "Visualizzare le immagini nella vista elenco munizioni",
+        ch: "Mussar maletgs cun ina glista muniziun"  
+    },
 }
