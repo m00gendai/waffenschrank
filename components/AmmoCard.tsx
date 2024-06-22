@@ -15,7 +15,7 @@ interface Props{
 
 export default function AmmoCard({ammo, stockVisible, setStockVisible}:Props){
 
-    const { ammoDbImport, displayAmmoAsGrid, setDisplayAmmoAsGrid, toggleDisplayAmmoAsGrid, sortAmmoBy, setSortAmmoBy, language, theme } = usePreferenceStore()
+    const { ammoDbImport, displayAmmoAsGrid, setDisplayAmmoAsGrid, toggleDisplayAmmoAsGrid, sortAmmoBy, setSortAmmoBy, language, theme, generalSettings } = usePreferenceStore()
     const { mainMenuOpen, setMainMenuOpen, newAmmoOpen, setNewAmmoOpen, editAmmoOpen, setEditAmmoOpen, seeAmmoOpen, setSeeAmmoOpen } = useViewStore()
     const { ammoCollection, setAmmoCollection, currentAmmo, setCurrentAmmo } = useAmmoStore()
 
@@ -42,11 +42,11 @@ export default function AmmoCard({ammo, stockVisible, setStockVisible}:Props){
         >
             <Card.Title
                 titleStyle={{
-                width: displayAmmoAsGrid ? "100%" : "60%",
+                width: displayAmmoAsGrid ? "100%" : generalSettings.displayImagesInListViewAmmo ? "60%" : "80%",
                 color: ammo.currentStock !== null && ammo.currentStock !== undefined && ammo.criticalStock ? Number(ammo.currentStock.toString()) <= Number(ammo.criticalStock.toString()) ? theme.colors.error : theme.colors.onSurfaceVariant : theme.colors.onSurfaceVariant,
                 }}
                 subtitleStyle={{
-                width: displayAmmoAsGrid ? "100%" : "60%",
+                width: displayAmmoAsGrid ? "100%" : generalSettings.displayImagesInListViewAmmo ? "60%" : "80%",
                 color: ammo.currentStock !== null && ammo.currentStock !== undefined && ammo.criticalStock ? Number(ammo.currentStock.toString()) <= Number(ammo.criticalStock.toString()) ? theme.colors.error : theme.colors.onSurfaceVariant : theme.colors.onSurfaceVariant,
                 }}
                 title={`${ammo.designation}`} 
@@ -100,13 +100,13 @@ export default function AmmoCard({ammo, stockVisible, setStockVisible}:Props){
                     flexWrap: "nowrap",
                 }}
             >
-                <Card.Cover 
+                {generalSettings.displayImagesInListViewAmmo ? <Card.Cover 
                     source={ammo.images && ammo.images.length != 0 ? { uri: ammo.images[0] } : require(`../assets//540940_several different realistic bullets and ammunition_xl-1024-v1-0.png`)} 
                     style={{
                         height: "75%",
                         aspectRatio: "4/3"
                     }}
-                /> 
+                /> : null}
                 <TouchableRipple onPress={() => handleStockButtonPress(ammo)} style={{borderRadius: 0}}>
                     <Badge
                         style={{

@@ -38,8 +38,10 @@ interface PreferenceTitle{
     printAllGuns: SimpleTranslation
     printArt5: SimpleTranslation
     printGallery: SimpleTranslation
-    ammoList: SimpleTranslation,
+    ammoList: SimpleTranslation
     printAllAmmo: SimpleTranslation
+    generalSettings: SimpleTranslation
+    about: SimpleTranslation
 }
 
 interface DatabaseOperation{
@@ -75,6 +77,19 @@ interface GunQuickShot{
     updateFromStock: SimpleTranslation
     errorNoAmountDefined: SimpleTranslation
     errorAmountTooLow: SimpleTranslation
+}
+
+interface TagModal{
+    title: SimpleTranslation
+    subtitle: SimpleTranslation
+    existingTags: SimpleTranslation
+    inputTags: SimpleTranslation
+    selectedTags: SimpleTranslation
+}
+
+interface GeneralSettingsLabels{
+    displayImagesInListViewGun: SimpleTranslation
+    displayImagesInListViewAmmo: SimpleTranslation
 }
 
 export const editGunTitle:SimpleTranslation = {
@@ -295,6 +310,37 @@ export const databaseImportAlert:Alert = {
     }
 }
 
+export const deleteTagFromListAlert:Alert = {
+    title: {
+        de: "Schlagwort wirklich löschen?",
+        en: "Import database and overwrite current?",
+        fr: "Importer la base de données et remplacer l'actuelle?",
+        it: "Importare il database e sovrascrivere l'attuale?",
+        ch: "Importar la banca da datas e transcriver il scriver actual?",
+    },
+    subtitle: {
+        de: "Das Schlagwort wird sowohl aus der Liste wie auch aus dem Eintrag gelöscht",
+        en: "The current database will be irrevocally overwritten. Really continue?",
+        fr: "La base de données actuelle est irrémédiablement écrasée par celle qui a été importée. Vraiment continuer?",
+        it: "Il database attuale sarà sovrascritto in modo irrevocabile. Continuare davvero?",
+        ch: "La banca da datas actuala vegn transcritta irrevocablamain cun ils importads. Propi cuntinuar?",
+    },
+    yes: {
+        de: "Ja",
+        en: "Yes",
+        fr: "Oui",
+        it: "Sì",
+        ch: "Gea",
+    },
+    no: {
+        de: "Nein",
+        en: "No",
+        fr: "Non",
+        it: "No",
+        ch: "Na",
+    }
+}
+
 
 export const validationErros: Validation = {
     requiredFieldEmpty: {
@@ -436,6 +482,20 @@ export const preferenceTitles:PreferenceTitle = {
         it: "Completo",
         ch: "Cumpletta",
     },
+    generalSettings:{
+        de: "Allgemeine Einstellungen",
+        en: "General settings",
+        fr: "Paramètres généraux",
+        it: "Impostazioni generali",
+        ch: "Parameters generals",
+    },
+    about:{
+        de: "Über",
+        en: "About",
+        fr: "Au sujet de",
+        it: "Circa",
+        ch: "Davart",
+    }
 }
 
 export const databaseOperations:DatabaseOperation = {
@@ -623,4 +683,75 @@ export const gunQuickShot:GunQuickShot = {
         it: "Munizioni di scorta",
         ch: "Muniziun da plantadi"  
     }
+}
+
+export const tagModal:TagModal ={
+    title: {
+        de: "Schlagworte", 
+        en: "Tags",
+        fr: "Mots-clés",
+        it: "Parole chiave",
+        ch: "pleds caracteristics"  
+    },
+    subtitle: {
+        de: "Hier können Schlagworte erfasst werden, nach denen in der Übersicht gefiltert werden kann.", 
+        en: "Here you can define tags, by which you can filter in the collection view.",
+        fr: "Il est possible de saisir ici des mots-clés qui serviront à filtrer l'aperçu.",
+        it: "Qui si possono inserire parole chiave, che possono poi essere filtrate nella panoramica.",
+        ch: "Qua pon ins registrar chavazzins, tenor ils quals ins po filtrar en la survista."  
+    },
+    existingTags: {
+        de: "Bereits vorhandene Schlagwörter", 
+        en: "Existing tags",
+        fr: "Mots-clés déjà existants",
+        it: "Parole chiave esistenti",
+        ch: "Pleds gia existents"  
+    },
+    inputTags: {
+        de: "Schlagwort eingeben", 
+        en: "Enter tag",
+        fr: "Saisir un mot-clé",
+        it: "Inserire la parola chiave",
+        ch: "Dar il pled da tagl"  
+    },
+    selectedTags: {
+        de: "Ausgewählte Schlagworte", 
+        en: "Selected tags",
+        fr: "Mots-clés sélectionnés",
+        it: "Parole chiave selezionate",
+        ch: "Pleds selecziunads"  
+    }
+}
+
+export const generalSettingsLabels: GeneralSettingsLabels = {
+    displayImagesInListViewGun: {
+        de: "Bilder in Listenansicht Waffen anzeigen", 
+        en: "Show images in gun list view",
+        fr: "Afficher les images dans la vue en liste armes",
+        it: "Visualizzare le immagini nella vista elenco armi",
+        ch: "Mussar armas cun ina glista"  
+    },
+    displayImagesInListViewAmmo: {
+        de: "Bilder in Listenansicht Munition anzeigen", 
+        en: "Show images in ammunition list view",
+        fr: "Afficher les images dans la vue en liste munitions",
+        it: "Visualizzare le immagini nella vista elenco munizioni",
+        ch: "Mussar maletgs cun ina glista muniziun"  
+    },
+}
+
+export const aboutText: SimpleTranslation = {
+    de: "Arsenal - Die schweizer App für Waffensammler!",
+    en: "Arsenal - The Swiss app for gun collectors!",
+    fr: "Arsenal - L'application suisse pour les collectionneurs d'armes !",
+    it: "Arsenal - L'app svizzera per i collezionisti di armi!",
+    ch: "Arsenal - L'app svizra per las collecziunadras ed ils collecziunaders d'armas!"
+}
+
+export const aboutThanks: SimpleTranslation = {
+    de: "Speziellen Dank an:",
+    en: "Special thanks to:",
+    fr: "Remerciements spéciaux à",
+    it: "Un ringraziamento speciale a",
+    ch: "Grazia fitg spezial a",
 }

@@ -78,7 +78,7 @@ export default function Ammo(){
             
             <Appbar style={{width: "100%"}}>
                 <Appbar.BackAction  onPress={() => setSeeAmmoOpen()} />
-                <Appbar.Content title={`${currentAmmo.designation} ${currentAmmo.manufacturer}`} />
+                <Appbar.Content title={`${currentAmmo.designation} ${currentAmmo.manufacturer !== undefined? currentAmmo.manufacturer : ""}`} />
                 <Appbar.Action icon="printer" onPress={()=>printSingleAmmo(currentAmmo, language)} />
                 <Appbar.Action icon="pencil" onPress={setEditAmmoOpen} />
             </Appbar>

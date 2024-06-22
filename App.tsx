@@ -18,7 +18,7 @@ import { StatusBar } from 'expo-status-bar';
 
 export default function App() {
 
-  const { switchLanguage, theme, switchTheme, language } = usePreferenceStore();
+  const { switchLanguage, theme, switchTheme, language, generalSettings, setGeneralSettings } = usePreferenceStore();
   const { mainMenuOpen } = useViewStore()
   
   useEffect(()=>{
@@ -28,18 +28,19 @@ export default function App() {
       
       switchLanguage(isPreferences === null ? "de" : isPreferences.language === undefined ? "de" : isPreferences.language)
       switchTheme(isPreferences === null ? "default" : isPreferences.theme === undefined ? "default" : isPreferences.theme)
+      setGeneralSettings(isPreferences === null ? {displayImagesInListViewAmmo: true, displayImagesInListViewGun: true} : isPreferences.generalSettings === undefined ? {displayImagesInListViewAmmo: true, displayImagesInListViewGun: true} : isPreferences.generalSettings)
     }
     getPreferences()
   },[])
 
   const currentTheme = {...theme, roundness : 5}
-
+  
   const Tab = createBottomTabNavigator();
   
   return (
     <NavigationContainer>
     <PaperProvider theme={currentTheme}>
-    <StatusBar backgroundColor={mainMenuOpen ? theme.colors.primary : theme.colors.background} style="auto" />
+    <StatusBar backgroundColor={mainMenuOpen ? theme.colors.primary : theme.colors.background} style={theme.name.includes("dark") ? "light" : "dark"} />
     <Tab.Navigator screenOptions={{
         headerShown: false
         

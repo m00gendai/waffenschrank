@@ -7,7 +7,7 @@ import dayjs from 'dayjs';
 import ColorPicker, { Panel1, Swatches, Preview, HueSlider } from 'reanimated-color-picker';
 import { calibers } from '../lib/caliberData';
 import { usePreferenceStore } from '../stores//usePreferenceStore';
-import { defaultViewPadding } from '../configs';
+import { defaultViewPadding, requiredFieldsAmmo, requiredFieldsGun } from '../configs';
 
 interface Props{
     data: string
@@ -29,16 +29,39 @@ export default function NewText({data, gunData, setGunData, ammoData, setAmmoDat
     const [color, setColor] = useState<string>(gunData ? gunData[data] : "#000")
     const [activeCaliber, setActiveCaliber] = useState<string[]>(gunData && data === "caliber" && gunData[data] !== undefined ? gunData[data] : ammoData && data === "caliber" && ammoData[data] !== undefined ? [ammoData[data]] : [])
 
+
+    const [charCount, setCharCount] = useState(0)
+    const [isBackspace, setIsBackspace] = useState<boolean>(false)
+    const [isFocus, setFocus] = useState<boolean>(false)
+
+    const MAX_CHAR_COUNT: number = 100
+
     const { language, theme } = usePreferenceStore()
 
     function updateGunData(input:string | string[]){
-        setInput(Array.isArray(input) ? input.join("\n") : input)
-        setGunData({...gunData, [data]: input})
+        if(charCount < MAX_CHAR_COUNT){
+            setCharCount(input !== undefined ? input.length : 0)
+            setInput(Array.isArray(input) ? input.join("\n") : input)
+            setGunData({...gunData, [data]: input})
+        }
+        if(charCount >= MAX_CHAR_COUNT && isBackspace){
+            setCharCount(input !== undefined ? input.length : 0)
+            setInput(Array.isArray(input) ? input.join("\n") : input)
+            setGunData({...gunData, [data]: input})
+        }
     }
 
     function updateAmmoData(input:string){
-        setInput(input)
-        setAmmoData({...ammoData, [data]: input})
+        if(charCount < MAX_CHAR_COUNT){
+            setCharCount(input !== undefined ? input.length : 0)
+            setInput(input)
+            setAmmoData({...ammoData, [data]: input})
+        }
+        if(charCount >= MAX_CHAR_COUNT && isBackspace){
+            setCharCount(input !== undefined ? input.length : 0)
+            setInput(input)
+            setAmmoData({...ammoData, [data]: input})
+        }
     }
 
     function updateDate(input){
@@ -47,18 +70,18 @@ export default function NewText({data, gunData, setGunData, ammoData, setAmmoDat
     }
 
     function confirmDate(){
-        updateGunData(input)
+        gunData !== undefined ? updateGunData(input) : updateAmmoData(input)
         setShowDateTime(false)
         setInitialDate(input)
     }
 
     function cancelDate(){
-        updateGunData(initialDate)
+        gunData !== undefined ? updateGunData(initialDate) : updateAmmoData(initialDate)
         setShowDateTime(false)
     }
 
     function deleteDate(){
-        updateGunData("")
+        gunData !== undefined ? updateGunData("") : updateAmmoData("")
         setShowDateTime(false)
     }
 
@@ -107,6 +130,11 @@ export default function NewText({data, gunData, setGunData, ammoData, setAmmoDat
         setShowModalCaliber(false)
     }
 
+function handleFocus(){
+    setFocus(true)
+    setCharCount(input !== undefined ? input.length : 0)
+}
+
     return(
         <View style={{flex: 1}}>
             <TouchableNativeFeedback 
@@ -117,19 +145,22 @@ export default function NewText({data, gunData, setGunData, ammoData, setAmmoDat
                     data === "lastShotAt" ? setShowDateTime(true) : 
                     data === "mainColor" ? setShowModal(true) : 
                     data === "caliber" ? setShowModalCaliber(true) : 
+                    data === "lastTopUpAt" ? setShowDateTime(true) : 
                     null}}
             >          
                 <View style={{flex: 1}}>
                     <TextInput
-                        label={label} 
+                        label={`${label}${gunData !== undefined ? requiredFieldsGun.includes(data) ? "*" : "" : requiredFieldsAmmo.includes(data) ? "*" : ""} ${isFocus ? `${charCount}/${MAX_CHAR_COUNT}` : ``}`} 
                         style={{
                             flex: 1,
                         }}
+                        onFocus={()=>handleFocus()}
+                        onBlur={()=>setFocus(false)}
                         value={input === undefined ? "" : input.toString()}
-                        editable={data === "acquisitionDate" ? false : data === "mainColor" ? false : data === "caliber" ? false : data === "lastCleanedAt" ? false : data === "lastShotAt" ? false : true}
+                        editable={data === "acquisitionDate" ? false : data === "mainColor" ? false : data === "caliber" ? false : data === "lastCleanedAt" ? false : data === "lastShotAt" ? false : data === "lastTopUpAt" ? false : true}
                         showSoftInputOnFocus={data === "acquisitionDate" ? false : true}
                         onChangeText={input => gunData !== undefined ? updateGunData(input) : updateAmmoData(input)}
-                        onKeyPress={(e) => data === "acquisitionDate" ? e.preventDefault() : null}
+                        onKeyPress={({nativeEvent}) => setIsBackspace(nativeEvent.key === "Backspace" ? true : false)}
                         left={data === "paidPrice" ? <TextInput.Affix text="CHF " /> : null}
                         inputMode={`${data === "paidPrice" ? "decimal" : data === "shotCount" ? "decimal" : "text"}`}
                         multiline={gunData && Array.isArray(gunData[data])}
