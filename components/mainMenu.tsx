@@ -66,6 +66,7 @@ export default function mainMenu(){
         const permissions = await FileSystem.StorageAccessFramework.requestDirectoryPermissionsAsync()
         if(permissions.granted){
             setDbModalVisible(true)
+            setImportSize(gunCollection.length)
             setDbModalText(databaseOperations.export[language])
             let directoryUri = permissions.directoryUri
 
@@ -76,8 +77,10 @@ export default function mainMenu(){
                         return base64string
                     }))
                     const exportableGun:GunType = {...gun, images: base64images}
+                    setImportProgress(importProgress => importProgress+1)
                     return exportableGun
                 } else {
+                    setImportProgress(importProgress => importProgress+1)
                     return gun
                 }
             }))
@@ -103,6 +106,7 @@ export default function mainMenu(){
         const permissions = await FileSystem.StorageAccessFramework.requestDirectoryPermissionsAsync()
         if(permissions.granted){
             setDbModalVisible(true)
+            setImportSize(ammoCollection.length)
             setDbModalText(databaseOperations.export[language])
             let directoryUri = permissions.directoryUri
 
@@ -113,8 +117,10 @@ export default function mainMenu(){
                         return base64string
                     }))
                     const exportableAmmo:AmmoType = {...ammo, images: base64images}
+                    setImportProgress(importProgress => importProgress+1)
                     return exportableAmmo
                 } else {
+                    setImportProgress(importProgress => importProgress+1)
                     return ammo
                 }
             }))
