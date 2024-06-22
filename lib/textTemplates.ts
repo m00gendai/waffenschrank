@@ -41,6 +41,7 @@ interface PreferenceTitle{
     ammoList: SimpleTranslation
     printAllAmmo: SimpleTranslation
     generalSettings: SimpleTranslation
+    about: SimpleTranslation
 }
 
 interface DatabaseOperation{
@@ -487,6 +488,13 @@ export const preferenceTitles:PreferenceTitle = {
         fr: "Paramètres généraux",
         it: "Impostazioni generali",
         ch: "Parameters generals",
+    },
+    about:{
+        de: "Über",
+        en: "About",
+        fr: "Au sujet de",
+        it: "Circa",
+        ch: "Davart",
     }
 }
 
@@ -730,4 +738,20 @@ export const generalSettingsLabels: GeneralSettingsLabels = {
         it: "Visualizzare le immagini nella vista elenco munizioni",
         ch: "Mussar maletgs cun ina glista muniziun"  
     },
+}
+
+export const aboutText: SimpleTranslation = {
+    de: "Arsenal - Die schweizer App für Waffensammler!",
+    en: "Arsenal - The Swiss app for gun collectors!",
+    fr: "Arsenal - L'application suisse pour les collectionneurs d'armes !",
+    it: "Arsenal - L'app svizzera per i collezionisti di armi!",
+    ch: "Arsenal - L'app svizra per las collecziunadras ed ils collecziunaders d'armas!"
+}
+
+export const aboutThanks: SimpleTranslation = {
+    de: "Speziellen Dank an:",
+    en: "Special thanks to:",
+    fr: "Remerciements spéciaux à",
+    it: "Un ringraziamento speciale a",
+    ch: "Grazia fitg spezial a",
 }
