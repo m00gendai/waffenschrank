@@ -94,12 +94,22 @@ export default function NewChipArea({data, gunData, setGunData, ammoData, setAmm
     }
 
     function addTagFromList(tag:string){
-        if(currentAmmo.tags !== null && currentAmmo.tags.length !== 0){
-            if(currentAmmo.tags.includes(tag)){
-                return
+        if(ammoData !== undefined){
+            if(currentAmmo.tags !== null && currentAmmo.tags !== undefined && currentAmmo.tags.length !== 0){
+                if(currentAmmo.tags.includes(tag)){
+                    return
+                }
             }
+            saveNewTag(tag)
         }
-        saveNewTag(tag)
+        if(gunData !== undefined){
+            if(currentGun.tags !== null && currentGun.tags !== undefined && currentGun.tags.length !== 0){
+                if(currentGun.tags.includes(tag)){
+                    return
+                }
+            }
+            saveNewTag(tag)
+        }
     }
 
     function handleDeleteTagFromList(tag:string){
