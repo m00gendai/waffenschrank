@@ -28,13 +28,13 @@ export default function App() {
       
       switchLanguage(isPreferences === null ? "de" : isPreferences.language === undefined ? "de" : isPreferences.language)
       switchTheme(isPreferences === null ? "default" : isPreferences.theme === undefined ? "default" : isPreferences.theme)
-      setGeneralSettings(isPreferences === null ? true : isPreferences.generalSettings === undefined ? true : isPreferences.generalSettings)
+      setGeneralSettings(isPreferences === null ? {displayImagesInListViewAmmo: true, displayImagesInListViewGun: true} : isPreferences.generalSettings === undefined ? {displayImagesInListViewAmmo: true, displayImagesInListViewGun: true} : isPreferences.generalSettings)
     }
     getPreferences()
   },[])
 
   const currentTheme = {...theme, roundness : 5}
-
+  
   const Tab = createBottomTabNavigator();
   
   return (
