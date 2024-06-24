@@ -1,8 +1,8 @@
-import { Alert, ScrollView, TouchableNativeFeedback, View, Linking } from "react-native"
+import { Alert, ScrollView, TouchableNativeFeedback, View, Linking, Image } from "react-native"
 import Animated, { LightSpeedInLeft, LightSpeedOutLeft } from "react-native-reanimated"
 import { useViewStore } from "../stores/useViewStore"
 import { ActivityIndicator, Button, Dialog, Divider, Icon, List, Modal, SegmentedButtons, Snackbar, Switch, Text } from "react-native-paper"
-import { aboutText, aboutThanks, databaseImportAlert, databaseOperations, generalSettingsLabels, preferenceTitles, toastMessages } from "../lib/textTemplates"
+import { aboutText, aboutThanks, databaseImportAlert, databaseOperations, generalSettingsLabels, preferenceTitles, resizeImageAlert, toastMessages } from "../lib/textTemplates"
 import { usePreferenceStore } from "../stores/usePreferenceStore"
 import AsyncStorage from "@react-native-async-storage/async-storage"
 import { AMMO_DATABASE, A_KEY_DATABASE, A_TAGS, GUN_DATABASE, KEY_DATABASE, PREFERENCES, TAGS, defaultViewPadding, languageSelection } from "../configs"
@@ -18,8 +18,8 @@ import { printAmmoCollection, printAmmoGallery, printGunCollection, printGunColl
 import { useAmmoStore } from "../stores/useAmmoStore"
 import { useTagStore } from "../stores/useTagStore"
 import * as Application from 'expo-application';
-import App from "../App"
-
+import { manipulateAsync } from "expo-image-manipulator"
+import * as ImagePicker from "expo-image-picker"
 
 
 export default function mainMenu(){
@@ -36,6 +36,7 @@ export default function mainMenu(){
     const [dbModalText, setDbModalText] = useState<string>("")
     const [importGunDbVisible, toggleImportDunDbVisible] = useState<boolean>(false)
     const [importAmmoDbVisible, toggleImportAmmoDbVisible] = useState<boolean>(false)
+    const [imageResizeVisible, toggleImageResizeVisible] = useState<boolean>(false)
     const [importProgress, setImportProgress] = useState<number>(0)
     const [importSize, setImportSize] = useState<number>(0)
     const onToggleSnackBar = () => setToastVisible(!toastVisible);
@@ -98,6 +99,8 @@ export default function mainMenu(){
         
         setSnackbarText(toastMessages.dbSaveSuccess[language])
         onToggleSnackBar()
+        setImportProgress(0)
+        setImportSize(0)
     }
 
     async function handleSaveAmmoDb(){
@@ -138,6 +141,8 @@ export default function mainMenu(){
         
         setSnackbarText(toastMessages.dbSaveSuccess[language])
         onToggleSnackBar()
+        setImportProgress(0)
+        setImportSize(0)
     }
 
     function sanitizeFileName(fileName) {
@@ -152,10 +157,28 @@ export default function mainMenu(){
         
         return sanitized;
     }
+
+    const getImageSize = (base64ImageUri) => {
+        return new Promise((resolve, reject) => {
+            Image.getSize(base64ImageUri, (width, height) => {
+                if (width && height) {
+                    resolve({ width: width, height: height });
+                } else {
+                    reject({ width: 0, height: 0 });
+                }
+            });
+        });
+    };
   
     async function handleImportGunDb(){
         const result = await DocumentPicker.getDocumentAsync({copyToCacheDirectory: true})
         if(result.assets === null){
+            return
+        }
+        if(!result.assets[0].name.startsWith("gunDB_")){
+            setSnackbarText(toastMessages.wrongGunDbSelected[language])
+            onToggleSnackBar()
+            toggleImportDunDbVisible(false)
             return
         }
         toggleImportDunDbVisible(false)
@@ -164,12 +187,41 @@ export default function mainMenu(){
         const content = await FileSystem.readAsStringAsync(result.assets[0].uri)
         const guns:GunType[] = JSON.parse(content)
         setImportSize(guns.length)
+        setImportProgress(0)
         setDbModalVisible(true)
         const importTags:{label:string, status:boolean}[] = []
         const importableGunCollection:GunType[] = await Promise.all(guns.map(async gun=>{
             if(gun.images !== null && gun.images.length !== 0){
                 const base64images:string[] = await Promise.all(gun.images.map(async (image, index) =>{
-                    const base64Image = image;
+                    const base64ImageUri = `data:image/jpeg;base64,${image}`;
+                    const dimensions = await getImageSize(base64ImageUri) as {width: number, height: number}
+                    // Resize the image
+                    const resizedImage = dimensions.height !== 0 && dimensions.width !== 0 && generalSettings.resizeImages ? 
+                        dimensions.width >= 1000 ? 
+                            await manipulateAsync(
+                                base64ImageUri,
+                                [{ resize: dimensions.width >= 1000 ? {width: 1000} : {height: 1000}}], // Change dimensions as needed
+                                { base64: true }
+                            ) 
+                        : dimensions.height >= 1000 ?
+                            await manipulateAsync(
+                                base64ImageUri,
+                                [{ resize: dimensions.height >= 1000 ? {height: 1000} : {width: 1000}}], // Change dimensions as needed
+                                { base64: true }
+                            ) 
+                        : 
+                        await manipulateAsync(
+                            base64ImageUri,
+                            [{ resize: {width: dimensions.width, height: dimensions.height}}], // Change dimensions as needed
+                            { base64: true }
+                        ) 
+                    : await manipulateAsync(
+                        base64ImageUri,
+                        [{ resize: {width: dimensions.width, height: dimensions.height}}], // Change dimensions as needed
+                        { base64: true }
+                    ) 
+
+                    const base64Image = resizedImage.base64;
                     const fileUri = FileSystem.documentDirectory + `${sanitizeFileName(gun.id)}_image_${index}`;
                     await FileSystem.writeAsStringAsync(fileUri, base64Image, {
                         encoding: FileSystem.EncodingType.Base64,
@@ -222,17 +274,52 @@ export default function mainMenu(){
         if(result.assets === null){
             return
         }
+        if(!result.assets[0].name.startsWith("ammoDB_")){
+            setSnackbarText(toastMessages.wrongAmmoDbSelected[language])
+            onToggleSnackBar()
+            toggleImportAmmoDbVisible(false)
+            return
+        }
         toggleImportAmmoDbVisible(false)
         setDbModalText(databaseOperations.import[language])
         const content = await FileSystem.readAsStringAsync(result.assets[0].uri)
         const ammunitions:AmmoType[] = JSON.parse(content)
         setImportSize(ammunitions.length)
+        setImportProgress(0)
         setDbModalVisible(true)
         const importTags:{label:string, status:boolean}[] = []
         const importableAmmoCollection:AmmoType[] = await Promise.all(ammunitions.map(async ammo=>{
             if(ammo.images !== null && ammo.images.length !== 0){
                 const base64images:string[] = await Promise.all(ammo.images.map(async (image, index) =>{
-                    const base64Image = image;
+                    const base64ImageUri = `data:image/jpeg;base64,${image}`;
+                    const dimensions = await getImageSize(base64ImageUri) as {width: number, height: number}
+                    // Resize the image
+                    const resizedImage = dimensions.height !== 0 && dimensions.width !== 0 && generalSettings.resizeImages ? 
+                        dimensions.width >= 1000 ? 
+                            await manipulateAsync(
+                                base64ImageUri,
+                                [{ resize: dimensions.width >= 1000 ? {width: 1000} : {height: 1000}}], // Change dimensions as needed
+                                { base64: true }
+                            ) 
+                        : dimensions.height >= 1000 ?
+                            await manipulateAsync(
+                                base64ImageUri,
+                                [{ resize: dimensions.height >= 1000 ? {height: 1000} : {width: 1000}}], // Change dimensions as needed
+                                { base64: true }
+                            ) 
+                        : 
+                        await manipulateAsync(
+                            base64ImageUri,
+                            [{ resize: {width: dimensions.width, height: dimensions.height}}], // Change dimensions as needed
+                            { base64: true }
+                        ) 
+                    : await manipulateAsync(
+                        base64ImageUri,
+                        [{ resize: {width: dimensions.width, height: dimensions.height}}], // Change dimensions as needed
+                        { base64: true }
+                    ) 
+
+                    const base64Image = resizedImage.base64;
                     const fileUri = FileSystem.documentDirectory + `${sanitizeFileName(ammo.id)}_image_${index}`;
                     await FileSystem.writeAsStringAsync(fileUri, base64Image, {
                         encoding: FileSystem.EncodingType.Base64,
@@ -278,6 +365,14 @@ export default function mainMenu(){
         setAmmoDbImport(new Date())  
         setSnackbarText(`${JSON.parse(content).length} ${toastMessages.dbImportSuccess[language]}`)
         onToggleSnackBar()
+    }
+
+    function handleSwitchesAlert(setting:string){
+        if(setting === "resizeImages"){
+            toggleImageResizeVisible(true)
+                
+        
+        }
     }
 
     async function handleSwitches(setting: string){
@@ -379,6 +474,10 @@ export default function mainMenu(){
                                                 <Text style={{flex: 7}}>{generalSettingsLabels.displayImagesInListViewAmmo[language]}</Text>
                                                 <Switch style={{flex: 3}} value={generalSettings.displayImagesInListViewAmmo} onValueChange={()=>handleSwitches("displayImagesInListViewAmmo")} />
                                             </View>
+                                            <View style={{display: "flex", flexWrap: "nowrap", justifyContent: "space-between", alignItems: "center", flexDirection: "row", width: "100%"}}>
+                                                <Text style={{flex: 7}}>{generalSettingsLabels.resizeImages[language]}</Text>
+                                                <Switch style={{flex: 3}} value={generalSettings.resizeImages} onValueChange={()=>generalSettings.resizeImages ? handleSwitchesAlert("resizeImages") : handleSwitches("resizeImages")} />
+                                            </View>
                                         </View>
                                     </View>
                                 </List.Accordion>
@@ -436,6 +535,22 @@ export default function mainMenu(){
                     <Dialog.Actions>
                         <Button onPress={()=>handleImportAmmoDb()} icon="application-import" buttonColor={theme.colors.errorContainer} textColor={theme.colors.onErrorContainer}>{databaseImportAlert.yes[language]}</Button>
                         <Button onPress={()=>toggleImportAmmoDbVisible(false)} icon="cancel" buttonColor={theme.colors.secondary} textColor={theme.colors.onSecondary}>{databaseImportAlert.no[language]}</Button>
+                    </Dialog.Actions>
+                </Dialog>
+
+                <Dialog visible={imageResizeVisible} onDismiss={()=>toggleImageResizeVisible(false)}>
+                    <Dialog.Title>
+                    {`${resizeImageAlert.title[language]}`}
+                    </Dialog.Title>
+                    <Dialog.Content>
+                        <Text>{`${resizeImageAlert.subtitle[language]}`}</Text>
+                    </Dialog.Content>
+                    <Dialog.Actions>
+                        <Button onPress={()=>{
+                            handleSwitches("resizeImages");
+                            toggleImageResizeVisible(false);
+                        }} icon="check" buttonColor={theme.colors.errorContainer} textColor={theme.colors.onErrorContainer}>{resizeImageAlert.yes[language]}</Button>
+                        <Button onPress={()=>toggleImageResizeVisible(false)} icon="cancel" buttonColor={theme.colors.secondary} textColor={theme.colors.onSecondary}>{resizeImageAlert.no[language]}</Button>
                     </Dialog.Actions>
                 </Dialog>
 
