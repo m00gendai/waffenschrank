@@ -22,6 +22,8 @@ interface Toast{
     changed: SimpleTranslation
     dbSaveSuccess: SimpleTranslation
     dbImportSuccess: SimpleTranslation
+    wrongGunDbSelected: SimpleTranslation
+    wrongAmmoDbSelected: SimpleTranslation
 }
 
 
@@ -90,6 +92,7 @@ interface TagModal{
 interface GeneralSettingsLabels{
     displayImagesInListViewGun: SimpleTranslation
     displayImagesInListViewAmmo: SimpleTranslation
+    resizeImages: SimpleTranslation
 }
 
 export const editGunTitle:SimpleTranslation = {
@@ -341,6 +344,37 @@ export const deleteTagFromListAlert:Alert = {
     }
 }
 
+export const resizeImageAlert:Alert = {
+    title: {
+        de: "Bildoptimierung wirklich ausschalten?",
+        en: "Turn off image optimization?",
+        fr: "Désactiver vraiment l'optimisation de l'image ?",
+        it: "Si può davvero disattivare l'ottimizzazione delle immagini?",
+        ch: "Propi eliminar l'optimaziun dal maletg?",
+    },
+    subtitle: {
+        de: "Bildoptimierung benötigt wesentlich weniger Speicherplatz",
+        en: "Image optimization requires considerably less disk space",
+        fr: "L'optimisation des images nécessite beaucoup moins d'espace mémoire",
+        it: "L'ottimizzazione delle immagini richiede una quantità di memoria notevolmente inferiore",
+        ch: "L'optimaziun dal maletg dovra bler pli pauca plazza d'accumulaziun",
+    },
+    yes: {
+        de: "Ja",
+        en: "Yes",
+        fr: "Oui",
+        it: "Sì",
+        ch: "Gea",
+    },
+    no: {
+        de: "Nein",
+        en: "No",
+        fr: "Non",
+        it: "No",
+        ch: "Na",
+    }
+}
+
 
 export const validationErros: Validation = {
     requiredFieldEmpty: {
@@ -380,7 +414,21 @@ export const toastMessages:Toast = {
         fr: "enregistrements importés",
         it: "dati importati",
         ch: "importà unitads da datas",
-    }
+    },
+    wrongGunDbSelected: {
+        de: "Achtung: Sicherstellen, dass eine Waffendatenbank ausgewählt ist (gunDB_17.....)",
+        en: "Attention: Make sure that a gun database is selected (gunDB_17.....)",
+        fr: "Attention : s'assurer qu'une base de données d'armes est sélectionnée (gunDB_17.....)",
+        it: "Attenzione: assicurarsi che sia selezionato un database di armi (gunDB_17.....).",
+        ch: "Attenziun: garantir ch'ina banca da datas davart las armas vegnia tschernida (gunDB_17.....)"
+    },
+    wrongAmmoDbSelected: {
+        de: "Achtung: Sicherstellen, dass eine Munitionsdatenbank ausgewählt ist (ammoDB_17.....)",
+        en: "Attention: Ensure that an ammunition database is selected (ammoDB_17.....)",
+        fr: "Attention : s'assurer qu'une base de données de munitions est sélectionnée (ammoDB_17.....)",
+        it: "Attenzione: assicurarsi che sia selezionato un database di munizioni (ammoDB_17.....).",
+        ch: "Attenziun: garantir ch'ina banca da datas da muniziun saja tschernida (ammoDB_17.....)"
+    },
 }
 
 export const preferenceTitles:PreferenceTitle = {
@@ -738,6 +786,13 @@ export const generalSettingsLabels: GeneralSettingsLabels = {
         it: "Visualizzare le immagini nella vista elenco munizioni",
         ch: "Mussar maletgs cun ina glista muniziun"  
     },
+    resizeImages: {
+        de: "Bildoptimierung",
+        en: "Image optimization",
+        fr: "Optimisation des images",
+        it: "Ottimizzazione delle immagini",
+        ch: "Optimaziun dal maletg"
+    }
 }
 
 export const aboutText: SimpleTranslation = {
