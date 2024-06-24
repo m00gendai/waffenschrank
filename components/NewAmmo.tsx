@@ -11,7 +11,7 @@ import { v4 as uuidv4 } from 'uuid';
 import ImageViewer from "./ImageViewer"
 import { AMMO_DATABASE, A_KEY_DATABASE } from '../configs';
 import { AmmoType } from '../interfaces';
-import { ammoDataValidation } from '../utils';
+import { ammoDataValidation, imageHandling } from '../utils';
 import NewTextArea from './NewTextArea';
 import NewCheckboxArea from './NewCheckboxArea';
 import { newAmmoTitle, toastMessages, unsavedChangesAlert, validationFailedAlert } from '../lib/textTemplates';
@@ -35,7 +35,7 @@ export default function newAmmo(){
     const [saveState, setSaveState] = useState<boolean>(null)
     const [unsavedVisible, toggleUnsavedDialogVisible] = useState<boolean>(false)
 
-    const { language, theme } = usePreferenceStore()
+    const { language, theme, generalSettings } = usePreferenceStore()
     const { setNewAmmoOpen, setSeeAmmoOpen } = useViewStore()
     const { setCurrentAmmo, ammoCollection, setAmmoCollection } = useAmmoStore()
 
@@ -123,16 +123,16 @@ export default function newAmmo(){
         if(!result.canceled){
 
             // Create a unique file name for the new image
-        const newImageUri = result.assets[0].uri;
-        const fileName = newImageUri.split('/').pop();
-        const newPath = `${FileSystem.documentDirectory}${fileName}`;
-
-        // Move the image to a permanent directory
-        try {
-            await FileSystem.moveAsync({
-                from: newImageUri,
-                to: newPath,
-            });
+            const newImageUri = result.assets[0].uri
+            const manipImage = await imageHandling(result, generalSettings.resizeImages)
+            const fileName = newImageUri.split('/').pop();
+            const newPath = `${FileSystem.documentDirectory}${fileName}`;
+            // Move the image to a permanent directory
+            try {
+                await FileSystem.moveAsync({
+                    from: manipImage.uri,
+                    to: newPath,
+                });
 
             const newImage = selectedImage;
             if (newImage && newImage.length !== 0) {
@@ -171,16 +171,16 @@ export default function newAmmo(){
         if(!result.canceled){
 
             // Create a unique file name for the new image
-        const newImageUri = result.assets[0].uri;
-        const fileName = newImageUri.split('/').pop();
-        const newPath = `${FileSystem.documentDirectory}${fileName}`;
-
-        // Move the image to a permanent directory
-        try {
-            await FileSystem.moveAsync({
-                from: newImageUri,
-                to: newPath,
-            });
+            const newImageUri = result.assets[0].uri
+            const manipImage = await imageHandling(result, generalSettings.resizeImages)
+            const fileName = newImageUri.split('/').pop();
+            const newPath = `${FileSystem.documentDirectory}${fileName}`;
+            // Move the image to a permanent directory
+            try {
+                await FileSystem.moveAsync({
+                    from: manipImage.uri,
+                    to: newPath,
+                });
 
             const newImage = selectedImage;
             if (newImage && newImage.length !== 0) {
