@@ -417,6 +417,13 @@ export default function mainMenu(){
         for(const entry of Object.entries(mapCSV)){
             indexMapCSV[entry[0]] = CSVHeader.indexOf(entry[1])
         }
+        const usedIndexes = []
+        for(const entries of Object.values(indexMapCSV)){
+            if(!usedIndexes.includes(entries) && entries !== -1){
+                usedIndexes.push(entries)
+            }
+        }
+        console.log(usedIndexes)
         const objects = CSVBody.map((items, index)=>{
             const mapped = {}
             for(const entry of Object.entries(indexMapCSV)){
@@ -431,8 +438,16 @@ export default function mainMenu(){
                 }
                 
             }
+            const rmk = []
+            items.map((item, index) =>{
+                if(!usedIndexes.includes(index)){
+                    rmk.push(`${CSVHeader[index]}: ${item}`)
+                }
+            })
+            mapped.remarks = rmk.join("\n")
             return mapped
         })
+        /*@ts-expect-error*/
         setAmmoCollection(objects)
         toggleImportCSVVisible(false)
     }
