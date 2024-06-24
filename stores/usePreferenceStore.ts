@@ -6,6 +6,7 @@ import { GeneratedIdentifierFlags } from "typescript"
 interface GeneralSettings{
   displayImagesInListViewGun: boolean
   displayImagesInListViewAmmo: boolean
+  resizeImages: boolean
 }
 
 interface PreferenceStore {
@@ -52,7 +53,8 @@ interface PreferenceStore {
     setSortAmmoBy: (type: SortingTypes) => set((state) => ({sortAmmoBy: type})),
     generalSettings: {
       displayImagesInListViewGun: true,
-      displayImagesInListViewAmmo: true
+      displayImagesInListViewAmmo: true,
+      resizeImages: true
     },
     setGeneralSettings: (settings: GeneralSettings) => set((state) => ({generalSettings: settings}))
   }))

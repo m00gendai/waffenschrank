@@ -18,7 +18,7 @@ import { useViewStore } from '../stores/useViewStore';
 import { useGunStore } from '../stores/useGunStore';
 import NewChipArea from './NewChipArea';
 import * as FileSystem from 'expo-file-system';
-import { gunDataValidation } from '../utils';
+import { gunDataValidation, imageHandling } from '../utils';
 
 
 export default function EditGun(){
@@ -36,7 +36,7 @@ export default function EditGun(){
     const [unsavedVisible, toggleUnsavedDialogVisible] = useState<boolean>(false)
     const [deleteImageIndex, setDeleteImageIndex] = useState<number>(0)
 
-    const { language, theme } = usePreferenceStore()
+    const { language, theme, generalSettings } = usePreferenceStore()
     const { setEditGunOpen } = useViewStore()
 
   const onToggleSnackBar = () => setVisible(!visible);
@@ -118,17 +118,17 @@ export default function EditGun(){
         if(!result.canceled){
 
             // Create a unique file name for the new image
-        const newImageUri = result.assets[0].uri;
-        const fileName = newImageUri.split('/').pop();
-        const newPath = `${FileSystem.documentDirectory}${fileName}`;
-
-        // Move the image to a permanent directory
-        try {
-            await FileSystem.moveAsync({
-                from: newImageUri,
-                to: newPath,
-            });
-
+            const newImageUri = result.assets[0].uri
+            const manipImage = await imageHandling(result, generalSettings.resizeImages)
+            const fileName = newImageUri.split('/').pop();
+            const newPath = `${FileSystem.documentDirectory}${fileName}`;
+            // Move the image to a permanent directory
+            try {
+                await FileSystem.moveAsync({
+                    from: manipImage.uri,
+                    to: newPath,
+                });
+                
             const newImage = selectedImage;
             if (newImage && newImage.length !== 0) {
                 newImage.splice(indx, 1, newPath);
@@ -166,16 +166,16 @@ export default function EditGun(){
         if(!result.canceled){
 
             // Create a unique file name for the new image
-        const newImageUri = result.assets[0].uri;
-        const fileName = newImageUri.split('/').pop();
-        const newPath = `${FileSystem.documentDirectory}${fileName}`;
-
-        // Move the image to a permanent directory
-        try {
-            await FileSystem.moveAsync({
-                from: newImageUri,
-                to: newPath,
-            });
+            const newImageUri = result.assets[0].uri
+            const manipImage = await imageHandling(result, generalSettings.resizeImages)
+            const fileName = newImageUri.split('/').pop();
+            const newPath = `${FileSystem.documentDirectory}${fileName}`;
+            // Move the image to a permanent directory
+            try {
+                await FileSystem.moveAsync({
+                    from: manipImage.uri,
+                    to: newPath,
+                });
 
             const newImage = selectedImage;
             if (newImage && newImage.length !== 0) {
