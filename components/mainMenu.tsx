@@ -1,7 +1,7 @@
 import { Alert, ScrollView, TouchableNativeFeedback, View, Linking, Image } from "react-native"
 import Animated, { LightSpeedInLeft, LightSpeedOutLeft } from "react-native-reanimated"
 import { useViewStore } from "../stores/useViewStore"
-import { ActivityIndicator, Button, Dialog, Divider, Icon, List, Modal, SegmentedButtons, Snackbar, Switch, Text } from "react-native-paper"
+import { ActivityIndicator, Button, Dialog, Divider, Icon, List, Modal, Portal, SegmentedButtons, Snackbar, Switch, Text } from "react-native-paper"
 import { aboutText, aboutThanks, databaseImportAlert, databaseOperations, generalSettingsLabels, preferenceTitles, resizeImageAlert, toastMessages } from "../lib/textTemplates"
 import { usePreferenceStore } from "../stores/usePreferenceStore"
 import AsyncStorage from "@react-native-async-storage/async-storage"
@@ -20,6 +20,11 @@ import { useTagStore } from "../stores/useTagStore"
 import * as Application from 'expo-application';
 import { manipulateAsync } from "expo-image-manipulator"
 import * as ImagePicker from "expo-image-picker"
+import {Picker} from '@react-native-picker/picker';
+import Papa from 'papaparse';
+import { ammoDataTemplate, ammoRemarks } from "../lib/ammoDataTemplate"
+import { exampleAmmoEmpty } from "../lib/examples"
+import { v4 as uuidv4 } from 'uuid';
 
 
 export default function mainMenu(){
@@ -27,7 +32,7 @@ export default function mainMenu(){
     const { setMainMenuOpen } = useViewStore()
     const { language, switchLanguage, theme, switchTheme, dbImport, setDbImport, setAmmoDbImport, generalSettings, setGeneralSettings } = usePreferenceStore()
     const { gunCollection } = useGunStore()
-    const { ammoCollection } = useAmmoStore()
+    const { ammoCollection, setAmmoCollection } = useAmmoStore()
     const {tags, setTags, ammo_tags, setAmmoTags, overWriteAmmoTags, overWriteTags} = useTagStore()
 
     const [toastVisible, setToastVisible] = useState<boolean>(false)
@@ -37,10 +42,15 @@ export default function mainMenu(){
     const [importGunDbVisible, toggleImportDunDbVisible] = useState<boolean>(false)
     const [importAmmoDbVisible, toggleImportAmmoDbVisible] = useState<boolean>(false)
     const [imageResizeVisible, toggleImageResizeVisible] = useState<boolean>(false)
+    const [importCSVVisible, toggleImportCSVVisible] = useState<boolean>(false)
     const [importProgress, setImportProgress] = useState<number>(0)
     const [importSize, setImportSize] = useState<number>(0)
     const onToggleSnackBar = () => setToastVisible(!toastVisible);
     const onDismissSnackBar = () => setToastVisible(false);
+
+    const [CSVHeader, setCSVHeader] = useState<string[]>([])
+    const [CSVBody, setCSVBody] = useState<string[][]>([[]])
+    const [mapCSV, setMapCSV] = useState<AmmoType>(exampleAmmoEmpty)
 
     const date: Date = new Date()
     const currentYear:number = date.getFullYear()
@@ -383,6 +393,50 @@ export default function mainMenu(){
             await AsyncStorage.setItem(PREFERENCES, JSON.stringify(newPreferences))
         }
 
+    async function importCSV(){
+        const result = await DocumentPicker.getDocumentAsync({copyToCacheDirectory: true})
+        if(result.assets === null){
+            return
+        }
+        if(result.assets[0].mimeType !== "text/comma-separated-values"){
+            return
+        }
+        const content = await FileSystem.readAsStringAsync(result.assets[0].uri)
+        toggleImportCSVVisible(true)
+        const parsed = Papa.parse(content)
+        /*@ts-expect-error*/
+        const headerRow:string[] = parsed.data[0]
+        /*@ts-expect-error*/
+        const bodyRows:string[][] = parsed.data.slice(1)
+        setCSVHeader(headerRow)
+        setCSVBody(bodyRows)    
+    }
+
+    function setImportedCSV(){
+        const indexMapCSV = {}
+        for(const entry of Object.entries(mapCSV)){
+            indexMapCSV[entry[0]] = CSVHeader.indexOf(entry[1])
+        }
+        const objects = CSVBody.map((items, index)=>{
+            const mapped = {}
+            for(const entry of Object.entries(indexMapCSV)){
+                
+                if(entry[0] === "id"){
+                    mapped[entry[0]] = uuidv4()  
+                } else if(entry[0] === "tags"){
+                    mapped[entry[0]] = []
+                } else {
+                    /*@ts-expect-error*/
+                    mapped[entry[0]] = entry[1] === -1 ? "" : items[entry[1]]
+                }
+                
+            }
+            return mapped
+        })
+        setAmmoCollection(objects)
+        toggleImportCSVVisible(false)
+    }
+
     return(
         <Animated.View entering={LightSpeedInLeft} exiting={LightSpeedOutLeft} style={{position: "absolute", left: 0, width: "100%", height: "100%"}}>
             <SafeAreaView style={{display: "flex", flexDirection: "row", flexWrap: "nowrap", backgroundColor: theme.colors.primary}}>
@@ -442,6 +496,7 @@ export default function mainMenu(){
                                         <View style={{display: "flex", flexDirection: "row", justifyContent: "flex-start", flexWrap: "wrap", gap: 5}}>
                                             <Button style={{width: "45%"}} icon="content-save-move" onPress={()=>handleSaveAmmoDb()} mode="contained">{preferenceTitles.saveDb_ammo[language]}</Button>
                                             <Button style={{width: "45%"}} icon="application-import" onPress={()=>toggleImportAmmoDbVisible(true)} mode="contained">{preferenceTitles.importDb_ammo[language]}</Button>
+                                            <Button style={{width: "45%"}} icon="content-save-move" onPress={()=>importCSV()} mode="contained">{`Import CSV`}</Button>
                                         </View>
                                     </View>
                                 </List.Accordion>
@@ -558,6 +613,38 @@ export default function mainMenu(){
                 <ActivityIndicator size="large" animating={true} />
                 <Text variant="bodyLarge" style={{width: "100%", textAlign: "center", color: theme.colors.onBackground, marginTop: 10, backgroundColor: theme.colors.background}}>{`${dbModalText}: ${importProgress}/${importSize}`}</Text>
             </Modal>
+
+            <Portal>
+                <Modal visible={importCSVVisible}>
+                    <View style={{width: "100%", height: "100%", display: "flex", flexDirection: "row", justifyContent: "center", alignItems: "center", flexWrap: "wrap", backgroundColor: theme.colors.backdrop}}>
+                        <View style={{width: "85%", height: "100%", display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", flexWrap: "wrap"}}>
+                            <View style={{backgroundColor: theme.colors.background, width: "100%"}}>
+                                <Text>Import Ammo CSV</Text>
+                                <View style={{display: "flex", flexDirection: "row", flexWrap: "wrap", width: "100%"}}>
+                                    {ammoDataTemplate.map((ammoItem, ammoIndex)=>{
+                                        return(
+                                            <View key={`mapperRow_${ammoIndex}`} style={{width: "100%", display: "flex", flexDirection: "row", flexWrap: "nowrap", alignItems: "center"}}>
+                                                <Text style={{width: "50%"}}>{ammoItem.de}</Text>
+                                                <Picker style={{width: "50%"}} selectedValue={mapCSV[ammoItem.name]} onValueChange={(itemValue, itemIndex) => setMapCSV({...mapCSV, [ammoItem.name]:itemValue})}>
+                                                    <Picker.Item label={"-"} value={""}/>
+                                                    {CSVHeader.map((item, index) => {
+                                                        return(
+                                                            <Picker.Item color={theme.colors.onBackground} key={`picker_${index}`} label={item} value={item} />
+                                                        )
+                                                    })}
+                                                </Picker>
+                                            </View>
+                                        )
+                                        })}
+                                    <Text>{ammoRemarks.de}</Text>
+                                     <Button onPress={()=>setImportedCSV()}>DO IT</Button>
+                                </View>
+                            </View>
+                        </View>
+                    </View>
+                </Modal>
+            </Portal>
+
         </Animated.View> 
     )
 }
