@@ -401,53 +401,49 @@ export default function mainMenu(){
         if(result.assets[0].mimeType !== "text/comma-separated-values"){
             return
         }
-        const content = await FileSystem.readAsStringAsync(result.assets[0].uri)
+        const content:string = await FileSystem.readAsStringAsync(result.assets[0].uri)
         toggleImportCSVVisible(true)
-        const parsed = Papa.parse(content)
-        /*@ts-expect-error*/
+        const parsed:Papa.ParseResult<string[]> = Papa.parse(content)
         const headerRow:string[] = parsed.data[0]
-        /*@ts-expect-error*/
         const bodyRows:string[][] = parsed.data.slice(1)
+        console.log(headerRow)
+        console.log(bodyRows)
         setCSVHeader(headerRow)
         setCSVBody(bodyRows)    
     }
 
     function setImportedCSV(){
-        const indexMapCSV = {}
+        const indexMapCSV:{[key: string]: number}= {}
         for(const entry of Object.entries(mapCSV)){
             indexMapCSV[entry[0]] = CSVHeader.indexOf(entry[1])
         }
-        const usedIndexes = []
+        const usedIndexes:number[] = []
         for(const entries of Object.values(indexMapCSV)){
             if(!usedIndexes.includes(entries) && entries !== -1){
                 usedIndexes.push(entries)
             }
         }
-        console.log(usedIndexes)
-        const objects = CSVBody.map((items, index)=>{
-            const mapped = {}
+        const objects:AmmoType[] = CSVBody.map((items, index)=>{
+            const mapped:AmmoType = {...exampleAmmoEmpty}
             for(const entry of Object.entries(indexMapCSV)){
-                
                 if(entry[0] === "id"){
                     mapped[entry[0]] = uuidv4()  
                 } else if(entry[0] === "tags"){
                     mapped[entry[0]] = []
                 } else {
-                    /*@ts-expect-error*/
                     mapped[entry[0]] = entry[1] === -1 ? "" : items[entry[1]]
                 }
                 
             }
-            const rmk = []
+            const rmk:string[] = []
             items.map((item, index) =>{
-                if(!usedIndexes.includes(index)){
+                if(!usedIndexes.includes(index) && item !== ""){
                     rmk.push(`${CSVHeader[index]}: ${item}`)
                 }
             })
             mapped.remarks = rmk.join("\n")
             return mapped
         })
-        /*@ts-expect-error*/
         setAmmoCollection(objects)
         toggleImportCSVVisible(false)
     }
