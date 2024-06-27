@@ -1,7 +1,7 @@
 import { Alert, ScrollView, TouchableNativeFeedback, View, Linking, Image } from "react-native"
 import Animated, { LightSpeedInLeft, LightSpeedOutLeft } from "react-native-reanimated"
 import { useViewStore } from "../stores/useViewStore"
-import { ActivityIndicator, Button, Dialog, Divider, Icon, List, Modal, Portal, SegmentedButtons, Snackbar, Switch, Text } from "react-native-paper"
+import { ActivityIndicator, Button, Dialog, Divider, Icon, IconButton, List, Modal, Portal, SegmentedButtons, Snackbar, Switch, Text } from "react-native-paper"
 import { aboutText, aboutThanks, databaseImportAlert, databaseOperations, generalSettingsLabels, preferenceTitles, resizeImageAlert, toastMessages } from "../lib/textTemplates"
 import { usePreferenceStore } from "../stores/usePreferenceStore"
 import AsyncStorage from "@react-native-async-storage/async-storage"
@@ -25,6 +25,8 @@ import Papa from 'papaparse';
 import { ammoDataTemplate, ammoRemarks } from "../lib/ammoDataTemplate"
 import { exampleAmmoEmpty } from "../lib/examples"
 import { v4 as uuidv4 } from 'uuid';
+import { gunDataTemplate } from "../lib/gunDataTemplate"
+import { mainMenu_ammunitionDatabase } from "../lib/Text/mainMenu_ammunitionDatabase"
 
 
 export default function mainMenu(){
@@ -406,13 +408,15 @@ export default function mainMenu(){
         const parsed:Papa.ParseResult<string[]> = Papa.parse(content)
         const headerRow:string[] = parsed.data[0]
         const bodyRows:string[][] = parsed.data.slice(1)
-        console.log(headerRow)
-        console.log(bodyRows)
         setCSVHeader(headerRow)
         setCSVBody(bodyRows)    
     }
 
-    function setImportedCSV(){
+    async function setImportedCSV(){
+        toggleImportCSVVisible(false)
+        setImportSize(CSVBody.length)
+        setImportProgress(0)
+        setDbModalVisible(true)
         const indexMapCSV:{[key: string]: number}= {}
         for(const entry of Object.entries(mapCSV)){
             indexMapCSV[entry[0]] = CSVHeader.indexOf(entry[1])
@@ -442,10 +446,21 @@ export default function mainMenu(){
                 }
             })
             mapped.remarks = rmk.join("\n")
+            setImportProgress(importProgress => importProgress+1)
             return mapped
         })
+        let newKeys:string[] = []
+        
+        objects.map(value =>{
+            newKeys.push(value.id) // if its the first gun to be saved, create an array with the id of the gun. Otherwise, merge the key into the existing array
+            SecureStore.setItem(`${AMMO_DATABASE}_${value.id}`, JSON.stringify(value)) // Save the gun
+        })
+    
+        await AsyncStorage.setItem(A_KEY_DATABASE, JSON.stringify(newKeys)) // Save the key object
         setAmmoCollection(objects)
-        toggleImportCSVVisible(false)
+        setImportSize(0)
+        setImportProgress(0)
+        setDbModalVisible(false)
     }
 
     return(
@@ -494,7 +509,7 @@ export default function mainMenu(){
                                         </View>
                                     </View>
                                 </List.Accordion>
-                                <List.Accordion left={props => <><List.Icon {...props} icon="floppy" /><List.Icon {...props} icon="pistol" /></>} title={preferenceTitles.db_gun[language]} titleStyle={{fontWeight: "700", color: theme.colors.onBackground}}>
+                                <List.Accordion left={props => <><List.Icon {...props} icon="database-outline" /><List.Icon {...props} icon="pistol" /></>} title={preferenceTitles.db_gun[language]} titleStyle={{fontWeight: "700", color: theme.colors.onBackground}}>
                                     <View style={{ marginLeft: 5, marginRight: 5, padding: defaultViewPadding, backgroundColor: theme.colors.background, borderColor: theme.colors.primary, borderLeftWidth: 5}}>
                                         <View style={{display: "flex", flexDirection: "row", justifyContent: "flex-start", flexWrap: "wrap", gap: 5}}>
                                             <Button style={{width: "45%"}} icon="content-save-move" onPress={()=>handleSaveGunDb()} mode="contained">{preferenceTitles.saveDb_gun[language]}</Button>
@@ -502,12 +517,14 @@ export default function mainMenu(){
                                         </View>
                                     </View>
                                 </List.Accordion>
-                                <List.Accordion left={props => <><List.Icon {...props} icon="floppy" /><List.Icon {...props} icon="bullet" /></>} title={preferenceTitles.db_ammo[language]} titleStyle={{fontWeight: "700", color: theme.colors.onBackground}}>
+                                <List.Accordion left={props => <><List.Icon {...props} icon="database-outline" /><List.Icon {...props} icon="bullet" /></>} title={preferenceTitles.db_ammo[language]} titleStyle={{fontWeight: "700", color: theme.colors.onBackground}}>
                                     <View style={{ marginLeft: 5, marginRight: 5, padding: defaultViewPadding, backgroundColor: theme.colors.background, borderColor: theme.colors.primary, borderLeftWidth: 5}}>
                                         <View style={{display: "flex", flexDirection: "row", justifyContent: "flex-start", flexWrap: "wrap", gap: 5}}>
-                                            <Button style={{width: "45%"}} icon="content-save-move" onPress={()=>handleSaveAmmoDb()} mode="contained">{preferenceTitles.saveDb_ammo[language]}</Button>
-                                            <Button style={{width: "45%"}} icon="application-import" onPress={()=>toggleImportAmmoDbVisible(true)} mode="contained">{preferenceTitles.importDb_ammo[language]}</Button>
-                                            <Button style={{width: "45%"}} icon="content-save-move" onPress={()=>importCSV()} mode="contained">{`Import CSV`}</Button>
+                                            <View style={{display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between", width: "100%"}}><Text style={{width: "80%"}}>{mainMenu_ammunitionDatabase.saveArsenalDB[language]}</Text><IconButton icon="floppy" onPress={()=>handleSaveAmmoDb()} mode="contained"/></View>
+                                            <Divider style={{width: "100%"}} />
+                                            <View style={{display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between", width: "100%"}}><Text style={{width: "80%"}}>{mainMenu_ammunitionDatabase.importArsenalDB[language]}</Text><IconButton icon="application-import" onPress={()=>toggleImportAmmoDbVisible(true)} mode="contained" /></View>
+                                            <Divider style={{width: "100%"}} />
+                                            <View style={{display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between", width: "100%"}}><Text style={{width: "80%"}}>{mainMenu_ammunitionDatabase.importCSV[language]}</Text><IconButton icon="application-import" onPress={()=>importCSV()} mode="contained"/></View>
                                         </View>
                                     </View>
                                 </List.Accordion>
@@ -620,41 +637,54 @@ export default function mainMenu(){
                     </Dialog.Actions>
                 </Dialog>
 
-            <Modal visible={dbModalVisible}>
-                <ActivityIndicator size="large" animating={true} />
-                <Text variant="bodyLarge" style={{width: "100%", textAlign: "center", color: theme.colors.onBackground, marginTop: 10, backgroundColor: theme.colors.background}}>{`${dbModalText}: ${importProgress}/${importSize}`}</Text>
-            </Modal>
-
             <Portal>
                 <Modal visible={importCSVVisible}>
-                    <View style={{width: "100%", height: "100%", display: "flex", flexDirection: "row", justifyContent: "center", alignItems: "center", flexWrap: "wrap", backgroundColor: theme.colors.backdrop}}>
-                        <View style={{width: "85%", height: "100%", display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", flexWrap: "wrap"}}>
-                            <View style={{backgroundColor: theme.colors.background, width: "100%"}}>
-                                <Text>Import Ammo CSV</Text>
-                                <View style={{display: "flex", flexDirection: "row", flexWrap: "wrap", width: "100%"}}>
+                    <View style={{width: "100%", height: "100%", display: "flex", flexDirection: "row", justifyContent: "center", alignItems: "center", alignContent: "center", flexWrap: "wrap", backgroundColor: theme.colors.backdrop}}>
+                        <View style={{width: "85%", height: "100%", maxHeight: "85%", display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", flexWrap: "wrap"}}>
+                            <View style={{backgroundColor: theme.colors.background, width: "100%", flex: 1, padding: defaultViewPadding, display: "flex", flexDirection: "column"}}>
+                                <View style={{flex: 3}}>
+                                <Text variant="titleSmall" style={{color: theme.colors.primary}}>{mainMenu_ammunitionDatabase.importCSVModalTitle[language]}</Text>
+                                <ScrollView>
+                                <Text variant="bodySmall">{mainMenu_ammunitionDatabase.importCSVModalText[language]}</Text>
+                                </ScrollView>
+                                </View>
+                                <View style={{flex: 7, borderColor: theme.colors.primary, borderBottomWidth: 2, borderTopWidth: 2, marginTop: defaultViewPadding, marginBottom: defaultViewPadding}}>
+                                <ScrollView>
+                
                                     {ammoDataTemplate.map((ammoItem, ammoIndex)=>{
                                         return(
-                                            <View key={`mapperRow_${ammoIndex}`} style={{width: "100%", display: "flex", flexDirection: "row", flexWrap: "nowrap", alignItems: "center"}}>
+                                            <View key={`mapperRow_${ammoIndex}`} style={{width: "100%", display: "flex", flexDirection: "row", flexWrap: "nowrap", alignItems: "center", justifyContent: "space-between"}}>
                                                 <Text style={{width: "50%"}}>{ammoItem.de}</Text>
-                                                <Picker style={{width: "50%"}} selectedValue={mapCSV[ammoItem.name]} onValueChange={(itemValue, itemIndex) => setMapCSV({...mapCSV, [ammoItem.name]:itemValue})}>
-                                                    <Picker.Item label={"-"} value={""}/>
+                                                <Picker style={{width: "50%", color: theme.colors.onBackground}} dropdownIconColor={theme.colors.onBackground} selectedValue={mapCSV[ammoItem.name]} onValueChange={(itemValue, itemIndex) => setMapCSV({...mapCSV, [ammoItem.name]:itemValue})}>
+                                                    <Picker.Item label={"-"} value={""} style={{backgroundColor: theme.colors.background}} color={theme.colors.onBackground}/>
                                                     {CSVHeader.map((item, index) => {
                                                         return(
-                                                            <Picker.Item color={theme.colors.onBackground} key={`picker_${index}`} label={item} value={item} />
+                                                            <Picker.Item key={`picker_${index}`} label={item} value={item} style={{backgroundColor: theme.colors.background}} color={theme.colors.onBackground}/>
                                                         )
                                                     })}
                                                 </Picker>
+                                            <Divider style={{width: "100%"}}/>
                                             </View>
                                         )
                                         })}
-                                    <Text>{ammoRemarks.de}</Text>
-                                     <Button onPress={()=>setImportedCSV()}>DO IT</Button>
-                                </View>
+                                    
+                                        </ScrollView>
+                                        </View>
+                                        <View style={{width: "100%", display: "flex", flexDirection: "row", justifyContent: "space-between", alignItems: "center"}}>
+                                     <IconButton icon="check" mode="contained" onPress={()=>setImportedCSV()} />
+                                     <IconButton icon="cancel" mode="contained" style={{backgroundColor: theme.colors.errorContainer}} iconColor={theme.colors.onErrorContainer} onPress={()=>toggleImportCSVVisible(false)} />
+                                     </View>
+                                
                             </View>
                         </View>
                     </View>
                 </Modal>
             </Portal>
+
+            <Modal visible={dbModalVisible}>
+                <ActivityIndicator size="large" animating={true} />
+                <Text variant="bodyLarge" style={{width: "100%", textAlign: "center", color: theme.colors.onBackground, marginTop: 10, backgroundColor: theme.colors.background}}>{`${dbModalText}: ${importProgress}/${importSize}`}</Text>
+            </Modal>
 
         </Animated.View> 
     )
