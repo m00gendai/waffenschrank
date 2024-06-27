@@ -36,6 +36,7 @@ interface PreferenceTitle{
     db_ammo: SimpleTranslation
     saveDb_ammo: SimpleTranslation
     importDb_ammo: SimpleTranslation
+    importCSV_ammo: SimpleTranslation
     gunList: SimpleTranslation
     printAllGuns: SimpleTranslation
     printArt5: SimpleTranslation
@@ -475,18 +476,25 @@ export const preferenceTitles:PreferenceTitle = {
         ch: "Banca da datas muniziun",
     },
     saveDb_ammo: {
-        de: "Speichern",
+        de: "Speichern als Arsenal Datenbank",
         en: "Save",
         fr: "Enregistrer",
         it: "Salva",
         ch: "Arcunar",
     },
     importDb_ammo: {
-        de: "Importieren",
+        de: "Arsenal Datenbank importieren (ammoDB_17...)",
         en: "Import",
         fr: "Importer",
         it: "Importa",
         ch: "Importar",
+    },
+    importCSV_ammo: {
+        de: "Eigene CSV Datenbank importieren",
+        en: "",
+        fr: "", 
+        it: "", 
+        ch: "",
     },
     gunList: {
         de: "Waffenverzeichnis",
