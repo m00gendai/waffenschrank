@@ -17,6 +17,18 @@ interface ViewStore {
     setEditAmmoOpen: () => void
     lightBoxOpen: boolean
     setLightBoxOpen: () => void
+    toastVisible: boolean
+    setToastVisible: () => void
+    dbModalVisible: boolean
+    setDbModalVisible: () => void
+    importGunDbVisible: boolean
+    toggleImportGunDbVisible: () => void
+    importAmmoDbVisible: boolean
+    toggleImportAmmoDbVisible: () => void
+    imageResizeVisible: boolean
+    toggleImageResizeVisible: () => void
+    importCSVVisible: boolean
+    toggleImportCSVVisible: () => void
   }
 
   export const useViewStore = create<ViewStore>((set) => ({
@@ -35,5 +47,17 @@ interface ViewStore {
     editAmmoOpen: false,
     setEditAmmoOpen: () => set((state) => ({editAmmoOpen: !state.editAmmoOpen})),
     lightBoxOpen: false,
-    setLightBoxOpen: () => set((state) => ({lightBoxOpen: !state.lightBoxOpen}))
+    setLightBoxOpen: () => set((state) => ({lightBoxOpen: !state.lightBoxOpen})),
+    toastVisible: false,
+    setToastVisible: () => set((state) => ({toastVisible: !state.toastVisible})),
+    dbModalVisible: false,
+    setDbModalVisible: () => set((state) => ({dbModalVisible: !state.dbModalVisible})),
+    importGunDbVisible: false,
+    toggleImportGunDbVisible: () => set((state) => ({importGunDbVisible: !state.importGunDbVisible})),
+    importAmmoDbVisible: false,
+    toggleImportAmmoDbVisible: () => set((state) => ({importAmmoDbVisible: !state.importAmmoDbVisible})),
+    imageResizeVisible: false,
+    toggleImageResizeVisible: () => set((state) => ({imageResizeVisible: !state.imageResizeVisible})),
+    importCSVVisible: false,
+    toggleImportCSVVisible: () => set((state) => ({importCSVVisible: !state.importCSVVisible}))
   }))
