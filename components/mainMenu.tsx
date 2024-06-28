@@ -27,32 +27,39 @@ import { exampleAmmoEmpty } from "../lib/examples"
 import { v4 as uuidv4 } from 'uuid';
 import { gunDataTemplate } from "../lib/gunDataTemplate"
 import { mainMenu_ammunitionDatabase } from "../lib/Text/mainMenu_ammunitionDatabase"
+import { useImportExportStore } from "../stores/useImportExportStore"
+import CSVImportModal from "./CSVImportModal"
 
 
 export default function mainMenu(){
 
-    const { setMainMenuOpen } = useViewStore()
+    const { 
+        setMainMenuOpen, 
+        toastVisible, 
+        setToastVisible, 
+        dbModalVisible, 
+        setDbModalVisible, 
+        importGunDbVisible, 
+        toggleImportGunDbVisible, 
+        importAmmoDbVisible, 
+        toggleImportAmmoDbVisible, 
+        imageResizeVisible, 
+        toggleImageResizeVisible,
+        importCSVVisible,
+        toggleImportCSVVisible
+    } = useViewStore()
+    
     const { language, switchLanguage, theme, switchTheme, dbImport, setDbImport, setAmmoDbImport, generalSettings, setGeneralSettings } = usePreferenceStore()
     const { gunCollection } = useGunStore()
     const { ammoCollection, setAmmoCollection } = useAmmoStore()
     const {tags, setTags, ammo_tags, setAmmoTags, overWriteAmmoTags, overWriteTags} = useTagStore()
+    const { CSVHeader, setCSVHeader, CSVBody, setCSVBody, importProgress, setImportProgress, importSize, setImportSize, mapCSV, setMapCSV } = useImportExportStore()
 
-    const [toastVisible, setToastVisible] = useState<boolean>(false)
     const [snackbarText, setSnackbarText] = useState<string>("")
-    const [dbModalVisible, setDbModalVisible] = useState<boolean>(false)
     const [dbModalText, setDbModalText] = useState<string>("")
-    const [importGunDbVisible, toggleImportDunDbVisible] = useState<boolean>(false)
-    const [importAmmoDbVisible, toggleImportAmmoDbVisible] = useState<boolean>(false)
-    const [imageResizeVisible, toggleImageResizeVisible] = useState<boolean>(false)
-    const [importCSVVisible, toggleImportCSVVisible] = useState<boolean>(false)
-    const [importProgress, setImportProgress] = useState<number>(0)
-    const [importSize, setImportSize] = useState<number>(0)
-    const onToggleSnackBar = () => setToastVisible(!toastVisible);
-    const onDismissSnackBar = () => setToastVisible(false);
 
-    const [CSVHeader, setCSVHeader] = useState<string[]>([])
-    const [CSVBody, setCSVBody] = useState<string[][]>([[]])
-    const [mapCSV, setMapCSV] = useState<AmmoType>(exampleAmmoEmpty)
+    const onToggleSnackBar = () => setToastVisible();
+    const onDismissSnackBar = () => setToastVisible();
 
     const date: Date = new Date()
     const currentYear:number = date.getFullYear()
@@ -78,7 +85,7 @@ export default function mainMenu(){
         // ANDROID
         const permissions = await FileSystem.StorageAccessFramework.requestDirectoryPermissionsAsync()
         if(permissions.granted){
-            setDbModalVisible(true)
+            setDbModalVisible()
             setImportSize(gunCollection.length)
             setDbModalText(databaseOperations.export[language])
             let directoryUri = permissions.directoryUri
@@ -90,10 +97,10 @@ export default function mainMenu(){
                         return base64string
                     }))
                     const exportableGun:GunType = {...gun, images: base64images}
-                    setImportProgress(importProgress => importProgress+1)
+                    setImportProgress(importProgress+1)
                     return exportableGun
                 } else {
-                    setImportProgress(importProgress => importProgress+1)
+                    setImportProgress(importProgress+1)
                     return gun
                 }
             }))
@@ -102,7 +109,7 @@ export default function mainMenu(){
             let data = JSON.stringify(exportableGunCollection)
             const fileUri = await FileSystem.StorageAccessFramework.createFileAsync(directoryUri, fileName, "application/json")
             await FileSystem.writeAsStringAsync(fileUri, data, {encoding: FileSystem.EncodingType.UTF8})
-            setDbModalVisible(false)
+            setDbModalVisible()
         }
     
         /*
@@ -120,7 +127,7 @@ export default function mainMenu(){
         // ANDROID
         const permissions = await FileSystem.StorageAccessFramework.requestDirectoryPermissionsAsync()
         if(permissions.granted){
-            setDbModalVisible(true)
+            setDbModalVisible()
             setImportSize(ammoCollection.length)
             setDbModalText(databaseOperations.export[language])
             let directoryUri = permissions.directoryUri
@@ -132,10 +139,10 @@ export default function mainMenu(){
                         return base64string
                     }))
                     const exportableAmmo:AmmoType = {...ammo, images: base64images}
-                    setImportProgress(importProgress => importProgress+1)
+                    setImportProgress(importProgress+1)
                     return exportableAmmo
                 } else {
-                    setImportProgress(importProgress => importProgress+1)
+                    setImportProgress(importProgress+1)
                     return ammo
                 }
             }))
@@ -144,7 +151,7 @@ export default function mainMenu(){
             let data = JSON.stringify(exportableAmmoCollection)
             const fileUri = await FileSystem.StorageAccessFramework.createFileAsync(directoryUri, fileName, "application/json")
             await FileSystem.writeAsStringAsync(fileUri, data, {encoding: FileSystem.EncodingType.UTF8})
-            setDbModalVisible(false)
+            setDbModalVisible()
         }
     
         /*
@@ -190,17 +197,17 @@ export default function mainMenu(){
         if(!result.assets[0].name.startsWith("gunDB_")){
             setSnackbarText(toastMessages.wrongGunDbSelected[language])
             onToggleSnackBar()
-            toggleImportDunDbVisible(false)
+            toggleImportGunDbVisible()
             return
         }
-        toggleImportDunDbVisible(false)
+        toggleImportGunDbVisible()
         
         setDbModalText(databaseOperations.import[language])
         const content = await FileSystem.readAsStringAsync(result.assets[0].uri)
         const guns:GunType[] = JSON.parse(content)
         setImportSize(guns.length)
         setImportProgress(0)
-        setDbModalVisible(true)
+        setDbModalVisible()
         const importTags:{label:string, status:boolean}[] = []
         const importableGunCollection:GunType[] = await Promise.all(guns.map(async gun=>{
             if(gun.images !== null && gun.images.length !== 0){
@@ -248,7 +255,7 @@ export default function mainMenu(){
                         }
                     }
                 }
-                setImportProgress(importProgress => importProgress+1)
+                setImportProgress(1)
                 return importableGun
             } else {
                 if(gun.tags !== undefined && gun.tags.length !== 0){
@@ -258,7 +265,7 @@ export default function mainMenu(){
                         }
                     }
                 }
-                setImportProgress(importProgress => importProgress+1)
+                setImportProgress(1)
                 return gun
             }
         }))
@@ -273,7 +280,7 @@ export default function mainMenu(){
         })
     
         await AsyncStorage.setItem(KEY_DATABASE, JSON.stringify(newKeys)) // Save the key object
-        setDbModalVisible(false)
+        setDbModalVisible()
         setImportProgress(0)
         setImportSize(0)
         setDbImport(new Date())  
@@ -289,16 +296,16 @@ export default function mainMenu(){
         if(!result.assets[0].name.startsWith("ammoDB_")){
             setSnackbarText(toastMessages.wrongAmmoDbSelected[language])
             onToggleSnackBar()
-            toggleImportAmmoDbVisible(false)
+            toggleImportAmmoDbVisible()
             return
         }
-        toggleImportAmmoDbVisible(false)
+        toggleImportAmmoDbVisible()
         setDbModalText(databaseOperations.import[language])
         const content = await FileSystem.readAsStringAsync(result.assets[0].uri)
         const ammunitions:AmmoType[] = JSON.parse(content)
         setImportSize(ammunitions.length)
         setImportProgress(0)
-        setDbModalVisible(true)
+        setDbModalVisible()
         const importTags:{label:string, status:boolean}[] = []
         const importableAmmoCollection:AmmoType[] = await Promise.all(ammunitions.map(async ammo=>{
             if(ammo.images !== null && ammo.images.length !== 0){
@@ -346,7 +353,7 @@ export default function mainMenu(){
                         }
                     }
                 }
-                setImportProgress(importProgress => importProgress+1)
+                setImportProgress(importProgress+1)
                 return importableAmmo
             } else {
                 if(ammo.tags !== undefined && ammo.tags.length !== 0){
@@ -356,7 +363,7 @@ export default function mainMenu(){
                         }
                     }
                 }
-                setImportProgress(importProgress => importProgress+1)
+                setImportProgress(importProgress+1)
                 return ammo
             }
         }))
@@ -371,7 +378,7 @@ export default function mainMenu(){
         })
     
         await AsyncStorage.setItem(A_KEY_DATABASE, JSON.stringify(newKeys)) // Save the key object
-        setDbModalVisible(false)
+        setDbModalVisible()
         setImportProgress(0)
         setImportSize(0)
         setAmmoDbImport(new Date())  
@@ -381,7 +388,7 @@ export default function mainMenu(){
 
     function handleSwitchesAlert(setting:string){
         if(setting === "resizeImages"){
-            toggleImageResizeVisible(true)
+            toggleImageResizeVisible()
                 
         
         }
@@ -394,74 +401,24 @@ export default function mainMenu(){
             const newPreferences:{[key:string] : string} = preferences == null ? {"generalSettings": newSettings} : {...JSON.parse(preferences), "generalSettings": newSettings} 
             await AsyncStorage.setItem(PREFERENCES, JSON.stringify(newPreferences))
         }
-
-    async function importCSV(){
-        const result = await DocumentPicker.getDocumentAsync({copyToCacheDirectory: true})
-        if(result.assets === null){
-            return
-        }
-        if(result.assets[0].mimeType !== "text/comma-separated-values"){
-            return
-        }
-        const content:string = await FileSystem.readAsStringAsync(result.assets[0].uri)
-        toggleImportCSVVisible(true)
-        const parsed:Papa.ParseResult<string[]> = Papa.parse(content)
-        const headerRow:string[] = parsed.data[0]
-        const bodyRows:string[][] = parsed.data.slice(1)
-        setCSVHeader(headerRow)
-        setCSVBody(bodyRows)    
-    }
-
-    async function setImportedCSV(){
-        toggleImportCSVVisible(false)
-        setImportSize(CSVBody.length)
-        setImportProgress(0)
-        setDbModalVisible(true)
-        const indexMapCSV:{[key: string]: number}= {}
-        for(const entry of Object.entries(mapCSV)){
-            indexMapCSV[entry[0]] = CSVHeader.indexOf(entry[1])
-        }
-        const usedIndexes:number[] = []
-        for(const entries of Object.values(indexMapCSV)){
-            if(!usedIndexes.includes(entries) && entries !== -1){
-                usedIndexes.push(entries)
-            }
-        }
-        const objects:AmmoType[] = CSVBody.map((items, index)=>{
-            const mapped:AmmoType = {...exampleAmmoEmpty}
-            for(const entry of Object.entries(indexMapCSV)){
-                if(entry[0] === "id"){
-                    mapped[entry[0]] = uuidv4()  
-                } else if(entry[0] === "tags"){
-                    mapped[entry[0]] = []
-                } else {
-                    mapped[entry[0]] = entry[1] === -1 ? "" : items[entry[1]]
-                }
-                
-            }
-            const rmk:string[] = []
-            items.map((item, index) =>{
-                if(!usedIndexes.includes(index) && item !== ""){
-                    rmk.push(`${CSVHeader[index]}: ${item}`)
-                }
-            })
-            mapped.remarks = rmk.join("\n")
-            setImportProgress(importProgress => importProgress+1)
-            return mapped
-        })
-        let newKeys:string[] = []
         
-        objects.map(value =>{
-            newKeys.push(value.id) // if its the first gun to be saved, create an array with the id of the gun. Otherwise, merge the key into the existing array
-            SecureStore.setItem(`${AMMO_DATABASE}_${value.id}`, JSON.stringify(value)) // Save the gun
-        })
+        async function importCSV(){
+            const result = await DocumentPicker.getDocumentAsync({copyToCacheDirectory: true})
+            if(result.assets === null){
+                return
+            }
+            if(result.assets[0].mimeType !== "text/comma-separated-values"){
+                return
+            }
+            const content:string = await FileSystem.readAsStringAsync(result.assets[0].uri)
+            toggleImportCSVVisible()
+            const parsed:Papa.ParseResult<string[]> = Papa.parse(content)
+            const headerRow:string[] = parsed.data[0]
+            const bodyRows:string[][] = parsed.data.slice(1)
+            setCSVHeader(headerRow)
+            setCSVBody(bodyRows)    
+        }
     
-        await AsyncStorage.setItem(A_KEY_DATABASE, JSON.stringify(newKeys)) // Save the key object
-        setAmmoCollection(objects)
-        setImportSize(0)
-        setImportProgress(0)
-        setDbModalVisible(false)
-    }
 
     return(
         <Animated.View entering={LightSpeedInLeft} exiting={LightSpeedOutLeft} style={{position: "absolute", left: 0, width: "100%", height: "100%"}}>
@@ -513,7 +470,7 @@ export default function mainMenu(){
                                     <View style={{ marginLeft: 5, marginRight: 5, padding: defaultViewPadding, backgroundColor: theme.colors.background, borderColor: theme.colors.primary, borderLeftWidth: 5}}>
                                         <View style={{display: "flex", flexDirection: "row", justifyContent: "flex-start", flexWrap: "wrap", gap: 5}}>
                                             <Button style={{width: "45%"}} icon="content-save-move" onPress={()=>handleSaveGunDb()} mode="contained">{preferenceTitles.saveDb_gun[language]}</Button>
-                                            <Button style={{width: "45%"}} icon="application-import" onPress={()=>toggleImportDunDbVisible(true)} mode="contained">{preferenceTitles.importDb_gun[language]}</Button>
+                                            <Button style={{width: "45%"}} icon="application-import" onPress={()=>toggleImportGunDbVisible()} mode="contained">{preferenceTitles.importDb_gun[language]}</Button>
                                         </View>
                                     </View>
                                 </List.Accordion>
@@ -522,7 +479,7 @@ export default function mainMenu(){
                                         <View style={{display: "flex", flexDirection: "row", justifyContent: "flex-start", flexWrap: "wrap", gap: 5}}>
                                             <View style={{display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between", width: "100%"}}><Text style={{width: "80%"}}>{mainMenu_ammunitionDatabase.saveArsenalDB[language]}</Text><IconButton icon="floppy" onPress={()=>handleSaveAmmoDb()} mode="contained"/></View>
                                             <Divider style={{width: "100%"}} />
-                                            <View style={{display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between", width: "100%"}}><Text style={{width: "80%"}}>{mainMenu_ammunitionDatabase.importArsenalDB[language]}</Text><IconButton icon="application-import" onPress={()=>toggleImportAmmoDbVisible(true)} mode="contained" /></View>
+                                            <View style={{display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between", width: "100%"}}><Text style={{width: "80%"}}>{mainMenu_ammunitionDatabase.importArsenalDB[language]}</Text><IconButton icon="application-import" onPress={()=>toggleImportAmmoDbVisible()} mode="contained" /></View>
                                             <Divider style={{width: "100%"}} />
                                             <View style={{display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between", width: "100%"}}><Text style={{width: "80%"}}>{mainMenu_ammunitionDatabase.importCSV[language]}</Text><IconButton icon="application-import" onPress={()=>importCSV()} mode="contained"/></View>
                                         </View>
@@ -595,7 +552,7 @@ export default function mainMenu(){
                 {snackbarText}
             </Snackbar>
 
-            <Dialog visible={importGunDbVisible} onDismiss={()=>toggleImportDunDbVisible(false)}>
+            <Dialog visible={importGunDbVisible} onDismiss={()=>toggleImportGunDbVisible()}>
                     <Dialog.Title>
                     {`${databaseImportAlert.title[language]}`}
                     </Dialog.Title>
@@ -604,11 +561,11 @@ export default function mainMenu(){
                     </Dialog.Content>
                     <Dialog.Actions>
                         <Button onPress={()=>handleImportGunDb()} icon="application-import" buttonColor={theme.colors.errorContainer} textColor={theme.colors.onErrorContainer}>{databaseImportAlert.yes[language]}</Button>
-                        <Button onPress={()=>toggleImportDunDbVisible(false)} icon="cancel" buttonColor={theme.colors.secondary} textColor={theme.colors.onSecondary}>{databaseImportAlert.no[language]}</Button>
+                        <Button onPress={()=>toggleImportGunDbVisible()} icon="cancel" buttonColor={theme.colors.secondary} textColor={theme.colors.onSecondary}>{databaseImportAlert.no[language]}</Button>
                     </Dialog.Actions>
                 </Dialog>
 
-                <Dialog visible={importAmmoDbVisible} onDismiss={()=>toggleImportAmmoDbVisible(false)}>
+                <Dialog visible={importAmmoDbVisible} onDismiss={()=>toggleImportAmmoDbVisible()}>
                     <Dialog.Title>
                     {`${databaseImportAlert.title[language]}`}
                     </Dialog.Title>
@@ -617,11 +574,11 @@ export default function mainMenu(){
                     </Dialog.Content>
                     <Dialog.Actions>
                         <Button onPress={()=>handleImportAmmoDb()} icon="application-import" buttonColor={theme.colors.errorContainer} textColor={theme.colors.onErrorContainer}>{databaseImportAlert.yes[language]}</Button>
-                        <Button onPress={()=>toggleImportAmmoDbVisible(false)} icon="cancel" buttonColor={theme.colors.secondary} textColor={theme.colors.onSecondary}>{databaseImportAlert.no[language]}</Button>
+                        <Button onPress={()=>toggleImportAmmoDbVisible()} icon="cancel" buttonColor={theme.colors.secondary} textColor={theme.colors.onSecondary}>{databaseImportAlert.no[language]}</Button>
                     </Dialog.Actions>
                 </Dialog>
 
-                <Dialog visible={imageResizeVisible} onDismiss={()=>toggleImageResizeVisible(false)}>
+                <Dialog visible={imageResizeVisible} onDismiss={()=>toggleImageResizeVisible()}>
                     <Dialog.Title>
                     {`${resizeImageAlert.title[language]}`}
                     </Dialog.Title>
@@ -631,54 +588,14 @@ export default function mainMenu(){
                     <Dialog.Actions>
                         <Button onPress={()=>{
                             handleSwitches("resizeImages");
-                            toggleImageResizeVisible(false);
+                            toggleImageResizeVisible();
                         }} icon="check" buttonColor={theme.colors.errorContainer} textColor={theme.colors.onErrorContainer}>{resizeImageAlert.yes[language]}</Button>
-                        <Button onPress={()=>toggleImageResizeVisible(false)} icon="cancel" buttonColor={theme.colors.secondary} textColor={theme.colors.onSecondary}>{resizeImageAlert.no[language]}</Button>
+                        <Button onPress={()=>toggleImageResizeVisible()} icon="cancel" buttonColor={theme.colors.secondary} textColor={theme.colors.onSecondary}>{resizeImageAlert.no[language]}</Button>
                     </Dialog.Actions>
                 </Dialog>
 
             <Portal>
-                <Modal visible={importCSVVisible}>
-                    <View style={{width: "100%", height: "100%", display: "flex", flexDirection: "row", justifyContent: "center", alignItems: "center", alignContent: "center", flexWrap: "wrap", backgroundColor: theme.colors.backdrop}}>
-                        <View style={{width: "85%", height: "100%", maxHeight: "85%", display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", flexWrap: "wrap"}}>
-                            <View style={{backgroundColor: theme.colors.background, width: "100%", flex: 1, padding: defaultViewPadding, display: "flex", flexDirection: "column"}}>
-                                <View style={{flex: 3}}>
-                                <Text variant="titleSmall" style={{color: theme.colors.primary}}>{mainMenu_ammunitionDatabase.importCSVModalTitle[language]}</Text>
-                                <ScrollView>
-                                <Text variant="bodySmall">{mainMenu_ammunitionDatabase.importCSVModalText[language]}</Text>
-                                </ScrollView>
-                                </View>
-                                <View style={{flex: 7, borderColor: theme.colors.primary, borderBottomWidth: 2, borderTopWidth: 2, marginTop: defaultViewPadding, marginBottom: defaultViewPadding}}>
-                                <ScrollView>
-                
-                                    {ammoDataTemplate.map((ammoItem, ammoIndex)=>{
-                                        return(
-                                            <View key={`mapperRow_${ammoIndex}`} style={{width: "100%", display: "flex", flexDirection: "row", flexWrap: "nowrap", alignItems: "center", justifyContent: "space-between"}}>
-                                                <Text style={{width: "50%"}}>{ammoItem.de}</Text>
-                                                <Picker style={{width: "50%", color: theme.colors.onBackground}} dropdownIconColor={theme.colors.onBackground} selectedValue={mapCSV[ammoItem.name]} onValueChange={(itemValue, itemIndex) => setMapCSV({...mapCSV, [ammoItem.name]:itemValue})}>
-                                                    <Picker.Item label={"-"} value={""} style={{backgroundColor: theme.colors.background}} color={theme.colors.onBackground}/>
-                                                    {CSVHeader.map((item, index) => {
-                                                        return(
-                                                            <Picker.Item key={`picker_${index}`} label={item} value={item} style={{backgroundColor: theme.colors.background}} color={theme.colors.onBackground}/>
-                                                        )
-                                                    })}
-                                                </Picker>
-                                            <Divider style={{width: "100%"}}/>
-                                            </View>
-                                        )
-                                        })}
-                                    
-                                        </ScrollView>
-                                        </View>
-                                        <View style={{width: "100%", display: "flex", flexDirection: "row", justifyContent: "space-between", alignItems: "center"}}>
-                                     <IconButton icon="check" mode="contained" onPress={()=>setImportedCSV()} />
-                                     <IconButton icon="cancel" mode="contained" style={{backgroundColor: theme.colors.errorContainer}} iconColor={theme.colors.onErrorContainer} onPress={()=>toggleImportCSVVisible(false)} />
-                                     </View>
-                                
-                            </View>
-                        </View>
-                    </View>
-                </Modal>
+               {importCSVVisible ? <CSVImportModal /> : null} 
             </Portal>
 
             <Modal visible={dbModalVisible}>
