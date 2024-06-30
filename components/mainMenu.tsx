@@ -10,7 +10,7 @@ import { colorThemes } from "../lib/colorThemes"
 import { useState } from "react"
 import * as FileSystem from 'expo-file-system';
 import * as DocumentPicker from 'expo-document-picker';
-import { AmmoType, GunType, Languages } from "../interfaces"
+import { AmmoType, GunType, GunTypeStatus, Languages } from "../interfaces"
 import * as SecureStore from "expo-secure-store"
 import { useGunStore } from "../stores/useGunStore"
 import { SafeAreaView } from "react-native-safe-area-context"
@@ -30,7 +30,7 @@ export default function mainMenu(){
 
     const { setMainMenuOpen, toastVisible, setToastVisible, dbModalVisible, setDbModalVisible, importGunDbVisible, toggleImportGunDbVisible, importAmmoDbVisible, toggleImportAmmoDbVisible, imageResizeVisible, toggleImageResizeVisible, importCSVVisible, toggleImportCSVVisible } = useViewStore()
     const { language, switchLanguage, theme, switchTheme, setDbImport, setAmmoDbImport, generalSettings, setGeneralSettings } = usePreferenceStore()
-    const { gunCollection } = useGunStore()
+    const { gunCollection, setGunCollection } = useGunStore()
     const { ammoCollection } = useAmmoStore()
     const { overWriteAmmoTags, overWriteTags} = useTagStore()
     const { setCSVHeader, setCSVBody, importProgress, setImportProgress, importSize, setImportSize, setDbCollectionType } = useImportExportStore()
@@ -401,12 +401,42 @@ export default function mainMenu(){
     }
 
     async function exportCSV(data: "gun" | "ammo" | ""){
-        console.log(gunCollection)
-        const flattened = gunCollection.map(item => flatten(item))
+        //console.log(gunCollection)
+        const flattened = gunCollection.map(item => {
+            return flatten(item, {safe: true})
+        })
+       
         const csv = Papa.unparse(flattened)
-        console.log(csv)
-        const unflattened= flattened.map(item => unflatten(item))
-        console.log(unflattened)
+      
+        const permissions = await FileSystem.StorageAccessFramework.requestDirectoryPermissionsAsync()
+        if(permissions.granted){
+            let directoryUri = permissions.directoryUri
+            const fileUri = await FileSystem.StorageAccessFramework.createFileAsync(directoryUri, "guns.csv", "text/csv")
+            await FileSystem.writeAsStringAsync(fileUri, csv, {encoding: FileSystem.EncodingType.UTF8})
+        }
+    }
+
+    async function importArsenalCSV(data: "gun" | "ammo" | ""){
+        const result = await DocumentPicker.getDocumentAsync({copyToCacheDirectory: true})
+        if(result.assets === null){
+            return
+        }
+        const content:string = await FileSystem.readAsStringAsync(result.assets[0].uri)
+        const parsed = Papa.parse(content, {header: true})
+        // The errors are due to GunType expecting string[], but the parsed content is only a string. Maybe a type ImportableGunType[] should be created.
+        const unflat:GunType[] = parsed.data.map(item => {
+            const unitem:GunType = unflatten(item)
+            const filterEmptyImages:string[] = unitem.images.split(",")
+            const filterEmptyTags:string[] = unitem.tags === "" ? [] : unitem.tags.split(",")
+            const multiCal:string = unitem.caliber.split(",").join("\n")
+            let filterStatus = {exFullAuto: false, fullAuto: false, highCapacityMagazine: false, short: false}
+            Object.entries(unitem.status).map(item => {
+                filterStatus = {...filterStatus, [item[0]]: item[1] === "" ? false : item[1] === "false" ? false : true}
+            })            
+            const readyItem = {...unitem, images: filterEmptyImages, tags: filterEmptyTags, status:filterStatus, caliber: multiCal}
+            return readyItem
+        })
+        setGunCollection(unflat)
     }
     
 
@@ -466,6 +496,9 @@ export default function mainMenu(){
                                             <View style={{display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between", width: "100%"}}><Text style={{width: "80%"}}>{mainMenu_gunDatabase.importCSV[language]}</Text><IconButton icon="application-import" onPress={()=>importCSV("gun")} mode="contained"/></View>
                                             <Divider style={{width: "100%"}} />
                                             <View style={{display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between", width: "100%"}}><Text style={{width: "80%"}}>{mainMenu_gunDatabase.importCSV[language]}</Text><IconButton icon="floppy" onPress={()=>exportCSV("gun")} mode="contained"/></View>
+                                            <Divider style={{width: "100%"}} />
+                                            <View style={{display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between", width: "100%"}}><Text style={{width: "80%"}}>`import Arsenal CSV`</Text><IconButton icon="floppy" onPress={()=>importArsenalCSV("gun")} mode="contained"/></View>
+                                        
                                         </View>
                                     </View>
                                 </List.Accordion>
