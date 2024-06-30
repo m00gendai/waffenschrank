@@ -1,7 +1,7 @@
-import { Alert, ScrollView, TouchableNativeFeedback, View, Linking, Image } from "react-native"
+import { ScrollView, TouchableNativeFeedback, View, Image } from "react-native"
 import Animated, { LightSpeedInLeft, LightSpeedOutLeft } from "react-native-reanimated"
 import { useViewStore } from "../stores/useViewStore"
-import { ActivityIndicator, Button, Dialog, Divider, Icon, IconButton, List, Modal, Portal, SegmentedButtons, Snackbar, Switch, Text } from "react-native-paper"
+import { ActivityIndicator, Button, Dialog, Divider, Icon, IconButton, List, Modal, Portal, Snackbar, Switch, Text } from "react-native-paper"
 import { aboutText, aboutThanks, databaseImportAlert, databaseOperations, generalSettingsLabels, preferenceTitles, resizeImageAlert, toastMessages } from "../lib/textTemplates"
 import { usePreferenceStore } from "../stores/usePreferenceStore"
 import AsyncStorage from "@react-native-async-storage/async-storage"
@@ -19,41 +19,20 @@ import { useAmmoStore } from "../stores/useAmmoStore"
 import { useTagStore } from "../stores/useTagStore"
 import * as Application from 'expo-application';
 import { manipulateAsync } from "expo-image-manipulator"
-import * as ImagePicker from "expo-image-picker"
-import {Picker} from '@react-native-picker/picker';
 import Papa from 'papaparse';
-import { ammoDataTemplate, ammoRemarks } from "../lib/ammoDataTemplate"
-import { exampleAmmoEmpty } from "../lib/examples"
-import { v4 as uuidv4 } from 'uuid';
-import { gunDataTemplate } from "../lib/gunDataTemplate"
-import { mainMenu_ammunitionDatabase } from "../lib/Text/mainMenu_ammunitionDatabase"
+import { mainMenu_ammunitionDatabase, mainMenu_gunDatabase } from "../lib/Text/mainMenu_ammunitionDatabase"
 import { useImportExportStore } from "../stores/useImportExportStore"
 import CSVImportModal from "./CSVImportModal"
 
 
 export default function mainMenu(){
 
-    const { 
-        setMainMenuOpen, 
-        toastVisible, 
-        setToastVisible, 
-        dbModalVisible, 
-        setDbModalVisible, 
-        importGunDbVisible, 
-        toggleImportGunDbVisible, 
-        importAmmoDbVisible, 
-        toggleImportAmmoDbVisible, 
-        imageResizeVisible, 
-        toggleImageResizeVisible,
-        importCSVVisible,
-        toggleImportCSVVisible
-    } = useViewStore()
-    
-    const { language, switchLanguage, theme, switchTheme, dbImport, setDbImport, setAmmoDbImport, generalSettings, setGeneralSettings } = usePreferenceStore()
+    const { setMainMenuOpen, toastVisible, setToastVisible, dbModalVisible, setDbModalVisible, importGunDbVisible, toggleImportGunDbVisible, importAmmoDbVisible, toggleImportAmmoDbVisible, imageResizeVisible, toggleImageResizeVisible, importCSVVisible, toggleImportCSVVisible } = useViewStore()
+    const { language, switchLanguage, theme, switchTheme, setDbImport, setAmmoDbImport, generalSettings, setGeneralSettings } = usePreferenceStore()
     const { gunCollection } = useGunStore()
-    const { ammoCollection, setAmmoCollection } = useAmmoStore()
-    const {tags, setTags, ammo_tags, setAmmoTags, overWriteAmmoTags, overWriteTags} = useTagStore()
-    const { CSVHeader, setCSVHeader, CSVBody, setCSVBody, importProgress, setImportProgress, importSize, setImportSize, mapCSV, setMapCSV } = useImportExportStore()
+    const { ammoCollection } = useAmmoStore()
+    const { overWriteAmmoTags, overWriteTags} = useTagStore()
+    const { setCSVHeader, setCSVBody, importProgress, setImportProgress, importSize, setImportSize, setDbCollectionType } = useImportExportStore()
 
     const [snackbarText, setSnackbarText] = useState<string>("")
     const [dbModalText, setDbModalText] = useState<string>("")
@@ -402,22 +381,23 @@ export default function mainMenu(){
             await AsyncStorage.setItem(PREFERENCES, JSON.stringify(newPreferences))
         }
         
-        async function importCSV(){
-            const result = await DocumentPicker.getDocumentAsync({copyToCacheDirectory: true})
-            if(result.assets === null){
-                return
-            }
-            if(result.assets[0].mimeType !== "text/comma-separated-values"){
-                return
-            }
-            const content:string = await FileSystem.readAsStringAsync(result.assets[0].uri)
-            toggleImportCSVVisible()
-            const parsed:Papa.ParseResult<string[]> = Papa.parse(content)
-            const headerRow:string[] = parsed.data[0]
-            const bodyRows:string[][] = parsed.data.slice(1)
-            setCSVHeader(headerRow)
-            setCSVBody(bodyRows)    
+    async function importCSV(data: "gun" | "ammo" | ""){
+        const result = await DocumentPicker.getDocumentAsync({copyToCacheDirectory: true})
+        if(result.assets === null){
+            return
         }
+        if(result.assets[0].mimeType !== "text/comma-separated-values"){
+            return
+        }
+        const content:string = await FileSystem.readAsStringAsync(result.assets[0].uri)
+        toggleImportCSVVisible()
+        const parsed:Papa.ParseResult<string[]> = Papa.parse(content)
+        const headerRow:string[] = parsed.data[0]
+        const bodyRows:string[][] = parsed.data.slice(1)
+        setCSVHeader(headerRow)
+        setCSVBody(bodyRows)    
+        setDbCollectionType(data)
+    }
     
 
     return(
@@ -467,10 +447,13 @@ export default function mainMenu(){
                                     </View>
                                 </List.Accordion>
                                 <List.Accordion left={props => <><List.Icon {...props} icon="database-outline" /><List.Icon {...props} icon="pistol" /></>} title={preferenceTitles.db_gun[language]} titleStyle={{fontWeight: "700", color: theme.colors.onBackground}}>
-                                    <View style={{ marginLeft: 5, marginRight: 5, padding: defaultViewPadding, backgroundColor: theme.colors.background, borderColor: theme.colors.primary, borderLeftWidth: 5}}>
+                                <View style={{ marginLeft: 5, marginRight: 5, padding: defaultViewPadding, backgroundColor: theme.colors.background, borderColor: theme.colors.primary, borderLeftWidth: 5}}>
                                         <View style={{display: "flex", flexDirection: "row", justifyContent: "flex-start", flexWrap: "wrap", gap: 5}}>
-                                            <Button style={{width: "45%"}} icon="content-save-move" onPress={()=>handleSaveGunDb()} mode="contained">{preferenceTitles.saveDb_gun[language]}</Button>
-                                            <Button style={{width: "45%"}} icon="application-import" onPress={()=>toggleImportGunDbVisible()} mode="contained">{preferenceTitles.importDb_gun[language]}</Button>
+                                            <View style={{display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between", width: "100%"}}><Text style={{width: "80%"}}>{mainMenu_gunDatabase.saveArsenalDB[language]}</Text><IconButton icon="floppy" onPress={()=>handleSaveGunDb()} mode="contained"/></View>
+                                            <Divider style={{width: "100%"}} />
+                                            <View style={{display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between", width: "100%"}}><Text style={{width: "80%"}}>{mainMenu_gunDatabase.importArsenalDB[language]}</Text><IconButton icon="application-import" onPress={()=>toggleImportGunDbVisible()} mode="contained" /></View>
+                                            <Divider style={{width: "100%"}} />
+                                            <View style={{display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between", width: "100%"}}><Text style={{width: "80%"}}>{mainMenu_gunDatabase.importCSV[language]}</Text><IconButton icon="application-import" onPress={()=>importCSV("gun")} mode="contained"/></View>
                                         </View>
                                     </View>
                                 </List.Accordion>
@@ -481,7 +464,7 @@ export default function mainMenu(){
                                             <Divider style={{width: "100%"}} />
                                             <View style={{display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between", width: "100%"}}><Text style={{width: "80%"}}>{mainMenu_ammunitionDatabase.importArsenalDB[language]}</Text><IconButton icon="application-import" onPress={()=>toggleImportAmmoDbVisible()} mode="contained" /></View>
                                             <Divider style={{width: "100%"}} />
-                                            <View style={{display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between", width: "100%"}}><Text style={{width: "80%"}}>{mainMenu_ammunitionDatabase.importCSV[language]}</Text><IconButton icon="application-import" onPress={()=>importCSV()} mode="contained"/></View>
+                                            <View style={{display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between", width: "100%"}}><Text style={{width: "80%"}}>{mainMenu_ammunitionDatabase.importCSV[language]}</Text><IconButton icon="application-import" onPress={()=>importCSV("ammo")} mode="contained"/></View>
                                         </View>
                                     </View>
                                 </List.Accordion>
