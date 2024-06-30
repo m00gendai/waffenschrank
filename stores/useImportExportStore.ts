@@ -13,6 +13,8 @@ interface ImportExportStore {
     setImportSize: (num: number) => void
     mapCSV: AmmoType
     setMapCSV: (data: AmmoType) => void
+    dbCollectionType: "gun" | "ammo" | ""
+    setDbCollectionType: (data: string) => void
   }
 
   export const useImportExportStore = create<ImportExportStore>((set) => ({
@@ -25,5 +27,7 @@ interface ImportExportStore {
     importSize: 0,
     setImportSize: (num: number) => set((state) => ({importSize: num})),
     mapCSV: exampleAmmoEmpty,
-    setMapCSV: (data: AmmoType) => set((state => ({mapCSV: data})))
+    setMapCSV: (data: AmmoType) => set((state => ({mapCSV: data}))),
+    dbCollectionType: "",
+    setDbCollectionType: (data: "gun" | "ammo" | "") => set((state) => ({dbCollectionType: data}))
   }))
