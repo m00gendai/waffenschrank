@@ -2,45 +2,32 @@ import { Divider, IconButton, Modal, Text } from "react-native-paper"
 import { useViewStore } from "../stores/useViewStore"
 import { usePreferenceStore } from "../stores/usePreferenceStore"
 import { View, ScrollView } from "react-native"
-import { AMMO_DATABASE, A_KEY_DATABASE, defaultViewPadding } from "../configs"
+import { AMMO_DATABASE, A_KEY_DATABASE, GUN_DATABASE, KEY_DATABASE, defaultViewPadding } from "../configs"
 import { mainMenu_ammunitionDatabase } from "../lib/Text/mainMenu_ammunitionDatabase"
 import { ammoDataTemplate } from "../lib/ammoDataTemplate"
 import { Picker } from "@react-native-picker/picker"
 import { useImportExportStore } from "../stores/useImportExportStore"
-import * as FileSystem from 'expo-file-system';
-import * as DocumentPicker from 'expo-document-picker';
-import Papa from "papaparse"
-import { AmmoType } from "../interfaces"
-import { exampleAmmoEmpty } from "../lib/examples"
+import { AmmoType, GunType } from "../interfaces"
+import { exampleAmmoEmpty, exampleGunEmpty } from "../lib/examples"
 import { v4 as uuidv4 } from 'uuid';
 import * as SecureStore from "expo-secure-store"
 import { useGunStore } from "../stores/useGunStore"
 import { useAmmoStore } from "../stores/useAmmoStore"
 import AsyncStorage from "@react-native-async-storage/async-storage"
+import { gunDataTemplate } from "../lib/gunDataTemplate"
 
 export default function CSVImportModal(){
 
-    const { 
-        setMainMenuOpen, 
-        toastVisible, 
-        setToastVisible, 
-        dbModalVisible, 
-        setDbModalVisible, 
-        importGunDbVisible, 
-        toggleImportGunDbVisible, 
-        importAmmoDbVisible, 
-        toggleImportAmmoDbVisible, 
-        imageResizeVisible, 
-        toggleImageResizeVisible,
-        importCSVVisible,
-        toggleImportCSVVisible
-    } = useViewStore()
-    const { language, switchLanguage, theme, switchTheme, dbImport, setDbImport, setAmmoDbImport, generalSettings, setGeneralSettings } = usePreferenceStore()
-    const { CSVHeader, setCSVHeader, CSVBody, setCSVBody, importProgress, setImportProgress, importSize, setImportSize, mapCSV, setMapCSV } = useImportExportStore()
-    const { gunCollection } = useGunStore()
-    const { ammoCollection, setAmmoCollection } = useAmmoStore()
+    const { setDbModalVisible, importCSVVisible, toggleImportCSVVisible } = useViewStore()
+    const { language, theme } = usePreferenceStore()
+    const { CSVHeader, CSVBody, importProgress, setImportProgress, setImportSize, mapCSV, setMapCSV, dbCollectionType, setDbCollectionType } = useImportExportStore()
+    const { setGunCollection } = useGunStore()
+    const { setAmmoCollection } = useAmmoStore()
 
     async function setImportedCSV(){
+        if(dbCollectionType === ""){
+            return
+        }
         toggleImportCSVVisible()
         setImportSize(CSVBody.length)
         setImportProgress(0)
@@ -55,8 +42,8 @@ export default function CSVImportModal(){
                 usedIndexes.push(entries)
             }
         }
-        const objects:AmmoType[] = CSVBody.map((items, index)=>{
-            const mapped:AmmoType = {...exampleAmmoEmpty}
+        const objects: (AmmoType | GunType)[] = CSVBody.map((items, index)=>{
+            const mapped:AmmoType | GunType = dbCollectionType === "gun" ? {...exampleGunEmpty} : {...exampleAmmoEmpty}
             for(const entry of Object.entries(indexMapCSV)){
                 if(entry[0] === "id"){
                     mapped[entry[0]] = uuidv4()  
@@ -81,14 +68,15 @@ export default function CSVImportModal(){
         
         objects.map(value =>{
             newKeys.push(value.id) // if its the first gun to be saved, create an array with the id of the gun. Otherwise, merge the key into the existing array
-            SecureStore.setItem(`${AMMO_DATABASE}_${value.id}`, JSON.stringify(value)) // Save the gun
+            SecureStore.setItem(`${dbCollectionType === "gun" ? GUN_DATABASE : AMMO_DATABASE}_${value.id}`, JSON.stringify(value)) // Save the gun
         })
     
-        await AsyncStorage.setItem(A_KEY_DATABASE, JSON.stringify(newKeys)) // Save the key object
-        setAmmoCollection(objects)
+        await AsyncStorage.setItem(dbCollectionType === "gun" ? KEY_DATABASE : A_KEY_DATABASE, JSON.stringify(newKeys)) // Save the key object
+        dbCollectionType === "gun" ? setGunCollection(objects as GunType[]) : setAmmoCollection(objects as AmmoType[])
         setImportSize(0)
         setImportProgress(0)
         setDbModalVisible()
+        setDbCollectionType("")
     }
 
     return(
@@ -97,15 +85,32 @@ export default function CSVImportModal(){
                         <View style={{width: "85%", height: "100%", maxHeight: "85%", display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", flexWrap: "wrap"}}>
                             <View style={{backgroundColor: theme.colors.background, width: "100%", flex: 1, padding: defaultViewPadding, display: "flex", flexDirection: "column"}}>
                                 <View style={{flex: 3}}>
-                                <Text variant="titleSmall" style={{color: theme.colors.primary}}>{mainMenu_ammunitionDatabase.importCSVModalTitle[language]}</Text>
+                                <Text variant="titleSmall" style={{color: theme.colors.primary}}>{dbCollectionType === "gun" ? mainMenu_ammunitionDatabase.importCSVModalTitle[language] : mainMenu_ammunitionDatabase.importCSVModalTitle[language]}</Text>
                                 <ScrollView>
-                                <Text variant="bodySmall">{mainMenu_ammunitionDatabase.importCSVModalText[language]}</Text>
+                                <Text variant="bodySmall">{dbCollectionType === "gun" ? mainMenu_ammunitionDatabase.importCSVModalText[language] : mainMenu_ammunitionDatabase.importCSVModalText[language]}</Text>
                                 </ScrollView>
                                 </View>
                                 <View style={{flex: 7, borderColor: theme.colors.primary, borderBottomWidth: 2, borderTopWidth: 2, marginTop: defaultViewPadding, marginBottom: defaultViewPadding}}>
                                 <ScrollView>
                 
-                                    {ammoDataTemplate.map((ammoItem, ammoIndex)=>{
+                                    {dbCollectionType === "gun" ? gunDataTemplate.map((gunItem, gunIndex)=>{
+                                        return(
+                                            <View key={`mapperRow_${gunIndex}`} style={{width: "100%", display: "flex", flexDirection: "row", flexWrap: "nowrap", alignItems: "center", justifyContent: "space-between"}}>
+                                                <Text style={{width: "50%"}}>{gunItem.de}</Text>
+                                                <Picker style={{width: "50%", color: theme.colors.onBackground}} dropdownIconColor={theme.colors.onBackground} selectedValue={mapCSV[gunItem.name]} onValueChange={(itemValue, itemIndex) => setMapCSV({...mapCSV, [gunItem.name]:itemValue})}>
+                                                    <Picker.Item label={"-"} value={""} style={{backgroundColor: theme.colors.background}} color={theme.colors.onBackground}/>
+                                                    {CSVHeader.map((item, index) => {
+                                                        return(
+                                                            <Picker.Item key={`picker_${index}`} label={item} value={item} style={{backgroundColor: theme.colors.background}} color={theme.colors.onBackground}/>
+                                                        )
+                                                    })}
+                                                </Picker>
+                                            <Divider style={{width: "100%"}}/>
+                                            </View>
+                                        )
+                                        }) 
+                                    :
+                                    ammoDataTemplate.map((ammoItem, ammoIndex)=>{
                                         return(
                                             <View key={`mapperRow_${ammoIndex}`} style={{width: "100%", display: "flex", flexDirection: "row", flexWrap: "nowrap", alignItems: "center", justifyContent: "space-between"}}>
                                                 <Text style={{width: "50%"}}>{ammoItem.de}</Text>
@@ -120,7 +125,8 @@ export default function CSVImportModal(){
                                             <Divider style={{width: "100%"}}/>
                                             </View>
                                         )
-                                        })}
+                                        })
+                                    }
                                     
                                         </ScrollView>
                                         </View>
