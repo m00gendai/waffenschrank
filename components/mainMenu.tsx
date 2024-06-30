@@ -23,6 +23,7 @@ import Papa from 'papaparse';
 import { mainMenu_ammunitionDatabase, mainMenu_gunDatabase } from "../lib/Text/mainMenu_ammunitionDatabase"
 import { useImportExportStore } from "../stores/useImportExportStore"
 import CSVImportModal from "./CSVImportModal"
+import { flatten, unflatten } from 'flat'
 
 
 export default function mainMenu(){
@@ -398,6 +399,15 @@ export default function mainMenu(){
         setCSVBody(bodyRows)    
         setDbCollectionType(data)
     }
+
+    async function exportCSV(data: "gun" | "ammo" | ""){
+        console.log(gunCollection)
+        const flattened = gunCollection.map(item => flatten(item))
+        const csv = Papa.unparse(flattened)
+        console.log(csv)
+        const unflattened= flattened.map(item => unflatten(item))
+        console.log(unflattened)
+    }
     
 
     return(
@@ -454,6 +464,8 @@ export default function mainMenu(){
                                             <View style={{display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between", width: "100%"}}><Text style={{width: "80%"}}>{mainMenu_gunDatabase.importArsenalDB[language]}</Text><IconButton icon="application-import" onPress={()=>toggleImportGunDbVisible()} mode="contained" /></View>
                                             <Divider style={{width: "100%"}} />
                                             <View style={{display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between", width: "100%"}}><Text style={{width: "80%"}}>{mainMenu_gunDatabase.importCSV[language]}</Text><IconButton icon="application-import" onPress={()=>importCSV("gun")} mode="contained"/></View>
+                                            <Divider style={{width: "100%"}} />
+                                            <View style={{display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between", width: "100%"}}><Text style={{width: "80%"}}>{mainMenu_gunDatabase.importCSV[language]}</Text><IconButton icon="floppy" onPress={()=>exportCSV("gun")} mode="contained"/></View>
                                         </View>
                                     </View>
                                 </List.Accordion>
