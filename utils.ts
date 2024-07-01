@@ -132,3 +132,16 @@ export function getImageSize(base64ImageUri){
         });
     });
 };
+
+export function sanitizeFileName(fileName) {
+    // Define the forbidden characters for Windows, macOS, and Linux
+    const forbiddenCharacters = /[\\/:*?"<>|]/g;
+    
+    // Replace forbidden characters with an underscore
+    let sanitized = fileName.replace(forbiddenCharacters, '_');
+    
+    // Trim leading and trailing spaces and periods
+    sanitized = sanitized.replace(/^[\s.]+|[\s.]+$/g, '');
+    
+    return sanitized;
+}
