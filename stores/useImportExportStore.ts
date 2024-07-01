@@ -1,6 +1,7 @@
 import { create } from "zustand"
-import { AmmoType } from "../interfaces"
+import { AmmoType, DBOperations } from "../interfaces"
 import { exampleAmmoEmpty } from "../lib/examples"
+import { doSortBy } from "../utils"
 
 interface ImportExportStore {
     CSVHeader: string[]
@@ -9,11 +10,13 @@ interface ImportExportStore {
     setCSVBody: (data:string[][]) => void
     importProgress: number
     setImportProgress: (num: number) => void
+    resetImportProgress: (num: number) => void
     importSize: number
     setImportSize: (num: number) => void
+    resetImportSize: (num: number) => void
     mapCSV: AmmoType
     setMapCSV: (data: AmmoType) => void
-    dbCollectionType: "gun" | "ammo" | ""
+    dbCollectionType: DBOperations | ""
     setDbCollectionType: (data: string) => void
   }
 
@@ -24,10 +27,12 @@ interface ImportExportStore {
     setCSVBody: (data: string[][]) => set((state) => ({ CSVBody: data })),
     importProgress: 0,
     setImportProgress: (num: number) => set((state) => ({importProgress: state.importProgress + num})),
+    resetImportProgress: (num: number) => set((state) => ({importProgress: num})),
     importSize: 0,
     setImportSize: (num: number) => set((state) => ({importSize: num})),
+    resetImportSize: (num: number) => set((state) => ({importSize: num})),
     mapCSV: exampleAmmoEmpty,
     setMapCSV: (data: AmmoType) => set((state => ({mapCSV: data}))),
     dbCollectionType: "",
-    setDbCollectionType: (data: "gun" | "ammo" | "") => set((state) => ({dbCollectionType: data}))
+    setDbCollectionType: (data: DBOperations | "") => set((state) => ({dbCollectionType: data}))
   }))
