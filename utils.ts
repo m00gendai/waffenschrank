@@ -5,6 +5,7 @@ import { ammoDataTemplate } from "./lib/ammoDataTemplate";
 import { requiredFieldsAmmo, requiredFieldsGun } from "./configs";
 import * as ImagePicker from "expo-image-picker"
 import { ImageResult, manipulateAsync } from 'expo-image-manipulator';
+import { Image } from "react-native"
 
 export function doSortBy(value: SortingTypes, ascending: boolean, items: GunType[] | AmmoType[]){
     if(value === "alphabetical"){
@@ -118,4 +119,29 @@ export async function imageHandling(result:ImagePicker.ImagePickerResult, resize
         {compress: 1}
     );
     return altered
+}
+
+export function getImageSize(base64ImageUri){
+    return new Promise((resolve, reject) => {
+        Image.getSize(base64ImageUri, (width, height) => {
+            if (width && height) {
+                resolve({ width: width, height: height });
+            } else {
+                reject({ width: 0, height: 0 });
+            }
+        });
+    });
+};
+
+export function sanitizeFileName(fileName) {
+    // Define the forbidden characters for Windows, macOS, and Linux
+    const forbiddenCharacters = /[\\/:*?"<>|]/g;
+    
+    // Replace forbidden characters with an underscore
+    let sanitized = fileName.replace(forbiddenCharacters, '_');
+    
+    // Trim leading and trailing spaces and periods
+    sanitized = sanitized.replace(/^[\s.]+|[\s.]+$/g, '');
+    
+    return sanitized;
 }
