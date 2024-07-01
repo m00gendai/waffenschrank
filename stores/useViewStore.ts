@@ -21,14 +21,12 @@ interface ViewStore {
     setToastVisible: () => void
     dbModalVisible: boolean
     setDbModalVisible: () => void
-    importGunDbVisible: boolean
-    toggleImportGunDbVisible: () => void
-    importAmmoDbVisible: boolean
-    toggleImportAmmoDbVisible: () => void
     imageResizeVisible: boolean
     toggleImageResizeVisible: () => void
     importCSVVisible: boolean
     toggleImportCSVVisible: () => void
+    importModalVisible: boolean
+    toggleImportModalVisible: () => void
   }
 
   export const useViewStore = create<ViewStore>((set) => ({
@@ -52,12 +50,10 @@ interface ViewStore {
     setToastVisible: () => set((state) => ({toastVisible: !state.toastVisible})),
     dbModalVisible: false,
     setDbModalVisible: () => set((state) => ({dbModalVisible: !state.dbModalVisible})),
-    importGunDbVisible: false,
-    toggleImportGunDbVisible: () => set((state) => ({importGunDbVisible: !state.importGunDbVisible})),
-    importAmmoDbVisible: false,
-    toggleImportAmmoDbVisible: () => set((state) => ({importAmmoDbVisible: !state.importAmmoDbVisible})),
     imageResizeVisible: false,
     toggleImageResizeVisible: () => set((state) => ({imageResizeVisible: !state.imageResizeVisible})),
     importCSVVisible: false,
-    toggleImportCSVVisible: () => set((state) => ({importCSVVisible: !state.importCSVVisible}))
+    toggleImportCSVVisible: () => set((state) => ({importCSVVisible: !state.importCSVVisible})),
+    importModalVisible: false,
+    toggleImportModalVisible: () => set((state) => ({importModalVisible: !state.importModalVisible}))
   }))
