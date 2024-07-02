@@ -26,7 +26,6 @@ export default function GunCollection(){
   // Todo: Stricter typing ("stringA" | "stringB" instead of just string)
 
   const [menuVisibility, setMenuVisibility] = useState<MenuVisibility>({sortBy: false, filterBy: false});
-  const [sortIcon, setSortIcon] = useState<string>("alphabetical-variant")
   const [sortAscending, setSortAscending] = useState<boolean>(true)
   const [searchBannerVisible, toggleSearchBannerVisible] = useState<boolean>(false)
   const [searchQuery, setSearchQuery] = useState<string>("")
@@ -34,7 +33,7 @@ export default function GunCollection(){
   const [shotCountNonStock, setShotCountNonStock] = useState<string>("")
   const [shotCountFromStock, setShotCountFromStock] = useState<string[]>([])
 
-  const { dbImport, displayAsGrid, setDisplayAsGrid, toggleDisplayAsGrid, sortBy, setSortBy, language } = usePreferenceStore()
+  const { dbImport, displayAsGrid, setDisplayAsGrid, toggleDisplayAsGrid, sortBy, setSortBy, language, setSortGunIcon, sortGunIcon } = usePreferenceStore()
   const { mainMenuOpen, setMainMenuOpen, newGunOpen, setNewGunOpen, editGunOpen, setEditGunOpen, seeGunOpen, setSeeGunOpen } = useViewStore()
   const { gunCollection, setGunCollection, currentGun, setCurrentGun } = useGunStore()
   const { ammoCollection, setAmmoCollection, currentAmmo, setCurrentAmmo } = useAmmoStore()
@@ -68,60 +67,10 @@ export default function GunCollection(){
     flagButton:{
       fontSize: 20
     }
-  });
-  
-    async function getKeys(){
-        const keys:string = await AsyncStorage.getItem(KEY_DATABASE)
-        if(keys == null){
-          return []
-        }
-        return JSON.parse(keys)
-      }
-      
-    useEffect(()=>{
-        async function getGuns(){
-          const keys:string[] = await getKeys()
-          const guns:GunType[] = await Promise.all(keys.map(async key =>{
-            const item:string = await SecureStore.getItemAsync(`${GUN_DATABASE}_${key}`)
-            return JSON.parse(item)
-          }))
-          const preferences:string = await AsyncStorage.getItem(PREFERENCES)
-          const isPreferences = preferences === null ? null : JSON.parse(preferences)
-
-          const sortedGuns = doSortBy(isPreferences === null ? "alphabetical" : isPreferences.sortBy === undefined ? "alphabetical" : isPreferences.sortBy, isPreferences == null? true : isPreferences.sortOrder === undefined ? true : isPreferences.sortOrder, guns) as GunType[]
-          setGunCollection(sortedGuns)
-        }
-        getGuns()
-      },[dbImport])
-
-useEffect(()=>{
-  async function getPreferences(){
-    const preferences:string = await AsyncStorage.getItem(PREFERENCES)
-    const isPreferences = preferences === null ? null : JSON.parse(preferences)
-
-    const tagList: string = await AsyncStorage.getItem(TAGS)
-
-    const isTagList:{label: string, status: boolean}[] = tagList === null ? null : JSON.parse(tagList)
-   
-    setDisplayAsGrid(isPreferences === null ? true : isPreferences.displayAsGrid === null ? true : isPreferences.displayAsGrid)
-    setSortBy(isPreferences === null ? "alphabetical" : isPreferences.sortBy === undefined ? "alphabetical" : isPreferences.sortBy)
-    setSortIcon(getIcon((isPreferences === null ? "alphabetical" : isPreferences.sortBy === null ? "alphabetical" : isPreferences.sortBy)))
-
-    if(isTagList !== null && isTagList !== undefined){
-      Object.values(isTagList).map(tag =>{
-
-      setTags(tag)
-    }) 
-  }
-  
-  }
-  getPreferences()
-},[])
-
-        
+  });        
 
         async function handleSortBy(type: SortingTypes){
-            setSortIcon(getIcon(type))
+            setSortGunIcon(getIcon(type))
             setSortBy(type)
             const sortedGuns = doSortBy(type, sortAscending, gunCollection) as GunType[]
             setGunCollection(sortedGuns)
@@ -328,7 +277,7 @@ function handleErrorMessage(ammo:AmmoType, val:string){
             <Menu
               visible={menuVisibility.sortBy}
               onDismiss={()=>handleMenu("sortBy", false)}
-              anchor={<Appbar.Action icon={sortIcon} onPress={() => handleMenu("sortBy", true)} />}
+              anchor={<Appbar.Action icon={sortGunIcon} onPress={() => handleMenu("sortBy", true)} />}
               anchorPosition='bottom'
             >
              <Menu.Item onPress={() => handleSortBy("alphabetical")} title={`${sorting.alphabetic[language]}`} leadingIcon={getIcon("alphabetical")}/>

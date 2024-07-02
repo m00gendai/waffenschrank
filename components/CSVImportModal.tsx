@@ -47,6 +47,8 @@ export default function CSVImportModal(){
                     mapped[entry[0]] = uuidv4()  
                 } else if(entry[0] === "tags"){
                     mapped[entry[0]] = []
+                } else if(entry[0] === "createdAt"){
+                    mapped[entry[0]] = entry[1] === -1 ? `${new Date().toISOString()}` : items[entry[1]]
                 } else {
                     mapped[entry[0]] = entry[1] === -1 ? "" : items[entry[1]]
                 }
