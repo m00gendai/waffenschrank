@@ -1,7 +1,7 @@
 import { PaperProvider } from 'react-native-paper';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useEffect } from "react"
-import {PREFERENCES } from "./configs"
+import {AMMO_DATABASE, A_KEY_DATABASE, A_TAGS, GUN_DATABASE, KEY_DATABASE, PREFERENCES, TAGS } from "./configs"
 import 'react-native-gesture-handler';
 import React from 'react';
 import { usePreferenceStore } from './stores/usePreferenceStore';
@@ -15,23 +15,115 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { tabBarLabels } from './lib/textTemplates';
 import AmmoCollection from './components/AmmoCollection';
 import { StatusBar } from 'expo-status-bar';
+import { AmmoType, GunType } from './interfaces';
+import * as SecureStore from "expo-secure-store"
+import { doSortBy, getIcon } from './utils';
+import { useAmmoStore } from './stores/useAmmoStore';
+import { useTagStore } from './stores/useTagStore';
+import { useGunStore } from './stores/useGunStore';
 
 export default function App() {
 
-  const { switchLanguage, theme, switchTheme, language, generalSettings, setGeneralSettings } = usePreferenceStore();
+  const { ammoDbImport, dbImport, switchLanguage, theme, switchTheme, language, generalSettings, setGeneralSettings, setDisplayAsGrid, setDisplayAmmoAsGrid, setSortBy, setSortAmmoBy, setSortAmmoIcon, setSortGunIcon } = usePreferenceStore();
   const { mainMenuOpen } = useViewStore()
+  const { ammoCollection, setAmmoCollection, currentAmmo, setCurrentAmmo } = useAmmoStore()
+  const { gunCollection, setGunCollection, currentGun, setCurrentGun } = useGunStore()
+  const { ammo_tags, setAmmoTags, overWriteAmmoTags, tags, setTags, overWriteTags } = useTagStore()
   
   useEffect(()=>{
     async function getPreferences(){
       const preferences:string = await AsyncStorage.getItem(PREFERENCES)
       const isPreferences = preferences === null ? null : JSON.parse(preferences)
       
+      /* GENERAL SETTINGS AND PREFERENCES */
       switchLanguage(isPreferences === null ? "de" : isPreferences.language === undefined ? "de" : isPreferences.language)
       switchTheme(isPreferences === null ? "default" : isPreferences.theme === undefined ? "default" : isPreferences.theme)
-      setGeneralSettings(isPreferences === null ? {displayImagesInListViewAmmo: true, displayImagesInListViewGun: true} : isPreferences.generalSettings === undefined ? {displayImagesInListViewAmmo: true, displayImagesInListViewGun: true} : isPreferences.generalSettings)
+      setGeneralSettings(isPreferences === null ? {
+        displayImagesInListViewAmmo: true, 
+        displayImagesInListViewGun: true,
+        resizeImages: true,
+      } : isPreferences.generalSettings === undefined ? {
+        displayImagesInListViewAmmo: true, 
+        displayImagesInListViewGun: true,
+        resizeImages: true,
+      } : isPreferences.generalSettings)
+
+      /* AMMO PREFERENCES */
+      const ammo_tagList: string = await AsyncStorage.getItem(A_TAGS)
+      const isAmmoTagList:{label: string, status: boolean}[] = ammo_tagList === null ? null : JSON.parse(ammo_tagList)
+      setDisplayAmmoAsGrid(isPreferences === null ? true : isPreferences.displayAmmoAsGrid === null ? true : isPreferences.displayAmmoAsGrid)
+      setSortAmmoBy(isPreferences === null ? "alphabetical" : isPreferences.sortAmmoBy === undefined ? "alphabetical" : isPreferences.sortAmmoBy)
+      setSortAmmoIcon(getIcon((isPreferences === null ? "alphabetical" : isPreferences.sortAmmoBy === null ? "alphabetical" : isPreferences.sortAmmoBy)))
+      if(isAmmoTagList !== null && isAmmoTagList !== undefined){
+        Object.values(isAmmoTagList).map(tag =>{
+          setAmmoTags(tag)
+        }) 
+      }
+
+      /* GUN PREFERENCE */
+      const gun_tagList: string = await AsyncStorage.getItem(TAGS) 
+      const isGunTagList:{label: string, status: boolean}[] = gun_tagList === null ? null : JSON.parse(gun_tagList)
+      setDisplayAsGrid(isPreferences === null ? true : isPreferences.displayAsGrid === null ? true : isPreferences.displayAsGrid)
+      setSortBy(isPreferences === null ? "alphabetical" : isPreferences.sortBy === undefined ? "alphabetical" : isPreferences.sortBy)
+      setSortGunIcon(getIcon((isPreferences === null ? "alphabetical" : isPreferences.sortBy === null ? "alphabetical" : isPreferences.sortBy)))
+      if(isGunTagList !== null && isGunTagList !== undefined){
+        Object.values(isGunTagList).map(tag =>{
+          setTags(tag)
+    }) 
+  }
     }
     getPreferences()
   },[])
+
+  async function getKeys(data: "guns" | "ammo"){
+    const keys:string = await AsyncStorage.getItem(data === "guns" ? KEY_DATABASE : A_KEY_DATABASE)
+    if(keys == null){
+      return []
+    }
+    return JSON.parse(keys)
+  }
+
+  useEffect(()=>{
+    async function getAmmo(){
+      const keys:string[] = await getKeys("ammo")
+      const ammunitions:AmmoType[] = await Promise.all(keys.map(async key =>{
+        const item:string = await SecureStore.getItemAsync(`${AMMO_DATABASE}_${key}`)
+        return JSON.parse(item)
+      }))
+      const preferences:string = await AsyncStorage.getItem(PREFERENCES)
+      const isPreferences = preferences === null ? null : JSON.parse(preferences)
+      const filteredAmmunition = ammunitions.filter(item => item !== null) // null check if there are key corpses
+      if(filteredAmmunition.length === 0){
+        setAmmoCollection([])
+      }
+      if(filteredAmmunition.length !== 0){
+        const sortedAmmo = doSortBy(isPreferences === null ? "alphabetical" : isPreferences.sortAmmoBy === undefined ? "alphabetical" : isPreferences.sortAmmoBy, isPreferences == null? true : isPreferences.sortAmmoOrder === undefined ? true : isPreferences.sortOrder, filteredAmmunition) as AmmoType[]
+        setAmmoCollection(sortedAmmo)
+      }
+    }
+    getAmmo()
+  },[ammoDbImport])
+
+  useEffect(()=>{
+    async function getGuns(){
+      const keys:string[] = await getKeys("guns")
+      const guns:GunType[] = await Promise.all(keys.map(async key =>{
+        const item:string = await SecureStore.getItemAsync(`${GUN_DATABASE}_${key}`)
+        return JSON.parse(item)
+      }))
+      const preferences:string = await AsyncStorage.getItem(PREFERENCES)
+      const isPreferences = preferences === null ? null : JSON.parse(preferences)
+      const filteredGuns = guns.filter(item => item !== null) // null check if there are key corpses
+      if(filteredGuns.length === 0){
+        setGunCollection([])
+      } 
+      if(filteredGuns.length !== 0) {
+      const sortedGuns = doSortBy(isPreferences === null ? "alphabetical" : isPreferences.sortBy === undefined ? "alphabetical" : isPreferences.sortBy, isPreferences == null? true : isPreferences.sortOrder === undefined ? true : isPreferences.sortOrder, filteredGuns) as GunType[]
+      setGunCollection(sortedGuns)
+    }
+    }
+    getGuns()
+  },[dbImport])
 
   const currentTheme = {...theme, roundness : 5}
   

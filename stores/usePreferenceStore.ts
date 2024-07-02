@@ -6,6 +6,7 @@ import { GeneratedIdentifierFlags } from "typescript"
 interface GeneralSettings{
   displayImagesInListViewGun: boolean
   displayImagesInListViewAmmo: boolean
+  resizeImages: boolean
 }
 
 interface PreferenceStore {
@@ -29,6 +30,10 @@ interface PreferenceStore {
     setSortAmmoBy: (type: SortingTypes) => void
     generalSettings: GeneralSettings
     setGeneralSettings: (settings: GeneralSettings) => void
+    sortAmmoIcon: string
+    setSortAmmoIcon: (data: string) => void
+    sortGunIcon: string
+    setSortGunIcon: (data: string) => void
   }
 
   export const usePreferenceStore = create<PreferenceStore>((set) => ({
@@ -50,9 +55,14 @@ interface PreferenceStore {
     toggleDisplayAmmoAsGrid: () => set((state) => ({displayAmmoAsGrid: !state.displayAmmoAsGrid})),
     sortAmmoBy: "alphabetical",
     setSortAmmoBy: (type: SortingTypes) => set((state) => ({sortAmmoBy: type})),
+    sortAmmoIcon: "alphabetical-variant",
+    setSortAmmoIcon: (data: string) => set((state) => ({sortAmmoIcon: data})),
+    sortGunIcon: "alphabetical-variant",
+    setSortGunIcon: (data: string) => set((state) => ({sortGunIcon: data})),
     generalSettings: {
       displayImagesInListViewGun: true,
-      displayImagesInListViewAmmo: true
+      displayImagesInListViewAmmo: true,
+      resizeImages: true
     },
     setGeneralSettings: (settings: GeneralSettings) => set((state) => ({generalSettings: settings}))
   }))

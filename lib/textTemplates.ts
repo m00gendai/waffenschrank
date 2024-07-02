@@ -22,6 +22,8 @@ interface Toast{
     changed: SimpleTranslation
     dbSaveSuccess: SimpleTranslation
     dbImportSuccess: SimpleTranslation
+    wrongGunDbSelected: SimpleTranslation
+    wrongAmmoDbSelected: SimpleTranslation
 }
 
 
@@ -34,6 +36,7 @@ interface PreferenceTitle{
     db_ammo: SimpleTranslation
     saveDb_ammo: SimpleTranslation
     importDb_ammo: SimpleTranslation
+    importCSV_ammo: SimpleTranslation
     gunList: SimpleTranslation
     printAllGuns: SimpleTranslation
     printArt5: SimpleTranslation
@@ -62,6 +65,8 @@ interface AmmoQuickUpdate{
 
 interface Tooltips{
     tagFilter: SimpleTranslation
+    noGunsAddedYet: SimpleTranslation
+    noAmmoAddedYet: SimpleTranslation
 }
 
 interface Sorting{
@@ -90,6 +95,7 @@ interface TagModal{
 interface GeneralSettingsLabels{
     displayImagesInListViewGun: SimpleTranslation
     displayImagesInListViewAmmo: SimpleTranslation
+    resizeImages: SimpleTranslation
 }
 
 export const editGunTitle:SimpleTranslation = {
@@ -341,6 +347,37 @@ export const deleteTagFromListAlert:Alert = {
     }
 }
 
+export const resizeImageAlert:Alert = {
+    title: {
+        de: "Bildoptimierung wirklich ausschalten?",
+        en: "Turn off image optimization?",
+        fr: "Désactiver vraiment l'optimisation de l'image ?",
+        it: "Si può davvero disattivare l'ottimizzazione delle immagini?",
+        ch: "Propi eliminar l'optimaziun dal maletg?",
+    },
+    subtitle: {
+        de: "Bildoptimierung benötigt wesentlich weniger Speicherplatz",
+        en: "Image optimization requires considerably less disk space",
+        fr: "L'optimisation des images nécessite beaucoup moins d'espace mémoire",
+        it: "L'ottimizzazione delle immagini richiede una quantità di memoria notevolmente inferiore",
+        ch: "L'optimaziun dal maletg dovra bler pli pauca plazza d'accumulaziun",
+    },
+    yes: {
+        de: "Ja",
+        en: "Yes",
+        fr: "Oui",
+        it: "Sì",
+        ch: "Gea",
+    },
+    no: {
+        de: "Nein",
+        en: "No",
+        fr: "Non",
+        it: "No",
+        ch: "Na",
+    }
+}
+
 
 export const validationErros: Validation = {
     requiredFieldEmpty: {
@@ -380,7 +417,21 @@ export const toastMessages:Toast = {
         fr: "enregistrements importés",
         it: "dati importati",
         ch: "importà unitads da datas",
-    }
+    },
+    wrongGunDbSelected: {
+        de: "Achtung: Sicherstellen, dass eine Waffendatenbank ausgewählt ist (gunDB_17.....)",
+        en: "Attention: Make sure that a gun database is selected (gunDB_17.....)",
+        fr: "Attention : s'assurer qu'une base de données d'armes est sélectionnée (gunDB_17.....)",
+        it: "Attenzione: assicurarsi che sia selezionato un database di armi (gunDB_17.....).",
+        ch: "Attenziun: garantir ch'ina banca da datas davart las armas vegnia tschernida (gunDB_17.....)"
+    },
+    wrongAmmoDbSelected: {
+        de: "Achtung: Sicherstellen, dass eine Munitionsdatenbank ausgewählt ist (ammoDB_17.....)",
+        en: "Attention: Ensure that an ammunition database is selected (ammoDB_17.....)",
+        fr: "Attention : s'assurer qu'une base de données de munitions est sélectionnée (ammoDB_17.....)",
+        it: "Attenzione: assicurarsi che sia selezionato un database di munizioni (ammoDB_17.....).",
+        ch: "Attenziun: garantir ch'ina banca da datas da muniziun saja tschernida (ammoDB_17.....)"
+    },
 }
 
 export const preferenceTitles:PreferenceTitle = {
@@ -427,18 +478,25 @@ export const preferenceTitles:PreferenceTitle = {
         ch: "Banca da datas muniziun",
     },
     saveDb_ammo: {
-        de: "Speichern",
+        de: "Speichern als Arsenal Datenbank",
         en: "Save",
         fr: "Enregistrer",
         it: "Salva",
         ch: "Arcunar",
     },
     importDb_ammo: {
-        de: "Importieren",
+        de: "Arsenal Datenbank importieren (ammoDB_17...)",
         en: "Import",
         fr: "Importer",
         it: "Importa",
         ch: "Importar",
+    },
+    importCSV_ammo: {
+        de: "Eigene CSV Datenbank importieren",
+        en: "",
+        fr: "", 
+        it: "", 
+        ch: "",
     },
     gunList: {
         de: "Waffenverzeichnis",
@@ -448,18 +506,18 @@ export const preferenceTitles:PreferenceTitle = {
         ch: "Register da las armas",
     },
     printAllGuns: {
-        de: "Komplett",
-        en: "Complete",
-        fr: "Complet",
-        it: "Completo",
-        ch: "Cumpletta",
+        de: "Komplettes Verzeichnis als Tabelle",
+        en: "Complete list as a table",
+        fr: "Liste complète sous forme de tableau",
+        it: "Elenco completo come tabella",
+        ch: "Register cumplet sco tabella",
     },
     printArt5:{
-        de: "WG Art. 5",
-        en: "WA Art. 5",
-        fr: "LArm Art. 5",
-        it: "LArm Art. 5",
-        ch: "LArm Art. 5",
+        de: "Verzeichnis nach WG Art. 5 als Tabelle",
+        en: "List according to WA Art. 5 as table",
+        fr: "Liste selon la LArm Art. 5 sous forme de tableau",
+        it: "Elenco secondo la LArm Art. 5 come tabella",
+        ch: "Register tenor la LArm Art. 5 sco tabella",
     },
     printGallery:{
         de: "Galerie",
@@ -476,11 +534,11 @@ export const preferenceTitles:PreferenceTitle = {
         ch: "Register da muniziun",
     },
     printAllAmmo: {
-        de: "Komplett",
-        en: "Complete",
-        fr: "Complet",
-        it: "Completo",
-        ch: "Cumpletta",
+        de: "Komplettes Verzeichnis als Tabelle",
+        en: "Complete list as a table",
+        fr: "Liste complète sous forme de tableau",
+        it: "Elenco completo come tabella",
+        ch: "Register cumplet sco tabella",
     },
     generalSettings:{
         de: "Allgemeine Einstellungen",
@@ -604,7 +662,21 @@ export const tooltips:Tooltips = {
         fr: "Ici, il est possible de filtrer les mots-clés saisis",
         it: "Qui puoi filtrare per tag inseriti",
         ch: "Qua pon ins filtrar tenor pleds registrads",
-    }
+    },
+    noGunsAddedYet: {
+        de: "Noch keine Waffen erfasst",
+        en: "No guns added yet",
+        fr: "Pas encore d'armes enregistrées",
+        it: "Non sono ancora state registrate armi",
+        ch: "Betg anc registrà armas",
+    },
+    noAmmoAddedYet: {
+        de: "Noch keine Munition erfasst",
+        en: "No ammunition added yet",
+        fr: "Pas encore de munitions enregistrées",
+        it: "Non sono ancora state registrate munizioni",
+        ch: "Betg anc registrada ina muniziun",
+    },
 }
 
 export const sorting:Sorting = {
@@ -738,6 +810,13 @@ export const generalSettingsLabels: GeneralSettingsLabels = {
         it: "Visualizzare le immagini nella vista elenco munizioni",
         ch: "Mussar maletgs cun ina glista muniziun"  
     },
+    resizeImages: {
+        de: "Bildoptimierung",
+        en: "Image optimization",
+        fr: "Optimisation des images",
+        it: "Ottimizzazione delle immagini",
+        ch: "Optimaziun dal maletg"
+    }
 }
 
 export const aboutText: SimpleTranslation = {

@@ -17,7 +17,7 @@ import Ammo from './Ammo';
 import { ammoQuickUpdate, search, sorting, tooltips } from '../lib/textTemplates';
 import AmmoCard from './AmmoCard';
 import { colorThemes } from '../lib/colorThemes';
-import Animated, { LightSpeedOutRight, SlideInLeft, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
+import Animated, { LightSpeedOutRight, SlideInLeft, useAnimatedStyle, useSharedValue, withRepeat, withTiming } from 'react-native-reanimated';
 
 export default function AmmoCollection(){
 
@@ -26,7 +26,6 @@ export default function AmmoCollection(){
   // Todo: Stricter typing ("stringA" | "stringB" instead of just string)
 
   const [menuVisibility, setMenuVisibility] = useState<MenuVisibility>({sortBy: false, filterBy: false});
-  const [sortIcon, setSortIcon] = useState<string>("alphabetical-variant")
   const [sortAscending, setSortAscending] = useState<boolean>(true)
   const [stockVisible, setStockVisible] = useState<boolean>(false)
   const [stockChange, setStockChange] = useState<"dec" | "inc" | "">("")
@@ -36,7 +35,7 @@ export default function AmmoCollection(){
   const [searchBannerVisible, toggleSearchBannerVisible] = useState<boolean>(false)
   const [searchQuery, setSearchQuery] = useState<string>("")
 
-  const { ammoDbImport, displayAmmoAsGrid, setDisplayAmmoAsGrid, toggleDisplayAmmoAsGrid, sortAmmoBy, setSortAmmoBy, language, theme } = usePreferenceStore()
+  const { ammoDbImport, displayAmmoAsGrid, setDisplayAmmoAsGrid, toggleDisplayAmmoAsGrid, sortAmmoBy, setSortAmmoBy, language, theme, sortAmmoIcon, setSortAmmoIcon } = usePreferenceStore()
   const { mainMenuOpen, setMainMenuOpen, newAmmoOpen, setNewAmmoOpen, seeAmmoOpen, setSeeAmmoOpen} = useViewStore()
   const { ammoCollection, setAmmoCollection, currentAmmo, setCurrentAmmo } = useAmmoStore()
   const { ammo_tags, setAmmoTags, overWriteAmmoTags } = useTagStore()
@@ -59,67 +58,17 @@ export default function AmmoCollection(){
       marginBottom: 75
     },
     fab: {
-      position: 'absolute',
-      margin: 16,
-      right: 0,
-      bottom: 0,
     },
     flagButton:{
       fontSize: 20
     }
   });
   
-    async function getKeys(){
-        const keys:string = await AsyncStorage.getItem(A_KEY_DATABASE)
-        if(keys == null){
-          return []
-        }
-        return JSON.parse(keys)
-      }
-      
-    useEffect(()=>{
-        async function getAmmo(){
-          const keys:string[] = await getKeys()
-          const ammunitions:AmmoType[] = await Promise.all(keys.map(async key =>{
-            const item:string = await SecureStore.getItemAsync(`${AMMO_DATABASE}_${key}`)
-            return JSON.parse(item)
-          }))
-          const preferences:string = await AsyncStorage.getItem(PREFERENCES)
-          const isPreferences = preferences === null ? null : JSON.parse(preferences)
-          const sortedAmmo = doSortBy(isPreferences === null ? "alphabetical" : isPreferences.sortAmmoBy === undefined ? "alphabetical" : isPreferences.sortAmmoBy, isPreferences == null? true : isPreferences.sortAmmoOrder === undefined ? true : isPreferences.sortOrder, ammunitions) as AmmoType[]
-          setAmmoCollection(sortedAmmo)
-        }
-        getAmmo()
-      },[ammoDbImport])
-
-useEffect(()=>{
-  async function getPreferences(){
-    const preferences:string = await AsyncStorage.getItem(PREFERENCES)
-    const isPreferences = preferences === null ? null : JSON.parse(preferences)
-
-    const tagList: string = await AsyncStorage.getItem(A_TAGS)
-
-    const isTagList:{label: string, status: boolean}[] = tagList === null ? null : JSON.parse(tagList)
-   
-    setDisplayAmmoAsGrid(isPreferences === null ? true : isPreferences.displayAmmoAsGrid === null ? true : isPreferences.displayAmmoAsGrid)
-    setSortAmmoBy(isPreferences === null ? "alphabetical" : isPreferences.sortAmmoBy === undefined ? "alphabetical" : isPreferences.sortAmmoBy)
-    setSortIcon(getIcon((isPreferences === null ? "alphabetical" : isPreferences.sortAmmoBy === null ? "alphabetical" : isPreferences.sortAmmoBy)))
-
-    if(isTagList !== null && isTagList !== undefined){
-      Object.values(isTagList).map(tag =>{
-
-      setAmmoTags(tag)
-    }) 
-  }
-  
-  }
-  getPreferences()
-},[])
 
         
 
         async function handleSortBy(type:SortingTypes){
-            setSortIcon(getIcon(type))
+            setSortAmmoIcon(getIcon(type))
             setSortAmmoBy(type)
             const sortedAmmo = doSortBy(type, sortAscending, ammoCollection) as AmmoType[] 
             setAmmoCollection(sortedAmmo)
@@ -246,6 +195,16 @@ const startAnimation = () => {
 const endAnimation = () => {
   height.value = withTiming(0, { duration: 500 }); // 500 ms duration
 };
+
+const fabWidth = useSharedValue(1);
+
+fabWidth.value = withRepeat(withTiming(1.2, { duration: 1000 }), -1, true);
+
+const pulsate = useAnimatedStyle(() => {
+  return {
+    transform: [{ scale: fabWidth.value }]
+  };
+});
     return(
         <SafeAreaView 
         style={{
@@ -285,7 +244,7 @@ const endAnimation = () => {
             <Menu
               visible={menuVisibility.sortBy}
               onDismiss={()=>handleMenu("sortBy", false)}
-              anchor={<Appbar.Action icon={sortIcon} onPress={() => handleMenu("sortBy", true)} />}
+              anchor={<Appbar.Action icon={sortAmmoIcon} onPress={() => handleMenu("sortBy", true)} />}
               anchorPosition='bottom'
             >
               <Menu.Item onPress={() => handleSortBy("alphabetical")} title={`${sorting.alphabetic[language]}`} leadingIcon={getIcon("alphabetical")}/>
@@ -365,13 +324,13 @@ const endAnimation = () => {
       </Modal>
       </Portal>
 
-
+      <Animated.View style={[{position: "absolute", bottom: 0, right: 0, margin: 16, width: 56, height: 56, backgroundColor: "transparent", display: "flex", justifyContent: "center", alignItems: "center"}, ammoCollection.length === 0 ? pulsate : null]}>
       <FAB
         icon="plus"
-        style={styles.fab}
         onPress={setNewAmmoOpen}
         disabled={mainMenuOpen ? true : false}
-/>
+        style={{width: 56, height: 56}}
+      /></Animated.View>
         
       </SafeAreaView>
     )
