@@ -70,7 +70,6 @@ export default function mainMenu(){
 
     function dbImportSuccess(data: DBOperations){
         setDbModalVisible()
-        console.log(data)
         data === "import_arsenal_gun_db" ? setDbImport(new Date()) : data === "import_arsenal_gun_csv" ? setDbImport(new Date()) : setAmmoDbImport(new Date())
         setSnackbarText(`${importSize} ${toastMessages.dbImportSuccess[language]}`)
         onToggleSnackBar()
