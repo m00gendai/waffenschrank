@@ -17,7 +17,7 @@ import Ammo from './Ammo';
 import { ammoQuickUpdate, search, sorting, tooltips } from '../lib/textTemplates';
 import AmmoCard from './AmmoCard';
 import { colorThemes } from '../lib/colorThemes';
-import Animated, { LightSpeedOutRight, SlideInLeft, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
+import Animated, { LightSpeedOutRight, SlideInLeft, useAnimatedStyle, useSharedValue, withRepeat, withTiming } from 'react-native-reanimated';
 
 export default function AmmoCollection(){
 
@@ -58,10 +58,6 @@ export default function AmmoCollection(){
       marginBottom: 75
     },
     fab: {
-      position: 'absolute',
-      margin: 16,
-      right: 0,
-      bottom: 0,
     },
     flagButton:{
       fontSize: 20
@@ -199,6 +195,16 @@ const startAnimation = () => {
 const endAnimation = () => {
   height.value = withTiming(0, { duration: 500 }); // 500 ms duration
 };
+
+const fabWidth = useSharedValue(1);
+
+fabWidth.value = withRepeat(withTiming(1.2, { duration: 1000 }), -1, true);
+
+const pulsate = useAnimatedStyle(() => {
+  return {
+    transform: [{ scale: fabWidth.value }]
+  };
+});
     return(
         <SafeAreaView 
         style={{
@@ -318,13 +324,13 @@ const endAnimation = () => {
       </Modal>
       </Portal>
 
-
+      <Animated.View style={[{position: "absolute", bottom: 0, right: 0, margin: 16, width: 56, height: 56, backgroundColor: "transparent", display: "flex", justifyContent: "center", alignItems: "center"}, ammoCollection.length === 0 ? pulsate : null]}>
       <FAB
         icon="plus"
-        style={styles.fab}
         onPress={setNewAmmoOpen}
         disabled={mainMenuOpen ? true : false}
-/>
+        style={{width: 56, height: 56}}
+      /></Animated.View>
         
       </SafeAreaView>
     )

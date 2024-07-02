@@ -16,7 +16,7 @@ import { useTagStore } from '../stores/useTagStore';
 import { Checkbox } from 'react-native-paper';
 import GunCard from './GunCard';
 import { gunQuickShot, search, sorting, tooltips } from '../lib/textTemplates';
-import Animated, { FadeIn, FadeOut, LightSpeedOutRight, SlideInDown, SlideInLeft, SlideInUp, SlideOutDown, SlideOutRight, SlideOutUp, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
+import Animated, { FadeIn, FadeOut, Keyframe, LightSpeedOutRight, SlideInDown, SlideInLeft, SlideInUp, SlideOutDown, SlideOutRight, SlideOutUp, useAnimatedProps, useAnimatedStyle, useSharedValue, withRepeat, withSpring, withTiming } from 'react-native-reanimated';
 import { useAmmoStore } from '../stores/useAmmoStore';
 
 export default function GunCollection(){
@@ -59,10 +59,6 @@ export default function GunCollection(){
       marginBottom: 75
     },
     fab: {
-      position: 'absolute',
-      margin: 16,
-      right: 0,
-      bottom: 0,
     },
     flagButton:{
       fontSize: 20
@@ -238,6 +234,15 @@ function handleErrorMessage(ammo:AmmoType, val:string){
  return (ammo.currentStock === undefined ? 0 : ammo.currentStock === null ? 0 : ammo.currentStock) < Number(val)
 }
 
+const fabWidth = useSharedValue(1);
+
+fabWidth.value = withRepeat(withTiming(1.2, { duration: 1000 }), -1, true);
+
+const pulsate = useAnimatedStyle(() => {
+  return {
+    transform: [{ scale: fabWidth.value }]
+  };
+});
     return(
         <SafeAreaView 
         style={{
@@ -383,13 +388,13 @@ function handleErrorMessage(ammo:AmmoType, val:string){
                 </View>
       </Modal>
       </Portal>
-
+      <Animated.View style={[{position: "absolute", bottom: 0, right: 0, margin: 16, width: 56, height: 56, backgroundColor: "transparent", display: "flex", justifyContent: "center", alignItems: "center"}, gunCollection.length === 0 ? pulsate : null]}>
       <FAB
         icon="plus"
-        style={styles.fab}
         onPress={setNewGunOpen}
         disabled={mainMenuOpen ? true : false}
-      /> 
+        style={{width: 56, height: 56}}
+      /></Animated.View>
         
       </SafeAreaView>
     )
