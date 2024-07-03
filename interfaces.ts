@@ -125,3 +125,18 @@ export type SortingTypes = "alphabetical" | "lastAdded" | "lastModified" | "cali
 export type Languages = "de" | "en" | "fr" | "it" | "ch"
 export type CaliberArray = {id: string, amount: string }
 export type DBOperations = "save_arsenal_gun_db" | "save_arsenal_gun_csv" | "save_arsenal_ammo_db" | "save_arsenal_ammo_csv" | "import_arsenal_gun_db" | "import_custom_gun_csv" | "import_arsenal_gun_csv" | "import_arsenal_ammo_db" | "import_custom_ammo_csv" | "import_arsenal_ammo_csv" 
+
+export type StackParamList = {
+  Home: undefined
+  MainMenu: undefined
+  GunCollection: undefined
+  AmmoCollection: undefined
+  NewGun: undefined
+  NewAmmo: undefined
+  Gun: undefined
+  Ammo: undefined
+  EditGun: undefined
+  EditAmmo: undefined
+  QuickStock: undefined
+  QuickShot: undefined
+}
