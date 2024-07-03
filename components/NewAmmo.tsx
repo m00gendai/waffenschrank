@@ -1,4 +1,5 @@
 import { StyleSheet, View, ScrollView, Alert } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Appbar, FAB, Snackbar } from 'react-native-paper';
 import * as ImagePicker from "expo-image-picker"
 import { useEffect, useState } from 'react';
@@ -21,9 +22,10 @@ import NewChipArea from './NewChipArea';
 import { useAmmoStore } from '../stores/useAmmoStore';
 import * as FileSystem from 'expo-file-system';
 import { exampleAmmoEmpty } from '../lib/examples';
+import Animated, { Easing, SlideInDown, SlideOutDown } from 'react-native-reanimated';
 
 
-export default function newAmmo(){
+export default function NewAmmo({navigation}){
 
     const [selectedImage, setSelectedImage] = useState<string[]>(null)
     const [initCheck, setInitCheck] = useState<boolean>(true)
@@ -207,7 +209,7 @@ export default function newAmmo(){
             flex: 1,
             flexWrap: "wrap",
             flexDirection: "column",
-            height: "100%",
+    
             width: "100%",
             justifyContent: "center",
             alignItems: "flex-start",
@@ -242,10 +244,11 @@ export default function newAmmo(){
       });
 
     return(
-        <View style={{width: "100%", height: "100%", backgroundColor: theme.colors.background}}>
+        <View style={{flex: 1}}>
+
             
             <Appbar style={{width: "100%"}}>
-                <Appbar.BackAction  onPress={() => {saveState == true ? setNewAmmoOpen() : saveState === false ? toggleUnsavedDialogVisible(true) : setNewAmmoOpen()}} />
+                <Appbar.BackAction  onPress={() => {saveState == true ? navigation.goBack() : saveState === false ? toggleUnsavedDialogVisible(true) : navigation.goBack()}} />
                 <Appbar.Content title={newAmmoTitle[language]} />
                 <Appbar.Action icon="floppy" onPress={() => save({...ammoData, id: uuidv4(), images:selectedImage, createdAt: `${new Date()}`, lastModifiedAt: `${new Date()}`})} color={saveState === null ? theme.colors.onBackground : saveState === false ? theme.colors.error : "green"} />
             </Appbar>
@@ -312,7 +315,8 @@ export default function newAmmo(){
                 }}>
                 {snackbarText}
             </Snackbar>
-        </View>     
+  
+        </View>
     )
 }
 

@@ -21,7 +21,7 @@ import * as FileSystem from 'expo-file-system';
 import { ammoDataValidation, imageHandling } from '../utils';
 
 
-export default function EditAmmo(){
+export default function EditAmmo({navigation}){
 
     const { currentAmmo, setCurrentAmmo, ammoCollection, setAmmoCollection } = useAmmoStore()
     const [initCheck, setInitCheck] = useState<boolean>(true)
@@ -248,15 +248,15 @@ export default function EditAmmo(){
       });
 
     return(
-        <View style={{width: "100%", height: "100%", backgroundColor: theme.colors.background}}>
+        <View style={{flex: 1}}>
             
             <Appbar style={{width: "100%"}}>
-                <Appbar.BackAction  onPress={() => {saveState === true ? setEditAmmoOpen() : saveState === false ? toggleUnsavedDialogVisible(true) : setEditAmmoOpen()}} />
+                <Appbar.BackAction  onPress={() => {saveState === true ? navigation.goBack() : saveState === false ? toggleUnsavedDialogVisible(true) : navigation.goBack()}} />
                 <Appbar.Content title={editAmmoTitle[language]} />
                 <Appbar.Action icon="floppy" onPress={() => save({...ammoData, lastModifiedAt: `${new Date()}`})} color={saveState === null ? theme.colors.onBackground : saveState === false ? theme.colors.error : "green"}/>
             </Appbar>
         
-            <SafeAreaView style={styles.container}>
+            <View style={styles.container}>
                 <ScrollView style={{width: "100%"}}>
                     <View>
                         <ScrollView horizontal style={{width:"100%", aspectRatio: "21/10"}}>
@@ -333,7 +333,7 @@ export default function EditAmmo(){
                        
                     </View>
                 </ScrollView>
-            </SafeAreaView>
+            </View>
             <Snackbar
                 visible={visible}
                 onDismiss={onDismissSnackBar}

@@ -7,7 +7,7 @@ import React from 'react';
 import { usePreferenceStore } from './stores/usePreferenceStore';
 import { useViewStore } from './stores/useViewStore';
 import GunCollection from './components/GunCollection';
-import MainMenu from './components/mainMenu';
+import MainMenu from './components/MainMenu';
 import { CommonActions, NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Text, BottomNavigation } from 'react-native-paper';
@@ -15,12 +15,26 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { tabBarLabels } from './lib/textTemplates';
 import AmmoCollection from './components/AmmoCollection';
 import { StatusBar } from 'expo-status-bar';
-import { AmmoType, GunType } from './interfaces';
+import { AmmoType, GunType, StackParamList } from './interfaces';
 import * as SecureStore from "expo-secure-store"
 import { doSortBy, getIcon } from './utils';
 import { useAmmoStore } from './stores/useAmmoStore';
 import { useTagStore } from './stores/useTagStore';
 import { useGunStore } from './stores/useGunStore';
+import { DefaultTheme } from '@react-navigation/native';
+import { CardStyleInterpolators, TransitionSpecs, createStackNavigator } from '@react-navigation/stack';
+import NewAmmo from './components/NewAmmo';
+import { FadeFromBottomAndroid } from '@react-navigation/stack/lib/typescript/src/TransitionConfigs/TransitionPresets';
+import { FadeOutDown } from 'react-native-reanimated';
+import { FadeInFromBottomAndroidSpec, FadeOutToBottomAndroidSpec } from '@react-navigation/stack/lib/typescript/src/TransitionConfigs/TransitionSpecs';
+import NewGun from './components/NewGun';
+import Gun from './components/Gun';
+import Ammo from './components/Ammo';
+import QuickStock from './components/QuickStock';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import QuickShot from './components/QuickShot';
+import EditGun from './components/EditGun';
+import EditAmmo from './components/EditAmmo';
 
 export default function App() {
 
@@ -127,13 +141,12 @@ export default function App() {
 
   const currentTheme = {...theme, roundness : 5}
   
-  const Tab = createBottomTabNavigator();
-  
-  return (
-    <NavigationContainer>
-    <PaperProvider theme={currentTheme}>
-    <StatusBar backgroundColor={mainMenuOpen ? theme.colors.primary : theme.colors.background} style={theme.name.includes("dark") ? "light" : "dark"} />
-    <Tab.Navigator screenOptions={{
+  const Tab = createBottomTabNavigator<StackParamList>();
+  const Stack = createStackNavigator<StackParamList>()
+
+  function Home(){
+    return(
+      <Tab.Navigator screenOptions={{
         headerShown: false
         
 
@@ -198,11 +211,80 @@ export default function App() {
         }}
       />
     </Tab.Navigator>
+    )
+  }
+
+  const navTheme = {
+    ...DefaultTheme,
+    colors: {
+      ...DefaultTheme.colors,
+      background: theme.colors.background
+    }
+  }
+  
+  return (
+    <NavigationContainer theme={navTheme}>
+    <PaperProvider theme={currentTheme}>
+    <StatusBar backgroundColor={mainMenuOpen ? theme.colors.primary : theme.colors.background} style={theme.name.includes("dark") ? "light" : "dark"} />
+
+   <SafeAreaView 
+        style={{
+          width: "100%", 
+          height: "100%", 
+          flex: 1,
+          backgroundColor: theme.colors.background
+        }}>
+             <Stack.Navigator>
+    <Stack.Screen
+      name="Home"
+      component={Home}
+      options={{headerShown: false}}
+      />
+    
+    <Stack.Screen
+      name="NewAmmo"
+      component={NewAmmo}
+      options={{headerShown: false, cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS}} />
+      <Stack.Screen
+      name="NewGun"
+      component={NewGun}
+      options={{headerShown: false, cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS}} />
+
+    <Stack.Screen
+      name="Gun"
+      component={Gun}
+      options={{headerShown: false, cardStyleInterpolator: CardStyleInterpolators.forScaleFromCenterAndroid}} />
+      <Stack.Screen
+      name="Ammo"
+      component={Ammo}
+      options={{headerShown: false, cardStyleInterpolator: CardStyleInterpolators.forScaleFromCenterAndroid}} />
+
+<Stack.Screen
+      name="EditGun"
+      component={EditGun}
+      options={{headerShown: false, cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS}} />
+      <Stack.Screen
+      name="EditAmmo"
+      component={EditAmmo}
+      options={{headerShown: false, cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS}} />
+
+<Stack.Screen
+      name="QuickStock"
+      component={QuickStock}
+      options={{headerShown: false, cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS, gestureDirection: "vertical-inverted", presentation: "transparentModal"}} />
+      <Stack.Screen
+      name="QuickShot"
+      component={QuickShot}
+      options={{headerShown: false, cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS, gestureDirection: "vertical-inverted", presentation: "transparentModal"}} />
       
-      {mainMenuOpen ? 
-      <MainMenu />
-      : 
-      null}
+
+    <Stack.Screen
+      name="MainMenu"
+      component={MainMenu}
+      options={{headerShown: false, cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS, gestureDirection: "horizontal-inverted"}} />
+
+      </Stack.Navigator>
+      </SafeAreaView>
     </PaperProvider>
     </NavigationContainer>
   )}

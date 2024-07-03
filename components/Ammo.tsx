@@ -13,9 +13,10 @@ import { useAmmoStore } from '../stores/useAmmoStore';
 import { ammoDeleteAlert } from '../lib/textTemplates';
 import { printSingleAmmo, printSingleGun } from '../functions/printToPDF';
 import { AmmoType } from '../interfaces';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 
-export default function Ammo(){
+export default function Ammo({navigation}){
 
     const [lightBoxIndex, setLightBoxIndex] = useState<number>(0)
     const [dialogVisible, toggleDialogVisible] = useState<boolean>(false)
@@ -70,17 +71,17 @@ export default function Ammo(){
         const index:number = ammoCollection.indexOf(ammo)
         const newCollection:AmmoType[] = ammoCollection.toSpliced(index, 1)
         setAmmoCollection(newCollection)
-        setSeeAmmoOpen()
+        navigation.goBack()
     }
 
     return(
-        <View style={{width: "100%", height: "100%", backgroundColor: theme.colors.background}}>
+        <View style={{flex: 1}}>
             
             <Appbar style={{width: "100%"}}>
-                <Appbar.BackAction  onPress={() => setSeeAmmoOpen()} />
+                <Appbar.BackAction  onPress={() => navigation.goBack()} />
                 <Appbar.Content title={`${currentAmmo.designation} ${currentAmmo.manufacturer !== undefined? currentAmmo.manufacturer : ""}`} />
                 <Appbar.Action icon="printer" onPress={()=>printSingleAmmo(currentAmmo, language)} />
-                <Appbar.Action icon="pencil" onPress={setEditAmmoOpen} />
+                <Appbar.Action icon="pencil" onPress={()=>navigation.navigate("EditAmmo")} />
             </Appbar>
         
             <View style={styles.container}>   
@@ -130,9 +131,6 @@ export default function Ammo(){
                         </View>
                     </View>
                     
-                    <Modal visible={editAmmoOpen}>
-                        <EditAmmo />
-                    </Modal>
                     
                     <Modal visible={lightBoxOpen} transparent>
                         <View style={{width: "100%", height: "100%", padding: 0, flex: 1, flexDirection: "column", flexWrap: "wrap"}}>

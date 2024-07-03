@@ -21,7 +21,7 @@ import * as FileSystem from 'expo-file-system';
 import { gunDataValidation, imageHandling } from '../utils';
 
 
-export default function EditGun(){
+export default function EditGun({navigation}){
 
     const { currentGun, setCurrentGun, gunCollection, setGunCollection } = useGunStore()
     const [initCheck, setInitCheck] = useState<boolean>(true)
@@ -250,15 +250,15 @@ export default function EditGun(){
       });
 
     return(
-        <View style={{width: "100%", height: "100%", backgroundColor: theme.colors.background}}>
+        <View style={{flex: 1}}>
             
             <Appbar style={{width: "100%"}}>
-                <Appbar.BackAction  onPress={() => {saveState == true ? setEditGunOpen() : saveState === false ? toggleUnsavedDialogVisible(true) : setEditGunOpen()}} />
+                <Appbar.BackAction  onPress={() => {saveState == true ? navigation.goBack() : saveState === false ? toggleUnsavedDialogVisible(true) : navigation.goBack()}} />
                 <Appbar.Content title={editGunTitle[language]} />
                 <Appbar.Action icon="floppy" onPress={() => save({...gunData, lastModifiedAt: `${new Date()}`})} color={saveState === null ? theme.colors.onBackground : saveState === false ? theme.colors.error : "green"}/>
             </Appbar>
         
-            <SafeAreaView style={styles.container}>
+            <View style={styles.container}>
                 <ScrollView style={{width: "100%"}}>
                     <View>
                         <ScrollView horizontal style={{width:"100%", aspectRatio: "21/10"}}>
@@ -336,7 +336,7 @@ export default function EditGun(){
                        
                     </View>
                 </ScrollView>
-            </SafeAreaView>
+            </View>
             <Snackbar
                 visible={visible}
                 onDismiss={onDismissSnackBar}
