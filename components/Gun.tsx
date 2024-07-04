@@ -1,5 +1,5 @@
-import { StyleSheet, View, Modal, ScrollView, Alert, TouchableNativeFeedback, TouchableOpacity } from 'react-native';
-import { Button, Appbar, Icon, Checkbox, Chip, Text, Portal, Dialog } from 'react-native-paper';
+import { StyleSheet, View, ScrollView, Alert, TouchableNativeFeedback, TouchableOpacity } from 'react-native';
+import { Button, Appbar, Icon, Checkbox, Chip, Text, Portal, Dialog, Modal } from 'react-native-paper';
 import { checkBoxes, gunDataTemplate, gunRemarks } from "../lib/gunDataTemplate"
 import * as SecureStore from "expo-secure-store"
 import { useState} from "react"
@@ -150,8 +150,9 @@ export default function Gun({navigation}){
                         </View>
                     </View>
                     
-                    <Modal visible={lightBoxOpen} transparent>
-                        <View style={{width: "100%", height: "100%", padding: 0, flex: 1, flexDirection: "column", flexWrap: "wrap"}}>
+                    <Portal>
+                    <Modal visible={lightBoxOpen} onDismiss={setLightBoxOpen}>
+                        <View style={{width: "100%", height: "100%", padding: 0, flexDirection: "column", flexWrap: "wrap"}}>
                             <View style={{width: "100%", flexDirection: "row", justifyContent:"flex-end", alignItems: "center", alignContent: "center", backgroundColor: "black", flex: 2}}>
                                 <View style={{backgroundColor: "black", padding: 0}}>
                                     <TouchableOpacity onPress={setLightBoxOpen} style={{padding: 10}}>
@@ -161,7 +162,8 @@ export default function Gun({navigation}){
                             </View>
                           {lightBoxOpen ? <ImageViewer isLightBox={true} selectedImage={currentGun.images[lightBoxIndex]}/> : null}
                         </View>
-                    </Modal>       
+                    </Modal>    
+                    </Portal>   
 
                     <Portal>
                         <Dialog visible={dialogVisible} onDismiss={()=>toggleDialogVisible(!dialogVisible)}>
