@@ -35,6 +35,7 @@ export default function EditAmmo({navigation}){
     const [imageDialogVisible, toggleImageDialogVisible] = useState<boolean>(false)
     const [unsavedVisible, toggleUnsavedDialogVisible] = useState<boolean>(false)
     const [deleteImageIndex, setDeleteImageIndex] = useState<number>(0)
+    const [exitAction, setExitAction] = useState(null);
 
     const { language, theme, generalSettings } = usePreferenceStore()
     const { setEditAmmoOpen } = useViewStore()
@@ -247,11 +248,42 @@ export default function EditAmmo({navigation}){
           },
       });
 
+      useEffect(() => {
+        const unsubscribe = navigation.addListener('beforeRemove', (e) => {
+          if (saveState) {
+            // If we don't have unsaved changes, then we don't need to do anything
+            return;
+          }
+    
+          // Prevent default behavior of leaving the screen
+          e.preventDefault();
+    
+          // Save the action to be triggered later
+          setExitAction(e.data.action);
+    
+          // Show the dialog
+          toggleUnsavedDialogVisible(true);
+        });
+    
+        return unsubscribe;
+      }, [navigation, saveState])
+  
+      const handleDiscard = () => {
+          toggleUnsavedDialogVisible(false);
+          if (exitAction) {
+            navigation.dispatch(exitAction);
+          }
+        };
+      
+        const handleCancel = () => {
+          toggleUnsavedDialogVisible(false);
+        };
+
     return(
         <View style={{flex: 1}}>
             
             <Appbar style={{width: "100%"}}>
-                <Appbar.BackAction  onPress={() => {saveState === true ? navigation.goBack() : saveState === false ? toggleUnsavedDialogVisible(true) : navigation.goBack()}} />
+                <Appbar.BackAction  onPress={() => navigation.goBack()} />
                 <Appbar.Content title={editAmmoTitle[language]} />
                 <Appbar.Action icon="floppy" onPress={() => save({...ammoData, lastModifiedAt: `${new Date()}`})} color={saveState === null ? theme.colors.onBackground : saveState === false ? theme.colors.error : "green"}/>
             </Appbar>
@@ -367,8 +399,8 @@ export default function EditAmmo({navigation}){
                         <Text>{`${unsavedChangesAlert.subtitle[language]}`}</Text>
                     </Dialog.Content>
                     <Dialog.Actions>
-                        <Button onPress={setEditAmmoOpen} icon="delete" buttonColor={theme.colors.errorContainer} textColor={theme.colors.onErrorContainer}>{unsavedChangesAlert.yes[language]}</Button>
-                        <Button onPress={()=>toggleUnsavedDialogVisible(!unsavedVisible)} icon="cancel" buttonColor={theme.colors.secondary} textColor={theme.colors.onSecondary}>{unsavedChangesAlert.no[language]}</Button>
+                        <Button onPress={handleDiscard} icon="delete" buttonColor={theme.colors.errorContainer} textColor={theme.colors.onErrorContainer}>{unsavedChangesAlert.yes[language]}</Button>
+                        <Button onPress={handleCancel} icon="cancel" buttonColor={theme.colors.secondary} textColor={theme.colors.onSecondary}>{unsavedChangesAlert.no[language]}</Button>
                     </Dialog.Actions>
                 </Dialog>
                      
