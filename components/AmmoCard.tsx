@@ -1,32 +1,33 @@
 import { Dimensions, ScrollView, StyleSheet, TouchableNativeFeedback, View, Text } from 'react-native';
-import { AmmoType } from '../interfaces';
+import { AmmoType, StackParamList } from '../interfaces';
 import { Avatar, Badge, Button, Card, IconButton, TouchableRipple } from 'react-native-paper';
 import { usePreferenceStore } from '../stores/usePreferenceStore';
 import { dateLocales, defaultGridGap, defaultViewPadding } from '../configs';
 import { ammoDataTemplate } from '../lib/ammoDataTemplate';
 import { useAmmoStore } from '../stores/useAmmoStore';
 import { useViewStore } from '../stores/useViewStore';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 interface Props{
     ammo: AmmoType
-    stockVisible: boolean
-    setStockVisible: React.Dispatch<React.SetStateAction<boolean>>
 }
 
-export default function AmmoCard({ammo, stockVisible, setStockVisible}:Props){
+export default function AmmoCard({ammo}:Props){
 
     const { ammoDbImport, displayAmmoAsGrid, setDisplayAmmoAsGrid, toggleDisplayAmmoAsGrid, sortAmmoBy, setSortAmmoBy, language, theme, generalSettings } = usePreferenceStore()
     const { mainMenuOpen, setMainMenuOpen, newAmmoOpen, setNewAmmoOpen, editAmmoOpen, setEditAmmoOpen, seeAmmoOpen, setSeeAmmoOpen } = useViewStore()
     const { ammoCollection, setAmmoCollection, currentAmmo, setCurrentAmmo } = useAmmoStore()
+    const navigation = useNavigation<NativeStackNavigationProp<StackParamList>>()
 
     function handleStockButtonPress(ammo:AmmoType){
         setCurrentAmmo(ammo)
-        setStockVisible(!stockVisible)
+        navigation.navigate("QuickStock")
     }       
 
     function handleAmmoCardPress(ammo: AmmoType){
         setCurrentAmmo(ammo)
-        setSeeAmmoOpen()
+        navigation.navigate("Ammo")
       }
 
     return(

@@ -1,9 +1,9 @@
-import { View, TouchableNativeFeedback, Modal, ScrollView } from "react-native"
+import { View, TouchableNativeFeedback, ScrollView } from "react-native"
 import { deleteTagFromListAlert, newTags, tagModal } from "../lib/textTemplates"
 import { usePreferenceStore } from "../stores/usePreferenceStore"
 import { useGunStore } from "../stores/useGunStore"
 import { useAmmoStore } from "../stores/useAmmoStore"
-import { Button, Chip, IconButton, TextInput, Text, Dialog, Surface } from "react-native-paper"
+import { Button, Chip, IconButton, TextInput, Text, Dialog, Surface, Modal, Portal } from "react-native-paper"
 import { GunType, AmmoType } from "../interfaces"
 import { useState } from "react"
 import { useTagStore } from "../stores/useTagStore"
@@ -152,9 +152,10 @@ export default function NewChipArea({data, gunData, setGunData, ammoData, setAmm
                 }) : <Chip>{newTags[language]}</Chip>}
             </View>
         </TouchableNativeFeedback>
-        <Modal visible={viewTagModal} transparent>
-        <BlurView intensity={100}>    
-        <View style={{width: "100%", height: "100%", display: "flex", flexDirection: "row", justifyContent: "center", alignItems: "center", flexWrap: "wrap", backgroundColor: theme.colors.backdrop}}>
+        <Portal>
+        <Modal visible={viewTagModal} onDismiss={()=>setViewTagModal(false)}>
+        <View style={{width: "100%", height: "100%", display: "flex", flexDirection: "row", justifyContent: "center", alignItems: "center", flexWrap: "wrap", backgroundColor: "rgba(0,0,0,0.5)"}}>
+      
            <View style={{width: "100%", height: "100%", display: "flex", justifyContent: "center", alignItems: "center"}}>
                             <View style={{width: "85%", padding: 10, backgroundColor: theme.colors.background, elevation: 10}}>
                             <Text variant="titleMedium" style={{color: theme.colors.primary}}>{tagModal.title[language]}</Text>
@@ -202,7 +203,7 @@ export default function NewChipArea({data, gunData, setGunData, ammoData, setAmm
                                 <Button mode="contained" onPress={()=>setViewTagModal(false)}>OK</Button>
                             </View>
                             </View>
-                     
+                            
                     </View>
                     <Dialog visible={tagDeleteDialogVisible} onDismiss={()=>toggleTagDeleteDialogVisible(false)}>
             <Dialog.Title>
@@ -216,8 +217,9 @@ export default function NewChipArea({data, gunData, setGunData, ammoData, setAmm
                         <Button onPress={()=>toggleTagDeleteDialogVisible(false)} icon="cancel" buttonColor={theme.colors.secondary} textColor={theme.colors.onSecondary}>{deleteTagFromListAlert.no[language]}</Button>
                     </Dialog.Actions>
                 </Dialog>
-                    </BlurView>
+                    
                 </Modal>
+                </Portal>
 
                 
 

@@ -5,6 +5,8 @@ export const defaultGridGap:number = 10
 
 export const defaultViewPadding:number = 10
 
+export const defaultModalBackdrop:string = "rgba(0,0,0,0.5)"
+
 
 /* Gun Collection databases */
 export const KEY_DATABASE:string = "key0009"

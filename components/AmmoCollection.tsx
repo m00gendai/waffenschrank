@@ -19,7 +19,7 @@ import AmmoCard from './AmmoCard';
 import { colorThemes } from '../lib/colorThemes';
 import Animated, { LightSpeedOutRight, SlideInLeft, useAnimatedStyle, useSharedValue, withRepeat, withTiming } from 'react-native-reanimated';
 
-export default function AmmoCollection(){
+export default function AmmoCollection({navigation}){
 
   // TODO: Zustand SortIcon, Zustand SortOrder @ usePreferenceStore
   // TODO: Zustand menuVisibility @ useViewStore
@@ -27,11 +27,11 @@ export default function AmmoCollection(){
 
   const [menuVisibility, setMenuVisibility] = useState<MenuVisibility>({sortBy: false, filterBy: false});
   const [sortAscending, setSortAscending] = useState<boolean>(true)
-  const [stockVisible, setStockVisible] = useState<boolean>(false)
-  const [stockChange, setStockChange] = useState<"dec" | "inc" | "">("")
-  const [stockValue, setStockValue] = useState<number>(0)
-  const [input, setInput] = useState<string>("")
-  const [error, displayError] = useState<boolean>(false)
+
+  
+
+
+
   const [searchBannerVisible, toggleSearchBannerVisible] = useState<boolean>(false)
   const [searchQuery, setSearchQuery] = useState<string>("")
 
@@ -145,30 +145,6 @@ const ammoList = activeTags.length !== 0  ? ammoCollection.filter(gun => activeT
 
 
            
-async function saveNewStock(ammo:AmmoType){
-    const date:Date = new Date()
-    if(stockChange !== ""){
-    const currentValue:number = ammo.currentStock ? ammo.currentStock : 0
-    const increase:number = Number(input)
-    const total:number = stockChange === "inc" ? Number(currentValue) + Number(increase) : Number(currentValue) - Number(increase)
-    await SecureStore.setItemAsync(`${AMMO_DATABASE}_${ammo.id}`, JSON.stringify({...ammo, previousStock: currentValue, currentStock:total, lastTopUpAt: date.toLocaleDateString(dateLocales.de)})) // Save the ammo
-        console.log(`Updated item ${JSON.stringify(ammo)} with key ${AMMO_DATABASE}_${ammo.id}`)
-        setCurrentAmmo({...ammo, currentStock:parseInt(input)})
-        setStockValue(parseInt(input))
-        setInput("")
-        setStockChange("")
-        const currentObj:AmmoType = ammoCollection.find(({id}) => id === ammo.id)
-        const index:number = ammoCollection.indexOf(currentObj)
-        const newCollection:AmmoType[] = ammoCollection.toSpliced(index, 1, {...ammo, currentStock:total})
-        setAmmoCollection(newCollection)
-        setStockVisible(!stockVisible)
-        displayError(false)
-
-    }
-    else {
-        displayError(true)
-    }
-}
 
 function handleSearch(){
   !searchBannerVisible ? startAnimation() : endAnimation()
@@ -205,20 +181,14 @@ const pulsate = useAnimatedStyle(() => {
     transform: [{ scale: fabWidth.value }]
   };
 });
+
     return(
-        <SafeAreaView 
-        style={{
-          width: "100%", 
-          height: "100%", 
-          flex: 1,
-          backgroundColor: theme.colors.background
-        }}
-      >
+        <View style={{flex: 1}}>
 
         <Appbar style={{width: "100%", display: "flex", flexDirection: "row", justifyContent: "space-between"}}>
          
            <View  style={{display: "flex", flexDirection: "row", justifyContent: "flex-start"}}>
-            <Appbar.Action icon={"menu"} onPress={setMainMenuOpen} />
+            <Appbar.Action icon={"menu"} onPress={()=>navigation.navigate("MainMenu")} />
           </View>
           <View  style={{display: "flex", flexDirection: "row", justifyContent: "flex-end"}}>
           <Appbar.Action icon="magnify" onPress={()=>handleSearch()}/>
@@ -269,70 +239,30 @@ const pulsate = useAnimatedStyle(() => {
           >
             {ammoCollection.length !== 0 && !isFilterOn ? ammoCollection.map(ammo =>{
               return (
-                searchQuery !== "" ? ammo.manufacturer.toLowerCase().includes(searchQuery.toLowerCase()) || ammo.designation.toLowerCase().includes(searchQuery.toLowerCase()) ? <AmmoCard key={ammo.id} ammo={ammo} stockVisible={stockVisible} setStockVisible={setStockVisible}/> : null : <AmmoCard key={ammo.id} ammo={ammo} stockVisible={stockVisible} setStockVisible={setStockVisible}/>
+                searchQuery !== "" ? ammo.manufacturer.toLowerCase().includes(searchQuery.toLowerCase()) || ammo.designation.toLowerCase().includes(searchQuery.toLowerCase()) ? <AmmoCard key={ammo.id} ammo={ammo} /> : null : <AmmoCard key={ammo.id} ammo={ammo} />
               )
             }) 
             :
             ammoCollection.length !== 0 && isFilterOn ? ammoList.map(ammo =>{
-              return <AmmoCard key={ammo.id} ammo={ammo} stockVisible={stockVisible} setStockVisible={setStockVisible}/>
+              return <AmmoCard key={ammo.id} ammo={ammo}/>
             })
             :
             null}
           </View>
         </ScrollView>
         
-        <Portal>
-          <Modal visible={newAmmoOpen} contentContainerStyle={{height: "100%"}} onDismiss={setNewAmmoOpen}>
-            <NewAmmo />
-          </Modal>
-        </Portal>        
         
-        <Portal>
-          <Modal visible={seeAmmoOpen} contentContainerStyle={{height: "100%"}} onDismiss={setSeeAmmoOpen}>
-            <Ammo />
-          </Modal>
-        </Portal>
 
-        <Portal>
-      <Modal visible={stockVisible} >
-        <View style={{width: "100%", height: "100%", display: "flex", flexDirection: "row", justifyContent: "center", alignItems: "center", flexWrap: "wrap", backgroundColor: theme.colors.backdrop}}>
-            <View style={{width: "85%", height: "100%", display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", flexWrap: "wrap"}}>
-                <View style={{backgroundColor: theme.colors.background, width: "100%", display: "flex", flexDirection: "row", flexWrap: "wrap"}}>
-                  <View style={{padding: defaultViewPadding}}>
-                    <Text style={{color: theme.colors.onBackground}}>{ammoQuickUpdate.title[language]}</Text>
-                  </View>
-                  <View style={{width: "100%", display: "flex", flexDirection: "row", padding: defaultViewPadding, flexWrap: "wrap"}}>
-                    <View style={{width: "100%", display: "flex", flexDirection: "row", justifyContent: "center",  marginBottom: 10}}>
-                      <IconButton mode="contained" icon="plus" selected={stockChange === "inc" ? true : false} onPress={()=>setStockChange("inc")}/>
-                      <IconButton mode="contained" icon="minus" selected={stockChange === "dec" ? true : false} onPress={()=>setStockChange("dec")} />
-                    </View>
-                    <TextInput style={{width: "100%"}} placeholder={ammoQuickUpdate.placeholder[language]} keyboardType={"number-pad"} value={input} onChangeText={input => setInput(input.replace(/[^0-9]/g, ''))} inputMode='decimal'/>
-                    <View style={{width: "100%", display: "flex", flexDirection: "row", justifyContent: "space-between", marginTop: 10}}>
-                    <IconButton mode="contained" icon="check" onPress={() => saveNewStock(currentAmmo)} style={{width: 50, backgroundColor: theme.colors.primary}} iconColor={theme.colors.onPrimary}/>
-                      <IconButton mode="contained" icon="cancel" onPress={()=>setStockVisible(false)} style={{width: 50, backgroundColor: theme.colors.secondaryContainer}} iconColor={theme.colors.onSecondaryContainer}/>
-                    </View>
-                  </View>
-                  {error ? 
-                  <View style={{width: "100%", display: "flex", flexDirection: "row"}}>
-                    <Text style={{color: theme.colors.error}}>{ammoQuickUpdate.error[language]}</Text>
-                  </View> 
-                  : 
-                  null}
-                  </View>
-              </View>
-          </View>
-      </Modal>
-      </Portal>
 
       <Animated.View style={[{position: "absolute", bottom: 0, right: 0, margin: 16, width: 56, height: 56, backgroundColor: "transparent", display: "flex", justifyContent: "center", alignItems: "center"}, ammoCollection.length === 0 ? pulsate : null]}>
       <FAB
         icon="plus"
-        onPress={setNewAmmoOpen}
+        onPress={()=>navigation.navigate("NewAmmo")}
         disabled={mainMenuOpen ? true : false}
         style={{width: 56, height: 56}}
       /></Animated.View>
         
-      </SafeAreaView>
+      </View>
     )
 }
 

@@ -1,5 +1,5 @@
 import { Dimensions, ScrollView, StyleSheet, TouchableNativeFeedback, View, Text } from 'react-native';
-import { AmmoType, GunType } from '../interfaces';
+import { AmmoType, GunType, StackParamList } from '../interfaces';
 import { Card, IconButton } from 'react-native-paper';
 import { usePreferenceStore } from '../stores/usePreferenceStore';
 import { defaultGridGap, defaultViewPadding } from '../configs';
@@ -7,27 +7,28 @@ import { ammoDataTemplate } from '../lib/ammoDataTemplate';
 import { useAmmoStore } from '../stores/useAmmoStore';
 import { useViewStore } from '../stores/useViewStore';
 import { useGunStore } from '../stores/useGunStore';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 interface Props{
     gun: GunType
-    shotVisible: boolean
-    setShotVisible: React.Dispatch<React.SetStateAction<boolean>>
 }
 
-export default function GunCard({gun, shotVisible, setShotVisible}:Props){
+export default function GunCard({gun}:Props){
 
     const { ammoDbImport, displayAsGrid, setDisplayAsGrid, toggleDisplayAsGrid, sortAmmoBy, setSortAmmoBy, language, theme, generalSettings } = usePreferenceStore()
     const { mainMenuOpen, setMainMenuOpen, newGunOpen, setNewGunOpen, editGunOpen, setEditGunOpen, seeGunOpen, setSeeGunOpen } = useViewStore()
-    const { gunCollection, setGunCollection, currentGun, setCurrentGun } = useGunStore()    
+    const { gunCollection, setGunCollection, currentGun, setCurrentGun } = useGunStore()  
+    const navigation = useNavigation<NativeStackNavigationProp<StackParamList>>()
 
     function handleGunCardPress(gun){
         setCurrentGun(gun)
-        setSeeGunOpen()
+        navigation.navigate("Gun")
       }
 
       function handleShotButtonPress(gun){
         setCurrentGun(gun)
-        setShotVisible(true)
+        navigation.navigate("QuickShot")
       }
     
     return(

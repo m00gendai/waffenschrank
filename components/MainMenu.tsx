@@ -7,7 +7,7 @@ import { usePreferenceStore } from "../stores/usePreferenceStore"
 import AsyncStorage from "@react-native-async-storage/async-storage"
 import { AMMO_DATABASE, A_KEY_DATABASE, A_TAGS, GUN_DATABASE, KEY_DATABASE, PREFERENCES, TAGS, defaultViewPadding, languageSelection } from "../configs"
 import { colorThemes } from "../lib/colorThemes"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import * as FileSystem from 'expo-file-system';
 import * as DocumentPicker from 'expo-document-picker';
 import { AmmoType, DBOperations, GunType, GunTypeStatus, Languages } from "../interfaces"
@@ -25,9 +25,10 @@ import { useImportExportStore } from "../stores/useImportExportStore"
 import CSVImportModal from "./CSVImportModal"
 import { flatten, unflatten } from 'flat'
 import { getImageSize, sanitizeFileName } from "../utils"
+import * as SystemUI from "expo-system-ui"
 
 
-export default function mainMenu(){
+export default function MainMenu({navigation}){
 
     const { setMainMenuOpen, toastVisible, setToastVisible, dbModalVisible, setDbModalVisible, imageResizeVisible, toggleImageResizeVisible, importCSVVisible, toggleImportCSVVisible, importModalVisible, toggleImportModalVisible } = useViewStore()
     const { language, switchLanguage, theme, switchTheme, setDbImport, setAmmoDbImport, generalSettings, setGeneralSettings } = usePreferenceStore()
@@ -47,7 +48,9 @@ export default function mainMenu(){
     const currentYear:number = date.getFullYear()
 
     async function handleThemeSwitch(color:string){
+        console.log(color)
         switchTheme(color)
+        SystemUI.setBackgroundColorAsync(colorThemes[color].background)
         const preferences:string = await AsyncStorage.getItem(PREFERENCES)
         const newPreferences:{[key:string] : string} = preferences == null ? {"theme": color} : {...JSON.parse(preferences), "theme":color} 
         await AsyncStorage.setItem(PREFERENCES, JSON.stringify(newPreferences))
@@ -502,19 +505,33 @@ export default function mainMenu(){
     
         await AsyncStorage.setItem(A_KEY_DATABASE, JSON.stringify(newKeys)) // Save the key object
     }
+
+    useEffect(()=>{
+        const trigger = navigation.addListener("focus", function(){
+            setMainMenuOpen()
+        })
+        return trigger
+    },[navigation])
+
+    useEffect(()=>{
+        const trigger = navigation.addListener("blur", function(){
+            setMainMenuOpen()
+        })
+        return trigger
+    },[navigation])
     
 
     return(
-        <Animated.View entering={LightSpeedInLeft} exiting={LightSpeedOutLeft} style={{position: "absolute", left: 0, width: "100%", height: "100%"}}>
-            <SafeAreaView style={{display: "flex", flexDirection: "row", flexWrap: "nowrap", backgroundColor: theme.colors.primary}}>
+        
+           <View style={{flex: 1}}>
                 <View style={{width: "100%", height: "100%", backgroundColor: theme.colors.background}}>
-                    <TouchableNativeFeedback onPress={setMainMenuOpen}>
+                    <TouchableNativeFeedback onPress={()=>navigation.goBack()}>
                         <View style={{width: "100%", height: 50, display: "flex", flexDirection: "row", justifyContent: "flex-start", alignItems: "center", paddingLeft: 20, backgroundColor: theme.colors.primary}}>
                             <Icon source="arrow-left" size={20} color={theme.colors.onPrimary}/>
                         </View>
                     </TouchableNativeFeedback>
                     <View style={{padding: 0, display: "flex", height: "100%", flexDirection: "column", flexWrap: "wrap"}}>
-                        <View style={{width: "100%", flex: 10}}>
+                        <View style={{width: "100%", flex: 15}}>
                             <ScrollView>
                                 <View style={{padding: defaultViewPadding, backgroundColor: theme.colors.primary}}>
                                     <Text variant="titleMedium" style={{marginBottom: 10, color: theme.colors.onPrimary}}>{preferenceTitles.language[language]}</Text>
@@ -686,11 +703,11 @@ export default function mainMenu(){
                                 </List.Accordion>
                             </ScrollView>
                         </View>
-                        <View style={{width: "100%", flex: 2, padding: 0, marginTop: 10, marginBottom: 10, elevation: 4, backgroundColor: theme.colors.primary}}>
+                        <View style={{width: "100%", flex: 1, padding: 0, marginTop: 10, marginBottom: 10, elevation: 4, backgroundColor: theme.colors.primary}}>
                         </View>
                     </View>
                 </View>
-            </SafeAreaView>
+           
             <Snackbar
             visible={toastVisible}
                 onDismiss={onDismissSnackBar}
@@ -741,6 +758,6 @@ export default function mainMenu(){
                 <Text variant="bodyLarge" style={{width: "100%", textAlign: "center", color: theme.colors.onBackground, marginTop: 10, backgroundColor: theme.colors.background}}>{`${dbModalText}: ${importProgress}/${importSize}`}</Text>
             </Modal>
 
-        </Animated.View> 
+            </View>
     )
 }
