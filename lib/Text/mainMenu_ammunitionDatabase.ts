@@ -1,14 +1,16 @@
 import { SimpleTranslation } from "./interfaces_text";
 
 interface mainMenu_database{
-    title: SimpleTranslation,
-    saveArsenalDB: SimpleTranslation,
+    title: SimpleTranslation
+    saveArsenalDB: SimpleTranslation
+    shareArsenalDB: SimpleTranslation
     saveArsenalCSV: SimpleTranslation
-    importArsenalDB: SimpleTranslation,
-    importCustomCSV: SimpleTranslation,
-    importArsenalCSV: SimpleTranslation,
-    importCSVModalTitle: SimpleTranslation,
-    importCSVModalText: SimpleTranslation,
+    shareArsenalCSV: SimpleTranslation
+    importArsenalDB: SimpleTranslation
+    importCustomCSV: SimpleTranslation
+    importArsenalCSV: SimpleTranslation
+    importCSVModalTitle: SimpleTranslation
+    importCSVModalText: SimpleTranslation
 }
 
 export const mainMenu_ammunitionDatabase: mainMenu_database = {
@@ -20,18 +22,32 @@ export const mainMenu_ammunitionDatabase: mainMenu_database = {
         ch: "Banca da datas muniziun",
     },
     saveArsenalDB:{
-        de: "Speichern als Arsenal Datenbank",
-        en: "Save as Arsenal database",
-        fr: "Enregistrer en tant que base de données Arsenal",
-        it: "Salva come database Arsenal",
-        ch: "Arcunar sco arsenal banca da datas",
+        de: "Arsenal Datenbank lokal auf dem Gerät speichern",
+        en: "Save Arsenal database locally on the device",
+        fr: "Enregistrer la base de données Arsenal localement sur l'appareil",
+        it: "Salvare il database dell'Arsenale in locale sul dispositivo",
+        ch: "Arcunar la banca da datas d' Arsenal localmain sin l'apparat",
+    },
+    shareArsenalDB:{
+        de: "Arsenal Datenbank teilen (via Threema senden, in Cloud-App speichern, ...)",
+        en: "Share Arsenal database (send via Threema, save in cloud app, ...)",
+        fr: "Partager la base de données Arsenal (envoyer via Threema, enregistrer dans l'application Cloud, ...)",
+        it: "Condividere il database dell'Arsenal (inviare via Threema, salvare in un'applicazione cloud, ...)",
+        ch: "Parter ina banca da datas d'Arsenal (trametter a Threema, arcunar en l'app da cloud, ...)",
     },
     saveArsenalCSV:{
-        de: "Speichern als Arsenal CSV",
-        en: "Save as Arsenal CSV",
-        fr: "Enregistrer en tant que CSV Arsenal",
-        it: "Salva come CSV Arsenal",
-        ch: "Arcunar sco arsenal CSV",
+        de: "Arsenal CSV Datei lokal auf dem Gerät speichern",
+        en: "Save Arsenal CSV file locally on the device",
+        fr: "Enregistrer le fichier CSV Arsenal localement sur l'appareil",
+        it: "Salvare il file CSV dell'Arsenale localmente sul dispositivo",
+        ch: "Arsenal CSV Datei localmain sin l'apparat",
+    },
+    shareArsenalCSV:{
+        de: "Arsenal CSV Datei teilen (via Threema senden, in Cloud-App speichern, ...)",
+        en: "Share Arsenal CSV file (send via Threema, save in cloud app, ...)",
+        fr: "Partager le fichier CSV Arsenal (envoyer via Threema, enregistrer dans l'application Cloud, ...)",
+        it: "Condividere il file CSV dell'Arsenal (inviare tramite Threema, salvare nell'app cloud, ...)",
+        ch: "Arsenal CSV Datei (trametter via Threema, arcunar en l'app cloud, ...)",
     },
     importArsenalDB:{
         de: "Arsenal Datenbank importieren (ammoDB_17...)",
@@ -79,18 +95,32 @@ export const mainMenu_gunDatabase: mainMenu_database = {
         ch: "Banca da datas muniziun",
     },
     saveArsenalDB:{
-        de: "Speichern als Arsenal Datenbank",
-        en: "Save as Arsenal database",
-        fr: "Enregistrer en tant que base de données Arsenal",
-        it: "Salva come database Arsenal",
-        ch: "Arcunar sco arsenal banca da datas",
+        de: "Arsenal Datenbank lokal auf dem Gerät speichern",
+        en: "Save Arsenal database locally on the device",
+        fr: "Enregistrer la base de données Arsenal localement sur l'appareil",
+        it: "Salvare il database dell'Arsenale in locale sul dispositivo",
+        ch: "Arcunar la banca da datas d' Arsenal localmain sin l'apparat",
+    },
+    shareArsenalDB:{
+        de: "Arsenal Datenbank teilen (via Threema senden, in Cloud-App speichern, ...)",
+        en: "Share Arsenal database (send via Threema, save in cloud app, ...)",
+        fr: "Partager la base de données Arsenal (envoyer via Threema, enregistrer dans l'application Cloud, ...)",
+        it: "Condividere il database dell'Arsenal (inviare via Threema, salvare in un'applicazione cloud, ...)",
+        ch: "Parter ina banca da datas d'Arsenal (trametter a Threema, arcunar en l'app da cloud, ...)",
     },
     saveArsenalCSV:{
-        de: "Speichern als Arsenal CSV",
-        en: "Save as Arsenal CSV",
-        fr: "Enregistrer en tant que CSV Arsenal",
-        it: "Salva come CSV Arsenal",
-        ch: "Arcunar sco arsenal CSV",
+        de: "Arsenal CSV Datei lokal auf dem Gerät speichern",
+        en: "Save Arsenal CSV file locally on the device",
+        fr: "Enregistrer le fichier CSV Arsenal localement sur l'appareil",
+        it: "Salvare il file CSV dell'Arsenale localmente sul dispositivo",
+        ch: "Arsenal CSV Datei localmain sin l'apparat",
+    },
+    shareArsenalCSV:{
+        de: "Arsenal CSV Datei teilen (via Threema senden, in Cloud-App speichern, ...)",
+        en: "Share Arsenal CSV file (send via Threema, save in cloud app, ...)",
+        fr: "Partager le fichier CSV Arsenal (envoyer via Threema, enregistrer dans l'application Cloud, ...)",
+        it: "Condividere il file CSV dell'Arsenal (inviare tramite Threema, salvare nell'app cloud, ...)",
+        ch: "Arsenal CSV Datei (trametter via Threema, arcunar en l'app cloud, ...)",
     },
     importArsenalDB:{
         de: "Arsenal Datenbank importieren (gunDB_17...)",
