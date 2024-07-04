@@ -276,12 +276,13 @@ export default function App() {
       name="QuickShot"
       component={QuickShot}
       options={{headerShown: false, cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS, gestureDirection: "vertical-inverted", presentation: "transparentModal"}} />
-      
 
     <Stack.Screen
       name="MainMenu"
       component={MainMenu}
       options={{headerShown: false, cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS, gestureDirection: "horizontal-inverted"}} />
+
+
 
       </Stack.Navigator>
       </SafeAreaView>
