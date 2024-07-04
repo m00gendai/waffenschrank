@@ -77,8 +77,8 @@ export default function CSVImportModal(){
     }
 
     return(
-        <Modal visible={importCSVVisible}>
-                    <View style={{width: "100%", height: "100%", display: "flex", flexDirection: "row", justifyContent: "center", alignItems: "center", alignContent: "center", flexWrap: "wrap", backgroundColor: theme.colors.backdrop}}>
+        <Modal visible={importCSVVisible} onDismiss={()=>toggleImportCSVVisible()}>
+                    <View style={{width: "100%", height: "100%", display: "flex", flexDirection: "row", justifyContent: "center", alignItems: "center", alignContent: "center", flexWrap: "wrap", backgroundColor: "rgba(0,0,0,0.5)"}}>
                         <View style={{width: "85%", height: "100%", maxHeight: "85%", display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", flexWrap: "wrap"}}>
                             <View style={{backgroundColor: theme.colors.background, width: "100%", flex: 1, padding: defaultViewPadding, display: "flex", flexDirection: "column"}}>
                                 <View style={{flex: 3}}>

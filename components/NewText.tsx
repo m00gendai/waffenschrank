@@ -1,13 +1,13 @@
-import { IconButton, List, Surface, TextInput, Text, Badge } from 'react-native-paper';
+import { IconButton, List, Surface, TextInput, Text, Badge, Portal, Modal } from 'react-native-paper';
 import { useState } from 'react';
 import { GunType, AmmoType } from '../interfaces';
-import { TouchableNativeFeedback, View, Modal, ScrollView } from 'react-native';
+import { TouchableNativeFeedback, View, ScrollView } from 'react-native';
 import DateTimePicker from 'react-native-ui-datepicker';
 import dayjs from 'dayjs';
 import ColorPicker, { Panel1, Swatches, Preview, HueSlider } from 'reanimated-color-picker';
 import { calibers } from '../lib/caliberData';
 import { usePreferenceStore } from '../stores//usePreferenceStore';
-import { defaultViewPadding, requiredFieldsAmmo, requiredFieldsGun } from '../configs';
+import { defaultModalBackdrop, defaultViewPadding, requiredFieldsAmmo, requiredFieldsGun } from '../configs';
 
 interface Props{
     data: string
@@ -169,8 +169,9 @@ function handleFocus(){
             </TouchableNativeFeedback>
             
             {/* DATE TIME PICKER */}
-            <Modal visible={showDateTime} animationType='slide' transparent>
-                <View style={{width: "100%", height: "100%", display: "flex", flexDirection: "row", justifyContent: "center", alignItems: "center", flexWrap: "wrap", backgroundColor: theme.colors.backdrop}}>
+            <Portal>
+            <Modal visible={showDateTime} onDismiss={()=>setShowDateTime(false)}>
+                <View style={{width: "100%", height: "100%", display: "flex", flexDirection: "row", justifyContent: "center", alignItems: "center", flexWrap: "wrap", backgroundColor: defaultModalBackdrop}}>
                     <View style={{width: "85%", height: "100%", display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", flexWrap: "wrap"}}>
 
                             <View style={{backgroundColor: theme.colors.background, width: "100%"}}>
@@ -197,10 +198,12 @@ function handleFocus(){
                     </View>
                 </View>
             </Modal>
+            </Portal>
         
             {/* COLOR PICKER */}
-            <Modal visible={showModal} animationType='slide' transparent>
-                <View style={{width: "100%", height: "100%", display: "flex", flexDirection: "row", justifyContent: "center", alignItems: "center", flexWrap: "wrap", backgroundColor: theme.colors.backdrop}}>
+            <Portal>
+            <Modal visible={showModal} onDismiss={()=>setShowModal(false)}>
+                <View style={{width: "100%", height: "100%", display: "flex", flexDirection: "row", justifyContent: "center", alignItems: "center", flexWrap: "wrap", backgroundColor: defaultModalBackdrop}}>
                     <View style={{width: "85%", height: "100%", display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", flexWrap: "wrap"}}>
                         <View style={{backgroundColor: theme.colors.background, width: "100%"}}>
                             <ColorPicker style={{ width: '100%', padding: 10 }} value={gunData ? gunData[data] : "#000"} onComplete={onSelectColor}>
@@ -217,11 +220,13 @@ function handleFocus(){
                     </View>
                 </View>
             </Modal>
+            </Portal>
 
 
             {/* CALIBER PICKER */}
-            <Modal visible={showModalCaliber} animationType='slide' transparent>
-                <View style={{width: "100%", height: "100%", display: "flex", flexDirection: "row", justifyContent: "center", alignItems: "center", flexWrap: "wrap", backgroundColor: theme.colors.backdrop}}>
+            <Portal>
+            <Modal visible={showModalCaliber} onDismiss={()=>setShowModalCaliber(false)}>
+                <View style={{width: "100%", height: "100%", display: "flex", flexDirection: "row", justifyContent: "center", alignItems: "center", flexWrap: "wrap", backgroundColor: defaultModalBackdrop}}>
                     <View style={{width: "85%", height: "100%", display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", flexWrap: "wrap"}}>
                         <View style={{backgroundColor: theme.colors.background, width: "100%", height: "90%"}}>
                             <List.Section style={{flex: 1}}>
@@ -258,6 +263,7 @@ function handleFocus(){
                     </View>
                 </View>
             </Modal>
+            </Portal>
         </View>
     )
 }
