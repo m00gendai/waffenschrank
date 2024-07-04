@@ -26,6 +26,8 @@ import CSVImportModal from "./CSVImportModal"
 import { flatten, unflatten } from 'flat'
 import { getImageSize, sanitizeFileName } from "../utils"
 import * as SystemUI from "expo-system-ui"
+import * as Sharing from 'expo-sharing';
+
 
 
 export default function MainMenu({navigation}){
@@ -41,8 +43,8 @@ export default function MainMenu({navigation}){
     const [dbModalText, setDbModalText] = useState<string>("")
     const [dbOperation, setDbOperation] = useState<DBOperations | "">("")
 
-    const onToggleSnackBar = () => setToastVisible();
-    const onDismissSnackBar = () => setToastVisible();
+    const onToggleSnackBar = () => setToastVisible(true);
+    const onDismissSnackBar = () => setToastVisible(false);
 
     const date: Date = new Date()
     const currentYear:number = date.getFullYear()
@@ -96,6 +98,24 @@ export default function MainMenu({navigation}){
                 dbSaveSuccess()
             })
         }
+        if(data === "share_arsenal_gun_db"){
+            setImportSize(gunCollection.length)
+            setDbModalText(databaseOperations.export[language])
+            await handleShareGunDb().then(async (res)=>{
+                await Sharing.shareAsync(res).then(()=>{
+                    dbSaveSuccess()
+                })
+            })
+        }
+        if(data === "share_arsenal_gun_csv"){
+            setImportSize(gunCollection.length)
+            setDbModalText(databaseOperations.export[language])
+            await shareCSV("share_arsenal_gun_csv").then(async (res)=>{
+                await Sharing.shareAsync(res).then(()=>{
+                    dbSaveSuccess()
+                })
+            })
+        }
         if(data === "save_arsenal_ammo_db"){
             setImportSize(ammoCollection.length)
             setDbModalText(databaseOperations.export[language])
@@ -108,6 +128,24 @@ export default function MainMenu({navigation}){
             setDbModalText(databaseOperations.export[language])
             await exportCSV("save_arsenal_ammo_csv").then(()=>{
                 dbSaveSuccess()
+            })
+        }
+        if(data === "share_arsenal_ammo_db"){
+            setImportSize(ammoCollection.length)
+            setDbModalText(databaseOperations.export[language])
+            await handleShareAmmoDb().then(async (res)=>{
+                await Sharing.shareAsync(res).then(()=>{
+                    dbSaveSuccess()
+                })
+            })
+        }
+        if(data === "share_arsenal_ammo_csv"){
+            setImportSize(ammoCollection.length)
+            setDbModalText(databaseOperations.export[language])
+            await shareCSV("share_arsenal_ammo_csv").then(async (res)=>{
+                await Sharing.shareAsync(res).then(()=>{
+                    dbSaveSuccess()
+                })
             })
         }
         if(data === "import_arsenal_gun_db"){
@@ -157,6 +195,73 @@ export default function MainMenu({navigation}){
     async function handleDbImport(data:DBOperations | ""){
         setDbOperation(data)
         toggleImportModalVisible()
+    }
+
+    async function handleShareGunDb(){
+        const fileName = `gunDB_${new Date().getTime()}.json`
+        // ANDROID
+       
+            const exportableGunCollection:GunType[] = await Promise.all(gunCollection.map(async gun =>{
+                if(gun.images !== null && gun.images.length !== 0){
+                    const base64images:string[] = await Promise.all(gun.images?.map(async image =>{
+                        const base64string:string = await FileSystem.readAsStringAsync(image, { encoding: 'base64' });
+                        return base64string
+                    }))
+                    const exportableGun:GunType = {...gun, images: base64images}
+                    setImportProgress(importProgress+1)
+                    return exportableGun
+                } else {
+                    setImportProgress(importProgress+1)
+                    return gun
+                }
+            }))
+            let data = JSON.stringify(exportableGunCollection)
+            const fileUri = FileSystem.cacheDirectory + fileName
+            await FileSystem.writeAsStringAsync(fileUri, data, {encoding: FileSystem.EncodingType.UTF8})
+            return fileUri
+        
+        /*
+        for iOS, use expo-share, Sharing.shareAsync(fileUri, fileNamea)
+        */
+    }
+
+    async function handleShareAmmoDb(){
+        const fileName = `ammoDB_${new Date().getTime()}.json`
+        // ANDROID
+            const exportableAmmoCollection:AmmoType[] = await Promise.all(ammoCollection.map(async ammo =>{
+                if(ammo.images !== null && ammo.images.length !== 0){
+                    const base64images:string[] = await Promise.all(ammo.images?.map(async image =>{
+                        const base64string:string = await FileSystem.readAsStringAsync(image, { encoding: 'base64' });
+                        return base64string
+                    }))
+                    const exportableAmmo:AmmoType = {...ammo, images: base64images}
+                    setImportProgress(importProgress+1)
+                    return exportableAmmo
+                } else {
+                    setImportProgress(importProgress+1)
+                    return ammo
+                }
+            }))
+            let data = JSON.stringify(exportableAmmoCollection)
+            const fileUri = FileSystem.cacheDirectory + fileName
+            await FileSystem.writeAsStringAsync(fileUri, data, {encoding: FileSystem.EncodingType.UTF8})
+            return fileUri
+        /*
+        for iOS, use expo-share, Sharing.shareAsync(fileUri, fileNamea)
+        */
+    }
+
+    async function shareCSV(data: DBOperations){
+        const fileName = `${data === "share_arsenal_gun_csv" ? "gunCSV" : "ammoCSV"}_${new Date().getTime()}.csv`
+        const flattened = data === "share_arsenal_gun_csv" ? gunCollection.map(item => {
+            return flatten(item, {safe: true})
+        }) : ammoCollection.map(item => {
+            return flatten(item, {safe: true})
+        })
+        const csv = Papa.unparse(flattened)
+        const fileUri = FileSystem.cacheDirectory + fileName
+        await FileSystem.writeAsStringAsync(fileUri, csv, {encoding: FileSystem.EncodingType.UTF8})
+        return fileUri
     }
 
     async function handleSaveGunDb(){
@@ -578,10 +683,24 @@ export default function MainMenu({navigation}){
                                             </View>
                                             <Divider style={{width: "100%", borderWidth: 0.5, borderColor: theme.colors.onSecondary}} />
                                             <View style={{display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between", width: "100%"}}>
+                                                <Text style={{width: "80%"}}>{mainMenu_gunDatabase.shareArsenalDB[language]}</Text>
+                                                {gunCollection.length === 0 ?<Tooltip title={tooltips.noGunsAddedYet[language]}><IconButton icon="content-save-off" mode="contained" disabled /></Tooltip>
+                                                :
+                                                <IconButton icon="share-variant" onPress={()=>handleDbOperation("share_arsenal_gun_db")} mode="contained" iconColor={theme.colors.onPrimary} style={{backgroundColor: theme.colors.primary}}/>}
+                                            </View>
+                                            <Divider style={{width: "100%", borderWidth: 0.5, borderColor: theme.colors.onSecondary}} />
+                                            <View style={{display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between", width: "100%"}}>
                                                 <Text style={{width: "80%"}}>{mainMenu_gunDatabase.saveArsenalCSV[language]}</Text>
                                                 {gunCollection.length === 0 ?<Tooltip title={tooltips.noGunsAddedYet[language]}><IconButton icon="content-save-off" mode="contained" disabled /></Tooltip>
                                                 :
                                                 <IconButton icon="floppy" onPress={()=>handleDbOperation("save_arsenal_gun_csv")} mode="contained" iconColor={theme.colors.onPrimary} style={{backgroundColor: theme.colors.primary}}/>}
+                                            </View>
+                                            <Divider style={{width: "100%", borderWidth: 0.5, borderColor: theme.colors.onSecondary}} />
+                                            <View style={{display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between", width: "100%"}}>
+                                                <Text style={{width: "80%"}}>{mainMenu_gunDatabase.shareArsenalCSV[language]}</Text>
+                                                {gunCollection.length === 0 ?<Tooltip title={tooltips.noGunsAddedYet[language]}><IconButton icon="content-save-off" mode="contained" disabled /></Tooltip>
+                                                :
+                                                <IconButton icon="share-variant" onPress={()=>handleDbOperation("share_arsenal_gun_csv")} mode="contained" iconColor={theme.colors.onPrimary} style={{backgroundColor: theme.colors.primary}}/>}
                                             </View>
                                             <Divider style={{width: "100%", borderWidth: 0.5, borderColor: theme.colors.onSecondary}} />
                                             <View style={{display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between", width: "100%"}}>
@@ -612,10 +731,24 @@ export default function MainMenu({navigation}){
                                             </View>
                                             <Divider style={{width: "100%", borderWidth: 0.5, borderColor: theme.colors.onSecondary}} />
                                             <View style={{display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between", width: "100%"}}>
+                                                <Text style={{width: "80%"}}>{mainMenu_ammunitionDatabase.shareArsenalDB[language]}</Text>
+                                                {gunCollection.length === 0 ?<Tooltip title={tooltips.noAmmoAddedYet[language]}><IconButton icon="content-save-off" mode="contained" disabled /></Tooltip>
+                                                :
+                                                <IconButton icon="share-variant" onPress={()=>handleDbOperation("share_arsenal_ammo_db")} mode="contained" iconColor={theme.colors.onPrimary} style={{backgroundColor: theme.colors.primary}}/>}
+                                            </View>
+                                            <Divider style={{width: "100%", borderWidth: 0.5, borderColor: theme.colors.onSecondary}} />
+                                            <View style={{display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between", width: "100%"}}>
                                                 <Text style={{width: "80%"}}>{mainMenu_ammunitionDatabase.saveArsenalCSV[language]}</Text>
                                                 {ammoCollection.length === 0 ?<Tooltip title={tooltips.noAmmoAddedYet[language]}><IconButton icon="content-save-off" mode="contained" disabled /></Tooltip>
                                                 :
                                                 <IconButton icon="floppy" onPress={()=>handleDbOperation("save_arsenal_ammo_csv")} mode="contained" iconColor={theme.colors.onPrimary} style={{backgroundColor: theme.colors.primary}}/>}
+                                            </View>
+                                            <Divider style={{width: "100%", borderWidth: 0.5, borderColor: theme.colors.onSecondary}} />
+                                            <View style={{display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between", width: "100%"}}>
+                                                <Text style={{width: "80%"}}>{mainMenu_ammunitionDatabase.shareArsenalCSV[language]}</Text>
+                                                {ammoCollection.length === 0 ?<Tooltip title={tooltips.noAmmoAddedYet[language]}><IconButton icon="content-save-off" mode="contained" disabled /></Tooltip>
+                                                :
+                                                <IconButton icon="share-variant" onPress={()=>handleDbOperation("share_arsenal_ammo_csv")} mode="contained" iconColor={theme.colors.onPrimary} style={{backgroundColor: theme.colors.primary}}/>}
                                             </View>
                                             <Divider style={{width: "100%", borderWidth: 0.5, borderColor: theme.colors.onSecondary}} />
                                             <View style={{display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between", width: "100%"}}>
