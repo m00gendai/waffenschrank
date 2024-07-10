@@ -15,6 +15,7 @@ import { useGunStore } from "../stores/useGunStore"
 import { useAmmoStore } from "../stores/useAmmoStore"
 import AsyncStorage from "@react-native-async-storage/async-storage"
 import { gunDataTemplate } from "../lib/gunDataTemplate"
+import ModalContainer from "./ModalContainer"
 
 export default function CSVImportModal(){
 
@@ -77,64 +78,52 @@ export default function CSVImportModal(){
     }
 
     return(
-        <Modal visible={importCSVVisible} onDismiss={()=>toggleImportCSVVisible()}>
-                    <View style={{width: "100%", height: "100%", display: "flex", flexDirection: "row", justifyContent: "center", alignItems: "center", alignContent: "center", flexWrap: "wrap", backgroundColor: "rgba(0,0,0,0.5)"}}>
-                        <View style={{width: "85%", height: "100%", maxHeight: "85%", display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", flexWrap: "wrap"}}>
-                            <View style={{backgroundColor: theme.colors.background, width: "100%", flex: 1, padding: defaultViewPadding, display: "flex", flexDirection: "column"}}>
-                                <View style={{flex: 3}}>
-                                <Text variant="titleSmall" style={{color: theme.colors.primary}}>{dbCollectionType === "import_custom_gun_csv" ? mainMenu_ammunitionDatabase.importCSVModalTitle[language] : mainMenu_ammunitionDatabase.importCSVModalTitle[language]}</Text>
-                                <ScrollView>
-                                <Text variant="bodySmall">{dbCollectionType === "import_custom_gun_csv" ? mainMenu_ammunitionDatabase.importCSVModalText[language] : mainMenu_ammunitionDatabase.importCSVModalText[language]}</Text>
-                                </ScrollView>
-                                </View>
-                                <View style={{flex: 7, borderColor: theme.colors.primary, borderBottomWidth: 2, borderTopWidth: 2, marginTop: defaultViewPadding, marginBottom: defaultViewPadding}}>
-                                <ScrollView>
+        <ModalContainer visible={importCSVVisible} setVisible={toggleImportCSVVisible}
+        title={dbCollectionType === "import_custom_gun_csv" ? mainMenu_ammunitionDatabase.importCSVModalTitle[language] : mainMenu_ammunitionDatabase.importCSVModalTitle[language]}
+        subtitle={dbCollectionType === "import_custom_gun_csv" ? mainMenu_ammunitionDatabase.importCSVModalText[language] : mainMenu_ammunitionDatabase.importCSVModalText[language]}
+        content={<ScrollView style={{padding: defaultViewPadding}}>
                 
-                                    {dbCollectionType === "import_custom_gun_csv" ? gunDataTemplate.map((gunItem, gunIndex)=>{
-                                        return(
-                                            <View key={`mapperRow_${gunIndex}`} style={{width: "100%", display: "flex", flexDirection: "row", flexWrap: "nowrap", alignItems: "center", justifyContent: "space-between"}}>
-                                                <Text style={{width: "50%"}}>{gunItem.de}</Text>
-                                                <Picker style={{width: "50%", color: theme.colors.onBackground}} dropdownIconColor={theme.colors.onBackground} selectedValue={mapCSV[gunItem.name]} onValueChange={(itemValue, itemIndex) => setMapCSV({...mapCSV, [gunItem.name]:itemValue})}>
-                                                    <Picker.Item label={"-"} value={""} style={{backgroundColor: theme.colors.background}} color={theme.colors.onBackground}/>
-                                                    {CSVHeader.map((item, index) => {
-                                                        return(
-                                                            <Picker.Item key={`picker_${index}`} label={item} value={item} style={{backgroundColor: theme.colors.background}} color={theme.colors.onBackground}/>
-                                                        )
-                                                    })}
-                                                </Picker>
-                                            <Divider style={{width: "100%"}}/>
-                                            </View>
-                                        )
-                                        }) 
-                                    :
-                                    ammoDataTemplate.map((ammoItem, ammoIndex)=>{
-                                        return(
-                                            <View key={`mapperRow_${ammoIndex}`} style={{width: "100%", display: "flex", flexDirection: "row", flexWrap: "nowrap", alignItems: "center", justifyContent: "space-between"}}>
-                                                <Text style={{width: "50%"}}>{ammoItem.de}</Text>
-                                                <Picker style={{width: "50%", color: theme.colors.onBackground}} dropdownIconColor={theme.colors.onBackground} selectedValue={mapCSV[ammoItem.name]} onValueChange={(itemValue, itemIndex) => setMapCSV({...mapCSV, [ammoItem.name]:itemValue})}>
-                                                    <Picker.Item label={"-"} value={""} style={{backgroundColor: theme.colors.background}} color={theme.colors.onBackground}/>
-                                                    {CSVHeader.map((item, index) => {
-                                                        return(
-                                                            <Picker.Item key={`picker_${index}`} label={item} value={item} style={{backgroundColor: theme.colors.background}} color={theme.colors.onBackground}/>
-                                                        )
-                                                    })}
-                                                </Picker>
-                                            <Divider style={{width: "100%"}}/>
-                                            </View>
-                                        )
-                                        })
-                                    }
-                                    
-                                        </ScrollView>
-                                        </View>
-                                        <View style={{width: "100%", display: "flex", flexDirection: "row", justifyContent: "space-between", alignItems: "center"}}>
-                                     <IconButton icon="check" mode="contained" onPress={()=>setImportedCSV()} />
-                                     <IconButton icon="cancel" mode="contained" style={{backgroundColor: theme.colors.errorContainer}} iconColor={theme.colors.onErrorContainer} onPress={()=>toggleImportCSVVisible()} />
-                                     </View>
-                                
-                            </View>
-                        </View>
+            {dbCollectionType === "import_custom_gun_csv" ? gunDataTemplate.map((gunItem, gunIndex)=>{
+                return(
+                    <View key={`mapperRow_${gunIndex}`} style={{width: "100%", display: "flex", flexDirection: "row", flexWrap: "nowrap", alignItems: "center", justifyContent: "space-between"}}>
+                        <Text style={{width: "50%"}}>{gunItem.de}</Text>
+                        <Picker style={{width: "50%", color: theme.colors.onBackground}} dropdownIconColor={theme.colors.onBackground} selectedValue={mapCSV[gunItem.name]} onValueChange={(itemValue, itemIndex) => setMapCSV({...mapCSV, [gunItem.name]:itemValue})}>
+                            <Picker.Item label={"-"} value={""} style={{backgroundColor: theme.colors.background}} color={theme.colors.onBackground}/>
+                            {CSVHeader.map((item, index) => {
+                                return(
+                                    <Picker.Item key={`picker_${index}`} label={item} value={item} style={{backgroundColor: theme.colors.background}} color={theme.colors.onBackground}/>
+                                )
+                            })}
+                        </Picker>
+                    <Divider style={{width: "100%"}}/>
                     </View>
-                </Modal>
+                )
+                }) 
+            :
+            ammoDataTemplate.map((ammoItem, ammoIndex)=>{
+                return(
+                    <View key={`mapperRow_${ammoIndex}`} style={{width: "100%", display: "flex", flexDirection: "row", flexWrap: "nowrap", alignItems: "center", justifyContent: "space-between"}}>
+                        <Text style={{width: "50%"}}>{ammoItem.de}</Text>
+                        <Picker style={{width: "50%", color: theme.colors.onBackground}} dropdownIconColor={theme.colors.onBackground} selectedValue={mapCSV[ammoItem.name]} onValueChange={(itemValue, itemIndex) => setMapCSV({...mapCSV, [ammoItem.name]:itemValue})}>
+                            <Picker.Item label={"-"} value={""} style={{backgroundColor: theme.colors.background}} color={theme.colors.onBackground}/>
+                            {CSVHeader.map((item, index) => {
+                                return(
+                                    <Picker.Item key={`picker_${index}`} label={item} value={item} style={{backgroundColor: theme.colors.background}} color={theme.colors.onBackground}/>
+                                )
+                            })}
+                        </Picker>
+                    <Divider style={{width: "100%"}}/>
+                    </View>
+                )
+                })
+            }
+            
+                </ScrollView>}
+        buttonACK={<IconButton icon="check" mode="contained" style={{width: 50, backgroundColor: theme.colors.primary}} iconColor={theme.colors.onPrimary} onPress={()=>setImportedCSV()} />}
+        buttonCNL={<IconButton icon="cancel" mode="contained" style={{width: 50, backgroundColor: theme.colors.secondaryContainer}} iconColor={theme.colors.onSecondaryContainer} onPress={()=>toggleImportCSVVisible()} />}
+        buttonDEL={null}
+        
+        />
+                  
     )
 }
