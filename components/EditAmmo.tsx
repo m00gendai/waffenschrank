@@ -63,7 +63,7 @@ export default function EditAmmo({navigation}){
             if(!(key in ammoDataCompare) && ammoData[key] === ""){
                 setSaveState(null)
             }
-            if(!(key in ammoDataCompare) && ammoData[key].length === 0){
+            if(!(key in ammoDataCompare) && ammoData[key] !== undefined && ammoData[key].length === 0){
                 setSaveState(null)
             }
         }
