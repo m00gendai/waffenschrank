@@ -9,6 +9,7 @@ import { calibers } from '../lib/caliberData';
 import { usePreferenceStore } from '../stores//usePreferenceStore';
 import { defaultModalBackdrop, defaultViewPadding, requiredFieldsAmmo, requiredFieldsGun } from '../configs';
 import ModalContainer from './ModalContainer';
+import { modalTexts } from '../lib/textTemplates';
 
 interface Props{
     data: string
@@ -171,8 +172,8 @@ function handleFocus(){
             
             {/* DATE TIME PICKER */}
             <ModalContainer 
-                title="Titel" 
-                subtitle={`text\nder\nmega\nlange\nist\nder\nmega\nlange\nist\nder\nmega\nlange\nist\nder\nmega\nlange\nist\nder\nmega\nlange\nist\nder\nmega\nlange\nist\nder\nmega\nlange\nist`} 
+                title={modalTexts.datePicker.title[language]} 
+                subtitle={modalTexts.datePicker.text[language]} 
                 visible={showDateTime} 
                 setVisible={setShowDateTime}
                 content={<DateTimePicker
@@ -195,8 +196,8 @@ function handleFocus(){
         
             {/* COLOR PICKER */}
             <ModalContainer
-                title={`ColorPicker`}
-                subtitle={`Pick Colors`}
+                title={modalTexts.colorPicker.title[language]}
+                subtitle={modalTexts.colorPicker.text[language]}
                 visible={showModal}
                 setVisible={setShowModal}
                 content={<ColorPicker style={{ width: '100%', padding: 10 }} value={gunData ? gunData[data] : "#000"} onComplete={onSelectColor}>
@@ -212,8 +213,8 @@ function handleFocus(){
 
             {/* CALIBER PICKER */}
             <ModalContainer
-                title={`ColorPicker`}
-                subtitle={`Pick Colors`}
+                title={modalTexts.caliberPicker.title[language]}
+                subtitle={modalTexts.caliberPicker.text[language]}
                 visible={showModalCaliber}
                 setVisible={setShowModalCaliber}
                 content={<List.Section style={{width: "100%", flexDirection: "column", height: "100%"}}>
