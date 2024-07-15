@@ -145,3 +145,57 @@ export function sanitizeFileName(fileName) {
     
     return sanitized;
 }
+
+function mapIntervals(interval){
+    switch(interval){
+        case "day_1":
+            return 1
+        case "day_7":
+            return 7
+        case "day_14":
+            return 14
+        case "month_1":
+            return 30
+        case "month_3":
+            return 90
+        case "month_6":
+            return 180
+        case "month_9":
+            return 270
+        case "year_1":
+            return 365
+        case "year_5":
+            return 365*5
+        case "year_10":
+            return 3650
+        default:
+            return 0
+    }
+}
+
+export function checkDate(gun:GunType){
+    if(gun.lastCleanedAt === undefined){
+        return
+    }
+    if(gun.lastCleanedAt === null){
+        return
+    }
+    if(gun.cleanInterval === undefined){
+        return
+    }
+    if(gun.cleanInterval === "none"){
+        return
+    }
+    const oneDay = 24 * 60 * 60 * 1000; // hours*minutes*seconds*milliseconds
+    let [day, month, year] = gun.lastCleanedAt.split('.')
+    const firstDate = new Date(Number(year), Number(month) - 1, Number(day)).getTime()
+    const todayYear = new Date().getFullYear()
+    const todayMonth = new Date().getMonth()
+    const todayDay = new Date().getDate()
+    const secondDate = new Date(todayYear, todayMonth, todayDay).getTime()
+    const diffDays = Math.round(Math.abs((Number(firstDate) - Number(secondDate)) / oneDay));
+    if(diffDays > mapIntervals(gun.cleanInterval)){
+        return true
+    }
+    return false
+}
