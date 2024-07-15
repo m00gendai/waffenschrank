@@ -9,6 +9,7 @@ import { useViewStore } from '../stores/useViewStore';
 import { useGunStore } from '../stores/useGunStore';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { checkDate } from '../utils';
 
 interface Props{
     gun: GunType
@@ -44,7 +45,7 @@ export default function GunCard({gun}:Props){
             <Card.Title
                 titleStyle={{
                 width: displayAsGrid ? "100%" : generalSettings.displayImagesInListViewGun ? "60%" : "80%",
-                color: theme.colors.onSurfaceVariant
+                color: checkDate(gun) ? theme.colors.error : theme.colors.onSurfaceVariant
                 }}
                 subtitleStyle={{
                 width: displayAsGrid ? "100%" : generalSettings.displayImagesInListViewGun ? "60%" : "80%",

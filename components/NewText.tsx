@@ -1,7 +1,7 @@
-import { IconButton, List, Surface, TextInput, Text, Badge, Portal, Modal } from 'react-native-paper';
+import { IconButton, List, Surface, TextInput, Text, Badge, Portal, Modal, RadioButton, Divider } from 'react-native-paper';
 import { useState } from 'react';
 import { GunType, AmmoType } from '../interfaces';
-import { TouchableNativeFeedback, View, ScrollView } from 'react-native';
+import { TouchableNativeFeedback, View, ScrollView, Pressable } from 'react-native';
 import DateTimePicker from 'react-native-ui-datepicker';
 import dayjs from 'dayjs';
 import ColorPicker, { Panel1, Swatches, Preview, HueSlider } from 'reanimated-color-picker';
@@ -9,7 +9,7 @@ import { calibers } from '../lib/caliberData';
 import { usePreferenceStore } from '../stores//usePreferenceStore';
 import { defaultModalBackdrop, defaultViewPadding, requiredFieldsAmmo, requiredFieldsGun } from '../configs';
 import ModalContainer from './ModalContainer';
-import { modalTexts } from '../lib/textTemplates';
+import { cleanIntervals, modalTexts } from '../lib/textTemplates';
 
 interface Props{
     data: string
@@ -28,17 +28,20 @@ export default function NewText({data, gunData, setGunData, ammoData, setAmmoDat
     const [initialDate, setInitialDate] = useState<string>(gunData ? gunData[data] : ammoData ? ammoData[data] : "")
     const [showModal, setShowModal] = useState(false);
     const [showModalCaliber, setShowModalCaliber] = useState<boolean>(false)
+    const [showCleanModal, setShowCleanModal] = useState<boolean>(false)
     const [color, setColor] = useState<string>(gunData ? gunData[data] : "#000")
     const [activeCaliber, setActiveCaliber] = useState<string[]>(gunData && data === "caliber" && gunData[data] !== undefined ? gunData[data] : ammoData && data === "caliber" && ammoData[data] !== undefined ? [ammoData[data]] : [])
+    const [cleanInterval, setCleanInterval] = useState<string | null>(null)
+    const [checked, setChecked] = useState<string>("-")
 
+    const { language, theme } = usePreferenceStore()
 
     const [charCount, setCharCount] = useState(0)
     const [isBackspace, setIsBackspace] = useState<boolean>(false)
     const [isFocus, setFocus] = useState<boolean>(false)
 
     const MAX_CHAR_COUNT: number = 100
-
-    const { language, theme } = usePreferenceStore()
+    const cleanIntervalOptions:string[] = ["none", "day_1", "day_7", "day_14", "month_1", "month_3", "month_6", "month_9", "year_1", "year_5", "year_10"]    
 
     function updateGunData(input:string | string[]){
         if(charCount < MAX_CHAR_COUNT){
@@ -132,6 +135,15 @@ export default function NewText({data, gunData, setGunData, ammoData, setAmmoDat
         setShowModalCaliber(false)
     }
 
+    function handleCleanIntervalConfirm(){
+        updateGunData(checked)
+        setShowCleanModal(false)
+    }
+
+    function handleCleanIntervalCancel(){
+        setShowCleanModal(false)
+    }
+
 function handleFocus(){
     setFocus(true)
     setCharCount(input !== undefined ? input.length : 0)
@@ -148,6 +160,7 @@ function handleFocus(){
                     data === "mainColor" ? setShowModal(true) : 
                     data === "caliber" ? setShowModalCaliber(true) : 
                     data === "lastTopUpAt" ? setShowDateTime(true) : 
+                    data === "cleanInterval" ? setShowCleanModal(true) :
                     null}}
             >          
                 <View style={{flex: 1}}>
@@ -158,8 +171,8 @@ function handleFocus(){
                         }}
                         onFocus={()=>handleFocus()}
                         onBlur={()=>setFocus(false)}
-                        value={input === undefined ? "" : input.toString()}
-                        editable={data === "acquisitionDate" ? false : data === "mainColor" ? false : data === "caliber" ? false : data === "lastCleanedAt" ? false : data === "lastShotAt" ? false : data === "lastTopUpAt" ? false : true}
+                        value={input === undefined ? "" : data === "cleanInterval" ? gunData[data] !== undefined && gunData[data] ? cleanIntervals[input][language] : input.toString() : input.toString()}
+                        editable={data === "acquisitionDate" ? false : data === "mainColor" ? false : data === "caliber" ? false : data === "lastCleanedAt" ? false : data === "lastShotAt" ? false : data === "lastTopUpAt" ? false : data === "cleanInterval" ? false : true}
                         showSoftInputOnFocus={data === "acquisitionDate" ? false : true}
                         onChangeText={input => gunData !== undefined ? updateGunData(input) : updateAmmoData(input)}
                         onKeyPress={({nativeEvent}) => setIsBackspace(nativeEvent.key === "Backspace" ? true : false)}
@@ -249,10 +262,37 @@ function handleFocus(){
             buttonDEL={null}
             />
 
-        </View>
+            {/* CLEAN INTERVAL */}
+            <ModalContainer
+                title={modalTexts.cleanInterval.title[language]}
+                subtitle={modalTexts.cleanInterval.text[language]}
+                visible={showCleanModal}
+                setVisible={setShowCleanModal}
+                content={<View style={{width: "100%", display: "flex", padding: defaultViewPadding}}>
+                    <ScrollView>
+                        {cleanIntervalOptions.map((option, index)=>{
+                            return (
+                                <View key={`cleanIntervalOption__${index}`}>
+                                    <TouchableNativeFeedback onPress={() => setChecked(option)}>
+                                        <View style={{width: "100%", display: "flex", flexDirection: "row", alignItems: "center", marginBottom: defaultViewPadding, marginTop: defaultViewPadding}}>
+                                            <Text style={{flex: 9}}>{cleanIntervals[option][language]}</Text>
+                                            <RadioButton
+                                                value={option}
+                                                status={ checked === option ? 'checked' : 'unchecked' }
+                                                onPress={() => setChecked(option)}
+                                            />
+                                        </View>
+                                    </TouchableNativeFeedback>
+                                    {index < cleanIntervalOptions.length-1 ? <Divider /> : null}
+                                </View>
+                            )
+                        })}
+                    </ScrollView>
+                </View>}
+                buttonACK={<IconButton icon="check" onPress={() => handleCleanIntervalConfirm()} style={{width: 50, backgroundColor: theme.colors.primary}} iconColor={theme.colors.onPrimary}/>}
+                buttonCNL={<IconButton icon="cancel" onPress={() => handleCleanIntervalCancel()} style={{width: 50, backgroundColor: theme.colors.secondaryContainer}} iconColor={theme.colors.onSecondaryContainer} />}
+                buttonDEL={null}
+            />
+            </View>
     )
 }
-
-/*
-
-                    */

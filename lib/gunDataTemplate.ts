@@ -83,6 +83,14 @@ export const gunDataTemplate:{name:string, de:string, en:string, fr:string, it: 
         ch: "Chargia da tir",
     },
     {
+        name: "lastShotAt",
+        de: "Zuletzt geschossen",
+        en: "Last shot",
+        fr: "Derniers tirs",
+        it: "Ultimo colpo",
+        ch: "L'ultim culp",
+    },
+    {
         name: "lastCleanedAt",
         de: "Zuletzt gereinigt",
         en: "Last cleaned",
@@ -91,12 +99,12 @@ export const gunDataTemplate:{name:string, de:string, en:string, fr:string, it: 
         ch: "Il davos purifitgà",
     },
     {
-        name: "lastShotAt",
-        de: "Zuletzt geschossen",
-        en: "Last shot",
-        fr: "Derniers tirs",
-        it: "Ultimo colpo",
-        ch: "L'ultim culp",
+        name: "cleanInterval",
+        de: "Reinigungsintervall",
+        en: "Cleaning interval",
+        fr: "Intervalle de nettoyage",
+        it: "Intervallo di pulizia",
+        ch: "Interval da nettegiar",
     },
     {
             name: "mainColor",

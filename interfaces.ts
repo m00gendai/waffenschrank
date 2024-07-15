@@ -21,6 +21,7 @@ export interface GunType{
   lastShotAt?: string
   lastCleanedAt?: string
   paidPrice?: string
+  cleanInterval?: string | null
 }
 
 export interface GunTypeStatus{

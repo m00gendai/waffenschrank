@@ -1,5 +1,5 @@
 import { StyleSheet, View, ScrollView, Alert, TouchableNativeFeedback, TouchableOpacity } from 'react-native';
-import { Button, Appbar, Icon, Checkbox, Chip, Text, Portal, Dialog, Modal } from 'react-native-paper';
+import { Button, Appbar, Icon, Checkbox, Chip, Text, Portal, Dialog, Modal, IconButton } from 'react-native-paper';
 import { checkBoxes, gunDataTemplate, gunRemarks } from "../lib/gunDataTemplate"
 import * as SecureStore from "expo-secure-store"
 import { useState} from "react"
@@ -10,10 +10,11 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { usePreferenceStore } from '../stores/usePreferenceStore';
 import { useViewStore } from '../stores/useViewStore';
 import { useGunStore } from '../stores/useGunStore';
-import { gunDeleteAlert } from '../lib/textTemplates';
+import { cleanIntervals, gunDeleteAlert } from '../lib/textTemplates';
 import { printSingleGun } from '../functions/printToPDF';
 import { GunType } from '../interfaces';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { checkDate } from '../utils';
 
 
 export default function Gun({navigation}){
@@ -126,8 +127,14 @@ export default function Gun({navigation}){
                                     {Array.isArray(currentGun[item.name]) ?
                                     <Text style={{width: "100%", fontSize: 18, marginBottom: 5, paddingBottom: 5, borderBottomColor: theme.colors.primary, borderBottomWidth: 0.2}}>{currentGun[item.name] ? currentGun[item.name].join("\n") : ""}</Text>
                                     :
-                                    <Text style={{width: "100%", fontSize: 18, marginBottom: 5, paddingBottom: 5, borderBottomColor: theme.colors.primary, borderBottomWidth: 0.2}}>{item.name === "paidPrice" ? `CHF ${currentGun[item.name] ? currentGun[item.name] : ""}` : currentGun[item.name]}</Text>
+                                    <Text style={{width: "100%", fontSize: 18, marginBottom: 5, paddingBottom: 5, borderBottomColor: theme.colors.primary, borderBottomWidth: 0.2}}>{item.name === "paidPrice" ? `CHF ${currentGun[item.name] ? currentGun[item.name] : ""}` : item.name === "cleanInterval" && currentGun[item.name] !== undefined ? cleanIntervals[currentGun[item.name]][language] : currentGun[item.name]}</Text>
                                     }
+                                    {item.name === "lastCleanedAt" && checkDate(currentGun) ? 
+                                        <View style={{position:"absolute", top: 0, right: 0, bottom: 0, left: 0, display: "flex", flexDirection: "row", justifyContent: "flex-end", alignItems: "center"}}>
+                                            <IconButton icon="spray-bottle" iconColor={theme.colors.error} /><IconButton icon="toothbrush" iconColor={theme.colors.error} />
+                                        </View> 
+                                    : 
+                                    null}
                                     {item.name === "mainColor" ? 
                                         <View style={{position:"absolute", top: 0, right: 0, bottom: 0, left: 0, display: "flex", flexDirection: "row", justifyContent: "flex-end", alignItems: "center"}}>
                                             <View style={{height: "50%", aspectRatio: "5/1", borderRadius: 50, backgroundColor: `${currentGun.mainColor}`, transform:[{translateY: -5}]}}></View>
