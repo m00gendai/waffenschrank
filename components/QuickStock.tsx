@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { View } from "react-native";
-import { IconButton, Text, TextInput } from "react-native-paper"
+import { Button, Dialog, IconButton, Text, TextInput } from "react-native-paper"
 import { usePreferenceStore } from "../stores/usePreferenceStore";
 import { AMMO_DATABASE, dateLocales, defaultViewPadding } from "../configs";
 import { AmmoType } from "../interfaces";
@@ -17,6 +17,7 @@ export default function QuickStock({navigation}){
     const [input, setInput] = useState<string>("")
     const { ammoDbImport, displayAmmoAsGrid, setDisplayAmmoAsGrid, toggleDisplayAmmoAsGrid, sortAmmoBy, setSortAmmoBy, language, theme, sortAmmoIcon, setSortAmmoIcon } = usePreferenceStore()
     const { ammoCollection, setAmmoCollection, currentAmmo, setCurrentAmmo } = useAmmoStore()
+    const [seeInfo, toggleSeeInfo] = useState<boolean>(false)
 
     async function saveNewStock(ammo:AmmoType){
         const date:Date = new Date()
@@ -48,9 +49,9 @@ export default function QuickStock({navigation}){
         <View style={{width: "100%", height: "100%", display: "flex", flexDirection: "row", justifyContent: "center", alignItems: "center", flexWrap: "wrap", backgroundColor: theme.colors.backdrop}}>
             <View style={{width: "85%", height: "100%", display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", flexWrap: "wrap"}}>
                 <View style={{backgroundColor: theme.colors.background, width: "100%", display: "flex", flexDirection: "row", flexWrap: "wrap"}}>
-                  <View style={{padding: defaultViewPadding}}>
-                    <Text style={{color: theme.colors.onBackground}}>{ammoQuickUpdate.title[language]}</Text>
-                  </View>
+                <View style={{borderTopLeftRadius: 25, borderTopRightRadius: 25, width: "100%", backgroundColor: theme.colors.background, borderBottomColor: theme.colors.primary, borderBottomWidth: 1, marginBottom: 5}}>
+                            <View style={{display: "flex", flexDirection: "row"}}><Text variant="titleLarge" style={{color: theme.colors.primary, padding: defaultViewPadding, flex: 9}}>{`QuickStock`}</Text><IconButton style={{flex: 1}} icon="help-circle-outline" onPress={()=>toggleSeeInfo(true)}/></View>
+                        </View>
                   <View style={{width: "100%", display: "flex", flexDirection: "row", padding: defaultViewPadding, flexWrap: "wrap"}}>
                     <View style={{width: "100%", display: "flex", flexDirection: "row", justifyContent: "center",  marginBottom: 10}}>
                       <IconButton mode="contained" icon="plus" selected={stockChange === "inc" ? true : false} onPress={()=>setStockChange("inc")}/>
@@ -71,6 +72,14 @@ export default function QuickStock({navigation}){
                   </View>
               </View>
           </View>
+          <Dialog visible={seeInfo}>
+             <Dialog.Content>
+               <Text variant="bodyMedium">{`${ammoQuickUpdate.title[language]}`}</Text>
+             </Dialog.Content>
+             <Dialog.Actions>
+          <Button onPress={() => toggleSeeInfo(false)}>OK</Button>
+        </Dialog.Actions>
+             </Dialog>
           </View>
     )
 }

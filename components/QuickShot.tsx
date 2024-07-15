@@ -1,5 +1,5 @@
 import { ScrollView, View } from "react-native";
-import { HelperText, IconButton, List, Text, TextInput } from "react-native-paper";
+import { Button, Dialog, HelperText, IconButton, List, Text, TextInput } from "react-native-paper";
 import { usePreferenceStore } from "../stores/usePreferenceStore";
 import { AMMO_DATABASE, GUN_DATABASE, dateLocales, defaultViewPadding } from "../configs";
 import { gunQuickShot } from "../lib/textTemplates";
@@ -16,6 +16,7 @@ export default function QuickShot({navigation}){
     const { ammoCollection, setAmmoCollection, currentAmmo, setCurrentAmmo } = useAmmoStore()
     const [shotCountFromStock, setShotCountFromStock] = useState<string[]>([])
     const [shotCountNonStock, setShotCountNonStock] = useState<string>("")
+    const [seeInfo, toggleSeeInfo] = useState<boolean>(false)
 
     async function save(value: GunType) {
         await SecureStore.setItemAsync(`${GUN_DATABASE}_${value.id}`, JSON.stringify(value)) // Save the gun
@@ -88,9 +89,9 @@ return(
                     <View style={{width: "85%", height: "100%", display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", flexWrap: "wrap"}}>
                         <View style={{backgroundColor: theme.colors.background, width: "100%", height: "75%"}}>
                             <List.Section style={{flex: 1}}>
-                  <View style={{padding: defaultViewPadding}}>
-                      <Text variant="titleMedium" style={{color: theme.colors.primary}}>{`${gunQuickShot.title[language]}`}</Text>
-                  </View>
+                   <View style={{borderTopLeftRadius: 25, borderTopRightRadius: 25, width: "100%", backgroundColor: theme.colors.background, borderBottomColor: theme.colors.primary, borderBottomWidth: 1, marginBottom: 5}}>
+                            <View style={{display: "flex", flexDirection: "row"}}><Text variant="titleLarge" style={{color: theme.colors.primary, padding: defaultViewPadding, flex: 9}}>{`QuickShot`}</Text><IconButton style={{flex: 1}} icon="help-circle-outline" onPress={()=>toggleSeeInfo(true)}/></View>
+                        </View>
                   <ScrollView>
                   {currentGun !== null && currentGun.caliber !== undefined && currentGun.caliber !== null && currentGun.caliber.length !== 0 ? 
                     <List.Accordion title={gunQuickShot.updateFromStock[language]} titleStyle={{color: theme.colors.onBackground}}>
@@ -135,6 +136,14 @@ return(
                       </View>
                         </View>
                     </View>
+                    <Dialog visible={seeInfo}>
+             <Dialog.Content>
+               <Text variant="bodyMedium">{`${gunQuickShot.title[language]}`}</Text>
+             </Dialog.Content>
+             <Dialog.Actions>
+          <Button onPress={() => toggleSeeInfo(false)}>OK</Button>
+        </Dialog.Actions>
+             </Dialog>
                 </View>
 )
                     }
