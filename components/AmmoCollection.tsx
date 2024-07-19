@@ -1,6 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useEffect, useState } from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { FlatList, ScrollView, StyleSheet, View } from 'react-native';
 import { Appbar, FAB, IconButton, Menu, Modal, Portal, Switch, TextInput, Text, Tooltip, Searchbar } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { AMMO_DATABASE, A_KEY_DATABASE, PREFERENCES, A_TAGS, defaultGridGap, defaultViewPadding, dateLocales } from '../configs';
@@ -225,34 +225,34 @@ const pulsate = useAnimatedStyle(() => {
           </View>
         </Appbar>
         <Animated.View style={[{paddingLeft: defaultViewPadding, paddingRight: defaultViewPadding}, animatedStyle]}>{searchBannerVisible ? <Searchbar placeholder={search[language]} onChangeText={setSearchQuery} value={searchQuery} /> : null}</Animated.View>
-        <ScrollView 
-          style={{
-            width: "100%", 
-            height: "100%", 
-            flexDirection: "column", 
-            flexWrap: "wrap",
-            backgroundColor: theme.colors.background
-          }}
-        >
-          <View 
-            style={styles.container}
-          >
-            {ammoCollection.length !== 0 && !isFilterOn ? ammoCollection.map(ammo =>{
-              return (
-                searchQuery !== "" ? ammo.manufacturer.toLowerCase().includes(searchQuery.toLowerCase()) || ammo.designation.toLowerCase().includes(searchQuery.toLowerCase()) ? <AmmoCard key={ammo.id} ammo={ammo} /> : null : <AmmoCard key={ammo.id} ammo={ammo} />
-              )
-            }) 
-            :
-            ammoCollection.length !== 0 && isFilterOn ? ammoList.map(ammo =>{
-              return <AmmoCard key={ammo.id} ammo={ammo}/>
-            })
-            :
-            null}
-          </View>
-        </ScrollView>
-        
-        
-
+        {displayAmmoAsGrid ? 
+          <FlatList 
+            numColumns={2} 
+            initialNumToRender={10} 
+            contentContainerStyle={{gap: defaultGridGap}}
+            columnWrapperStyle={{gap: defaultGridGap}} 
+            key={`gunCollectionGrid`} 
+            style={{height: "100%", width: "100%", paddingTop: defaultViewPadding, paddingLeft: defaultViewPadding, paddingRight: defaultViewPadding, paddingBottom: 50}} 
+            data={searchQuery !== "" ? ammoCollection.filter(item => item.manufacturer.toLowerCase().includes(searchQuery.toLowerCase()) || item.designation.toLowerCase().includes(searchQuery.toLowerCase())) : ammoCollection} 
+            renderItem={({item, index}) => <AmmoCard ammo={item} />}                     
+            keyExtractor={gun=>gun.id} 
+            ListFooterComponent={<View style={{width: "100%", height: 100}}></View>}
+            ListEmptyComponent={null}
+          />
+        :
+          <FlatList 
+            numColumns={1} 
+            initialNumToRender={10} 
+            contentContainerStyle={{gap: defaultGridGap}}
+            key={`gunCollectionList`} 
+            style={{height: "100%", width: "100%", paddingTop: defaultViewPadding, paddingLeft: defaultViewPadding, paddingRight: defaultViewPadding, paddingBottom: 50}} 
+            data={searchQuery !== "" ? ammoCollection.filter(item => item.manufacturer.toLowerCase().includes(searchQuery.toLowerCase()) || item.designation.toLowerCase().includes(searchQuery.toLowerCase())) : ammoCollection} 
+            renderItem={({item, index}) => <AmmoCard ammo={item} />}      
+            keyExtractor={gun=>gun.id} 
+            ListFooterComponent={<View style={{width: "100%", height: 100}}></View>}
+            ListEmptyComponent={null}
+          />
+        }
 
       <Animated.View style={[{position: "absolute", bottom: 0, right: 0, margin: 16, width: 56, height: 56, backgroundColor: "transparent", display: "flex", justifyContent: "center", alignItems: "center"}, ammoCollection.length === 0 ? pulsate : null]}>
       <FAB
