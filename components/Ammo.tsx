@@ -71,6 +71,7 @@ export default function Ammo({navigation}){
         const index:number = ammoCollection.indexOf(ammo)
         const newCollection:AmmoType[] = ammoCollection.toSpliced(index, 1)
         setAmmoCollection(newCollection)
+        toggleDialogVisible(false)
         navigation.goBack()
     }
 
