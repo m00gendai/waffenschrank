@@ -1,6 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useEffect, useState } from 'react';
-import { Dimensions, ScrollView, StyleSheet, TouchableNativeFeedback, View } from 'react-native';
+import { Dimensions, FlatList, ScrollView, StyleSheet, TouchableNativeFeedback, View } from 'react-native';
 import { Appbar, Card, FAB, Menu, Modal, Portal, Switch, useTheme, Text, Tooltip, Banner, Searchbar, IconButton, TextInput, List, HelperText } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { AMMO_DATABASE, GUN_DATABASE, KEY_DATABASE, PREFERENCES, TAGS, dateLocales, defaultGridGap, defaultViewPadding } from '../configs';
@@ -223,32 +223,38 @@ const pulsate = useAnimatedStyle(() => {
           </View>
         </Appbar>
         <Animated.View style={[{paddingLeft: defaultViewPadding, paddingRight: defaultViewPadding}, animatedStyle]}>{searchBannerVisible ? <Searchbar placeholder={search[language]} onChangeText={setSearchQuery} value={searchQuery} /> : null}</Animated.View>
-        <ScrollView 
-          style={{
-            width: "100%", 
-            height: "100%", 
-            flexDirection: "column", 
-            flexWrap: "wrap"
-          }}
-        >
-          <View 
-            style={styles.container}
-          >
-            {gunCollection.length !== 0 && !isFilterOn ? gunCollection.map(gun =>{
-              return(
-                searchQuery !== "" ? gun.manufacturer.toLowerCase().includes(searchQuery.toLowerCase()) || gun.model.toLowerCase().includes(searchQuery.toLowerCase()) ? <GunCard key={gun.id} gun={gun} /> : null : <GunCard key={gun.id} gun={gun} />
-              )
-            }) 
-            :
-            gunCollection.length !== 0 && isFilterOn ? gunList.map(gun =>{
-              return (
-                searchQuery !== "" ? gun.manufacturer.toLowerCase().includes(searchQuery.toLowerCase()) || gun.model.toLowerCase().includes(searchQuery.toLowerCase()) ? <GunCard key={gun.id} gun={gun} /> : null : <GunCard key={gun.id} gun={gun} />
-              )
-            })
-            :
-            null}
-          </View>
-        </ScrollView>
+
+
+              {displayAsGrid ? 
+                <FlatList 
+                  numColumns={2} 
+                  initialNumToRender={10} 
+                  contentContainerStyle={{gap: defaultGridGap}}
+                  columnWrapperStyle={{gap: defaultGridGap}} 
+                  key={`gunCollectionGrid`} 
+                  style={{height: "100%", width: "100%", paddingTop: defaultViewPadding, paddingLeft: defaultViewPadding, paddingRight: defaultViewPadding, paddingBottom: 50}} 
+                  data={searchQuery !== "" ? gunCollection.filter(item => item.manufacturer.toLowerCase().includes(searchQuery.toLowerCase()) || item.model.toLowerCase().includes(searchQuery.toLowerCase())) : gunCollection} 
+                  renderItem={({item, index}) => <GunCard gun={item} />}                     
+                  keyExtractor={gun=>gun.id} 
+                  ListFooterComponent={<View style={{width: "100%", height: 100}}></View>}
+                  ListEmptyComponent={null}
+                />
+              :
+                <FlatList 
+                  numColumns={1} 
+                  initialNumToRender={10} 
+                  contentContainerStyle={{gap: defaultGridGap}}
+                  key={`gunCollectionList`} 
+                  style={{height: "100%", width: "100%", paddingTop: defaultViewPadding, paddingLeft: defaultViewPadding, paddingRight: defaultViewPadding, paddingBottom: 50}} 
+                  data={searchQuery !== "" ? gunCollection.filter(item => item.manufacturer.toLowerCase().includes(searchQuery.toLowerCase()) || item.model.toLowerCase().includes(searchQuery.toLowerCase())) : gunCollection} 
+                  renderItem={({item, index}) => <GunCard gun={item} />}      
+                  keyExtractor={gun=>gun.id} 
+                  ListFooterComponent={<View style={{width: "100%", height: 100}}></View>}
+                  ListEmptyComponent={null}
+                />
+}
+      
+
 
 
       <Animated.View style={[{position: "absolute", bottom: 0, right: 0, margin: 16, width: 56, height: 56, backgroundColor: "transparent", display: "flex", justifyContent: "center", alignItems: "center"}, gunCollection.length === 0 ? pulsate : null]}>
