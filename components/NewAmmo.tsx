@@ -30,7 +30,7 @@ export default function NewAmmo({navigation}){
     const [selectedImage, setSelectedImage] = useState<string[]>(null)
     const [initCheck, setInitCheck] = useState<boolean>(true)
     const [granted, setGranted] = useState<boolean>(false)
-    const [ammoData, setAmmoData] = useState<AmmoType>(null)
+    const [ammoData, setAmmoData] = useState<AmmoType>(exampleAmmoEmpty)
     const [ammoDataCompare, setAmmoDataCompare] = useState<AmmoType>(exampleAmmoEmpty)
     const [visible, setVisible] = useState<boolean>(false);
     const [snackbarText, setSnackbarText] = useState<string>("")
