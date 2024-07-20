@@ -11,7 +11,7 @@ export const defaultModalBackdrop:string = "rgba(0,0,0,0.1)"
 /* Gun Collection databases */
 export const KEY_DATABASE:string = "key0009"
 export const GUN_DATABASE:string = "gun0009"
-export const TAGS:string = "tag0011"
+export const TAGS:string = "tag0013"
 
 /* Ammo Collection databases */
 export const A_KEY_DATABASE:string = "akey0009"
