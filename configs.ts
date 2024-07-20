@@ -16,7 +16,7 @@ export const TAGS:string = "tag0013"
 /* Ammo Collection databases */
 export const A_KEY_DATABASE:string = "akey0009"
 export const AMMO_DATABASE:string = "ammo0009"
-export const A_TAGS:string = "atag0011"
+export const A_TAGS:string = "atag0012"
 
 /* Preferences database is shared */
 export const PREFERENCES:string = "pre0018"
