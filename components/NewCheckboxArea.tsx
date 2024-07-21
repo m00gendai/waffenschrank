@@ -37,8 +37,8 @@ export default function NewCheckboxArea({data, gunData, setGunData}: Props){
         setChecked(newChecked)
         setGunData({...gunData, [data]: newChecked})
     }
-
-    const [checked, setChecked] = useState<{key:boolean}>(gunData && gunData[data] ? gunData[data] : convertArrayToObject(checkBoxes));
+console.log(gunData)
+    const [checked, setChecked] = useState<{key:boolean}>(gunData.id !== undefined && gunData.id !== "" ? gunData[data] : convertArrayToObject(checkBoxes));
 
     return(
         <View>
