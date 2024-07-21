@@ -1,5 +1,5 @@
-import { StyleSheet, View, Modal, ScrollView, Alert, TouchableNativeFeedback, TouchableOpacity } from 'react-native';
-import { Button, Appbar, Icon, Checkbox, Chip, Text, Portal, Dialog } from 'react-native-paper';
+import { StyleSheet, View, ScrollView, Alert, TouchableNativeFeedback, TouchableOpacity } from 'react-native';
+import { Button, Appbar, Icon, Checkbox, Chip, Text, Portal, Dialog, Modal, IconButton } from 'react-native-paper';
 import { checkBoxes, gunDataTemplate, gunRemarks } from "../lib/gunDataTemplate"
 import * as SecureStore from "expo-secure-store"
 import { useState} from "react"
@@ -10,12 +10,14 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { usePreferenceStore } from '../stores/usePreferenceStore';
 import { useViewStore } from '../stores/useViewStore';
 import { useGunStore } from '../stores/useGunStore';
-import { gunDeleteAlert } from '../lib/textTemplates';
+import { cleanIntervals, gunDeleteAlert } from '../lib/textTemplates';
 import { printSingleGun } from '../functions/printToPDF';
 import { GunType } from '../interfaces';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { checkDate } from '../utils';
 
 
-export default function Gun(){
+export default function Gun({navigation}){
 
     const [lightBoxIndex, setLightBoxIndex] = useState<number>(0)
     const [dialogVisible, toggleDialogVisible] = useState<boolean>(false)
@@ -60,7 +62,6 @@ export default function Gun(){
     })
 
     async function deleteItem(gun){
-        
         // Deletes gun in gun database
         await SecureStore.deleteItemAsync(`${GUN_DATABASE}_${gun.id}`)
 
@@ -72,17 +73,18 @@ export default function Gun(){
         const index:number = gunCollection.indexOf(gun)
         const newCollection:GunType[] = gunCollection.toSpliced(index, 1)
         setGunCollection(newCollection)
-        setSeeGunOpen()
+        toggleDialogVisible(false)
+        navigation.goBack()
     }
 
     return(
-        <View style={{width: "100%", height: "100%", backgroundColor: theme.colors.background}}>
+        <View style={{flex: 1}}>
             
             <Appbar style={{width: "100%"}}>
-                <Appbar.BackAction  onPress={() => setSeeGunOpen()} />
+                <Appbar.BackAction  onPress={() => navigation.goBack()} />
                 <Appbar.Content title={`${currentGun.manufacturer !== undefined? currentGun.manufacturer : ""} ${currentGun.model}`} />
                 <Appbar.Action icon="printer" onPress={()=>printSingleGun(currentGun, language)} />
-                <Appbar.Action icon="pencil" onPress={setEditGunOpen} />
+                <Appbar.Action icon="pencil" onPress={()=>navigation.navigate("EditGun")} />
             </Appbar>
         
             <View style={styles.container}>   
@@ -125,8 +127,14 @@ export default function Gun(){
                                     {Array.isArray(currentGun[item.name]) ?
                                     <Text style={{width: "100%", fontSize: 18, marginBottom: 5, paddingBottom: 5, borderBottomColor: theme.colors.primary, borderBottomWidth: 0.2}}>{currentGun[item.name] ? currentGun[item.name].join("\n") : ""}</Text>
                                     :
-                                    <Text style={{width: "100%", fontSize: 18, marginBottom: 5, paddingBottom: 5, borderBottomColor: theme.colors.primary, borderBottomWidth: 0.2}}>{item.name === "paidPrice" ? `CHF ${currentGun[item.name] ? currentGun[item.name] : ""}` : currentGun[item.name]}</Text>
+                                    <Text style={{width: "100%", fontSize: 18, marginBottom: 5, paddingBottom: 5, borderBottomColor: theme.colors.primary, borderBottomWidth: 0.2}}>{item.name === "paidPrice" ? `CHF ${currentGun[item.name] ? currentGun[item.name] : ""}` : item.name === "cleanInterval" && currentGun[item.name] !== undefined ? cleanIntervals[currentGun[item.name]][language] : currentGun[item.name]}</Text>
                                     }
+                                    {item.name === "lastCleanedAt" && checkDate(currentGun) ? 
+                                        <View style={{position:"absolute", top: 0, right: 0, bottom: 0, left: 0, display: "flex", flexDirection: "row", justifyContent: "flex-end", alignItems: "center"}}>
+                                            <IconButton icon="spray-bottle" iconColor={theme.colors.error} /><IconButton icon="toothbrush" iconColor={theme.colors.error} />
+                                        </View> 
+                                    : 
+                                    null}
                                     {item.name === "mainColor" ? 
                                         <View style={{position:"absolute", top: 0, right: 0, bottom: 0, left: 0, display: "flex", flexDirection: "row", justifyContent: "flex-end", alignItems: "center"}}>
                                             <View style={{height: "50%", aspectRatio: "5/1", borderRadius: 50, backgroundColor: `${currentGun.mainColor}`, transform:[{translateY: -5}]}}></View>
@@ -149,12 +157,9 @@ export default function Gun(){
                         </View>
                     </View>
                     
-                    <Modal visible={editGunOpen}>
-                        <EditGun />
-                    </Modal>
-
-                    <Modal visible={lightBoxOpen} transparent>
-                        <View style={{width: "100%", height: "100%", padding: 0, flex: 1, flexDirection: "column", flexWrap: "wrap"}}>
+                    <Portal>
+                    <Modal visible={lightBoxOpen} onDismiss={setLightBoxOpen}>
+                        <View style={{width: "100%", height: "100%", padding: 0, flexDirection: "column", flexWrap: "wrap"}}>
                             <View style={{width: "100%", flexDirection: "row", justifyContent:"flex-end", alignItems: "center", alignContent: "center", backgroundColor: "black", flex: 2}}>
                                 <View style={{backgroundColor: "black", padding: 0}}>
                                     <TouchableOpacity onPress={setLightBoxOpen} style={{padding: 10}}>
@@ -164,7 +169,8 @@ export default function Gun(){
                             </View>
                           {lightBoxOpen ? <ImageViewer isLightBox={true} selectedImage={currentGun.images[lightBoxIndex]}/> : null}
                         </View>
-                    </Modal>       
+                    </Modal>    
+                    </Portal>   
 
                     <Portal>
                         <Dialog visible={dialogVisible} onDismiss={()=>toggleDialogVisible(!dialogVisible)}>

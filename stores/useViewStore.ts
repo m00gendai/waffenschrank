@@ -18,7 +18,7 @@ interface ViewStore {
     lightBoxOpen: boolean
     setLightBoxOpen: () => void
     toastVisible: boolean
-    setToastVisible: () => void
+    setToastVisible: (data: boolean) => void
     dbModalVisible: boolean
     setDbModalVisible: () => void
     imageResizeVisible: boolean
@@ -47,7 +47,7 @@ interface ViewStore {
     lightBoxOpen: false,
     setLightBoxOpen: () => set((state) => ({lightBoxOpen: !state.lightBoxOpen})),
     toastVisible: false,
-    setToastVisible: () => set((state) => ({toastVisible: !state.toastVisible})),
+    setToastVisible: (data: boolean) => set((state) => ({toastVisible: data})),
     dbModalVisible: false,
     setDbModalVisible: () => set((state) => ({dbModalVisible: !state.dbModalVisible})),
     imageResizeVisible: false,

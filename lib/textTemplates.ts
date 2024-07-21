@@ -98,6 +98,114 @@ interface GeneralSettingsLabels{
     resizeImages: SimpleTranslation
 }
 
+interface ModalText{
+    datePicker: ModalTextItems
+    colorPicker: ModalTextItems
+    caliberPicker: ModalTextItems
+    cleanInterval: ModalTextItems
+}
+
+interface ModalTextItems{
+    title: SimpleTranslation
+    text: SimpleTranslation
+}
+
+["-", "1 Tag", "7 Tage", "14 Tage", "1 Monat", "3 Monate", "6 Monate", "9 Monate", "1 Jahr", "5 Jahre", "10 Jahre"]
+
+interface CleanIntervals{
+    none: SimpleTranslation
+    day_1: SimpleTranslation
+    day_7: SimpleTranslation
+    day_14: SimpleTranslation
+    month_1: SimpleTranslation
+    month_3: SimpleTranslation
+    month_6: SimpleTranslation
+    month_9: SimpleTranslation
+    year_1: SimpleTranslation
+    year_5: SimpleTranslation
+    year_10: SimpleTranslation
+}
+
+export const cleanIntervals:CleanIntervals = {
+    none: {
+        de: "-",
+        en: "-",
+        fr: "-",
+        it: "-",
+        ch: "-",
+    },
+    day_1: {
+        de: "1 Tag",
+        en: "1 day",
+        fr: "1 jour",
+        it: "1 giorno",
+        ch: "1 di",
+    },
+    day_7: {
+        de: "1 Woche",
+        en: "1 week",
+        fr: "1 semaine",
+        it: "1 settimana",
+        ch: "1 emna",
+    },
+    day_14: {
+        de: "2 Wochen",
+        en: "2 weeks",
+        fr: "2 semaines",
+        it: "2 settimane",
+        ch: "2 emnas",
+    },
+    month_1:{
+        de: "1 Monat",
+        en: "1 month",
+        fr: "1 mois",
+        it: "1 mese",
+        ch: "1 mais",
+    },
+    month_3: {
+        de: "3 Monate",
+        en: "3 months",
+        fr: "3 mois",
+        it: "3 mesi",
+        ch: "3 mais",
+    },
+    month_6: {
+        de: "6 Monate",
+        en: "6 months",
+        fr: "6 mois",
+        it: "6 mesi",
+        ch: "6 mais",
+    },
+    month_9: {
+        de: "9 Monate",
+        en: "9 months",
+        fr: "9 mois",
+        it: "9 mesi",
+        ch: "9 mais",
+    },
+    year_1: {
+        de: "1 Jahr",
+        en: "1 year",
+        fr: "1 Année",
+        it: "1 anno",
+        ch: "1 onn",
+    },
+    year_5: {
+        de: "5 Jahre",
+        en: "5 years",
+        fr: "5 ans",
+        it: "5 anni",
+        ch: "5 onns",
+    },
+    year_10: {
+        de: "10 Jahre",
+        en: "10' years",
+        fr: "10 ans",
+        it: "10 anni",
+        ch: "10 onns",
+    },
+}
+
 export const editGunTitle:SimpleTranslation = {
     de: "Waffe bearbeiten",
     en: "Edit Gun",
@@ -833,4 +941,71 @@ export const aboutThanks: SimpleTranslation = {
     fr: "Remerciements spéciaux à",
     it: "Un ringraziamento speciale a",
     ch: "Grazia fitg spezial a",
+}
+
+export const modalTexts: ModalText = {
+    datePicker: {
+        title: {
+            de: "Datumsauswahl",
+            en: "Date picker",
+            fr: "Sélection de la date",
+            it: "Selezione della data",
+            ch: "Tscherna da las datas",
+        },
+        text:{
+            de: "Tippe auf das Datum, um es zu setzen.\nDie Pfeile links und rechts wechseln zum vorherigen, respektive nächsten Monat.\nTippe den Monat an, um zur Monatsauswahl zu kommen.\nTippe das Jahr an, um zur Jahresauswahl zu kommen.",
+            en: "Tap on the date to set it.\nThe arrows on the left and right switch to the previous and next month respectively.\nTap on the month to go to the month selection.\nTap on the year to go to the year selection.",
+            fr: "Appuie sur la date pour la définir.\nLes flèches à gauche et à droite passent respectivement au mois précédent et au mois suivant.\nAppuie sur le mois pour accéder à la sélection du mois.\nAppuie sur l'année pour accéder à la sélection de l'année.",
+            it: "Toccare la data per impostarla.Le frecce a sinistra e a destra passano rispettivamente al mese precedente e a quello successivo.Toccare il mese per passare alla selezione del mese.Toccare l'anno per passare alla selezione dell'anno.",
+            ch: "Tippas a la data per al metter.\nIls battas a sanestra ed a dretga müdan per il mais avant, resp. il prossem mais.\n Tipp al mais per gnir a la tscherna dal mais.\n Tipp l'on per gnir a la tscherna dal mais.",
+        }
+    },
+    colorPicker: {
+        title: {
+            de: "Farbauswahl",
+            en: "Color picker",
+            fr: "Sélection de couleurs",
+            it: "Selezione del colore",
+            ch: "Schelta da colurs",
+        },
+        text:{
+            de: "Wähle die zur Waffe passende Farbe.\nDies setzt auch einen farblichen Rahmen um die Fotos.",
+            en: "Choose the color that matches the gun.\nThis also sets a color frame around the photos.",
+            fr: "Choisis la couleur correspondant à l'arme.\nDies met aussi un cadre coloré autour des photos.",
+            it: "Scegliere il colore che si abbina all'arma.´In questo modo si crea anche una cornice di colore intorno alle foto.",
+            ch: "Tscherni la colur adattada per l'arma.\nDies dat er in rom en colur enturn las fotografias.",
+        }
+    },
+    caliberPicker: {
+        title: {
+            de: "Kaliberauswahl",
+            en: "Caliber selection",
+            fr: "Sélection du calibre",
+            it: "Selezione del calibro",
+            ch: "Tscherna da caliber",
+        },
+        text:{
+            de: `Wähle die passenden Kaliber.\nBei Waffen können mehrere Kaliber gewählt werden (zum Beispiel .357 Magnum und .38 Special), bei Munitionssorten ist nur ein Kaliber vorgesehen.\nDas/die ausgewählte/n Kaliber wird/werden jeweils angezeigt.\nWichtig: Damit die Funktion "QuickShot", respektive "QuickStock" richtig funktionieren, müssen die Kaliberangabe bei Waffe und Munition übereinstimmen.`,
+            en: `Select the appropriate calibers.\nMultiple calibers can be selected for weapons (for example .357 Magnum and .38 Special), only one caliber is provided for ammunition types.\nThe selected caliber(s) is/are displayed in each case.\nImportant: For the "QuickShot" and "QuickStock" functions to work correctly, the caliber information for the weapon and ammunition must match.`,
+            fr: `Choisis les calibres appropriés.\nPour les armes, il est possible de choisir plusieurs calibres (par exemple .357 Magnum et .38 Special), pour les munitions, un seul calibre est prévu.\nLe(s) calibre(s) choisi(s) s'affiche(nt) à chaque fois.\nImportant : pour que la fonction "QuickShot", respectivement "QuickStock", fonctionne correctement, les indications de calibre de l'arme et des munitions doivent correspondre.`,
+            it: `È possibile selezionare più calibri per le armi (ad esempio .357 Magnum e .38 Special), mentre per le munizioni è previsto un solo calibro.Il calibro o i calibri selezionati vengono visualizzati in ogni caso.Importante: affinché le funzioni "QuickShot" e "QuickStock" funzionino correttamente, le informazioni sul calibro dell'arma e delle munizioni devono corrispondere.`,
+            ch: `Tschernas ils caliber correspundents.\nSche armas pon vegnir tschernidas plirs caliber (per exempel .357 magnum e .38 special), en cas da sorts da muniziun è previs mo in caliber.\nIl/il caliber tschernì vegn/sa mussà mintgamai.\nimpurtant: Per che la funcziun da "QuickShot", respectiv "QuickStock" funcziunia endretg, ston las indicaziuns da caliber tar l'arma e tar la muniziun correspunder.`,
+        }
+    },
+    cleanInterval: {
+        title: {
+            de: "Reinigungsintervall",
+            en: "Cleaning interval",
+            fr: "Intervalle de nettoyage",
+            it: "Intervallo di pulizia",
+            ch: "Interval da nettegiar",
+        },
+        text:{
+            de: `Wähle einen Zeitintervall, nach dem die Waffe wieder geputzt werden müsste.\n\nDies wird anhand des Wertes von "zuletzt geputzt" gerechnet, sofern dieser gesetzt ist.\n\nBei Überschreitung des Intervalls erscheint der Name der Waffe in der Übersicht rot.`,
+            en: `Select a time interval after which the weapon should be cleaned again.\n\nThis is calculated based on the value of "last cleaned", if this is set.\n\nIf the interval is exceeded, the name of the weapon appears in red in the overview.`,
+            fr: `Choisir un intervalle de temps après lequel l'arme devrait être nettoyée à nouveau.\nnCeci est calculé en fonction de la valeur de "dernier nettoyé", si celle-ci est définie.\nnSi l'intervalle est dépassé, le nom de l'arme apparaît en rouge dans l'aperçu.`,
+            it: `Selezionare un intervallo di tempo dopo il quale l'arma deve essere pulita di nuovo.\n}Questo viene calcolato in base al valore di "ultima pulizia", se impostato.\n}Se l'intervallo viene superato, il nome dell'arma appare in rosso nella panoramica.`,
+            ch: `Tscherni in interval da temp, cur che l'arma stuess puspè vegnir nettegiada.\n\nDies vegn quintà vi da la valur da "l'ultima nettegiada", premess che quella saja messa.\n\nBenenen surpassament da l'interval cumpara il num da l'arma en la survista cotschna.`,
+        }
+    },
 }

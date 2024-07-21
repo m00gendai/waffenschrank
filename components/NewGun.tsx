@@ -21,14 +21,15 @@ import NewChipArea from './NewChipArea';
 import { useGunStore } from '../stores/useGunStore';
 import * as FileSystem from 'expo-file-system';
 import { exampleGun, exampleGunEmpty } from '../lib/examples';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 
-export default function NewGun(){
+export default function NewGun({navigation}){
 
     const [selectedImage, setSelectedImage] = useState<string[]>(null)
     const [initCheck, setInitCheck] = useState<boolean>(true)
     const [granted, setGranted] = useState<boolean>(false)
-    const [gunData, setGunData] = useState<GunType>(null)
+    const [gunData, setGunData] = useState<GunType>(exampleGunEmpty)
     const [gunDataCompare, setGunDataCompare] = useState<GunType>(exampleGunEmpty)
     const [visible, setVisible] = useState<boolean>(false);
     const [snackbarText, setSnackbarText] = useState<string>("")
@@ -203,10 +204,10 @@ export default function NewGun(){
  
 
     return(
-        <View style={{width: "100%", height: "100%", backgroundColor: theme.colors.background}}>
+        <View style={{flex: 1}}>
             
             <Appbar style={{width: "100%"}}>
-                <Appbar.BackAction  onPress={() => {saveState == true ? setNewGunOpen() : saveState === false ? toggleUnsavedDialogVisible(true) : setNewGunOpen()}} />
+                <Appbar.BackAction  onPress={() => {saveState == true ? navigation.goBack() : saveState === false ? toggleUnsavedDialogVisible(true) : navigation.goBack()}} />
                 <Appbar.Content title={newGunTitle[language]} />
                 <Appbar.Action icon="floppy" onPress={() => save({...gunData, id: uuidv4(), images:selectedImage, createdAt: `${new Date()}`, lastModifiedAt: `${new Date()}`})} color={saveState === null ? theme.colors.onBackground : saveState === false ? theme.colors.error : "green"} />
             </Appbar>
@@ -274,7 +275,7 @@ export default function NewGun(){
                 }}>
                 {snackbarText}
             </Snackbar>
-        </View>     
+        </View> 
     )
 }
 

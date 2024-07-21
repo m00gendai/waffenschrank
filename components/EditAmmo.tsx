@@ -21,7 +21,7 @@ import * as FileSystem from 'expo-file-system';
 import { ammoDataValidation, imageHandling } from '../utils';
 
 
-export default function EditAmmo(){
+export default function EditAmmo({navigation}){
 
     const { currentAmmo, setCurrentAmmo, ammoCollection, setAmmoCollection } = useAmmoStore()
     const [initCheck, setInitCheck] = useState<boolean>(true)
@@ -35,6 +35,7 @@ export default function EditAmmo(){
     const [imageDialogVisible, toggleImageDialogVisible] = useState<boolean>(false)
     const [unsavedVisible, toggleUnsavedDialogVisible] = useState<boolean>(false)
     const [deleteImageIndex, setDeleteImageIndex] = useState<number>(0)
+    const [exitAction, setExitAction] = useState(null);
 
     const { language, theme, generalSettings } = usePreferenceStore()
     const { setEditAmmoOpen } = useViewStore()
@@ -62,7 +63,7 @@ export default function EditAmmo(){
             if(!(key in ammoDataCompare) && ammoData[key] === ""){
                 setSaveState(null)
             }
-            if(!(key in ammoDataCompare) && ammoData[key].length === 0){
+            if(!(key in ammoDataCompare) && ammoData[key] !== undefined && ammoData[key].length === 0){
                 setSaveState(null)
             }
         }
@@ -247,16 +248,47 @@ export default function EditAmmo(){
           },
       });
 
+      useEffect(() => {
+        const unsubscribe = navigation.addListener('beforeRemove', (e) => {
+          if (saveState) {
+            // If we don't have unsaved changes, then we don't need to do anything
+            return;
+          }
+    
+          // Prevent default behavior of leaving the screen
+          e.preventDefault();
+    
+          // Save the action to be triggered later
+          setExitAction(e.data.action);
+    
+          // Show the dialog
+          toggleUnsavedDialogVisible(true);
+        });
+    
+        return unsubscribe;
+      }, [navigation, saveState])
+  
+      const handleDiscard = () => {
+          toggleUnsavedDialogVisible(false);
+          if (exitAction) {
+            navigation.dispatch(exitAction);
+          }
+        };
+      
+        const handleCancel = () => {
+          toggleUnsavedDialogVisible(false);
+        };
+
     return(
-        <View style={{width: "100%", height: "100%", backgroundColor: theme.colors.background}}>
+        <View style={{flex: 1}}>
             
             <Appbar style={{width: "100%"}}>
-                <Appbar.BackAction  onPress={() => {saveState === true ? setEditAmmoOpen() : saveState === false ? toggleUnsavedDialogVisible(true) : setEditAmmoOpen()}} />
+                <Appbar.BackAction  onPress={() => navigation.goBack()} />
                 <Appbar.Content title={editAmmoTitle[language]} />
                 <Appbar.Action icon="floppy" onPress={() => save({...ammoData, lastModifiedAt: `${new Date()}`})} color={saveState === null ? theme.colors.onBackground : saveState === false ? theme.colors.error : "green"}/>
             </Appbar>
         
-            <SafeAreaView style={styles.container}>
+            <View style={styles.container}>
                 <ScrollView style={{width: "100%"}}>
                     <View>
                         <ScrollView horizontal style={{width:"100%", aspectRatio: "21/10"}}>
@@ -333,7 +365,7 @@ export default function EditAmmo(){
                        
                     </View>
                 </ScrollView>
-            </SafeAreaView>
+            </View>
             <Snackbar
                 visible={visible}
                 onDismiss={onDismissSnackBar}
@@ -367,8 +399,8 @@ export default function EditAmmo(){
                         <Text>{`${unsavedChangesAlert.subtitle[language]}`}</Text>
                     </Dialog.Content>
                     <Dialog.Actions>
-                        <Button onPress={setEditAmmoOpen} icon="delete" buttonColor={theme.colors.errorContainer} textColor={theme.colors.onErrorContainer}>{unsavedChangesAlert.yes[language]}</Button>
-                        <Button onPress={()=>toggleUnsavedDialogVisible(!unsavedVisible)} icon="cancel" buttonColor={theme.colors.secondary} textColor={theme.colors.onSecondary}>{unsavedChangesAlert.no[language]}</Button>
+                        <Button onPress={handleDiscard} icon="delete" buttonColor={theme.colors.errorContainer} textColor={theme.colors.onErrorContainer}>{unsavedChangesAlert.yes[language]}</Button>
+                        <Button onPress={handleCancel} icon="cancel" buttonColor={theme.colors.secondary} textColor={theme.colors.onSecondary}>{unsavedChangesAlert.no[language]}</Button>
                     </Dialog.Actions>
                 </Dialog>
                      
