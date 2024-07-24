@@ -146,7 +146,7 @@ export default function NewText({data, gunData, setGunData, ammoData, setAmmoDat
 
 function handleFocus(){
     setFocus(true)
-    setCharCount(input !== undefined ? input.length : 0)
+    setCharCount(input !== undefined && input !== null ? input.length : 0)
 }
 
 
