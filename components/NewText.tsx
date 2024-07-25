@@ -146,8 +146,9 @@ export default function NewText({data, gunData, setGunData, ammoData, setAmmoDat
 
 function handleFocus(){
     setFocus(true)
-    setCharCount(input !== undefined ? input.length : 0)
+    setCharCount(input !== undefined && input !== null ? input.length : 0)
 }
+
 
     return(
         <View style={{flex: 1}}>
@@ -171,7 +172,7 @@ function handleFocus(){
                         }}
                         onFocus={()=>handleFocus()}
                         onBlur={()=>setFocus(false)}
-                        value={input === undefined ? "" : data === "cleanInterval" ? gunData[data] !== undefined && gunData[data] ? cleanIntervals[input][language] : input.toString() : input.toString()}
+                        value={input === undefined ? "" : data === "cleanInterval" && gunData[data] !== undefined && gunData[data] ? cleanIntervals[input][language] : input.toString()}
                         editable={data === "acquisitionDate" ? false : data === "mainColor" ? false : data === "caliber" ? false : data === "lastCleanedAt" ? false : data === "lastShotAt" ? false : data === "lastTopUpAt" ? false : data === "cleanInterval" ? false : true}
                         showSoftInputOnFocus={data === "acquisitionDate" ? false : true}
                         onChangeText={input => gunData !== undefined ? updateGunData(input) : updateAmmoData(input)}
