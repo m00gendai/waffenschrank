@@ -172,7 +172,7 @@ function handleFocus(){
                         }}
                         onFocus={()=>handleFocus()}
                         onBlur={()=>setFocus(false)}
-                        value={input === undefined ? "" : data === "cleanInterval" && gunData[data] !== undefined && gunData[data] ? cleanIntervals[input][language] : input.toString()}
+                        value={input === undefined ? "" : input === null ? "" : data === "cleanInterval" && gunData[data] !== undefined && gunData[data] ? cleanIntervals[input][language] : input.toString()}
                         editable={data === "acquisitionDate" ? false : data === "mainColor" ? false : data === "caliber" ? false : data === "lastCleanedAt" ? false : data === "lastShotAt" ? false : data === "lastTopUpAt" ? false : data === "cleanInterval" ? false : true}
                         showSoftInputOnFocus={data === "acquisitionDate" ? false : true}
                         onChangeText={input => gunData !== undefined ? updateGunData(input) : updateAmmoData(input)}
