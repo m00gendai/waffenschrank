@@ -22,7 +22,8 @@
         "foregroundImage": "./assets/appIconC.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.m00gendai.arsenal"
+      "package": "com.m00gendai.arsenal",
+      "versionCode": 2
     },
     "web": {
       "favicon": "./assets/appIconC.png"
