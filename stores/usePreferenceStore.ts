@@ -8,6 +8,7 @@ interface GeneralSettings{
   displayImagesInListViewAmmo: boolean
   resizeImages: boolean
   loginGuard: boolean
+  emptyFields: boolean
 }
 
 interface PreferenceStore {
@@ -64,7 +65,8 @@ interface PreferenceStore {
       displayImagesInListViewGun: true,
       displayImagesInListViewAmmo: true,
       resizeImages: true,
-      loginGuard: false
+      loginGuard: false,
+      emptyFields: false
     },
     setGeneralSettings: (settings: GeneralSettings) => set((state) => ({generalSettings: settings}))
   }))
