@@ -487,6 +487,37 @@ export const resizeImageAlert:Alert = {
     }
 }
 
+export const loginGuardAlert:Alert = {
+    title: {
+        de: "Biometrischer Login nicht möglich",
+        en: "Biometric login not possible",
+        fr: "Login biométrique impossible",
+        it: "Login biometrico non possibile",
+        ch: "Login biometric n'è betg pussaivel",
+    },
+    subtitle: {
+        de: "Entweder ist Ihr Gerät nicht kompatibel, oder Sie haben keine biometrischen Daten hinterlegt.",
+        en: "Either your device is not compatible or you have not registered any biometric data.",
+        fr: "Soit votre appareil n'est pas compatible, soit vous n'avez pas enregistré de données biométriques.",
+        it: "O il vostro dispositivo non è compatibile o non avete inserito alcun dato biometrico.",
+        ch: "U che Voss apparat n'è betg cumpatibel u che Vus n'avais betg deponì datas biometricas.",
+    },
+    yes: {
+        de: "",
+        en: "",
+        fr: "",
+        it: "",
+        ch: "",
+    },
+    no: {
+        de: "OK",
+        en: "OK",
+        fr: "OK",
+        it: "OK",
+        ch: "OK",
+    }
+}
+
 
 export const validationErros: Validation = {
     requiredFieldEmpty: {
