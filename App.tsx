@@ -69,10 +69,8 @@ export default function App() {
         console.log("doesnt even matter")
         const preferences:string = await AsyncStorage.getItem(PREFERENCES)
         const isPreferences = preferences === null ? null : JSON.parse(preferences)
-        console.log(isPreferences)
         if(isPreferences !== null && isPreferences.generalSettings.loginGuard !== null && isPreferences.generalSettings.loginGuard !== undefined && isPreferences.generalSettings.loginGuard === true){
           const success = await LocalAuthentication.authenticateAsync()
-          console.log(success)
           if(success.success){
             setAppIsReady(true);
           } else{
