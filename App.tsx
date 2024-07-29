@@ -52,13 +52,11 @@ export default function App() {
   useEffect(() => {
     async function prepare() {
       try {
-       console.log("so hard")
+       console.log("try: so hard")
        const preferences:string = await AsyncStorage.getItem(PREFERENCES)
         const isPreferences = preferences === null ? null : JSON.parse(preferences)
-        console.log(isPreferences)
         if(isPreferences !== null && isPreferences.generalSettings.loginGuard !== null && isPreferences.generalSettings.loginGuard !== undefined && isPreferences.generalSettings.loginGuard === true){
           const success = await LocalAuthentication.authenticateAsync()
-          console.log(success)
           if(success.success){
             setAppIsReady(true);
           } else{
@@ -68,10 +66,10 @@ export default function App() {
           setAppIsReady(true)
         }
       } catch (e) {
-        console.log("got so far")
+        console.log("catch: got so far")
         console.warn(e);
       } finally {
-        console.log("doesnt even matter")
+        console.log("finally: doesnt even matter")
         
         
       }
