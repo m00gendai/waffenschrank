@@ -819,6 +819,11 @@ export default function MainMenu({navigation}){
                                                 <Text style={{flex: 7}}>{generalSettingsLabels.resizeImages[language]}</Text>
                                                 <Switch style={{flex: 3}} value={generalSettings.resizeImages} onValueChange={()=>generalSettings.resizeImages ? handleSwitchesAlert("resizeImages") : handleSwitches("resizeImages")} />
                                             </View>
+                                            <Divider style={{width: "100%", borderWidth: 0.5, borderColor: theme.colors.onSecondary}} />
+                                            <View style={{display: "flex", flexWrap: "nowrap", justifyContent: "space-between", alignItems: "center", flexDirection: "row", width: "100%"}}>
+                                                <Text style={{flex: 7}}>{generalSettingsLabels.loginGuard[language]}</Text>
+                                                <Switch style={{flex: 3}} value={generalSettings.loginGuard} onValueChange={()=>handleSwitches("loginGuard")} />
+                                            </View>
                                         </View>
                                     </View>
                                 </List.Accordion>
