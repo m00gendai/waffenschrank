@@ -50,27 +50,15 @@ export default function App() {
   const { setAmmoTags, setTags } = useTagStore()
 
   useEffect(() => {
-    (async () => {
-      const compatible = await LocalAuthentication.hasHardwareAsync();
-      setIsBiometricSupported(compatible);
-    })();
-  });
-
-
-
-  useEffect(() => {
     async function prepare() {
       try {
        console.log("so hard")
-      } catch (e) {
-        console.log("got so far")
-        console.warn(e);
-      } finally {
-        console.log("doesnt even matter")
-        const preferences:string = await AsyncStorage.getItem(PREFERENCES)
+       const preferences:string = await AsyncStorage.getItem(PREFERENCES)
         const isPreferences = preferences === null ? null : JSON.parse(preferences)
+        console.log(isPreferences)
         if(isPreferences !== null && isPreferences.generalSettings.loginGuard !== null && isPreferences.generalSettings.loginGuard !== undefined && isPreferences.generalSettings.loginGuard === true){
           const success = await LocalAuthentication.authenticateAsync()
+          console.log(success)
           if(success.success){
             setAppIsReady(true);
           } else{
@@ -79,6 +67,12 @@ export default function App() {
         } else {
           setAppIsReady(true)
         }
+      } catch (e) {
+        console.log("got so far")
+        console.warn(e);
+      } finally {
+        console.log("doesnt even matter")
+        
         
       }
     }
