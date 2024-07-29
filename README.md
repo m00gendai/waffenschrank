@@ -1,42 +1,33 @@
 # Arsenal
 
-React Native Application to manage a gun collection
+Gun Collection Management App written in React Native with TypeScript, leveraging Expo and using React Native Paper UI
 
-## Features
+## Run it
 
-- Create, Remove, Update, Delete guns
-- Display collection with or without cover images
-- Sort guns
-- Filter guns based on tag system
-- Multilanguage (German, English, French)
-- Save database to device (as backup or to export)
-- Import database to application
-- Different color themes
+This is an Expo app using React Natvie and TypeScript. Confirm your system is set up for that.
 
-### Your Collection
+- clone repo
+- ```npm install```
+- ```npx expo start```
 
-The collection can be displayed as a grid of cards with the manufacturer (if set), model name and a cover image of your gun.
-Or, it can be a simple list, without the cover image.
-You can sort the collection alphabetically and chronologically (last created), ascending and descending.
-You can also filter the collection based on a tag system (see "Your Gun").
+## Dependencies
 
-### Your Gun
+See ```package.json```
 
-A Gun is a collection of data. Currently, the following entries are supported:
+## Data handling
 
-- Images
-- Tags
-- Manufacturer name
-- Model name
-- Manufacturing date (or approximate range)
-- Country of Origin
-- Caliber
-- Serial
-- Permit
-- Acquisition date
-- Paid price
-- Shot count
-- Main color
-- Checklist of properties pertaining to swiss weapons law article 5
-- Remark field
+The app is built around Expo SecureStore and Async Storage. Collection objects are stored in SecureStore with an id consisting of a uuid4 string.
+This string is stored in a key database in Async Storage and used to map over the SecureStore entries to retrieve them.
+Preferences and tags are stored in Async Storage.
 
+The app loads all databases into memory and performs all manipulations on that database image. 
+All save operations are saved in Async Storage or SecureStore in the background.
+
+## Licensing and usage
+
+The app is a premium app on the Google Playstore, but you are free as per the license to build your own APK from the source code if you are able AND willing to do so.
+```eas.json``` is set up with a preview (APK) and production (AAB) build profile for Expo.
+
+Releases are available as APK up to Alpha 9.0.0. 
+
+If you use the code or parts of it for your own app, you agree to credit me and link to this repo.
