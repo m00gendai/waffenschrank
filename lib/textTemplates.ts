@@ -96,6 +96,7 @@ interface GeneralSettingsLabels{
     displayImagesInListViewGun: SimpleTranslation
     displayImagesInListViewAmmo: SimpleTranslation
     resizeImages: SimpleTranslation
+    loginGuard: SimpleTranslation
 }
 
 interface ModalText{
@@ -924,6 +925,13 @@ export const generalSettingsLabels: GeneralSettingsLabels = {
         fr: "Optimisation des images",
         it: "Ottimizzazione delle immagini",
         ch: "Optimaziun dal maletg"
+    },
+    loginGuard: {
+        de: "Biometrischer Login",
+        en: "Biometric login",
+        fr: "Login biométrique",
+        it: "Login biometrico",
+        ch: "Login biometric"
     }
 }
 
