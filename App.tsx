@@ -33,18 +33,30 @@ import QuickShot from './components/QuickShot';
 import EditGun from './components/EditGun';
 import EditAmmo from './components/EditAmmo';
 import * as SplashScreen from 'expo-splash-screen';
+import * as LocalAuthentication from 'expo-local-authentication';
+
 
 SplashScreen.preventAutoHideAsync();
 
 export default function App() {
 
-  const [appIsReady, setAppIsReady] = useState(false);
+  const [appIsReady, setAppIsReady] = useState<boolean>(false);
+  const [isBiometricSupported, setIsBiometricSupported] = useState<boolean>(false);
 
   const { ammoDbImport, dbImport, switchLanguage, theme, switchTheme, language, generalSettings, setGeneralSettings, setDisplayAsGrid, setDisplayAmmoAsGrid, setSortBy, setSortAmmoBy, setSortAmmoIcon, setSortGunIcon } = usePreferenceStore();
   const { mainMenuOpen } = useViewStore()
   const { setAmmoCollection } = useAmmoStore()
   const { setGunCollection } = useGunStore()
   const { setAmmoTags, setTags } = useTagStore()
+
+  useEffect(() => {
+    (async () => {
+      const compatible = await LocalAuthentication.hasHardwareAsync();
+      setIsBiometricSupported(compatible);
+    })();
+  });
+
+
 
   useEffect(() => {
     async function prepare() {
@@ -55,7 +67,21 @@ export default function App() {
         console.warn(e);
       } finally {
         console.log("doesnt even matter")
-        setAppIsReady(true);
+        const preferences:string = await AsyncStorage.getItem(PREFERENCES)
+        const isPreferences = preferences === null ? null : JSON.parse(preferences)
+        console.log(isPreferences)
+        if(isPreferences !== null && isPreferences.generalSettings.loginGuard !== null && isPreferences.generalSettings.loginGuard !== undefined && isPreferences.generalSettings.loginGuard === true){
+          const success = await LocalAuthentication.authenticateAsync()
+          console.log(success)
+          if(success.success){
+            setAppIsReady(true);
+          } else{
+            return
+          }
+        } else {
+          setAppIsReady(true)
+        }
+        
       }
     }
     prepare();
