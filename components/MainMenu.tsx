@@ -2,7 +2,7 @@ import { ScrollView, TouchableNativeFeedback, View, Image } from "react-native"
 import Animated, { LightSpeedInLeft, LightSpeedOutLeft } from "react-native-reanimated"
 import { useViewStore } from "../stores/useViewStore"
 import { ActivityIndicator, Button, Dialog, Divider, Icon, IconButton, List, Modal, Portal, Snackbar, Switch, Text, Tooltip } from "react-native-paper"
-import { aboutText, aboutThanks, databaseImportAlert, databaseOperations, generalSettingsLabels, preferenceTitles, resizeImageAlert, toastMessages, tooltips } from "../lib/textTemplates"
+import { aboutText, aboutThanks, databaseImportAlert, databaseOperations, generalSettingsLabels, loginGuardAlert, preferenceTitles, resizeImageAlert, toastMessages, tooltips } from "../lib/textTemplates"
 import { usePreferenceStore } from "../stores/usePreferenceStore"
 import AsyncStorage from "@react-native-async-storage/async-storage"
 import { AMMO_DATABASE, A_KEY_DATABASE, A_TAGS, GUN_DATABASE, KEY_DATABASE, PREFERENCES, TAGS, defaultViewPadding, languageSelection } from "../configs"
@@ -27,12 +27,13 @@ import { flatten, unflatten } from 'flat'
 import { getImageSize, sanitizeFileName } from "../utils"
 import * as SystemUI from "expo-system-ui"
 import * as Sharing from 'expo-sharing';
+import * as LocalAuthentication from 'expo-local-authentication';
 
 
 
 export default function MainMenu({navigation}){
 
-    const { setMainMenuOpen, toastVisible, setToastVisible, dbModalVisible, setDbModalVisible, imageResizeVisible, toggleImageResizeVisible, importCSVVisible, toggleImportCSVVisible, importModalVisible, toggleImportModalVisible } = useViewStore()
+    const { setMainMenuOpen, toastVisible, setToastVisible, dbModalVisible, setDbModalVisible, imageResizeVisible, toggleImageResizeVisible, loginGuardVisible, toggleLoginGuardVisible, importCSVVisible, toggleImportCSVVisible, importModalVisible, toggleImportModalVisible } = useViewStore()
     const { language, switchLanguage, theme, switchTheme, setDbImport, setAmmoDbImport, generalSettings, setGeneralSettings } = usePreferenceStore()
     const { gunCollection, setGunCollection } = useGunStore()
     const { ammoCollection, setAmmoCollection } = useAmmoStore()
@@ -501,9 +502,26 @@ export default function MainMenu({navigation}){
         await AsyncStorage.setItem(A_KEY_DATABASE, JSON.stringify(newKeys)) // Save the key object
     }
 
-    function handleSwitchesAlert(setting:string){
+    async function handleSwitchesAlert(setting:string){
         if(setting === "resizeImages"){
             toggleImageResizeVisible()        
+        }
+        if(setting === "loginGuard"){
+            const compatible = await LocalAuthentication.hasHardwareAsync();
+            console.log(`compatible: ${compatible}`)
+            const isEnrolled = await LocalAuthentication.isEnrolledAsync()
+            console.log(`isEnrolled: ${isEnrolled}`)
+            const getEnrolledLevel = await LocalAuthentication.getEnrolledLevelAsync()
+            console.log(`getEnrolledLevel: ${getEnrolledLevel}`)
+            if(!compatible){
+                toggleLoginGuardVisible()
+            }
+            if(!isEnrolled){
+                toggleLoginGuardVisible()
+            }
+            if(compatible && isEnrolled){
+                handleSwitches("loginGuard")
+            }
         }
     }
 
@@ -822,7 +840,7 @@ export default function MainMenu({navigation}){
                                             <Divider style={{width: "100%", borderWidth: 0.5, borderColor: theme.colors.onSecondary}} />
                                             <View style={{display: "flex", flexWrap: "nowrap", justifyContent: "space-between", alignItems: "center", flexDirection: "row", width: "100%"}}>
                                                 <Text style={{flex: 7}}>{generalSettingsLabels.loginGuard[language]}</Text>
-                                                <Switch style={{flex: 3}} value={generalSettings.loginGuard} onValueChange={()=>handleSwitches("loginGuard")} />
+                                                <Switch style={{flex: 3}} value={generalSettings.loginGuard} onValueChange={()=>handleSwitchesAlert("loginGuard")} />
                                             </View>
                                         </View>
                                     </View>
@@ -886,6 +904,18 @@ export default function MainMenu({navigation}){
                             toggleImageResizeVisible();
                         }} icon="check" buttonColor={theme.colors.errorContainer} textColor={theme.colors.onErrorContainer}>{resizeImageAlert.yes[language]}</Button>
                         <Button onPress={()=>toggleImageResizeVisible()} icon="cancel" buttonColor={theme.colors.secondary} textColor={theme.colors.onSecondary}>{resizeImageAlert.no[language]}</Button>
+                    </Dialog.Actions>
+                </Dialog>
+
+                <Dialog visible={loginGuardVisible} onDismiss={()=>toggleLoginGuardVisible()}>
+                    <Dialog.Title>
+                    {`${loginGuardAlert.title[language]}`}
+                    </Dialog.Title>
+                    <Dialog.Content>
+                        <Text>{`${loginGuardAlert.subtitle[language]}`}</Text>
+                    </Dialog.Content>
+                    <Dialog.Actions>
+                        <Button onPress={()=>toggleLoginGuardVisible()} icon="emoticon-frown-outline" buttonColor={theme.colors.secondary} textColor={theme.colors.onSecondary}>{loginGuardAlert.no[language]}</Button>
                     </Dialog.Actions>
                 </Dialog>
 
