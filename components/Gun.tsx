@@ -121,6 +121,7 @@ export default function Gun({navigation}){
                             })}
                         </View>
                         {gunDataTemplate.map((item, index)=>{
+                            if(currentGun[item.name] !== null && currentGun[item.name] !== undefined && currentGun[item.name] !== "" && currentGun[item.name].length !== 0){
                             return(
                                 <View key={`${item.name}`} style={{flex: 1, flexDirection: "column"}} >
                                     <Text style={{width: "100%", fontSize: 12,}}>{`${item[language]}:`}</Text>
@@ -143,6 +144,7 @@ export default function Gun({navigation}){
                                     null}
                                 </View>
                             )
+                                }
                         })}
                         <View style={{flex: 1, flexDirection: "column"}} >
                         {checkBoxes.map(checkBox=>{

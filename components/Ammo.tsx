@@ -119,12 +119,14 @@ export default function Ammo({navigation}){
                             })}
                         </View>
                         {ammoDataTemplate.map((item, index)=>{
+                            if(currentAmmo[item.name] !== null && currentAmmo[item.name] !== undefined && currentAmmo[item.name] !== "" && currentAmmo[item.name].length !== 0){
                             return(
                                 <View key={`${item.name}`} style={{flex: 1, flexDirection: "column"}} >
                                     <Text style={{width: "100%", fontSize: 12,}}>{`${item[language]}:`}</Text>
                                     <Text style={{width: "100%", fontSize: 18, marginBottom: 5, paddingBottom: 5, borderBottomColor: theme.colors.primary, borderBottomWidth: 0.2}}>{currentAmmo[item.name]}</Text>
                                 </View>
                             )
+                            }
                         })}
                         <View style={{flex: 1, flexDirection: "column"}} >
                             <Text style={{width: "100%", fontSize: 12,}}>{ammoRemarks[language]}</Text>
