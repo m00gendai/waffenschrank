@@ -23,6 +23,8 @@ interface ViewStore {
     setDbModalVisible: () => void
     imageResizeVisible: boolean
     toggleImageResizeVisible: () => void
+    loginGuardVisible: boolean
+    toggleLoginGuardVisible: () => void
     importCSVVisible: boolean
     toggleImportCSVVisible: () => void
     importModalVisible: boolean
@@ -52,6 +54,8 @@ interface ViewStore {
     setDbModalVisible: () => set((state) => ({dbModalVisible: !state.dbModalVisible})),
     imageResizeVisible: false,
     toggleImageResizeVisible: () => set((state) => ({imageResizeVisible: !state.imageResizeVisible})),
+    loginGuardVisible: false,
+    toggleLoginGuardVisible: () => set((state) => ({loginGuardVisible: !state.loginGuardVisible})),
     importCSVVisible: false,
     toggleImportCSVVisible: () => set((state) => ({importCSVVisible: !state.importCSVVisible})),
     importModalVisible: false,
