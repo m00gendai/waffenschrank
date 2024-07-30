@@ -546,7 +546,8 @@ export default function MainMenu({navigation}){
         toggleImportCSVVisible()
         const parsed:Papa.ParseResult<string[]> = Papa.parse(content)
         const headerRow:string[] = parsed.data[0]
-        const bodyRows:string[][] = parsed.data.slice(1)
+        const filteredForEmptyRow:string[][] = parsed.data.filter(item => !(item.length === 1 && item[0] === ""))
+        const bodyRows:string[][] = filteredForEmptyRow.toSpliced(0, 1)
         setCSVHeader(headerRow)
         setCSVBody(bodyRows)    
         setDbCollectionType(data)
