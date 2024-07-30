@@ -11,6 +11,7 @@ interface mainMenu_database{
     importArsenalCSV: SimpleTranslation
     importCSVModalTitle: SimpleTranslation
     importCSVModalText: SimpleTranslation
+    importCSVModalCheckbox: SimpleTranslation
 }
 
 export const mainMenu_ammunitionDatabase: mainMenu_database = {
@@ -78,11 +79,18 @@ export const mainMenu_ammunitionDatabase: mainMenu_database = {
         ch: "Importar in'atgna datoteca dad CSV",
     },
     importCSVModalText:{
-        de: `Auswählen, welche Werte der CSV-Datei denjenigen von Arsenal entsprechen.\nAlle nicht zugewiesenen Werte der CSV-Datei werden automatisch in das Feld "Bemerkungen" übertragen.\n\nHinweis: Das Kaliberfeld muss für die QuickShot-Funktion exakt wie in der Kaliberauswahl der Arsenal App angegeben werden.\nEs empfielt sich, dies vordergängig in der CSV-Datei anzupassen, oder nachträglich in der App.`,
-        en: `Select which values of the CSV file correspond to those of Arsenal.\nAll unassigned values of the CSV file are automatically transferred to the "Remarks" field.\n\nNote: For the QuickShot function, the caliber field must be specified exactly as in the caliber selection of the Arsenal app.\nIt is recommended to adjust this in the CSV file beforehand, or afterwards in the app.`,
-        fr: `Sélectionner quelles valeurs du fichier CSV correspondent à celles d'Arsenal.\nToutes les valeurs non attribuées du fichier CSV sont automatiquement transférées dans le champ "Remarques".\n\nRemarque : pour la fonction QuickShot, le champ de calibre doit être indiqué exactement comme dans la sélection de calibre de l'app Arsenal.\nIl est recommandé de l'adapter au préalable dans le fichier CSV, ou ultérieurement dans l'app.`,
-        it: `Selezionare quali valori del file CSV corrispondono a quelli di Arsenal.\nTutti i valori non assegnati del file CSV vengono automaticamente trasferiti nel campo "Osservazioni".\n\nNota: il campo del calibro per la funzione QuickShot deve essere specificato esattamente come nella selezione del calibro dell'app Arsenal.\nSi consiglia di regolarlo prima nel file CSV o successivamente nell'app.`,
-        ch: `Tscherner las valurs da la datoteca CSV che correspundan a quellas d'arsenal.\nTuttas da las valurs da la datoteca CSV che n'èn betg vegnidas attribuidas vegnan transferidas automaticamain en il champ "Remartgas".\n\nRemartga: Il champ da caliber sto vegnir inditgà per la funcziun da QuickShot precis sco tar la tscherna da l'app d'arsenal.\nE èsi recumandà d' adattar quai per il mument en la datoteca da CSV u pli tard en l' app`,
+        de: `Auswählen, welche Werte der CSV-Datei denjenigen von Arsenal entsprechen.\nAlle nicht zugewiesenen Werte der CSV-Datei werden automatisch in das Feld "Bemerkungen" übertragen.\n\nIst die Kopfzeile aktiviert, wird die erste Zeile der CSV-Datei nicht importiert, ansonsten schon.\n\n Hinweis: Das Kaliberfeld muss für die QuickShot-Funktion exakt wie in der Kaliberauswahl der Arsenal App angegeben werden.\nEs empfielt sich, dies vordergängig in der CSV-Datei anzupassen, oder nachträglich in der App.`,
+        en: `Select which values of the CSV file correspond to those of Arsenal.\nAll unassigned values of the CSV file are automatically transferred to the "Remarks" field.\n\nIf the header is activated, the first line of the CSV file is not imported, otherwise it is.\n\nNote: For the QuickShot function, the caliber field must be specified exactly as in the caliber selection of the Arsenal app.\nIt is recommended to adjust this in the CSV file beforehand, or afterwards in the app.`,
+        fr: `Sélectionner quelles valeurs du fichier CSV correspondent à celles d'Arsenal.\nToutes les valeurs non attribuées du fichier CSV sont automatiquement transférées dans le champ "Remarques".\n\nSi l'en-tête est activé, la première ligne du fichier CSV n'est pas importée, sinon elle l'est.\n\nRemarque : pour la fonction QuickShot, le champ de calibre doit être indiqué exactement comme dans la sélection de calibre de l'app Arsenal.\nIl est recommandé de l'adapter au préalable dans le fichier CSV, ou ultérieurement dans l'app.`,
+        it: `Selezionare quali valori del file CSV corrispondono a quelli di Arsenal.\nTutti i valori non assegnati del file CSV vengono automaticamente trasferiti nel campo "Osservazioni".\n\nSe l'intestazione è attivata, la prima riga del file CSV non viene importata, altrimenti sì.\n\nNota: il campo del calibro per la funzione QuickShot deve essere specificato esattamente come nella selezione del calibro dell'app Arsenal.\nSi consiglia di regolarlo prima nel file CSV o successivamente nell'app.`,
+        ch: `Tscherner las valurs da la datoteca CSV che correspundan a quellas d'arsenal.\nTuttas da las valurs da la datoteca CSV che n'èn betg vegnidas attribuidas vegnan transferidas automaticamain en il champ "Remartgas".\n\nI vegn activà la lingia da chau, na vegn l'emprima lingia da la datoteca CSV betg importada, uschiglio schon.\n\nRemartga: Il champ da caliber sto vegnir inditgà per la funcziun da QuickShot precis sco tar la tscherna da l'app d'arsenal.\nE èsi recumandà d' adattar quai per il mument en la datoteca da CSV u pli tard en l' app`,
+    },
+    importCSVModalCheckbox: {
+        de: "CSV Datei hat Kopfzeile",
+        en: "CSV file has header line",
+        fr: "Le fichier CSV a un en-tête",
+        it: "Il file CSV ha una riga di intestazione",
+        ch: "La datoteca CSV ha faudas"
     }
 }
 
@@ -151,10 +159,17 @@ export const mainMenu_gunDatabase: mainMenu_database = {
         ch: "Importar in'atgna datoteca dad CSV",
     },
     importCSVModalText:{
-        de: `Auswählen, welche Werte der CSV-Datei denjenigen von Arsenal entsprechen.\nAlle nicht zugewiesenen Werte der CSV-Datei werden automatisch in das Feld "Bemerkungen" übertragen.\n\n Hinweis: Das Kaliberfeld muss für die QuickShot-Funktion exakt wie in der Kaliberauswahl der Arsenal App angegeben werden.\nEs empfielt sich, dies vordergängig in der CSV-Datei anzupassen, oder nachträglich in der App.`,
-        en: `Select which values of the CSV file correspond to those of Arsenal.\nAll unassigned values of the CSV file are automatically transferred to the "Remarks" field.\n\n Note: For the QuickShot function, the caliber field must be specified exactly as in the caliber selection of the Arsenal app.\nIt is recommended to adjust this in the CSV file beforehand, or afterwards in the app.`,
-        fr: `Sélectionner quelles valeurs du fichier CSV correspondent à celles d'Arsenal.\nToutes les valeurs non attribuées du fichier CSV sont automatiquement transférées dans le champ "Remarques".\nn Remarque : pour la fonction QuickShot, le champ de calibre doit être indiqué exactement comme dans la sélection de calibre de l'app Arsenal.\nIl est recommandé de l'adapter au préalable dans le fichier CSV, ou ultérieurement dans l'app.`,
-        it: `Selezionare quali valori del file CSV corrispondono a quelli di Arsenal.\nTutti i valori non assegnati del file CSV vengono automaticamente trasferiti nel campo "Osservazioni".\nNota: il campo del calibro per la funzione QuickShot deve essere specificato esattamente come nella selezione del calibro dell'app Arsenal.\nSi consiglia di regolarlo prima nel file CSV o successivamente nell'app.`,
-        ch: `Tscherner las valurs da la datoteca CSV che correspundan a quellas d'arsenal.\nTuttas da las valurs da la datoteca CSV che n'èn betg vegnidas attribuidas vegnan transferidas automaticamain en il champ "Remartgas".\n Remartga: Il champ da caliber sto vegnir inditgà per la funcziun da QuickShot precis sco tar la tscherna da l'app d'arsenal.\nE èsi recumandà d' adattar quai per il mument en la datoteca da CSV u pli tard en l' app`,
+        de: `Auswählen, welche Werte der CSV-Datei denjenigen von Arsenal entsprechen.\nAlle nicht zugewiesenen Werte der CSV-Datei werden automatisch in das Feld "Bemerkungen" übertragen.\n\nIst die Kopfzeile aktiviert, wird die erste Zeile der CSV-Datei nicht importiert, ansonsten schon.\n\n Hinweis: Das Kaliberfeld muss für die QuickShot-Funktion exakt wie in der Kaliberauswahl der Arsenal App angegeben werden.\nEs empfielt sich, dies vordergängig in der CSV-Datei anzupassen, oder nachträglich in der App.`,
+        en: `Select which values of the CSV file correspond to those of Arsenal.\nAll unassigned values of the CSV file are automatically transferred to the "Remarks" field.\n\nIf the header is activated, the first line of the CSV file is not imported, otherwise it is.\n\nNote: For the QuickShot function, the caliber field must be specified exactly as in the caliber selection of the Arsenal app.\nIt is recommended to adjust this in the CSV file beforehand, or afterwards in the app.`,
+        fr: `Sélectionner quelles valeurs du fichier CSV correspondent à celles d'Arsenal.\nToutes les valeurs non attribuées du fichier CSV sont automatiquement transférées dans le champ "Remarques".\n\nSi l'en-tête est activé, la première ligne du fichier CSV n'est pas importée, sinon elle l'est.\n\nRemarque : pour la fonction QuickShot, le champ de calibre doit être indiqué exactement comme dans la sélection de calibre de l'app Arsenal.\nIl est recommandé de l'adapter au préalable dans le fichier CSV, ou ultérieurement dans l'app.`,
+        it: `Selezionare quali valori del file CSV corrispondono a quelli di Arsenal.\nTutti i valori non assegnati del file CSV vengono automaticamente trasferiti nel campo "Osservazioni".\n\nSe l'intestazione è attivata, la prima riga del file CSV non viene importata, altrimenti sì.\n\nNota: il campo del calibro per la funzione QuickShot deve essere specificato esattamente come nella selezione del calibro dell'app Arsenal.\nSi consiglia di regolarlo prima nel file CSV o successivamente nell'app.`,
+        ch: `Tscherner las valurs da la datoteca CSV che correspundan a quellas d'arsenal.\nTuttas da las valurs da la datoteca CSV che n'èn betg vegnidas attribuidas vegnan transferidas automaticamain en il champ "Remartgas".\n\nI vegn activà la lingia da chau, na vegn l'emprima lingia da la datoteca CSV betg importada, uschiglio schon.\n\nRemartga: Il champ da caliber sto vegnir inditgà per la funcziun da QuickShot precis sco tar la tscherna da l'app d'arsenal.\nE èsi recumandà d' adattar quai per il mument en la datoteca da CSV u pli tard en l' app`,
+    },
+    importCSVModalCheckbox: {
+        de: "CSV Datei hat Kopfzeile",
+        en: "CSV file has header line",
+        fr: "Le fichier CSV a un en-tête",
+        it: "Il file CSV ha una riga di intestazione",
+        ch: "La datoteca CSV ha faudas"
     }
 }
