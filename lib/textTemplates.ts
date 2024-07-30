@@ -97,6 +97,7 @@ interface GeneralSettingsLabels{
     displayImagesInListViewAmmo: SimpleTranslation
     resizeImages: SimpleTranslation
     loginGuard: SimpleTranslation
+    emptyFields: SimpleTranslation
 }
 
 interface ModalText{
@@ -963,6 +964,13 @@ export const generalSettingsLabels: GeneralSettingsLabels = {
         fr: "Login biométrique",
         it: "Login biometrico",
         ch: "Login biometric"
+    },
+    emptyFields: {
+        de: "Leere Felder in Einträgen ausblenden",
+        en: "Hide empty fields in entries",
+        fr: "Masquer les champs vides dans les entrées",
+        it: "Nascondere i campi vuoti nelle voci",
+        ch: "Tschertgar champs vids en inscripziuns"
     }
 }
 

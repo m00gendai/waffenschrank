@@ -23,7 +23,7 @@ export default function Gun({navigation}){
     const [dialogVisible, toggleDialogVisible] = useState<boolean>(false)
 
     const { setSeeGunOpen, editGunOpen, setEditGunOpen, lightBoxOpen, setLightBoxOpen } = useViewStore()
-    const { language, theme } = usePreferenceStore()
+    const { language, theme, generalSettings } = usePreferenceStore()
     const { currentGun, setCurrentGun, gunCollection, setGunCollection} = useGunStore()
 
     const showModal = (index:number) => {
@@ -121,6 +121,30 @@ export default function Gun({navigation}){
                             })}
                         </View>
                         {gunDataTemplate.map((item, index)=>{
+                            if(!generalSettings.emptyFields){
+                                return(
+                                    <View key={`${item.name}`} style={{flex: 1, flexDirection: "column"}} >
+                                        <Text style={{width: "100%", fontSize: 12,}}>{`${item[language]}:`}</Text>
+                                        {Array.isArray(currentGun[item.name]) ?
+                                        <Text style={{width: "100%", fontSize: 18, marginBottom: 5, paddingBottom: 5, borderBottomColor: theme.colors.primary, borderBottomWidth: 0.2}}>{currentGun[item.name] ? currentGun[item.name].join("\n") : ""}</Text>
+                                        :
+                                        <Text style={{width: "100%", fontSize: 18, marginBottom: 5, paddingBottom: 5, borderBottomColor: theme.colors.primary, borderBottomWidth: 0.2}}>{item.name === "paidPrice" ? `CHF ${currentGun[item.name] ? currentGun[item.name] : ""}` : item.name === "cleanInterval" && currentGun[item.name] !== undefined ? cleanIntervals[currentGun[item.name]][language] : currentGun[item.name]}</Text>
+                                        }
+                                        {item.name === "lastCleanedAt" && checkDate(currentGun) ? 
+                                            <View style={{position:"absolute", top: 0, right: 0, bottom: 0, left: 0, display: "flex", flexDirection: "row", justifyContent: "flex-end", alignItems: "center"}}>
+                                                <IconButton icon="spray-bottle" iconColor={theme.colors.error} /><IconButton icon="toothbrush" iconColor={theme.colors.error} />
+                                            </View> 
+                                        : 
+                                        null}
+                                        {item.name === "mainColor" ? 
+                                            <View style={{position:"absolute", top: 0, right: 0, bottom: 0, left: 0, display: "flex", flexDirection: "row", justifyContent: "flex-end", alignItems: "center"}}>
+                                                <View style={{height: "50%", aspectRatio: "5/1", borderRadius: 50, backgroundColor: `${currentGun.mainColor}`, transform:[{translateY: -5}]}}></View>
+                                            </View> 
+                                        : 
+                                        null}
+                                    </View>
+                                )
+                            } else if(currentGun[item.name] !== null && currentGun[item.name] !== undefined && currentGun[item.name] !== "" && currentGun[item.name].length !== 0){
                             return(
                                 <View key={`${item.name}`} style={{flex: 1, flexDirection: "column"}} >
                                     <Text style={{width: "100%", fontSize: 12,}}>{`${item[language]}:`}</Text>
@@ -143,6 +167,7 @@ export default function Gun({navigation}){
                                     null}
                                 </View>
                             )
+                                }
                         })}
                         <View style={{flex: 1, flexDirection: "column"}} >
                         {checkBoxes.map(checkBox=>{
