@@ -8,7 +8,8 @@ import { GunType, AmmoType } from "../interfaces"
 import { useState } from "react"
 import { useTagStore } from "../stores/useTagStore"
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { TAGS, A_TAGS, defaultViewPadding } from "../configs"
+import { defaultViewPadding } from "../configs"
+import { TAGS, A_TAGS } from "../configs_DB"
 import { BlurView } from "expo-blur"
 import ModalContainer from "./ModalContainer"
 

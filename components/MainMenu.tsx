@@ -5,7 +5,8 @@ import { ActivityIndicator, Button, Dialog, Divider, Icon, IconButton, List, Mod
 import { aboutText, aboutThanks, databaseImportAlert, databaseOperations, generalSettingsLabels, loginGuardAlert, preferenceTitles, resizeImageAlert, toastMessages, tooltips } from "../lib/textTemplates"
 import { usePreferenceStore } from "../stores/usePreferenceStore"
 import AsyncStorage from "@react-native-async-storage/async-storage"
-import { AMMO_DATABASE, A_KEY_DATABASE, A_TAGS, GUN_DATABASE, KEY_DATABASE, PREFERENCES, TAGS, defaultViewPadding, languageSelection } from "../configs"
+import { defaultViewPadding, languageSelection } from "../configs"
+import { AMMO_DATABASE, A_KEY_DATABASE, A_TAGS, GUN_DATABASE, KEY_DATABASE, PREFERENCES, TAGS } from "../configs_DB"
 import { colorThemes } from "../lib/colorThemes"
 import { useEffect, useState } from "react"
 import * as FileSystem from 'expo-file-system';

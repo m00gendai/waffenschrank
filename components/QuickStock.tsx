@@ -2,7 +2,8 @@ import { useState } from "react";
 import { View } from "react-native";
 import { Button, Dialog, IconButton, Text, TextInput } from "react-native-paper"
 import { usePreferenceStore } from "../stores/usePreferenceStore";
-import { AMMO_DATABASE, dateLocales, defaultViewPadding } from "../configs";
+import { dateLocales, defaultViewPadding } from "../configs";
+import { AMMO_DATABASE } from "../configs_DB"
 import { AmmoType } from "../interfaces";
 import * as SecureStore from "expo-secure-store"
 import { useAmmoStore } from "../stores/useAmmoStore";

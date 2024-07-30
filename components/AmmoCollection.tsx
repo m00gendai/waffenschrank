@@ -2,7 +2,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useEffect, useState } from 'react';
 import { FlatList, View } from 'react-native';
 import { Appbar, FAB, Menu, Switch, Text, Tooltip, Searchbar } from 'react-native-paper';
-import { PREFERENCES, defaultGridGap, defaultViewPadding } from '../configs';
+import { defaultGridGap, defaultViewPadding } from '../configs';
+import { PREFERENCES } from "../configs_DB"
 import { AmmoType, MenuVisibility, SortingTypes } from '../interfaces';
 import { getIcon, doSortBy } from '../utils';
 import { useViewStore } from '../stores/useViewStore';

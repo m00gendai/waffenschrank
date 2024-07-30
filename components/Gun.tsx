@@ -5,7 +5,7 @@ import * as SecureStore from "expo-secure-store"
 import { useState} from "react"
 import EditGun from "./EditGun"
 import ImageViewer from "./ImageViewer"
-import { GUN_DATABASE, KEY_DATABASE } from '../configs';
+import { GUN_DATABASE, KEY_DATABASE } from '../configs_DB';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { usePreferenceStore } from '../stores/usePreferenceStore';
 import { useViewStore } from '../stores/useViewStore';
