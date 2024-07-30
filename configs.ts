@@ -19,7 +19,7 @@ export const AMMO_DATABASE:string = "ammo0009"
 export const A_TAGS:string = "atag0012"
 
 /* Preferences database is shared */
-export const PREFERENCES:string = "pre0020"
+export const PREFERENCES:string = "pre0018"
 
 /* Range Log Database */
 export const RANGELOG:string = "rlog0001"
