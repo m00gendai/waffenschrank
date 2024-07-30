@@ -4,7 +4,7 @@ import { usePreferenceStore } from "../stores/usePreferenceStore"
 import { View, ScrollView } from "react-native"
 import { defaultViewPadding } from "../configs"
 import { AMMO_DATABASE, A_KEY_DATABASE, GUN_DATABASE, KEY_DATABASE } from "../configs_DB"
-import { mainMenu_ammunitionDatabase } from "../lib/Text/mainMenu_ammunitionDatabase"
+import { mainMenu_ammunitionDatabase, mainMenu_gunDatabase } from "../lib/Text/mainMenu_ammunitionDatabase"
 import { ammoDataTemplate } from "../lib/ammoDataTemplate"
 import { Picker } from "@react-native-picker/picker"
 import { useImportExportStore } from "../stores/useImportExportStore"
@@ -86,9 +86,9 @@ export default function CSVImportModal(){
 
     return(
         <ModalContainer visible={importCSVVisible} setVisible={toggleImportCSVVisible}
-        title={dbCollectionType === "import_custom_gun_csv" ? mainMenu_ammunitionDatabase.importCSVModalTitle[language] : mainMenu_ammunitionDatabase.importCSVModalTitle[language]}
-        subtitle={dbCollectionType === "import_custom_gun_csv" ? mainMenu_ammunitionDatabase.importCSVModalText[language] : mainMenu_ammunitionDatabase.importCSVModalText[language]}
-        content={<View><View><Checkbox.Item label="CSV Datei hat Kopfzeile" status={hasHeaders ? "checked" : "unchecked"} onPress={()=>setHasHeaders(!hasHeaders)} /></View><ScrollView style={{padding: defaultViewPadding}}>
+        title={dbCollectionType === "import_custom_gun_csv" ? mainMenu_gunDatabase.importCSVModalTitle[language] : mainMenu_ammunitionDatabase.importCSVModalTitle[language]}
+        subtitle={dbCollectionType === "import_custom_gun_csv" ? mainMenu_gunDatabase.importCSVModalText[language] : mainMenu_ammunitionDatabase.importCSVModalText[language]}
+        content={<View><View><Checkbox.Item label={dbCollectionType === "import_custom_gun_csv" ? mainMenu_gunDatabase.importCSVModalCheckbox[language] : mainMenu_ammunitionDatabase.importCSVModalCheckbox[language]} status={hasHeaders ? "checked" : "unchecked"} onPress={()=>setHasHeaders(!hasHeaders)} /></View><ScrollView style={{padding: defaultViewPadding}}>
                 
             {dbCollectionType === "import_custom_gun_csv" ? gunDataTemplate.map((gunItem, gunIndex)=>{
                 return(
