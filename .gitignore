@@ -35,7 +35,7 @@ yarn-error.*
 *.tsbuildinfo
 
 # Database key file 
-configs_DB.ts
+/configs_DB.ts
 
 # build
 android/
