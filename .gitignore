@@ -34,7 +34,7 @@ yarn-error.*
 # typescript
 *.tsbuildinfo
 
-# Databae key file 
+# Database key file 
 configs_DB.ts
 
 # build
