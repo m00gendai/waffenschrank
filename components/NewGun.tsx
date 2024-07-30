@@ -9,7 +9,7 @@ import NewText from "./NewText"
 import "react-native-get-random-values"
 import { v4 as uuidv4 } from 'uuid';
 import ImageViewer from "./ImageViewer"
-import { GUN_DATABASE, KEY_DATABASE } from '../configs';
+import { GUN_DATABASE, KEY_DATABASE } from '../configs_DB';
 import { GunType } from '../interfaces';
 import { gunDataValidation, imageHandling } from '../utils';
 import NewTextArea from './NewTextArea';

@@ -8,7 +8,7 @@ import { ammoDataTemplate, ammoRemarks } from "../lib/ammoDataTemplate"
 import NewText from "./NewText"
 import "react-native-get-random-values"
 import ImageViewer from "./ImageViewer"
-import { AMMO_DATABASE } from '../configs';
+import { AMMO_DATABASE } from '../configs_DB';
 import { AmmoType } from '../interfaces';
 import NewTextArea from './NewTextArea';
 import NewCheckboxArea from './NewCheckboxArea';
