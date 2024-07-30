@@ -1,4 +1,4 @@
-import { Divider, IconButton, Modal, Text } from "react-native-paper"
+import { Checkbox, Divider, IconButton, Modal, Text } from "react-native-paper"
 import { useViewStore } from "../stores/useViewStore"
 import { usePreferenceStore } from "../stores/usePreferenceStore"
 import { View, ScrollView } from "react-native"
@@ -17,6 +17,7 @@ import { useAmmoStore } from "../stores/useAmmoStore"
 import AsyncStorage from "@react-native-async-storage/async-storage"
 import { gunDataTemplate } from "../lib/gunDataTemplate"
 import ModalContainer from "./ModalContainer"
+import { useState } from "react"
 
 export default function CSVImportModal(){
 
@@ -25,6 +26,8 @@ export default function CSVImportModal(){
     const { CSVHeader, CSVBody, importProgress, setImportProgress, setImportSize, mapCSV, setMapCSV, dbCollectionType, setDbCollectionType } = useImportExportStore()
     const { setGunCollection } = useGunStore()
     const { setAmmoCollection } = useAmmoStore()
+
+    const [hasHeaders, setHasHeaders] = useState<boolean>(true)
 
     async function setImportedCSV(){
         if(dbCollectionType === ""){
@@ -42,7 +45,10 @@ export default function CSVImportModal(){
                 usedIndexes.push(entries)
             }
         }
-        const objects: (AmmoType | GunType)[] = CSVBody.map((items, index)=>{
+
+        const itemsToBeMapped:string[][] = hasHeaders ? [...CSVBody] : [[...CSVHeader], ...CSVBody]
+
+        const objects: (AmmoType | GunType)[] = itemsToBeMapped.map((items, index)=>{
             const mapped:AmmoType | GunType = dbCollectionType === "import_custom_gun_csv" ? {...exampleGunEmpty} : {...exampleAmmoEmpty}
             for(const entry of Object.entries(indexMapCSV)){
                 if(entry[0] === "id"){
@@ -82,7 +88,7 @@ export default function CSVImportModal(){
         <ModalContainer visible={importCSVVisible} setVisible={toggleImportCSVVisible}
         title={dbCollectionType === "import_custom_gun_csv" ? mainMenu_ammunitionDatabase.importCSVModalTitle[language] : mainMenu_ammunitionDatabase.importCSVModalTitle[language]}
         subtitle={dbCollectionType === "import_custom_gun_csv" ? mainMenu_ammunitionDatabase.importCSVModalText[language] : mainMenu_ammunitionDatabase.importCSVModalText[language]}
-        content={<ScrollView style={{padding: defaultViewPadding}}>
+        content={<View><View><Checkbox.Item label="CSV Datei hat Kopfzeile" status={hasHeaders ? "checked" : "unchecked"} onPress={()=>setHasHeaders(!hasHeaders)} /></View><ScrollView style={{padding: defaultViewPadding}}>
                 
             {dbCollectionType === "import_custom_gun_csv" ? gunDataTemplate.map((gunItem, gunIndex)=>{
                 return(
@@ -119,7 +125,7 @@ export default function CSVImportModal(){
                 })
             }
             
-                </ScrollView>}
+                </ScrollView></View>}
         buttonACK={<IconButton icon="check" mode="contained" style={{width: 50, backgroundColor: theme.colors.primary}} iconColor={theme.colors.onPrimary} onPress={()=>setImportedCSV()} />}
         buttonCNL={<IconButton icon="cancel" mode="contained" style={{width: 50, backgroundColor: theme.colors.secondaryContainer}} iconColor={theme.colors.onSecondaryContainer} onPress={()=>toggleImportCSVVisible()} />}
         buttonDEL={null}
