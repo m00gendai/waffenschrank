@@ -151,7 +151,6 @@ function handleFocus(){
     setCharCount(input !== undefined && input !== null ? input.length : 0)
 }
 
-console.log(caliberView)
     return(
         <View style={{flex: 1}}>
             <TouchableNativeFeedback 
