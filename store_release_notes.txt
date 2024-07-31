@@ -1,0 +1,88 @@
+TEMPLATE
+
+<de-DE>
+Enter or paste your release notes for de-DE here
+</de-DE>
+<en-US>
+Enter or paste your release notes for en-US here
+</en-US>
+<fr-FR>
+Enter or paste your release notes for fr-FR here
+</fr-FR>
+<it-IT>
+Enter or paste your release notes for it-IT here
+</it-IT>
+
+BETA 1.1.0
+
+<de-DE>
+Neue Funktionen:
+- Option für biometrische Anmeldung
+- Option zum Ausblenden leerer Felder in Sammelobjekten
+- Option zum Festlegen, ob eine importierbare CSV-Datei eine Kopfzeile hat
+- Suchfeld in der Kaliberauswahl
+- Neue Checkbox für Waffen, die nach altem Recht erworben wurden
+- Sortierreihenfolge der Sammlung wird jetzt gespeichert
+
+Behebungen:
+- Sortierreihenfolge funktionierte nicht
+- Das erste Element einer importierbaren CSV-Datei wird nicht importiert, wenn keine Kopfzeile vorhanden ist
+- CSV-Import erzeugt undefiniertes Sammlungsobjekt
+</de-DE>
+<en-US>
+New features:
+- Option for biometric login
+- Option to hide empty fields in collection objects
+- Option to define if importable CSV file has header row
+- Search field in Caliber Picker
+- New checkbox for guns acquired under old law
+- Collection sort order is now saved
+
+Fixes:
+- Sort order not working
+- First element of importable CSV not being imported if no header row is present
+- CSV import generating undefined collection object
+</en-US>
+<fr-FR>
+Nouvelles fonctionnalités :
+- Option de connexion biométrique
+- Possibilité de masquer les champs vides dans les objets de collection
+- Possibilité de définir si le fichier CSV importable a une ligne d'en-tête
+- Champ de recherche dans le sélecteur de calibre
+- Nouvelle case à cocher pour les armes acquises sous l'ancienne loi
+- L'ordre de tri des collections est désormais sauvegardé
+
+Corrections :
+- L'ordre de tri ne fonctionne pas
+- Le premier élément d'un fichier CSV importable n'est pas importé s'il n'y a pas de ligne d'en-tête.
+- L'importation d'un fichier CSV génère un objet de collection non défini
+</fr-FR>
+<it-IT>
+Nuove caratteristiche:
+- Opzione per il login biometrico
+- Opzione per nascondere i campi vuoti negli oggetti di raccolta
+- Possibilità di definire se il file CSV importabile ha una riga di intestazione
+- Campo di ricerca nella selezione del calibro
+- Nuova casella di controllo per le armi acquisite secondo la vecchia legge
+- L'ordine di ordinamento della collezione è ora salvato
+
+Correzioni:
+- L'ordine di ordinamento non funziona
+- Il primo elemento del CSV importabile non viene importato se non è presente una riga di intestazione
+- Importazione di CSV che genera un oggetto di raccolta non definito
+</it-IT> 
+    
+BETA 1.0.0
+
+<de-DE>
+Fehler behoben, der die App abstürzen liess, wenn ein neuer Munitionseintrag erstellt wurde
+</de-DE>
+<en-US>
+Fixed bug that crashed the App if a new ammunition entry was created
+</en-US>
+<fr-FR>
+Correction d'un bug qui faisait planter l'application si une nouvelle entrée de munitions était créée
+</fr-FR>
+<it-IT>
+Corretto un bug che mandava in crash l'app se veniva creata una nuova voce di munizioni
+</it-IT>
