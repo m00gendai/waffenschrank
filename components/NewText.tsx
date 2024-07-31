@@ -9,7 +9,7 @@ import { calibers } from '../lib/caliberData';
 import { usePreferenceStore } from '../stores//usePreferenceStore';
 import { defaultModalBackdrop, defaultViewPadding, requiredFieldsAmmo, requiredFieldsGun } from '../configs';
 import ModalContainer from './ModalContainer';
-import { cleanIntervals, modalTexts } from '../lib/textTemplates';
+import { caliberPickerStrings, cleanIntervals, modalTexts } from '../lib/textTemplates';
 
 interface Props{
     data: string
@@ -235,11 +235,11 @@ console.log(caliberView)
                 setVisible={setShowModalCaliber}
                 content={<List.Section style={{width: "100%", flexDirection: "column", height: "100%"}}>
                     <ScrollView style={{height: "20%", width: "100%", backgroundColor: theme.colors.background}}>
-                    <Text variant="titleMedium" style={{color: theme.colors.primary, padding: defaultViewPadding}}>{`${Array.isArray(activeCaliber) && activeCaliber.length !== 0 ? activeCaliber.join("\n") : "Kaliber auswählen"}`}</Text>
+                    <Text variant="titleMedium" style={{color: theme.colors.primary, padding: defaultViewPadding}}>{`${Array.isArray(activeCaliber) && activeCaliber.length !== 0 ? activeCaliber.join("\n") : caliberPickerStrings.caliberSelection[language]}`}</Text>
                </ScrollView>
                <View style={{height: "10%", display: "flex", flexDirection: "row", justifyContent: "space-between", padding: defaultViewPadding}}>
-                    <TouchableNativeFeedback onPress={()=>setCaliberView("list")}><View style={{borderTopLeftRadius: 15, borderBottomLeftRadius: 15, position: "relative", width: "50%", height: "100%", backgroundColor: caliberView === "list" ? theme.colors.primary : "transparent", borderWidth: 1, borderColor: caliberView === "search" ? theme.colors.primary : "transparent", display: "flex", justifyContent: "flex-start", flexDirection: "row", alignItems: "center", paddingLeft: defaultViewPadding}}><Text style={{color: caliberView === "list" ? theme.colors.onPrimary : theme.colors.onBackground}}>Liste</Text></View></TouchableNativeFeedback>
-                    <TouchableNativeFeedback onPress={()=>setCaliberView("search")}><View style={{borderTopRightRadius: 15, borderBottomRightRadius: 15, position: "relative", width: "50%", height: "100%", backgroundColor: caliberView === "search" ? theme.colors.primary : "transparent", borderWidth: 1, borderColor: caliberView === "list" ? theme.colors.primary : "transparent", display: "flex", justifyContent: "flex-end", flexDirection: "row", alignItems: "center", paddingRight: defaultViewPadding}}><Text style={{color: caliberView === "search" ? theme.colors.onPrimary : theme.colors.onBackground}}>Search</Text></View></TouchableNativeFeedback>
+                    <TouchableNativeFeedback onPress={()=>setCaliberView("list")}><View style={{borderTopLeftRadius: 15, borderBottomLeftRadius: 15, position: "relative", width: "50%", height: "100%", backgroundColor: caliberView === "list" ? theme.colors.primary : "transparent", borderWidth: 1, borderColor: caliberView === "search" ? theme.colors.primary : "transparent", display: "flex", justifyContent: "flex-start", flexDirection: "row", alignItems: "center", paddingLeft: defaultViewPadding}}><Text style={{color: caliberView === "list" ? theme.colors.onPrimary : theme.colors.onBackground}}>{caliberPickerStrings.tabList[language]}</Text></View></TouchableNativeFeedback>
+                    <TouchableNativeFeedback onPress={()=>setCaliberView("search")}><View style={{borderTopRightRadius: 15, borderBottomRightRadius: 15, position: "relative", width: "50%", height: "100%", backgroundColor: caliberView === "search" ? theme.colors.primary : "transparent", borderWidth: 1, borderColor: caliberView === "list" ? theme.colors.primary : "transparent", display: "flex", justifyContent: "flex-end", flexDirection: "row", alignItems: "center", paddingRight: defaultViewPadding}}><Text style={{color: caliberView === "search" ? theme.colors.onPrimary : theme.colors.onBackground}}>{caliberPickerStrings.tabSearch[language]}</Text></View></TouchableNativeFeedback>
                 </View>
                 {caliberView === "list" ?
                 <ScrollView style={{height: "70%", width: "100%", backgroundColor: "yellow"}}>
@@ -268,7 +268,7 @@ console.log(caliberView)
                 <View style={{height: "70%"}}>
                 <View style={{padding: defaultViewPadding}}>
                 <Searchbar
-      placeholder="Search"
+      placeholder={caliberPickerStrings.tabSearch[language]}
       onChangeText={setCaliberQuery}
       value={caliberQuery}
     />
