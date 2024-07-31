@@ -128,6 +128,12 @@ interface CleanIntervals{
     year_10: SimpleTranslation
 }
 
+interface CaliberPickerStrings{
+    caliberSelection: SimpleTranslation
+    tabList: SimpleTranslation
+    tabSearch: SimpleTranslation
+}
+
 export const cleanIntervals:CleanIntervals = {
     none: {
         de: "-",
@@ -1055,4 +1061,28 @@ export const modalTexts: ModalText = {
             ch: `Tscherni in interval da temp, cur che l'arma stuess puspè vegnir nettegiada.\n\nDies vegn quintà vi da la valur da "l'ultima nettegiada", premess che quella saja messa.\n\nBenenen surpassament da l'interval cumpara il num da l'arma en la survista cotschna.`,
         }
     },
+}
+
+export const caliberPickerStrings:CaliberPickerStrings = {
+    caliberSelection:{
+        de: "Ausgewählte Kaliber erscheinen hier",
+        en: "Selected calibers appear here",
+        fr: "Les calibres sélectionnés apparaissent ici",
+        it: "I calibri selezionati appaiono qui",
+        ch: "Caliber selecziunà cumpara qua",
+    },
+    tabList: {
+        de: "Liste",
+        en: "List",
+        fr: "Liste",
+        it: "Elenco",
+        ch: "Glista",
+    },
+    tabSearch:{
+        de: "Suche",
+        en: "Search",
+        fr: "Recherche",
+        it: "Ricerca",
+        ch: "Tschertga",
+    }
 }
