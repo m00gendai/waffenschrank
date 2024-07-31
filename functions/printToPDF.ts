@@ -808,7 +808,6 @@ export async function printGunCollectionArt5(guns:GunType[], language: string){
           <tbody>
               ${guns.map(gun =>{
                 if(gun.status !== undefined && Object.entries(gun.status).some(stat => stat[1] === true)){
-                  console.log(gunDataTemplate.map(data=>{return `${data.name}: ${gun[data.name]}`}))
                   return `<tr>${gunDataTemplate.map(data=>{return data.name in gun && !excludedKeys.includes(data.name) ? `<td class=${data.name === "caliber" ? "whitespace" : ""}>${data.name === "caliber" && data.name !== undefined && data.name !== null && gun[data.name].length !== 0 ? gun[data.name].map(dat => `${dat}`).join("\n") : gun[data.name]}</td>` : !(data.name in gun) && !excludedKeys.includes(data.name) ? `<td></td>`: null}).join("")}${Object.entries(gun.status).map(stat => {return stat[1] === true ? "<td>X</td>" : `<td class="hidden">X</td>` }).join("")}</tr>`
                 }
               }).join("")
