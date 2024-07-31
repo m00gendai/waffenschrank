@@ -36,6 +36,12 @@ interface PreferenceStore {
     setSortAmmoIcon: (data: string) => void
     sortGunIcon: string
     setSortGunIcon: (data: string) => void
+    sortGunsAscending: boolean
+    toggleSortGunsAscending: () => void
+    setSortGunsAscending: (status: boolean) => void
+    sortAmmoAscending: boolean
+    toggleSortAmmoAscending: () => void
+    setSortAmmoAscending: (status: boolean) => void
   }
 
   export const usePreferenceStore = create<PreferenceStore>((set) => ({
@@ -61,6 +67,12 @@ interface PreferenceStore {
     setSortAmmoIcon: (data: string) => set((state) => ({sortAmmoIcon: data})),
     sortGunIcon: "alphabetical-variant",
     setSortGunIcon: (data: string) => set((state) => ({sortGunIcon: data})),
+    sortGunsAscending: true,
+    toggleSortGunsAscending: () => set((state) => ({sortGunsAscending: !state.sortGunsAscending})),
+    setSortGunsAscending: (status: boolean) => set((state) => ({sortGunsAscending: status})),
+    sortAmmoAscending: true,
+    toggleSortAmmoAscending: () => set((state) => ({sortAmmoAscending: !state.sortAmmoAscending})),
+    setSortAmmoAscending: (status: boolean) => set((state) => ({sortAmmoAscending: status})),
     generalSettings: {
       displayImagesInListViewGun: true,
       displayImagesInListViewAmmo: true,
