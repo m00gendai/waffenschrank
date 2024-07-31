@@ -1,6 +1,6 @@
 import { Button, Dialog, IconButton, Modal, Portal, Text } from "react-native-paper";
 import { defaultModalBackdrop, defaultViewPadding } from "../configs";
-import { ScrollView, View } from "react-native";
+import { Dimensions, ScrollView, View } from "react-native";
 import { usePreferenceStore } from "../stores/usePreferenceStore";
 import { useState } from "react";
 
@@ -21,10 +21,10 @@ export default function ModalContainer({visible, setVisible, title, subtitle, co
     const [seeInfo, toggleSeeInfo] = useState<boolean>(false)
     
     return(
-                <Portal>
-            <Modal visible={visible} onDismiss={()=>setVisible(false)}>
+                <Portal >
+            <Modal visible={visible} onDismiss={()=>setVisible(false)} style={{position: "absolute"}}>
                 <View style={{width: "100%", height: "100%", display: "flex", flexDirection: "row", justifyContent: "center", alignItems: "center", alignContent: "center", flexWrap: "wrap", backgroundColor: defaultModalBackdrop}}>
-                    <View style={{borderRadius: 25, width: "85%", height: "85%", display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "flex-start", flexWrap: "wrap", backgroundColor: theme.colors.background}}>
+                    <View style={{borderRadius: 25, width: (Dimensions.get("window").width/100)*85, height: (Dimensions.get("window").height/100)*85, display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "flex-start", flexWrap: "wrap", backgroundColor: theme.colors.background}}>
                         <View style={{borderTopLeftRadius: 25, borderTopRightRadius: 25, width: "100%", backgroundColor: theme.colors.background, borderBottomColor: theme.colors.primary, borderBottomWidth: 1, marginBottom: 5}}>
                             <View style={{display: "flex", flexDirection: "row"}}><Text variant="titleLarge" style={{color: theme.colors.primary, padding: defaultViewPadding, flex: 9}}>{title}</Text><IconButton style={{flex: 1}} icon="help-circle-outline" onPress={()=>toggleSeeInfo(true)}/></View>
                         </View>
