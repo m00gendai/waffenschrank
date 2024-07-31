@@ -43,7 +43,7 @@ export default function App() {
   const [appIsReady, setAppIsReady] = useState<boolean>(false);
   const [isBiometricSupported, setIsBiometricSupported] = useState<boolean>(false);
 
-  const { ammoDbImport, dbImport, switchLanguage, theme, switchTheme, language, generalSettings, setGeneralSettings, setDisplayAsGrid, setDisplayAmmoAsGrid, setSortBy, setSortAmmoBy, setSortAmmoIcon, setSortGunIcon } = usePreferenceStore();
+  const { ammoDbImport, dbImport, switchLanguage, theme, switchTheme, language, generalSettings, setGeneralSettings, setDisplayAsGrid, setDisplayAmmoAsGrid, setSortBy, setSortAmmoBy, setSortAmmoIcon, setSortGunIcon, setSortGunsAscending, setSortAmmoAscending } = usePreferenceStore();
   const { mainMenuOpen } = useViewStore()
   const { setAmmoCollection } = useAmmoStore()
   const { setGunCollection } = useGunStore()
@@ -107,6 +107,7 @@ export default function App() {
       setDisplayAmmoAsGrid(isPreferences === null ? true : isPreferences.displayAmmoAsGrid === null ? true : isPreferences.displayAmmoAsGrid)
       setSortAmmoBy(isPreferences === null ? "alphabetical" : isPreferences.sortAmmoBy === undefined ? "alphabetical" : isPreferences.sortAmmoBy)
       setSortAmmoIcon(getIcon((isPreferences === null ? "alphabetical" : isPreferences.sortAmmoBy === null ? "alphabetical" : isPreferences.sortAmmoBy)))
+      setSortAmmoAscending(isPreferences === null ? true : isPreferences.sortOrderAmmo === null ? true : isPreferences.sortOrderAmmo)
       if(isAmmoTagList !== null && isAmmoTagList !== undefined){
         Object.values(isAmmoTagList).map(tag =>{
           setAmmoTags(tag)
@@ -119,6 +120,7 @@ export default function App() {
       setDisplayAsGrid(isPreferences === null ? true : isPreferences.displayAsGrid === null ? true : isPreferences.displayAsGrid)
       setSortBy(isPreferences === null ? "alphabetical" : isPreferences.sortBy === undefined ? "alphabetical" : isPreferences.sortBy)
       setSortGunIcon(getIcon((isPreferences === null ? "alphabetical" : isPreferences.sortBy === null ? "alphabetical" : isPreferences.sortBy)))
+      setSortGunsAscending(isPreferences === null ? true : isPreferences.sortOrderGuns === null ? true : isPreferences.sortOrderGuns)
       if(isGunTagList !== null && isGunTagList !== undefined){
         Object.values(isGunTagList).map(tag =>{
           setTags(tag)
@@ -150,7 +152,7 @@ export default function App() {
         setAmmoCollection([])
       }
       if(filteredAmmunition.length !== 0){
-        const sortedAmmo = doSortBy(isPreferences === null ? "alphabetical" : isPreferences.sortAmmoBy === undefined ? "alphabetical" : isPreferences.sortAmmoBy, isPreferences == null? true : isPreferences.sortAmmoOrder === undefined ? true : isPreferences.sortOrder, filteredAmmunition) as AmmoType[]
+        const sortedAmmo = doSortBy(isPreferences === null ? "alphabetical" : isPreferences.sortAmmoBy === undefined ? "alphabetical" : isPreferences.sortAmmoBy, isPreferences == null? true : isPreferences.sortOrderAmmo === null ? true : isPreferences.sortOrderAmmo, filteredAmmunition) as AmmoType[]
         setAmmoCollection(sortedAmmo)
       }
     }
@@ -171,7 +173,7 @@ export default function App() {
         setGunCollection([])
       } 
       if(filteredGuns.length !== 0) {
-        const sortedGuns = doSortBy(isPreferences === null ? "alphabetical" : isPreferences.sortBy === undefined ? "alphabetical" : isPreferences.sortBy, isPreferences == null? true : isPreferences.sortOrder === undefined ? true : isPreferences.sortOrder, filteredGuns) as GunType[]
+        const sortedGuns = doSortBy(isPreferences === null ? "alphabetical" : isPreferences.sortBy === undefined ? "alphabetical" : isPreferences.sortBy, isPreferences == null? true : isPreferences.sortOrderGuns === null ? true : isPreferences.sortOrderGuns, filteredGuns) as GunType[]
         setGunCollection(sortedGuns)
       }
     }
