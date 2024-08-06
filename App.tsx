@@ -34,6 +34,7 @@ import EditGun from './components/EditGun';
 import EditAmmo from './components/EditAmmo';
 import * as SplashScreen from 'expo-splash-screen';
 import * as LocalAuthentication from 'expo-local-authentication';
+import { Alert } from 'react-native';
 
 
 SplashScreen.preventAutoHideAsync();
@@ -55,19 +56,44 @@ export default function App() {
        console.log("try: so hard")
        const preferences:string = await AsyncStorage.getItem(PREFERENCES)
         const isPreferences = preferences === null ? null : JSON.parse(preferences)
-        if(isPreferences !== null && isPreferences.generalSettings.loginGuard !== null && isPreferences.generalSettings.loginGuard !== undefined && isPreferences.generalSettings.loginGuard === true){
+        console.log(1)
+        if(isPreferences === null){
+          
+          setAppIsReady(true)
+          return
+        }
+        console.log(2)
+        if(isPreferences.generalSettings === null || isPreferences.generalSettings === undefined){
+          
+          setAppIsReady(true)
+          return
+        }
+        console.log(isPreferences)
+        console.log(3)
+        if(isPreferences.generalSettings.loginGuard !== null && isPreferences.generalSettings.loginGuard !== undefined && isPreferences.generalSettings.loginGuard === true){
+        
           const success = await LocalAuthentication.authenticateAsync()
+          console.log(success)
           if(success.success){
             setAppIsReady(true);
           } else{
-            return
+            throw new Error(`Local Authentification failed: ${success} | ${isPreferences.generalSettings.loginGuard}`);
+            
           }
         } else {
+          console.log("false")
           setAppIsReady(true)
+          return
         }
       } catch (e) {
         console.log("catch: got so far")
         console.warn(e);
+        Alert.alert("Error", `${e}`, [
+          {
+            text: 'OK',
+            onPress: () => {return},
+          },
+        ])
       } finally {
         console.log("finally: doesnt even matter")
         
