@@ -42,7 +42,6 @@ SplashScreen.preventAutoHideAsync();
 export default function App() {
 
   const [appIsReady, setAppIsReady] = useState<boolean>(false);
-  const [isBiometricSupported, setIsBiometricSupported] = useState<boolean>(false);
 
   const { ammoDbImport, dbImport, switchLanguage, theme, switchTheme, language, generalSettings, setGeneralSettings, setDisplayAsGrid, setDisplayAmmoAsGrid, setSortBy, setSortAmmoBy, setSortAmmoIcon, setSortGunIcon, setSortGunsAscending, setSortAmmoAscending } = usePreferenceStore();
   const { mainMenuOpen } = useViewStore()
@@ -53,32 +52,27 @@ export default function App() {
   useEffect(() => {
     async function prepare() {
       try {
-       console.log("try: so hard")
-       const preferences:string = await AsyncStorage.getItem(PREFERENCES)
+        console.log("try: so hard")
+        const preferences:string = await AsyncStorage.getItem(PREFERENCES)
         const isPreferences = preferences === null ? null : JSON.parse(preferences)
-        console.log(1)
+        console.log("isPreferences null")
         if(isPreferences === null){
-          
           setAppIsReady(true)
           return
         }
-        console.log(2)
-        if(isPreferences.generalSettings === null || isPreferences.generalSettings === undefined){
-          
+        console.log("isPreferences.generalSettings null")
+        if(isPreferences.generalSettings === null || isPreferences.generalSettings === undefined){ 
           setAppIsReady(true)
           return
         }
-        console.log(isPreferences)
-        console.log(3)
+        console.log("isPreferences.generalsettings.loginGuard null || false")
         if(isPreferences.generalSettings.loginGuard !== null && isPreferences.generalSettings.loginGuard !== undefined && isPreferences.generalSettings.loginGuard === true){
-        
           const success = await LocalAuthentication.authenticateAsync()
-          console.log(success)
+          console.log(`success: ${success}`)
           if(success.success){
             setAppIsReady(true);
           } else{
             throw new Error(`Local Authentification failed: ${success} | ${isPreferences.generalSettings.loginGuard}`);
-            
           }
         } else {
           console.log("false")
@@ -87,7 +81,7 @@ export default function App() {
         }
       } catch (e) {
         console.log("catch: got so far")
-        console.warn(e);
+        console.log(e);
         Alert.alert("Error", `${e}`, [
           {
             text: 'OK',
@@ -96,8 +90,6 @@ export default function App() {
         ])
       } finally {
         console.log("finally: doesnt even matter")
-        
-        
       }
     }
     prepare();
