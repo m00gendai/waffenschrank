@@ -104,7 +104,7 @@ export default function NewAmmo({navigation}){
         const newCollection:AmmoType[] = [...ammoCollection, value]
         setAmmoCollection(newCollection)
         setSeeAmmoOpen()
-
+        navigation.navigate("Ammo")
     }
     
     const pickImageAsync = async (indx:number) =>{

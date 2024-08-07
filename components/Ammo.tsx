@@ -72,14 +72,14 @@ export default function Ammo({navigation}){
         const newCollection:AmmoType[] = ammoCollection.toSpliced(index, 1)
         setAmmoCollection(newCollection)
         toggleDialogVisible(false)
-        navigation.goBack()
+        navigation.navigate("Home")
     }
 
     return(
         <View style={{flex: 1}}>
             
             <Appbar style={{width: "100%"}}>
-                <Appbar.BackAction  onPress={() => navigation.goBack()} />
+                <Appbar.BackAction  onPress={() => navigation.navigate("Home")} />
                 <Appbar.Content title={`${currentAmmo.designation} ${currentAmmo.manufacturer !== undefined? currentAmmo.manufacturer : ""}`} />
                 <Appbar.Action icon="printer" onPress={()=>printSingleAmmo(currentAmmo, language)} />
                 <Appbar.Action icon="pencil" onPress={()=>navigation.navigate("EditAmmo")} />

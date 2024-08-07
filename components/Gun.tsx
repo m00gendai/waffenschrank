@@ -74,14 +74,14 @@ export default function Gun({navigation}){
         const newCollection:GunType[] = gunCollection.toSpliced(index, 1)
         setGunCollection(newCollection)
         toggleDialogVisible(false)
-        navigation.goBack()
+        navigation.navigate("Home")
     }
 
     return(
         <View style={{flex: 1}}>
             
             <Appbar style={{width: "100%"}}>
-                <Appbar.BackAction  onPress={() => navigation.goBack()} />
+                <Appbar.BackAction  onPress={() => navigation.navigate("Home")} />
                 <Appbar.Content title={`${currentGun.manufacturer !== undefined? currentGun.manufacturer : ""} ${currentGun.model}`} />
                 <Appbar.Action icon="printer" onPress={()=>printSingleGun(currentGun, language)} />
                 <Appbar.Action icon="pencil" onPress={()=>navigation.navigate("EditGun")} />

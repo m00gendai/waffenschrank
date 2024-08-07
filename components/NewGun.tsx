@@ -103,7 +103,7 @@ export default function NewGun({navigation}){
         const newCollection:GunType[] = [...gunCollection, value]
         setGunCollection(newCollection)
         setSeeGunOpen()
-
+        navigation.navigate("Gun")
     }
     
     const pickImageAsync = async (indx:number) =>{
