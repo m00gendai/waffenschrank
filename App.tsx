@@ -68,7 +68,7 @@ export default function App() {
         console.log("isPreferences.generalsettings.loginGuard null || false")
         if(isPreferences.generalSettings.loginGuard !== null && isPreferences.generalSettings.loginGuard !== undefined && isPreferences.generalSettings.loginGuard === true){
           const success = await LocalAuthentication.authenticateAsync()
-          console.log(`success: ${success}`)
+          console.log(success)
           if(success.success){
             setAppIsReady(true);
           } else{
@@ -88,9 +88,7 @@ export default function App() {
             onPress: () => {return},
           },
         ])
-      } finally {
-        console.log("finally: doesnt even matter")
-      }
+      } 
     }
     prepare();
   }, []);
