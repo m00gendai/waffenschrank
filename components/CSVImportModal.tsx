@@ -23,7 +23,7 @@ export default function CSVImportModal(){
 
     const { setDbModalVisible, importCSVVisible, toggleImportCSVVisible } = useViewStore()
     const { language, theme } = usePreferenceStore()
-    const { CSVHeader, CSVBody, importProgress, setImportProgress, setImportSize, mapCSV, setMapCSV, dbCollectionType, setDbCollectionType } = useImportExportStore()
+    const { CSVHeader, CSVBody, importProgress, setImportProgress, setImportSize, mapCSVAmmo, setMapCSVAmmo, mapCSVGun, setMapCSVGun, dbCollectionType, setDbCollectionType } = useImportExportStore()
     const { setGunCollection } = useGunStore()
     const { setAmmoCollection } = useAmmoStore()
 
@@ -36,7 +36,7 @@ export default function CSVImportModal(){
         toggleImportCSVVisible()
         setImportSize(CSVBody.length)
         const indexMapCSV:{[key: string]: number}= {}
-        for(const entry of Object.entries(mapCSV)){
+        for(const entry of Object.entries(dbCollectionType === "import_custom_gun_csv" ? mapCSVGun : mapCSVAmmo)){
             indexMapCSV[entry[0]] = CSVHeader.indexOf(entry[1])
         }
         const usedIndexes:number[] = []
@@ -50,6 +50,7 @@ export default function CSVImportModal(){
 
         const objects: (AmmoType | GunType)[] = itemsToBeMapped.map((items, index)=>{
             const mapped:AmmoType | GunType = dbCollectionType === "import_custom_gun_csv" ? {...exampleGunEmpty} : {...exampleAmmoEmpty}
+
             for(const entry of Object.entries(indexMapCSV)){
                 if(entry[0] === "id"){
                     mapped[entry[0]] = uuidv4()  
@@ -82,6 +83,8 @@ export default function CSVImportModal(){
         await AsyncStorage.setItem(dbCollectionType === "import_custom_gun_csv" ? KEY_DATABASE : A_KEY_DATABASE, JSON.stringify(newKeys)) // Save the key object
         dbCollectionType === "import_custom_gun_csv" ? setGunCollection(objects as GunType[]) : setAmmoCollection(objects as AmmoType[])
         setDbCollectionType("")
+        setMapCSVAmmo(null)
+        setMapCSVGun(null)
     }
 
     return(
@@ -91,10 +94,11 @@ export default function CSVImportModal(){
         content={<View><View><Checkbox.Item label={dbCollectionType === "import_custom_gun_csv" ? mainMenu_gunDatabase.importCSVModalCheckbox[language] : mainMenu_ammunitionDatabase.importCSVModalCheckbox[language]} status={hasHeaders ? "checked" : "unchecked"} onPress={()=>setHasHeaders(!hasHeaders)} /></View><ScrollView style={{padding: defaultViewPadding}}>
                 
             {dbCollectionType === "import_custom_gun_csv" ? gunDataTemplate.map((gunItem, gunIndex)=>{
+
                 return(
                     <View key={`mapperRow_${gunIndex}`} style={{width: "100%", display: "flex", flexDirection: "row", flexWrap: "nowrap", alignItems: "center", justifyContent: "space-between"}}>
                         <Text style={{width: "50%"}}>{gunItem.de}</Text>
-                        <Picker style={{width: "50%", color: theme.colors.onBackground}} dropdownIconColor={theme.colors.onBackground} selectedValue={mapCSV[gunItem.name]} onValueChange={(itemValue, itemIndex) => setMapCSV({...mapCSV, [gunItem.name]:itemValue})}>
+                        <Picker style={{width: "50%", color: theme.colors.onBackground}} dropdownIconColor={theme.colors.onBackground} selectedValue={mapCSVGun[gunItem.name]} onValueChange={(itemValue, itemIndex) => setMapCSVGun({...mapCSVGun, [gunItem.name]:itemValue})}>
                             <Picker.Item label={"-"} value={""} style={{backgroundColor: theme.colors.background}} color={theme.colors.onBackground}/>
                             {CSVHeader.map((item, index) => {
                                 return(
@@ -107,11 +111,12 @@ export default function CSVImportModal(){
                 )
                 }) 
             :
-            ammoDataTemplate.map((ammoItem, ammoIndex)=>{
+            dbCollectionType === "import_custom_ammo_csv" ? ammoDataTemplate.map((ammoItem, ammoIndex)=>{
+
                 return(
                     <View key={`mapperRow_${ammoIndex}`} style={{width: "100%", display: "flex", flexDirection: "row", flexWrap: "nowrap", alignItems: "center", justifyContent: "space-between"}}>
                         <Text style={{width: "50%"}}>{ammoItem.de}</Text>
-                        <Picker style={{width: "50%", color: theme.colors.onBackground}} dropdownIconColor={theme.colors.onBackground} selectedValue={mapCSV[ammoItem.name]} onValueChange={(itemValue, itemIndex) => setMapCSV({...mapCSV, [ammoItem.name]:itemValue})}>
+                        <Picker style={{width: "50%", color: theme.colors.onBackground}} dropdownIconColor={theme.colors.onBackground} selectedValue={mapCSVAmmo[ammoItem.name]} onValueChange={(itemValue, itemIndex) => setMapCSVAmmo({...mapCSVAmmo, [ammoItem.name]:itemValue})}>
                             <Picker.Item label={"-"} value={""} style={{backgroundColor: theme.colors.background}} color={theme.colors.onBackground}/>
                             {CSVHeader.map((item, index) => {
                                 return(
@@ -123,6 +128,8 @@ export default function CSVImportModal(){
                     </View>
                 )
                 })
+            :
+            null
             }
             
                 </ScrollView></View>}
