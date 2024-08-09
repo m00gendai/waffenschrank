@@ -5,7 +5,7 @@ import * as SecureStore from "expo-secure-store"
 import { useState} from "react"
 import EditAmmo from "./EditAmmo"
 import ImageViewer from "./ImageViewer"
-import { AMMO_DATABASE, A_KEY_DATABASE } from '../configs';
+import { AMMO_DATABASE, A_KEY_DATABASE } from '../configs_DB';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { usePreferenceStore } from '../stores/usePreferenceStore';
 import { useViewStore } from '../stores/useViewStore';
@@ -22,7 +22,7 @@ export default function Ammo({navigation}){
     const [dialogVisible, toggleDialogVisible] = useState<boolean>(false)
 
     const { setSeeAmmoOpen, editAmmoOpen, setEditAmmoOpen, lightBoxOpen, setLightBoxOpen } = useViewStore()
-    const { language, theme } = usePreferenceStore()
+    const { language, theme, generalSettings } = usePreferenceStore()
     const { currentAmmo, setCurrentAmmo, ammoCollection, setAmmoCollection } = useAmmoStore()
 
     const showModal = (index:number) => {
@@ -72,14 +72,14 @@ export default function Ammo({navigation}){
         const newCollection:AmmoType[] = ammoCollection.toSpliced(index, 1)
         setAmmoCollection(newCollection)
         toggleDialogVisible(false)
-        navigation.goBack()
+        navigation.navigate("Home")
     }
 
     return(
         <View style={{flex: 1}}>
             
             <Appbar style={{width: "100%"}}>
-                <Appbar.BackAction  onPress={() => navigation.goBack()} />
+                <Appbar.BackAction  onPress={() => navigation.navigate("Home")} />
                 <Appbar.Content title={`${currentAmmo.designation} ${currentAmmo.manufacturer !== undefined? currentAmmo.manufacturer : ""}`} />
                 <Appbar.Action icon="printer" onPress={()=>printSingleAmmo(currentAmmo, language)} />
                 <Appbar.Action icon="pencil" onPress={()=>navigation.navigate("EditAmmo")} />
@@ -119,12 +119,21 @@ export default function Ammo({navigation}){
                             })}
                         </View>
                         {ammoDataTemplate.map((item, index)=>{
+                            if(!generalSettings.emptyFields){
+                                return(
+                                    <View key={`${item.name}`} style={{flex: 1, flexDirection: "column"}} >
+                                        <Text style={{width: "100%", fontSize: 12,}}>{`${item[language]}:`}</Text>
+                                        <Text style={{width: "100%", fontSize: 18, marginBottom: 5, paddingBottom: 5, borderBottomColor: theme.colors.primary, borderBottomWidth: 0.2}}>{currentAmmo[item.name]}</Text>
+                                    </View>
+                                )
+                            } else if(currentAmmo[item.name] !== null && currentAmmo[item.name] !== undefined && currentAmmo[item.name] !== "" && currentAmmo[item.name].length !== 0){
                             return(
                                 <View key={`${item.name}`} style={{flex: 1, flexDirection: "column"}} >
                                     <Text style={{width: "100%", fontSize: 12,}}>{`${item[language]}:`}</Text>
                                     <Text style={{width: "100%", fontSize: 18, marginBottom: 5, paddingBottom: 5, borderBottomColor: theme.colors.primary, borderBottomWidth: 0.2}}>{currentAmmo[item.name]}</Text>
                                 </View>
                             )
+                            }
                         })}
                         <View style={{flex: 1, flexDirection: "column"}} >
                             <Text style={{width: "100%", fontSize: 12,}}>{ammoRemarks[language]}</Text>

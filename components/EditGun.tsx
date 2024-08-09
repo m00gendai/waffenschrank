@@ -8,7 +8,7 @@ import { gunDataTemplate, gunRemarks } from "../lib/gunDataTemplate"
 import NewText from "./NewText"
 import "react-native-get-random-values"
 import ImageViewer from "./ImageViewer"
-import { GUN_DATABASE } from '../configs';
+import { GUN_DATABASE } from '../configs_DB';
 import { GunType } from '../interfaces';
 import NewTextArea from './NewTextArea';
 import NewCheckboxArea from './NewCheckboxArea';

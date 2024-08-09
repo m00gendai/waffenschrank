@@ -10,7 +10,7 @@ import NewText from "./NewText"
 import "react-native-get-random-values"
 import { v4 as uuidv4 } from 'uuid';
 import ImageViewer from "./ImageViewer"
-import { AMMO_DATABASE, A_KEY_DATABASE } from '../configs';
+import { AMMO_DATABASE, A_KEY_DATABASE } from '../configs_DB';
 import { AmmoType } from '../interfaces';
 import { ammoDataValidation, imageHandling } from '../utils';
 import NewTextArea from './NewTextArea';
@@ -104,7 +104,7 @@ export default function NewAmmo({navigation}){
         const newCollection:AmmoType[] = [...ammoCollection, value]
         setAmmoCollection(newCollection)
         setSeeAmmoOpen()
-
+        navigation.navigate("Ammo")
     }
     
     const pickImageAsync = async (indx:number) =>{

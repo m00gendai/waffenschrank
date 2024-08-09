@@ -96,6 +96,8 @@ interface GeneralSettingsLabels{
     displayImagesInListViewGun: SimpleTranslation
     displayImagesInListViewAmmo: SimpleTranslation
     resizeImages: SimpleTranslation
+    loginGuard: SimpleTranslation
+    emptyFields: SimpleTranslation
 }
 
 interface ModalText{
@@ -124,6 +126,12 @@ interface CleanIntervals{
     year_1: SimpleTranslation
     year_5: SimpleTranslation
     year_10: SimpleTranslation
+}
+
+interface CaliberPickerStrings{
+    caliberSelection: SimpleTranslation
+    tabList: SimpleTranslation
+    tabSearch: SimpleTranslation
 }
 
 export const cleanIntervals:CleanIntervals = {
@@ -483,6 +491,37 @@ export const resizeImageAlert:Alert = {
         fr: "Non",
         it: "No",
         ch: "Na",
+    }
+}
+
+export const loginGuardAlert:Alert = {
+    title: {
+        de: "Biometrischer Login nicht möglich",
+        en: "Biometric login not possible",
+        fr: "Login biométrique impossible",
+        it: "Login biometrico non possibile",
+        ch: "Login biometric n'è betg pussaivel",
+    },
+    subtitle: {
+        de: "Entweder ist Ihr Gerät nicht kompatibel, oder Sie haben keine biometrischen Daten hinterlegt.",
+        en: "Either your device is not compatible or you have not registered any biometric data.",
+        fr: "Soit votre appareil n'est pas compatible, soit vous n'avez pas enregistré de données biométriques.",
+        it: "O il vostro dispositivo non è compatibile o non avete inserito alcun dato biometrico.",
+        ch: "U che Voss apparat n'è betg cumpatibel u che Vus n'avais betg deponì datas biometricas.",
+    },
+    yes: {
+        de: "",
+        en: "",
+        fr: "",
+        it: "",
+        ch: "",
+    },
+    no: {
+        de: "OK",
+        en: "OK",
+        fr: "OK",
+        it: "OK",
+        ch: "OK",
     }
 }
 
@@ -924,6 +963,20 @@ export const generalSettingsLabels: GeneralSettingsLabels = {
         fr: "Optimisation des images",
         it: "Ottimizzazione delle immagini",
         ch: "Optimaziun dal maletg"
+    },
+    loginGuard: {
+        de: "Biometrischer Login",
+        en: "Biometric login",
+        fr: "Login biométrique",
+        it: "Login biometrico",
+        ch: "Login biometric"
+    },
+    emptyFields: {
+        de: "Leere Felder in Einträgen ausblenden",
+        en: "Hide empty fields in entries",
+        fr: "Masquer les champs vides dans les entrées",
+        it: "Nascondere i campi vuoti nelle voci",
+        ch: "Tschertgar champs vids en inscripziuns"
     }
 }
 
@@ -1008,4 +1061,28 @@ export const modalTexts: ModalText = {
             ch: `Tscherni in interval da temp, cur che l'arma stuess puspè vegnir nettegiada.\n\nDies vegn quintà vi da la valur da "l'ultima nettegiada", premess che quella saja messa.\n\nBenenen surpassament da l'interval cumpara il num da l'arma en la survista cotschna.`,
         }
     },
+}
+
+export const caliberPickerStrings:CaliberPickerStrings = {
+    caliberSelection:{
+        de: "Ausgewählte Kaliber erscheinen hier",
+        en: "Selected calibers appear here",
+        fr: "Les calibres sélectionnés apparaissent ici",
+        it: "I calibri selezionati appaiono qui",
+        ch: "Caliber selecziunà cumpara qua",
+    },
+    tabList: {
+        de: "Liste",
+        en: "List",
+        fr: "Liste",
+        it: "Elenco",
+        ch: "Glista",
+    },
+    tabSearch:{
+        de: "Suche",
+        en: "Search",
+        fr: "Recherche",
+        it: "Ricerca",
+        ch: "Tschertga",
+    }
 }

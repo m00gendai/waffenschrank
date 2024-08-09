@@ -1,0 +1,99 @@
+TEMPLATE
+
+<de-DE>
+Enter or paste your release notes for de-DE here
+</de-DE>
+<en-US>
+Enter or paste your release notes for en-US here
+</en-US>
+<fr-FR>
+Enter or paste your release notes for fr-FR here
+</fr-FR>
+<it-IT>
+Enter or paste your release notes for it-IT here
+</it-IT>
+
+BETA 1.1.1
+
+<de-DE>
+Behoben: 
+- Potentielles Einfrieren der App beim Start
+- Reinigungsintervall auf Waffenliste
+- Galerie-Druck einer Waffe hat Munitionsparameter
+</de-DE>
+<en-US>
+Fixed: 
+- Potential freezing of the app at startup
+- Cleaning interval on weapon list
+- Gallery print of a weapon has ammunition parameters
+</en-US>
+<fr-FR>
+Correction d'un problème : 
+- Gel potentiel de l'application au démarrage
+- Intervalle de nettoyage sur la liste des armes
+- La pression de la galerie d'une arme a des paramètres de munitions
+</fr-FR>
+<it-IT>
+Corretto: 
+- Possibile blocco dell'applicazione all'avvio
+- Intervallo di pulizia nell'elenco delle armi
+- La stampa della galleria di un'arma contiene i parametri delle munizioni
+</it-IT>
+
+BETA 1.1.0
+
+<de-DE>
+Neu:
+- Biometrisches Login
+- Leere Felder in Sammlungsobjekten ausblenden
+- Suche in Kaliberauswahl
+- CSV Import mit oder ohne Kopfzeile
+Behoben:
+- undefined Objekt bei CSV Import
+- Sortierreihenfolge
+</de-DE>
+<en-US>
+New:
+- Biometric login
+- Hide empty fields in collection objects
+- Search in caliber selection
+- CSV import with or without header
+Fixed:
+- undefined object in CSV import
+- Sort order
+</en-US>
+<fr-FR>
+Nouveau :
+- Connexion biométrique
+- Masquer les champs vides dans les objets de collection
+- Recherche dans la sélection de calibres
+- Importation CSV avec ou sans en-tête
+Correction :
+- Objet non défini lors de l'importation CSV
+- Ordre de tri
+</fr-FR>
+<it-IT>
+Nuovo:
+- Accesso biometrico
+- Nascondere i campi vuoti negli oggetti di raccolta
+- Ricerca nella selezione dei calibri
+- Importazione CSV con o senza intestazione
+Corretto:
+- Oggetto non definito nell'importazione CSV
+- Ordinamento
+</it-IT>
+    
+BETA 1.0.0
+
+<de-DE>
+Fehler behoben, der die App abstürzen liess, wenn ein neuer Munitionseintrag erstellt wurde
+</de-DE>
+<en-US>
+Fixed bug that crashed the App if a new ammunition entry was created
+</en-US>
+<fr-FR>
+Correction d'un bug qui faisait planter l'application si une nouvelle entrée de munitions était créée
+</fr-FR>
+<it-IT>
+Corretto un bug che mandava in crash l'app se veniva creata una nuova voce di munizioni
+</it-IT>

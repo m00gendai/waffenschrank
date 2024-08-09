@@ -1,6 +1,6 @@
 import { create } from "zustand"
-import { AmmoType, DBOperations } from "../interfaces"
-import { exampleAmmoEmpty } from "../lib/examples"
+import { AmmoType, DBOperations, GunType } from "../interfaces"
+import { exampleAmmoEmpty, exampleGunEmpty } from "../lib/examples"
 import { doSortBy } from "../utils"
 
 interface ImportExportStore {
@@ -14,8 +14,10 @@ interface ImportExportStore {
     importSize: number
     setImportSize: (num: number) => void
     resetImportSize: (num: number) => void
-    mapCSV: AmmoType
-    setMapCSV: (data: AmmoType) => void
+    mapCSVAmmo: AmmoType
+    setMapCSVAmmo: (data: AmmoType) => void
+    mapCSVGun: GunType
+    setMapCSVGun: (data: GunType) => void
     dbCollectionType: DBOperations | ""
     setDbCollectionType: (data: string) => void
   }
@@ -31,8 +33,10 @@ interface ImportExportStore {
     importSize: 0,
     setImportSize: (num: number) => set((state) => ({importSize: num})),
     resetImportSize: (num: number) => set((state) => ({importSize: num})),
-    mapCSV: exampleAmmoEmpty,
-    setMapCSV: (data: AmmoType) => set((state => ({mapCSV: data}))),
+    mapCSVAmmo: exampleAmmoEmpty,
+    setMapCSVAmmo: (data: AmmoType) => set((state => ({mapCSVAmmo: data}))),
+    mapCSVGun: exampleGunEmpty,
+    setMapCSVGun: (data: GunType) => set((state => ({mapCSVGun: data}))),
     dbCollectionType: "",
     setDbCollectionType: (data: DBOperations | "") => set((state) => ({dbCollectionType: data}))
   }))

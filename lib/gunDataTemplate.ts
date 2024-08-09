@@ -157,5 +157,14 @@ export const checkBoxes:{name: string, de:string, en:string, fr:string, it: stri
         fr: "Peut être raccourci à moins de 60cm",
         it: "Può essere accorciato a meno di 60cm",
         ch: "Per pauc sin main che 60cm",
+    },
+    {
+        name: "grandfather",
+        de: "Altrechtlich erworben",
+        en: "Acquired under old law", 
+        fr: "Acquis sous l'ancien régime",
+        it: "Acquisito in base alla vecchia legge",
+        ch: "Acquistà tenor il dretg vegl",
     }
 ]
+

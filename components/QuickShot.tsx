@@ -1,7 +1,8 @@
 import { ScrollView, View } from "react-native";
 import { Button, Dialog, HelperText, IconButton, List, Text, TextInput } from "react-native-paper";
 import { usePreferenceStore } from "../stores/usePreferenceStore";
-import { AMMO_DATABASE, GUN_DATABASE, dateLocales, defaultViewPadding } from "../configs";
+import { dateLocales, defaultViewPadding } from "../configs";
+import { AMMO_DATABASE, GUN_DATABASE } from "../configs_DB"
 import { gunQuickShot } from "../lib/textTemplates";
 import { useGunStore } from "../stores/useGunStore";
 import { useAmmoStore } from "../stores/useAmmoStore";

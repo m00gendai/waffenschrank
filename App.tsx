@@ -1,7 +1,7 @@
 import { PaperProvider } from 'react-native-paper';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useCallback, useEffect, useState } from "react"
-import { AMMO_DATABASE, A_KEY_DATABASE, A_TAGS, GUN_DATABASE, KEY_DATABASE, PREFERENCES, TAGS } from "./configs"
+import { AMMO_DATABASE, A_KEY_DATABASE, A_TAGS, GUN_DATABASE, KEY_DATABASE, PREFERENCES, TAGS } from "./configs_DB"
 import 'react-native-gesture-handler';
 import React from 'react';
 import { usePreferenceStore } from './stores/usePreferenceStore';
@@ -33,14 +33,17 @@ import QuickShot from './components/QuickShot';
 import EditGun from './components/EditGun';
 import EditAmmo from './components/EditAmmo';
 import * as SplashScreen from 'expo-splash-screen';
+import * as LocalAuthentication from 'expo-local-authentication';
+import { Alert } from 'react-native';
+
 
 SplashScreen.preventAutoHideAsync();
 
 export default function App() {
 
-  const [appIsReady, setAppIsReady] = useState(false);
+  const [appIsReady, setAppIsReady] = useState<boolean>(false);
 
-  const { ammoDbImport, dbImport, switchLanguage, theme, switchTheme, language, generalSettings, setGeneralSettings, setDisplayAsGrid, setDisplayAmmoAsGrid, setSortBy, setSortAmmoBy, setSortAmmoIcon, setSortGunIcon } = usePreferenceStore();
+  const { ammoDbImport, dbImport, switchLanguage, theme, switchTheme, language, generalSettings, setGeneralSettings, setDisplayAsGrid, setDisplayAmmoAsGrid, setSortBy, setSortAmmoBy, setSortAmmoIcon, setSortGunIcon, setSortGunsAscending, setSortAmmoAscending } = usePreferenceStore();
   const { mainMenuOpen } = useViewStore()
   const { setAmmoCollection } = useAmmoStore()
   const { setGunCollection } = useGunStore()
@@ -49,14 +52,43 @@ export default function App() {
   useEffect(() => {
     async function prepare() {
       try {
-       console.log("so hard")
+        console.log("try: so hard")
+        const preferences:string = await AsyncStorage.getItem(PREFERENCES)
+        const isPreferences = preferences === null ? null : JSON.parse(preferences)
+        console.log("isPreferences null")
+        if(isPreferences === null){
+          setAppIsReady(true)
+          return
+        }
+        console.log("isPreferences.generalSettings null")
+        if(isPreferences.generalSettings === null || isPreferences.generalSettings === undefined){ 
+          setAppIsReady(true)
+          return
+        }
+        console.log("isPreferences.generalsettings.loginGuard null || false")
+        if(isPreferences.generalSettings.loginGuard !== null && isPreferences.generalSettings.loginGuard !== undefined && isPreferences.generalSettings.loginGuard === true){
+          const success = await LocalAuthentication.authenticateAsync()
+          console.log(success)
+          if(success.success){
+            setAppIsReady(true);
+          } else{
+            throw new Error(`Local Authentification failed: ${success} | ${isPreferences.generalSettings.loginGuard}`);
+          }
+        } else {
+          console.log("false")
+          setAppIsReady(true)
+          return
+        }
       } catch (e) {
-        console.log("got so far")
-        console.warn(e);
-      } finally {
-        console.log("doesnt even matter")
-        setAppIsReady(true);
-      }
+        console.log("catch: got so far")
+        console.log(e);
+        Alert.alert("Error", `${e}`, [
+          {
+            text: 'OK',
+            onPress: () => {return},
+          },
+        ])
+      } 
     }
     prepare();
   }, []);
@@ -91,6 +123,7 @@ export default function App() {
       setDisplayAmmoAsGrid(isPreferences === null ? true : isPreferences.displayAmmoAsGrid === null ? true : isPreferences.displayAmmoAsGrid)
       setSortAmmoBy(isPreferences === null ? "alphabetical" : isPreferences.sortAmmoBy === undefined ? "alphabetical" : isPreferences.sortAmmoBy)
       setSortAmmoIcon(getIcon((isPreferences === null ? "alphabetical" : isPreferences.sortAmmoBy === null ? "alphabetical" : isPreferences.sortAmmoBy)))
+      setSortAmmoAscending(isPreferences === null ? true : isPreferences.sortOrderAmmo === null ? true : isPreferences.sortOrderAmmo)
       if(isAmmoTagList !== null && isAmmoTagList !== undefined){
         Object.values(isAmmoTagList).map(tag =>{
           setAmmoTags(tag)
@@ -103,6 +136,7 @@ export default function App() {
       setDisplayAsGrid(isPreferences === null ? true : isPreferences.displayAsGrid === null ? true : isPreferences.displayAsGrid)
       setSortBy(isPreferences === null ? "alphabetical" : isPreferences.sortBy === undefined ? "alphabetical" : isPreferences.sortBy)
       setSortGunIcon(getIcon((isPreferences === null ? "alphabetical" : isPreferences.sortBy === null ? "alphabetical" : isPreferences.sortBy)))
+      setSortGunsAscending(isPreferences === null ? true : isPreferences.sortOrderGuns === null ? true : isPreferences.sortOrderGuns)
       if(isGunTagList !== null && isGunTagList !== undefined){
         Object.values(isGunTagList).map(tag =>{
           setTags(tag)
@@ -134,7 +168,7 @@ export default function App() {
         setAmmoCollection([])
       }
       if(filteredAmmunition.length !== 0){
-        const sortedAmmo = doSortBy(isPreferences === null ? "alphabetical" : isPreferences.sortAmmoBy === undefined ? "alphabetical" : isPreferences.sortAmmoBy, isPreferences == null? true : isPreferences.sortAmmoOrder === undefined ? true : isPreferences.sortOrder, filteredAmmunition) as AmmoType[]
+        const sortedAmmo = doSortBy(isPreferences === null ? "alphabetical" : isPreferences.sortAmmoBy === undefined ? "alphabetical" : isPreferences.sortAmmoBy, isPreferences == null? true : isPreferences.sortOrderAmmo === null ? true : isPreferences.sortOrderAmmo, filteredAmmunition) as AmmoType[]
         setAmmoCollection(sortedAmmo)
       }
     }
@@ -155,7 +189,7 @@ export default function App() {
         setGunCollection([])
       } 
       if(filteredGuns.length !== 0) {
-        const sortedGuns = doSortBy(isPreferences === null ? "alphabetical" : isPreferences.sortBy === undefined ? "alphabetical" : isPreferences.sortBy, isPreferences == null? true : isPreferences.sortOrder === undefined ? true : isPreferences.sortOrder, filteredGuns) as GunType[]
+        const sortedGuns = doSortBy(isPreferences === null ? "alphabetical" : isPreferences.sortBy === undefined ? "alphabetical" : isPreferences.sortBy, isPreferences == null? true : isPreferences.sortOrderGuns === null ? true : isPreferences.sortOrderGuns, filteredGuns) as GunType[]
         setGunCollection(sortedGuns)
       }
     }

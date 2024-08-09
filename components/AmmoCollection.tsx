@@ -2,7 +2,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useEffect, useState } from 'react';
 import { FlatList, View } from 'react-native';
 import { Appbar, FAB, Menu, Switch, Text, Tooltip, Searchbar } from 'react-native-paper';
-import { PREFERENCES, defaultGridGap, defaultViewPadding } from '../configs';
+import { defaultGridGap, defaultViewPadding } from '../configs';
+import { PREFERENCES } from "../configs_DB"
 import { AmmoType, MenuVisibility, SortingTypes } from '../interfaces';
 import { getIcon, doSortBy } from '../utils';
 import { useViewStore } from '../stores/useViewStore';
@@ -16,15 +17,13 @@ import Animated, { useAnimatedStyle, useSharedValue, withRepeat, withTiming } fr
 
 export default function AmmoCollection({navigation}){
 
-  // TODO: Zustand SortIcon, Zustand SortOrder @ usePreferenceStore
   // Todo: Stricter typing ("stringA" | "stringB" instead of just string)
 
   const [menuVisibility, setMenuVisibility] = useState<MenuVisibility>({sortBy: false, filterBy: false});
-  const [sortAscending, setSortAscending] = useState<boolean>(true)
   const [searchBannerVisible, toggleSearchBannerVisible] = useState<boolean>(false)
   const [searchQuery, setSearchQuery] = useState<string>("")
 
-  const { displayAmmoAsGrid, toggleDisplayAmmoAsGrid, sortAmmoBy, setSortAmmoBy, language, theme, sortAmmoIcon, setSortAmmoIcon } = usePreferenceStore()
+  const { displayAmmoAsGrid, toggleDisplayAmmoAsGrid, sortAmmoBy, setSortAmmoBy, language, theme, sortAmmoIcon, setSortAmmoIcon, sortAmmoAscending, toggleSortAmmoAscending } = usePreferenceStore()
   const { mainMenuOpen } = useViewStore()
   const { ammoCollection, setAmmoCollection } = useAmmoStore()
   const { ammo_tags } = useTagStore()
@@ -35,7 +34,7 @@ export default function AmmoCollection({navigation}){
   async function handleSortBy(type:SortingTypes){
     setSortAmmoIcon(getIcon(type))
     setSortAmmoBy(type)
-    const sortedAmmo = doSortBy(type, sortAscending, ammoCollection) as AmmoType[] 
+    const sortedAmmo = doSortBy(type, sortAmmoAscending, ammoCollection) as AmmoType[] 
     setAmmoCollection(sortedAmmo)
     const preferences:string = await AsyncStorage.getItem(PREFERENCES)
     const newPreferences:{[key:string] : string} = preferences == null ? {"sortAmmoBy": type} : {...JSON.parse(preferences), "sortAmmoBy":type} 
@@ -47,11 +46,11 @@ export default function AmmoCollection({navigation}){
   }
 
   async function handleSortOrder(){
-    setSortAscending(!sortAscending)
-    const sortedAmmo = doSortBy(sortAmmoBy, !sortAscending, ammoCollection) as AmmoType[] // called with !sortAscending due to the useState having still the old value
+    toggleSortAmmoAscending()
+    const sortedAmmo = doSortBy(sortAmmoBy, !sortAmmoAscending, ammoCollection) as AmmoType[] // called with !sortAscending due to the useState having still the old value
     setAmmoCollection(sortedAmmo)
     const preferences:string = await AsyncStorage.getItem(PREFERENCES)
-    const newPreferences:{[key:string] : string} = preferences == null ? {"sortOrder": !sortAscending} : {...JSON.parse(preferences), "sortOrder":!sortAscending} 
+    const newPreferences:{[key:string] : string} = preferences == null ? {"sortOrderAmmo": !sortAmmoAscending} : {...JSON.parse(preferences), "sortOrderAmmo": !sortAmmoAscending} 
     await AsyncStorage.setItem(PREFERENCES, JSON.stringify(newPreferences))
   }
         
@@ -180,7 +179,7 @@ export default function AmmoCollection({navigation}){
               <Menu.Item onPress={() => handleSortBy("lastAdded")} title={`${sorting.lastAdded[language]}`} leadingIcon={getIcon("lastAdded")}/>
               <Menu.Item onPress={() => handleSortBy("lastModified")} title={`${sorting.lastModified[language]}`} leadingIcon={getIcon("lastModified")}/>
             </Menu>
-          <Appbar.Action icon={sortAscending ? "arrow-up" : "arrow-down"} onPress={() => handleSortOrder()} />
+          <Appbar.Action icon={sortAmmoAscending ? "arrow-up" : "arrow-down"} onPress={() => handleSortOrder()} />
         </View>
       </Appbar>
       <Animated.View style={[{paddingLeft: defaultViewPadding, paddingRight: defaultViewPadding}, animatedStyle]}>{searchBannerVisible ? <Searchbar placeholder={search[language]} onChangeText={setSearchQuery} value={searchQuery} /> : null}</Animated.View>

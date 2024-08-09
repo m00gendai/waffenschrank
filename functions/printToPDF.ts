@@ -100,9 +100,9 @@ export async function printSingleGun(gun:GunType, language: string){
         minute: "2-digit"
       };
     const generatedDate:string = date.toLocaleDateString(dateLocales[language], dateOptions)
-    const excludedKeys = ["images", "createdAt", "lastModifiedAt", "status", "id", "tags", "remarks", "lastCleanedAt", "lastShotAt"];
+    const excludedKeys = ["images", "createdAt", "lastModifiedAt", "status", "id", "tags", "remarks", "lastCleanedAt", "lastShotAt", "cleanInterval", ];
     const art5Keys = checkBoxes.map(checkBox => checkBox.name)
-
+    
     const html = `
     <html>
       <head>
@@ -118,7 +118,6 @@ export async function printSingleGun(gun:GunType, language: string){
         <table>
             <tbody>
                 ${Object.entries(gun).map(entry =>{
-                    
                     return excludedKeys.includes(entry[0]) ? null :`<tr><td><strong>${getTranslation(entry[0], language)}</strong></td><td>${entry[1]}</td></tr>`
                 }).join("")}
             </tbody>
@@ -654,7 +653,7 @@ export async function printGunCollection(guns:GunType[], language: string){
       minute: "2-digit"
     };
   const generatedDate:string = date.toLocaleDateString(dateLocales[language], dateOptions)
-  const excludedKeys = ["images", "createdAt", "lastModifiedAt", "status", "id", "tags", "remarks", "manufacturingDate", "originCountry", "paidPrice", "shotCount", "mainColor", "lastCleanedAt", "lastShotAt"];
+  const excludedKeys = ["images", "createdAt", "lastModifiedAt", "status", "id", "tags", "remarks", "manufacturingDate", "originCountry", "paidPrice", "shotCount", "mainColor", "lastCleanedAt", "cleanInterval", "lastShotAt"];
   const html = `
   <html>
     <head>
@@ -789,7 +788,7 @@ export async function printGunCollectionArt5(guns:GunType[], language: string){
       minute: "2-digit"
     };
   const generatedDate:string = date.toLocaleDateString(dateLocales[language], dateOptions)
-  const excludedKeys = ["images", "createdAt", "lastModifiedAt", "status", "id", "tags", "remarks", "manufacturingDate", "originCountry", "paidPrice", "shotCount", "mainColor", "lastCleanedAt", "lastShotAt"];
+  const excludedKeys = ["images", "createdAt", "lastModifiedAt", "status", "id", "tags", "remarks", "manufacturingDate", "originCountry", "paidPrice", "shotCount", "mainColor", "lastCleanedAt", "cleanInterval", "lastShotAt"];
   const html = `
   <html>
     <head>
@@ -808,7 +807,7 @@ export async function printGunCollectionArt5(guns:GunType[], language: string){
           <tbody>
               ${guns.map(gun =>{
                 if(gun.status !== undefined && Object.entries(gun.status).some(stat => stat[1] === true)){
-                  return `<tr>${gunDataTemplate.map(data=>{return data.name in gun && !excludedKeys.includes(data.name) ? `<td class=${data.name === "caliber" ? "whitespace" : ""}>${data.name === "caliber" ? gun[data.name].map(dat => `${dat}`).join("\n") : gun[data.name]}</td>` : !(data.name in gun) && !excludedKeys.includes(data.name) ? `<td></td>`: null}).join("")}${Object.entries(gun.status).map(stat => {return stat[1] === true ? "<td>X</td>" : `<td class="hidden">X</td>` }).join("")}</tr>`
+                  return `<tr>${gunDataTemplate.map(data=>{return data.name in gun && !excludedKeys.includes(data.name) ? `<td class=${data.name === "caliber" ? "whitespace" : ""}>${data.name === "caliber" && data.name !== undefined && data.name !== null && gun[data.name].length !== 0 ? gun[data.name].map(dat => `${dat}`).join("\n") : gun[data.name]}</td>` : !(data.name in gun) && !excludedKeys.includes(data.name) ? `<td></td>`: null}).join("")}${Object.entries(gun.status).map(stat => {return stat[1] === true ? "<td>X</td>" : `<td class="hidden">X</td>` }).join("")}</tr>`
                 }
               }).join("")
             }
