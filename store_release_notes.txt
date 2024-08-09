@@ -13,6 +13,33 @@ Enter or paste your release notes for fr-FR here
 Enter or paste your release notes for it-IT here
 </it-IT>
 
+BETA 1.1.1
+
+<de-DE>
+Behoben: 
+- Potentielles Einfrieren der App beim Start
+- Reinigungsintervall auf Waffenliste
+- Galerie-Druck einer Waffe hat Munitionsparameter
+</de-DE>
+<en-US>
+Fixed: 
+- Potential freezing of the app at startup
+- Cleaning interval on weapon list
+- Gallery print of a weapon has ammunition parameters
+</en-US>
+<fr-FR>
+Correction d'un problème : 
+- Gel potentiel de l'application au démarrage
+- Intervalle de nettoyage sur la liste des armes
+- La pression de la galerie d'une arme a des paramètres de munitions
+</fr-FR>
+<it-IT>
+Corretto: 
+- Possibile blocco dell'applicazione all'avvio
+- Intervallo di pulizia nell'elenco delle armi
+- La stampa della galleria di un'arma contiene i parametri delle munizioni
+</it-IT>
+
 BETA 1.1.0
 
 <de-DE>
