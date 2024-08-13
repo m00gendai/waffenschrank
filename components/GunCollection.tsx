@@ -33,6 +33,11 @@ export default function GunCollection({navigation, route}){
   const [gunList, setGunList] = useState<GunType[]>(gunCollection)
   const [boxes, setBoxes] = useState<string[]>([])
 
+  useEffect(()=>{
+    setGunList(isFilterOn ? gunList : gunCollection)
+  ,[]})
+
+  
   async function handleSortBy(type: SortingTypes){
     setSortGunIcon(getIcon(type))
     setSortBy(type)
@@ -97,7 +102,6 @@ export default function GunCollection({navigation, route}){
         
         return false;
       })
-
      setGunList(gunsWithTags)
     }
 
@@ -146,9 +150,6 @@ export default function GunCollection({navigation, route}){
     };
   });
 
-  useEffect(()=>{
-    setGunList(gunCollection)
-  ,[]})
 
   return(
     <View style={{flex: 1}}>

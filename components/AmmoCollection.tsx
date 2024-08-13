@@ -31,6 +31,10 @@ export default function AmmoCollection({navigation, route}){
   const [isFilterOn, setIsFilterOn] = useState<boolean>(false);
   const [ammoList, setAmmoList] = useState<AmmoType[]>(ammoCollection)
   const [boxes, setBoxes] = useState<string[]>([])
+
+  useEffect(()=>{
+    setAmmoList(isFilterOn ? ammoList : ammoCollection)
+  ,[]})
   
   async function handleSortBy(type:SortingTypes){
     setSortAmmoIcon(getIcon(type))
@@ -145,9 +149,6 @@ export default function AmmoCollection({navigation, route}){
     };
   });
 
-  useEffect(()=>{
-    setAmmoList(ammoCollection)
-  ,[]})
   
   return(
     <View style={{flex: 1}}>
