@@ -14,6 +14,7 @@ import { Checkbox } from 'react-native-paper';
 import { search, sorting, tooltips } from '../lib/textTemplates';
 import AmmoCard from './AmmoCard';
 import Animated, { useAnimatedStyle, useSharedValue, withRepeat, withTiming } from 'react-native-reanimated';
+import BottomBar from './BottomBar';
 
 export default function AmmoCollection({navigation}){
 
@@ -211,7 +212,8 @@ export default function AmmoCollection({navigation}){
           ListEmptyComponent={null}
         />
       }
-      <Animated.View style={[{position: "absolute", bottom: 0, right: 0, margin: 16, width: 56, height: 56, backgroundColor: "transparent", display: "flex", justifyContent: "center", alignItems: "center"}, ammoCollection.length === 0 ? pulsate : null]}>
+      <BottomBar />
+      <Animated.View style={[{position: "absolute", bottom: 70, right: 0, margin: 16, width: 56, height: 56, backgroundColor: "transparent", display: "flex", justifyContent: "center", alignItems: "center"}, ammoCollection.length === 0 ? pulsate : null]}>
         <FAB
           icon="plus"
           onPress={()=>navigation.navigate("NewAmmo")}

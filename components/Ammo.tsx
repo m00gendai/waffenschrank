@@ -79,7 +79,7 @@ export default function Ammo({navigation}){
         <View style={{flex: 1}}>
             
             <Appbar style={{width: "100%"}}>
-                <Appbar.BackAction  onPress={() => navigation.navigate("Home")} />
+                <Appbar.BackAction  onPress={() => navigation.navigate("AmmoCollection")} />
                 <Appbar.Content title={`${currentAmmo.designation} ${currentAmmo.manufacturer !== undefined? currentAmmo.manufacturer : ""}`} />
                 <Appbar.Action icon="printer" onPress={()=>printSingleAmmo(currentAmmo, language)} />
                 <Appbar.Action icon="pencil" onPress={()=>navigation.navigate("EditAmmo")} />

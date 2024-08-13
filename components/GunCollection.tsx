@@ -1,7 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useEffect, useState } from 'react';
-import { FlatList, View } from 'react-native';
-import { Appbar, FAB, Menu, Switch, Text, Tooltip, Searchbar } from 'react-native-paper';
+import { FlatList, TouchableOpacity, View } from 'react-native';
+import { Appbar, FAB, Menu, Switch, Text, Tooltip, Searchbar, Button, Icon } from 'react-native-paper';
 import { defaultGridGap, defaultViewPadding } from '../configs';
 import { PREFERENCES } from "../configs_DB"
 import { GunType, MenuVisibility, SortingTypes } from '../interfaces';
@@ -14,6 +14,7 @@ import { Checkbox } from 'react-native-paper';
 import GunCard from './GunCard';
 import { search, sorting, tooltips } from '../lib/textTemplates';
 import Animated, { useAnimatedStyle, useSharedValue, withRepeat, withTiming } from 'react-native-reanimated';
+import BottomBar from './BottomBar';
 
 export default function GunCollection({navigation}){
 
@@ -24,7 +25,7 @@ export default function GunCollection({navigation}){
   const [searchBannerVisible, toggleSearchBannerVisible] = useState<boolean>(false)
   const [searchQuery, setSearchQuery] = useState<string>("")
 
-  const { displayAsGrid, toggleDisplayAsGrid, sortBy, setSortBy, language, setSortGunIcon, sortGunIcon, sortGunsAscending, toggleSortGunsAscending } = usePreferenceStore()
+  const { displayAsGrid, toggleDisplayAsGrid, sortBy, setSortBy, language, setSortGunIcon, sortGunIcon, sortGunsAscending, toggleSortGunsAscending, theme } = usePreferenceStore()
   const { mainMenuOpen } = useViewStore()
   const { gunCollection, setGunCollection } = useGunStore()
   const { tags } = useTagStore()
@@ -145,6 +146,10 @@ export default function GunCollection({navigation}){
     };
   });
 
+  useEffect(()=>{
+    setGunList(gunCollection)
+  ,[]})
+
   return(
     <View style={{flex: 1}}>
       <Appbar style={{width: "100%", display: "flex", flexDirection: "row", justifyContent: "space-between"}}>
@@ -212,7 +217,8 @@ export default function GunCollection({navigation}){
           ListEmptyComponent={null}
         />
       }
-      <Animated.View style={[{position: "absolute", bottom: 0, right: 0, margin: 16, width: 56, height: 56, backgroundColor: "transparent", display: "flex", justifyContent: "center", alignItems: "center"}, gunCollection.length === 0 ? pulsate : null]}>
+      <BottomBar />
+      <Animated.View style={[{position: "absolute", bottom: 70, right: 0, margin: 16, width: 56, height: 56, backgroundColor: "transparent", display: "flex", justifyContent: "center", alignItems: "center"}, gunCollection.length === 0 ? pulsate : null]}>
         <FAB
           icon="plus"
           onPress={()=>navigation.navigate("NewGun")}
