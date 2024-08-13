@@ -2,23 +2,24 @@ import { StyleSheet, View, ScrollView, Alert} from 'react-native';
 import { Appbar, Button, Dialog, Portal, SegmentedButtons, Snackbar, Text } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as ImagePicker from "expo-image-picker"
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import * as SecureStore from "expo-secure-store"
 import { ammoDataTemplate, ammoRemarks } from "../lib/ammoDataTemplate"
 import NewText from "./NewText"
 import "react-native-get-random-values"
 import ImageViewer from "./ImageViewer"
-import { AMMO_DATABASE } from '../configs_DB';
+import { AMMO_DATABASE, A_KEY_DATABASE } from '../configs_DB';
 import { AmmoType } from '../interfaces';
 import NewTextArea from './NewTextArea';
 import NewCheckboxArea from './NewCheckboxArea';
-import { editAmmoTitle, editGunTitle, imageDeleteAlert, toastMessages, unsavedChangesAlert, validationFailedAlert } from '../lib/textTemplates';
+import { ammoDeleteAlert, editAmmoTitle, editGunTitle, imageDeleteAlert, toastMessages, unsavedChangesAlert, validationFailedAlert } from '../lib/textTemplates';
 import { usePreferenceStore } from '../stores/usePreferenceStore';
 import { useViewStore } from '../stores/useViewStore';
 import { useAmmoStore } from '../stores/useAmmoStore';
 import NewChipArea from './NewChipArea';
 import * as FileSystem from 'expo-file-system';
 import { ammoDataValidation, imageHandling } from '../utils';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
 export default function EditAmmo({navigation}){
@@ -32,10 +33,12 @@ export default function EditAmmo({navigation}){
     const [visible, setVisible] = useState<boolean>(false);
     const [snackbarText, setSnackbarText] = useState<string>("")
     const [saveState, setSaveState] = useState<boolean | null>(null)
+    const [dialogVisible, toggleDialogVisible] = useState<boolean>(false)
     const [imageDialogVisible, toggleImageDialogVisible] = useState<boolean>(false)
     const [unsavedVisible, toggleUnsavedDialogVisible] = useState<boolean>(false)
     const [deleteImageIndex, setDeleteImageIndex] = useState<number>(0)
     const [exitAction, setExitAction] = useState(null);
+    const aboutToDeleteRef = useRef<boolean>(false);
 
     const { language, theme, generalSettings } = usePreferenceStore()
     const { setEditAmmoOpen } = useViewStore()
@@ -250,6 +253,9 @@ export default function EditAmmo({navigation}){
 
       useEffect(() => {
         const unsubscribe = navigation.addListener('beforeRemove', (e) => {
+            if(aboutToDeleteRef.current){
+                return
+            }
           if (saveState) {
             // If we don't have unsaved changes, then we don't need to do anything
             return;
@@ -279,12 +285,36 @@ export default function EditAmmo({navigation}){
           toggleUnsavedDialogVisible(false);
         };
 
+        function handleDeleteItem(ammo:AmmoType){
+            aboutToDeleteRef.current = true;
+          deleteItem(ammo)
+        }
+    
+    
+
+        async function deleteItem(ammo:AmmoType){
+            // Deletes ammo in gun database
+            await SecureStore.deleteItemAsync(`${AMMO_DATABASE}_${ammo.id}`)
+    
+            // retrieves ammo ids from key database and removes the to be deleted id
+            const keys:string = await AsyncStorage.getItem(A_KEY_DATABASE)
+            const keyArray: string[] = JSON.parse(keys)
+            const newKeys: string[] = keyArray.filter(key => key != ammo.id)
+            AsyncStorage.setItem(A_KEY_DATABASE, JSON.stringify(newKeys))
+            const index:number = ammoCollection.indexOf(ammo)
+            const newCollection:AmmoType[] = ammoCollection.toSpliced(index, 1)
+            setAmmoCollection(newCollection)
+            toggleDialogVisible(false)
+            navigation.navigate("AmmoCollection")
+            aboutToDeleteRef.current = false;
+        }
     return(
         <View style={{flex: 1}}>
             
             <Appbar style={{width: "100%"}}>
                 <Appbar.BackAction  onPress={() => navigation.goBack()} />
                 <Appbar.Content title={editAmmoTitle[language]} />
+                <Appbar.Action icon="delete" onPress={()=>toggleDialogVisible(!dialogVisible)} color='red'/>
                 <Appbar.Action icon="floppy" onPress={() => save({...ammoData, lastModifiedAt: `${new Date()}`})} color={saveState === null ? theme.colors.onBackground : saveState === false ? theme.colors.error : "green"}/>
             </Appbar>
         
@@ -404,6 +434,19 @@ export default function EditAmmo({navigation}){
                     </Dialog.Actions>
                 </Dialog>
                      
+                <Dialog visible={dialogVisible} onDismiss={()=>toggleDialogVisible(!dialogVisible)}>
+                            <Dialog.Title>
+                            {`${currentAmmo.designation} ${ammoDeleteAlert.title[language]}`}
+                            </Dialog.Title>
+                            <Dialog.Content>
+                                <Text>{`${ammoDeleteAlert.subtitle[language]}`}</Text>
+                            </Dialog.Content>
+                            <Dialog.Actions>
+                                <Button onPress={()=>handleDeleteItem(currentAmmo)} icon="delete" buttonColor={theme.colors.errorContainer} textColor={theme.colors.onErrorContainer}>{ammoDeleteAlert.yes[language]}</Button>
+                                <Button onPress={()=>toggleDialogVisible(!dialogVisible)} icon="cancel" buttonColor={theme.colors.secondary} textColor={theme.colors.onSecondary}>{ammoDeleteAlert.no[language]}</Button>
+                            </Dialog.Actions>
+                        </Dialog>
+              
 
         </View>
     )
