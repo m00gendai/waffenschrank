@@ -51,7 +51,7 @@ export default function GunCard({gun}:Props){
                 width: displayAsGrid ? "100%" : generalSettings.displayImagesInListViewGun ? "60%" : "80%",
                 color: theme.colors.onSurfaceVariant
                 }}
-                title={`${gun.manufacturer && gun.manufacturer.length != 0 ? gun.manufacturer : ""} ${gun.model}`}
+                title={`${gun.manufacturer && gun.manufacturer.length != 0 ? `${gun.manufacturer}` : ""}${gun.manufacturer && gun.manufacturer.length != 0 ? ` ` : ""}${gun.model}`}
                 subtitle={gun.serial && gun.serial.length != 0 ? gun.serial : " "} 
                 subtitleVariant='bodySmall' 
                 titleVariant='titleSmall' 
