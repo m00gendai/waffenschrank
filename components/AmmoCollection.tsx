@@ -144,6 +144,10 @@ export default function AmmoCollection({navigation}){
       transform: [{ scale: fabWidth.value }]
     };
   });
+
+  useEffect(()=>{
+    setAmmoList(ammoCollection)
+  ,[]})
   
   return(
     <View style={{flex: 1}}>
