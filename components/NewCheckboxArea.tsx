@@ -13,8 +13,6 @@ interface Props{
 
 export default function NewCheckboxArea({data, gunData, setGunData}: Props){
 
-    const { language } = usePreferenceStore()
-
     const convertArrayToObject = (array:{ name: string; de: string; en: string; fr: string; }[]) => {
         const initialValue = {};
         return array.reduce((obj, item) => {
@@ -25,20 +23,31 @@ export default function NewCheckboxArea({data, gunData, setGunData}: Props){
         }, initialValue);
     };
 
+    const { language } = usePreferenceStore()
+    const [checked, setChecked] = useState<{key:boolean} | "">(gunData.id !== undefined && gunData.id !== "" && gunData[data] !== undefined ? gunData[data] : convertArrayToObject(checkBoxes));
+
+    
+
     function handleCheckBoxCheck(checkBox:string){
 
         /*
             status object should be:
             { checkboxName: boolean, checboxName: boolean etc}
         */
+console.log(checkBox)
+let newChecked
+if(checked === ""){
+    newChecked = {checkBox: false} // this is for legacy compatibility and broken CSV
+} else {
+    newChecked = checked
+}
 
-        const newChecked = checked
         newChecked[checkBox] = !newChecked[checkBox]
         setChecked(newChecked)
         setGunData({...gunData, [data]: newChecked})
     }
 
-    const [checked, setChecked] = useState<{key:boolean}>(gunData.id !== undefined && gunData.id !== "" && gunData[data] !== undefined ? gunData[data] : convertArrayToObject(checkBoxes));
+   
 
     return(
         <View>
