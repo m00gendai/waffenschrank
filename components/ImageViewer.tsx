@@ -1,6 +1,7 @@
 import { Image, StyleSheet, View } from 'react-native';
 import { GestureDetector, Gesture, GestureHandlerRootView, PinchGesture, PanGesture, SimultaneousGesture } from 'react-native-gesture-handler';
 import Animated, { useSharedValue, useAnimatedStyle } from 'react-native-reanimated';
+import { defaultViewPadding } from '../configs';
 
 interface Props{
   selectedImage:string
@@ -59,7 +60,7 @@ export default function ImageViewer({selectedImage, isLightBox, placeholder}:Pro
       }));
 
     return(
-        <View style={{width: "100%", height: "100%", backgroundColor: isLightBox ? "black" : "transparent", flex: 29, alignItems: "center", justifyContent: "center", flexDirection: "column", overflow: "hidden"}}>
+        <View style={{height: "100%", aspectRatio: "21/10", padding: defaultViewPadding, backgroundColor: isLightBox ? "black" : "transparent", alignItems: "center", justifyContent: "center", flexDirection: "column", overflow: "hidden"}}>
         {isLightBox ?
             <View style={styles.container}>
                 <GestureHandlerRootView style={styles.imageContainer2} >
