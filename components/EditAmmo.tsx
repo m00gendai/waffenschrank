@@ -220,10 +220,12 @@ export default function EditAmmo({navigation}){
         },
         imageContainer: {
             width: "100%",
-            aspectRatio: "18/10",
-            flexDirection: "column",
+            aspectRatio: "21/10",
+            flexDirection: "row",
             flex: 1,
-            marginRight: 5,
+            alignContent: "center",
+            alignItems: "center",
+            justifyContent: "center"
         },
         button: {
             display: "flex",
