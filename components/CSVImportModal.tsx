@@ -59,7 +59,7 @@ export default function CSVImportModal(){
                 } else if(entry[0] === "createdAt"){
                     mapped[entry[0]] = entry[1] === -1 ? `${new Date().toISOString()}` : items[entry[1]]
                 } else if(entry[0] === "caliber"){
-                    mapped[entry[0]] = items[entry[1]].split(", ")
+                    mapped[entry[0]] = entry[1] === -1 ? "" : items[entry[1]].split(", ")
                 } else {
                     mapped[entry[0]] = entry[1] === -1 ? "" : items[entry[1]]
                 }
