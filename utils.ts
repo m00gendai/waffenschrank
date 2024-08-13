@@ -14,12 +14,12 @@ export function doSortBy(value: SortingTypes, ascending: boolean, items: GunType
             let x:string
             let y:string
             if(a.model !== undefined){
-                x = a.manufacturer === null ? a.model : a.manufacturer === undefined ? a.model : `${a.manufacturer} ${a.model}`
-                y = b.manufacturer === null ? b.model : b.manufacturer === undefined ? b.model : `${b.manufacturer} ${b.model}`
+                x = a.manufacturer === null ? a.model : a.manufacturer === undefined ? a.model : a.manufacturer === "" ? a.model : `${a.manufacturer} ${a.model}`
+                y = b.manufacturer === null ? b.model : b.manufacturer === undefined ? b.model : b.manufacturer === "" ? b.model : `${b.manufacturer} ${b.model}`
             }
             if(a.designation !== undefined){
-                x = a.manufacturer === null ? a.designation : a.manufacturer === undefined ? a.designation : `${a.designation} ${a.manufacturer}`
-                y = b.manufacturer === null ? b.designation : b.manufacturer === undefined ? b.designation : `${b.designation} ${b.manufacturer}`
+                x = a.manufacturer === null ? a.designation : a.manufacturer === undefined ? a.designation : a.manufacturer === "" ? a.designation : `${a.designation} ${a.manufacturer}`
+                y = b.manufacturer === null ? b.designation : b.manufacturer === undefined ? b.designation : b.manufacturer === "" ? b.designation : `${b.designation} ${b.manufacturer}`
             }
             
             if(ascending){

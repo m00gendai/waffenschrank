@@ -37,7 +37,7 @@ export default function AmmoCard({ammo}:Props){
               >
         <Card 
             style={{
-                width: (Dimensions.get("window").width / (displayAmmoAsGrid ? 2 : 1)) - (defaultGridGap + (defaultViewPadding/2)),
+                width: (Dimensions.get("window").width / (displayAmmoAsGrid ? 2 : 1)) - (defaultGridGap + (displayAmmoAsGrid ? defaultViewPadding/2 : defaultViewPadding)),
 
             }}
         >
@@ -50,8 +50,8 @@ export default function AmmoCard({ammo}:Props){
                 width: displayAmmoAsGrid ? "100%" : generalSettings.displayImagesInListViewAmmo ? "60%" : "80%",
                 color: ammo.currentStock !== null && ammo.currentStock !== undefined && ammo.criticalStock ? Number(ammo.currentStock.toString()) <= Number(ammo.criticalStock.toString()) ? theme.colors.error : theme.colors.onSurfaceVariant : theme.colors.onSurfaceVariant,
                 }}
-                title={`${ammo.designation}`} 
-                subtitle={ammo.manufacturer && ammo.manufacturer.length !== 0 ? `${ammo.manufacturer}` : " "} 
+                title={`${ammo.manufacturer && ammo.manufacturer.length !== 0 ? `${ammo.manufacturer}` : ""}${ammo.manufacturer && ammo.manufacturer.length !== 0 ? ` ` : ""}${ammo.designation}`} 
+                subtitle={ammo.caliber && ammo.caliber.length !== 0 ? `${ammo.caliber}` : ""}
                 subtitleVariant='bodySmall' 
                 titleVariant='titleSmall' 
                 titleNumberOfLines={2} 

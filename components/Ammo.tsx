@@ -59,7 +59,7 @@ export default function Ammo({navigation}){
         },
     })
 
-    async function deleteItem(ammo){
+    async function deleteItem(ammo:AmmoType){
         // Deletes ammo in gun database
         await SecureStore.deleteItemAsync(`${AMMO_DATABASE}_${ammo.id}`)
 
@@ -72,7 +72,7 @@ export default function Ammo({navigation}){
         const newCollection:AmmoType[] = ammoCollection.toSpliced(index, 1)
         setAmmoCollection(newCollection)
         toggleDialogVisible(false)
-        navigation.navigate("Home")
+        navigation.navigate("AmmoCollection")
     }
 
     return(

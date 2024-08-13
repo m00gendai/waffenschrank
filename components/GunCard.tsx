@@ -39,7 +39,7 @@ export default function GunCard({gun}:Props){
               >
         <Card 
             style={{
-                width: (Dimensions.get("window").width / (displayAsGrid ? 2 : 1)) - (defaultGridGap + (defaultViewPadding/2)),
+                width: (Dimensions.get("window").width / (displayAsGrid ? 2 : 1)) - (defaultGridGap + (displayAsGrid ? defaultViewPadding/2 : defaultViewPadding)),
             }}
         >
             <Card.Title
@@ -51,7 +51,7 @@ export default function GunCard({gun}:Props){
                 width: displayAsGrid ? "100%" : generalSettings.displayImagesInListViewGun ? "60%" : "80%",
                 color: theme.colors.onSurfaceVariant
                 }}
-                title={`${gun.manufacturer && gun.manufacturer.length != 0 ? gun.manufacturer : ""} ${gun.model}`}
+                title={`${gun.manufacturer && gun.manufacturer.length != 0 ? `${gun.manufacturer}` : ""}${gun.manufacturer && gun.manufacturer.length != 0 ? ` ` : ""}${gun.model}`}
                 subtitle={gun.serial && gun.serial.length != 0 ? gun.serial : " "} 
                 subtitleVariant='bodySmall' 
                 titleVariant='titleSmall' 

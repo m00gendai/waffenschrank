@@ -2,7 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useEffect, useState } from 'react';
 import { FlatList, TouchableOpacity, View } from 'react-native';
 import { Appbar, FAB, Menu, Switch, Text, Tooltip, Searchbar, Button, Icon } from 'react-native-paper';
-import { defaultGridGap, defaultViewPadding } from '../configs';
+import { defaultBottomBarHeight, defaultGridGap, defaultViewPadding } from '../configs';
 import { PREFERENCES } from "../configs_DB"
 import { GunType, MenuVisibility, SortingTypes } from '../interfaces';
 import { getIcon, doSortBy } from '../utils';
@@ -16,7 +16,7 @@ import { search, sorting, tooltips } from '../lib/textTemplates';
 import Animated, { useAnimatedStyle, useSharedValue, withRepeat, withTiming } from 'react-native-reanimated';
 import BottomBar from './BottomBar';
 
-export default function GunCollection({navigation}){
+export default function GunCollection({navigation, route}){
 
   // Todo: Stricter typing ("stringA" | "stringB" instead of just string)
 
@@ -217,8 +217,8 @@ export default function GunCollection({navigation}){
           ListEmptyComponent={null}
         />
       }
-      <BottomBar />
-      <Animated.View style={[{position: "absolute", bottom: 70, right: 0, margin: 16, width: 56, height: 56, backgroundColor: "transparent", display: "flex", justifyContent: "center", alignItems: "center"}, gunCollection.length === 0 ? pulsate : null]}>
+      <BottomBar screen={route.name}/>
+      <Animated.View style={[{position: "absolute", bottom: defaultBottomBarHeight+defaultViewPadding, right: 0, margin: 16, width: 56, height: 56, backgroundColor: "transparent", display: "flex", justifyContent: "center", alignItems: "center"}, gunCollection.length === 0 ? pulsate : null]}>
         <FAB
           icon="plus"
           onPress={()=>navigation.navigate("NewGun")}
