@@ -61,7 +61,7 @@ export default function Gun({navigation}){
         },
     })
 
-    async function deleteItem(gun){
+    async function deleteItem(gun:GunType){
         // Deletes gun in gun database
         await SecureStore.deleteItemAsync(`${GUN_DATABASE}_${gun.id}`)
 
@@ -74,7 +74,7 @@ export default function Gun({navigation}){
         const newCollection:GunType[] = gunCollection.toSpliced(index, 1)
         setGunCollection(newCollection)
         toggleDialogVisible(false)
-        navigation.navigate("Home")
+        navigation.navigate("GunCollection")
     }
 
     return(
