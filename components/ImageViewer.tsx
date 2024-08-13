@@ -2,6 +2,8 @@ import { Image, StyleSheet, View } from 'react-native';
 import { GestureDetector, Gesture, GestureHandlerRootView, PinchGesture, PanGesture, SimultaneousGesture } from 'react-native-gesture-handler';
 import Animated, { useSharedValue, useAnimatedStyle } from 'react-native-reanimated';
 import { defaultViewPadding } from '../configs';
+import { IconButton } from 'react-native-paper';
+import { usePreferenceStore } from '../stores/usePreferenceStore';
 
 interface Props{
   selectedImage:string
@@ -17,6 +19,8 @@ export default function ImageViewer({selectedImage, isLightBox, placeholder}:Pro
     const positionY = useSharedValue<number>(0)
     const barrierX = useSharedValue<number>(0)
     const barrierY = useSharedValue<number>(0)
+
+    const { language, theme, generalSettings } = usePreferenceStore()
   
     const pinchGesture: PinchGesture = Gesture.Pinch().runOnJS(true)
       .onUpdate((e) => {
@@ -60,8 +64,9 @@ export default function ImageViewer({selectedImage, isLightBox, placeholder}:Pro
       }));
 
     return(
-        <View style={{height: "100%", aspectRatio: "21/10", padding: defaultViewPadding, backgroundColor: isLightBox ? "black" : "transparent", alignItems: "center", justifyContent: "center", flexDirection: "column", overflow: "hidden"}}>
+      <>
         {isLightBox ?
+          <View style={{width: "100%", height: "100%", padding: defaultViewPadding, backgroundColor: isLightBox ? "black" : "transparent", alignItems: "center", justifyContent: "center", flexDirection: "column", overflow: "hidden"}}>
             <View style={styles.container}>
                 <GestureHandlerRootView style={styles.imageContainer2} >
                     <GestureDetector gesture={composed}>
@@ -71,11 +76,12 @@ export default function ImageViewer({selectedImage, isLightBox, placeholder}:Pro
                     </GestureDetector>
                 </GestureHandlerRootView>
             </View>
+          </View>
         :
-           selectedImage != null ? <Image resizeMode={isLightBox ? "contain" : "cover"} style={styles.image} source={{uri: selectedImage} } /> 
+        <View style={{height: "100%", aspectRatio: "21/10", padding: defaultViewPadding, backgroundColor: isLightBox ? "black" : "transparent", alignItems: "center", justifyContent: "center", flexDirection: "column", overflow: "hidden"}}>
+          {selectedImage != null ? <Image resizeMode={isLightBox ? "contain" : "cover"} style={styles.image} source={{uri: selectedImage} } /> 
         :  <Image resizeMode={isLightBox ? "contain" : "cover"} style={styles.image} source={selectedImage ? {uri: selectedImage} : placeholder === "ammo" ? require(`../assets//540940_several different realistic bullets and ammunition_xl-1024-v1-0.png`) : require(`../assets//775788_several different realistic rifles and pistols on _xl-1024-v1-0.png`)} />
-        }
-        </View>
+          }</View>}</>
     ) 
 }
 
