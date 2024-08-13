@@ -37,7 +37,7 @@ export default function AmmoCard({ammo}:Props){
               >
         <Card 
             style={{
-                width: (Dimensions.get("window").width / (displayAmmoAsGrid ? 2 : 1)) - (defaultGridGap + (defaultViewPadding/2)),
+                width: (Dimensions.get("window").width / (displayAmmoAsGrid ? 2 : 1)) - (defaultGridGap + (displayAmmoAsGrid ? defaultViewPadding/2 : defaultViewPadding)),
 
             }}
         >
