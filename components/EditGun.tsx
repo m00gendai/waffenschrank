@@ -1,24 +1,25 @@
 import { StyleSheet, View, ScrollView, Alert} from 'react-native';
-import { Appbar, Button, Dialog, SegmentedButtons, Snackbar, Text } from 'react-native-paper';
+import { Appbar, Button, Dialog, Icon, SegmentedButtons, Snackbar, Text } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as ImagePicker from "expo-image-picker"
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import * as SecureStore from "expo-secure-store"
 import { gunDataTemplate, gunRemarks } from "../lib/gunDataTemplate"
 import NewText from "./NewText"
 import "react-native-get-random-values"
 import ImageViewer from "./ImageViewer"
-import { GUN_DATABASE } from '../configs_DB';
+import { GUN_DATABASE, KEY_DATABASE } from '../configs_DB';
 import { GunType } from '../interfaces';
 import NewTextArea from './NewTextArea';
 import NewCheckboxArea from './NewCheckboxArea';
-import { editGunTitle, imageDeleteAlert, toastMessages, unsavedChangesAlert, validationFailedAlert } from '../lib/textTemplates';
+import { editGunTitle, gunDeleteAlert, imageDeleteAlert, toastMessages, unsavedChangesAlert, validationFailedAlert } from '../lib/textTemplates';
 import { usePreferenceStore } from '../stores/usePreferenceStore';
 import { useViewStore } from '../stores/useViewStore';
 import { useGunStore } from '../stores/useGunStore';
 import NewChipArea from './NewChipArea';
 import * as FileSystem from 'expo-file-system';
 import { gunDataValidation, imageHandling } from '../utils';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
 export default function EditGun({navigation}){
@@ -32,10 +33,12 @@ export default function EditGun({navigation}){
     const [visible, setVisible] = useState<boolean>(false);
     const [snackbarText, setSnackbarText] = useState<string>("")
     const [saveState, setSaveState] = useState<boolean | null>(null)
+    const [dialogVisible, toggleDialogVisible] = useState<boolean>(false)
     const [imageDialogVisible, toggleImageDialogVisible] = useState<boolean>(false)
     const [unsavedVisible, toggleUnsavedDialogVisible] = useState<boolean>(false)
     const [deleteImageIndex, setDeleteImageIndex] = useState<number>(0)
     const [exitAction, setExitAction] = useState(null);
+    const aboutToDeleteRef = useRef<boolean>(false);
 
     const { language, theme, generalSettings } = usePreferenceStore()
     const { setEditGunOpen } = useViewStore()
@@ -252,11 +255,13 @@ export default function EditGun({navigation}){
 
       useEffect(() => {
       const unsubscribe = navigation.addListener('beforeRemove', (e) => {
+        if(aboutToDeleteRef.current){
+            return
+        }
         if (saveState) {
           // If we don't have unsaved changes, then we don't need to do anything
           return;
         }
-  
         // Prevent default behavior of leaving the screen
         e.preventDefault();
   
@@ -281,12 +286,36 @@ export default function EditGun({navigation}){
         toggleUnsavedDialogVisible(false);
       };
 
+      function handleDeleteItem(gun:GunType){
+        aboutToDeleteRef.current = true;
+      deleteItem(gun)
+    }
+
+
+    async function deleteItem(gun:GunType){
+        // Deletes gun in gun database
+        await SecureStore.deleteItemAsync(`${GUN_DATABASE}_${gun.id}`)
+        // retrieves gun ids from key database and removes the to be deleted id
+        const keys:string = await AsyncStorage.getItem(KEY_DATABASE)
+        const keyArray: string[] = JSON.parse(keys)
+        const newKeys: string[] = keyArray.filter(key => key != gun.id)
+        AsyncStorage.setItem(KEY_DATABASE, JSON.stringify(newKeys))
+        const index:number = gunCollection.indexOf(gun)
+        const newCollection:GunType[] = gunCollection.toSpliced(index, 1)
+        setGunCollection(newCollection)
+        toggleDialogVisible(false)
+        navigation.navigate("GunCollection")
+        aboutToDeleteRef.current = false
+    }
+
+
     return(
         <View style={{flex: 1}}>
             
             <Appbar style={{width: "100%"}}>
                 <Appbar.BackAction  onPress={() => navigation.goBack()} />
                 <Appbar.Content title={editGunTitle[language]} />
+                <Appbar.Action icon="delete" onPress={()=>toggleDialogVisible(!dialogVisible)} color='red'/>
                 <Appbar.Action icon="floppy" onPress={() => save({...gunData, lastModifiedAt: `${new Date()}`})} color={saveState === null ? theme.colors.onBackground : saveState === false ? theme.colors.error : "green"}/>
             </Appbar>
         
@@ -365,9 +394,10 @@ export default function EditGun({navigation}){
                         })}
                          <NewCheckboxArea data={"status"} gunData={gunData} setGunData={setGunData}/>
                         <NewTextArea data={gunRemarks.name} gunData={gunData} setGunData={setGunData}/>
-                       
+                        
                     </View>
                 </ScrollView>
+                
             </View>
             <Snackbar
                 visible={visible}
@@ -406,6 +436,22 @@ export default function EditGun({navigation}){
                     </Dialog.Actions>
                 </Dialog>
 
+
+                        <Dialog visible={dialogVisible} onDismiss={()=>toggleDialogVisible(!dialogVisible)}>
+                            <Dialog.Title>
+                            {`${currentGun.model} ${gunDeleteAlert.title[language]}`}
+                            </Dialog.Title>
+                            <Dialog.Content>
+                                <Text>{`${gunDeleteAlert.subtitle[language]}`}</Text>
+                            </Dialog.Content>
+                            <Dialog.Actions>
+                                <Button onPress={()=>handleDeleteItem(currentGun)} icon="delete" buttonColor={theme.colors.errorContainer} textColor={theme.colors.onErrorContainer}>{gunDeleteAlert.yes[language]}</Button>
+                                <Button onPress={()=>toggleDialogVisible(!dialogVisible)} icon="cancel" buttonColor={theme.colors.secondary} textColor={theme.colors.onSecondary}>{gunDeleteAlert.no[language]}</Button>
+                            </Dialog.Actions>
+                        </Dialog>
+              
+                    
+                   
         </View>
     )
 }
