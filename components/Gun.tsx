@@ -15,7 +15,8 @@ import { printSingleGun } from '../functions/printToPDF';
 import { GunType } from '../interfaces';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { checkDate } from '../utils';
-
+import { LinearGradient } from 'expo-linear-gradient';
+import { colord } from "colord";
 
 export default function Gun({navigation}){
 
@@ -48,10 +49,12 @@ export default function Gun({navigation}){
         },
         imageContainer: {
             width: "100%",
-            aspectRatio: currentGun.images && currentGun.images.length == 1 ? "21/10" : "18/10",
-            flexDirection: "column",
+            aspectRatio: "21/10",
+            flexDirection: "row",
             flex: 1,
-            marginRight: 5
+            alignContent: "center",
+            alignItems: "center",
+            justifyContent: "center"
         },
         data: {
             flex: 1,
@@ -89,8 +92,8 @@ export default function Gun({navigation}){
         
             <View style={styles.container}>   
                 <ScrollView style={{width: "100%"}}>
-                    <View style={{backgroundColor: currentGun.mainColor}}>
-                        <ScrollView horizontal style={{width:"100%", aspectRatio: "21/10", marginTop: 10, marginBottom: 10}}>
+                    <LinearGradient start={{x: 0.0, y:0.0}} end={{x: 1.0, y: 1.0}} colors={[currentGun.mainColor ? currentGun.mainColor : theme.colors.background, `${colord(currentGun.mainColor ? currentGun.mainColor : theme.colors.background).isDark() ? colord(currentGun.mainColor ? currentGun.mainColor : theme.colors.background).lighten(currentGun.mainColor ? 0.2: 0).toHex() : colord(currentGun.mainColor ? currentGun.mainColor : theme.colors.background).darken(currentGun.mainColor ? 0.2: 0).toHex()}`, currentGun.mainColor ? currentGun.mainColor : theme.colors.background]}>
+                        <ScrollView horizontal style={{width:"100%", aspectRatio: "21/10",}}>
                             {Array.from(Array(5).keys()).map((_, index) =>{
                             
                                 if(currentGun.images && index <= currentGun.images.length-1){
@@ -113,7 +116,7 @@ export default function Gun({navigation}){
                                 }                   
                             })}
                         </ScrollView>
-                    </View>
+                        </LinearGradient>
                     <View style={styles.data}>
                         <View style={{flex: 1, flexDirection: "row", flexWrap: "wrap", marginBottom: 10}}>
                             {currentGun.tags?.map((tag, index) =>{
