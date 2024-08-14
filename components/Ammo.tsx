@@ -14,6 +14,7 @@ import { ammoDeleteAlert } from '../lib/textTemplates';
 import { printSingleAmmo, printSingleGun } from '../functions/printToPDF';
 import { AmmoType } from '../interfaces';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { defaultViewPadding } from '../configs';
 
 
 export default function Ammo({navigation}){
@@ -46,10 +47,12 @@ export default function Ammo({navigation}){
         },
         imageContainer: {
             width: "100%",
-            aspectRatio: currentAmmo.images && currentAmmo.images.length == 1 ? "21/10" : "18/10",
-            flexDirection: "column",
+            aspectRatio: "21/10",
+            flexDirection: "row",
             flex: 1,
-            marginRight: 5
+            alignContent: "center",
+            alignItems: "center",
+            justifyContent: "center"
         },
         data: {
             flex: 1,
@@ -59,7 +62,7 @@ export default function Ammo({navigation}){
         },
     })
 
-    async function deleteItem(ammo){
+    async function deleteItem(ammo:AmmoType){
         // Deletes ammo in gun database
         await SecureStore.deleteItemAsync(`${AMMO_DATABASE}_${ammo.id}`)
 
@@ -72,14 +75,14 @@ export default function Ammo({navigation}){
         const newCollection:AmmoType[] = ammoCollection.toSpliced(index, 1)
         setAmmoCollection(newCollection)
         toggleDialogVisible(false)
-        navigation.navigate("Home")
+        navigation.navigate("AmmoCollection")
     }
 
     return(
         <View style={{flex: 1}}>
             
             <Appbar style={{width: "100%"}}>
-                <Appbar.BackAction  onPress={() => navigation.navigate("Home")} />
+                <Appbar.BackAction  onPress={() => navigation.navigate("AmmoCollection")} />
                 <Appbar.Content title={`${currentAmmo.designation} ${currentAmmo.manufacturer !== undefined? currentAmmo.manufacturer : ""}`} />
                 <Appbar.Action icon="printer" onPress={()=>printSingleAmmo(currentAmmo, language)} />
                 <Appbar.Action icon="pencil" onPress={()=>navigation.navigate("EditAmmo")} />
@@ -142,19 +145,15 @@ export default function Ammo({navigation}){
                     </View>
                     
                     <Portal>
-                    <Modal visible={lightBoxOpen} onDismiss={setLightBoxOpen}>
-                        <View style={{width: "100%", height: "100%", padding: 0, flexDirection: "column", flexWrap: "wrap"}}>
-                            <View style={{width: "100%", flexDirection: "row", justifyContent:"flex-end", alignItems: "center", alignContent: "center", backgroundColor: "black", flex: 2}}>
-                                <View style={{backgroundColor: "black", padding: 0}}>
-                                    <TouchableOpacity onPress={setLightBoxOpen} style={{padding: 10}}>
-                                        <Icon source="close-circle-outline" size={25} color='white'/>
-                                    </TouchableOpacity>
-                                </View>
+                        <Modal visible={lightBoxOpen} onDismiss={setLightBoxOpen}>
+                            <View style={{width: "100%", height: "100%", padding: 0, display: "flex", flexDirection: "row", flexWrap: "wrap", backgroundColor: "green"}}>
+                                <TouchableOpacity onPress={setLightBoxOpen} style={{padding: 0, margin: 0, position: "absolute", top: defaultViewPadding, right: defaultViewPadding, zIndex: 999}}>
+                                    <Icon source="close-thick" size={40} color={theme.colors.inverseSurface}/>
+                                </TouchableOpacity>
+                                {lightBoxOpen ? <ImageViewer isLightBox={true} selectedImage={currentAmmo.images[lightBoxIndex]}/> : null}
                             </View>
-                          {lightBoxOpen ? <ImageViewer isLightBox={true} selectedImage={currentAmmo.images[lightBoxIndex]}/> : null}
-                        </View>
-                    </Modal>     
-                    </Portal>
+                        </Modal>    
+                    </Portal>   
 
                     <Portal>
                         <Dialog visible={dialogVisible} onDismiss={()=>toggleDialogVisible(!dialogVisible)}>

@@ -215,7 +215,7 @@ export default function NewGun({navigation}){
             <View style={styles.container}>
                 <ScrollView style={{width: "100%"}}>
                     <View>
-                        <ScrollView horizontal style={{width:"100%", aspectRatio: "21/10"}}>  
+                        <ScrollView horizontal style={{width:"100%", aspectRatio: "23/10"}}>  
                             {Array.from(Array(5).keys()).map((_, index) =>{
                                 return(
                                     <View style={styles.imageContainer} key={`slide_${index}`}>
@@ -295,10 +295,12 @@ const styles = StyleSheet.create({
     },
     imageContainer: {
         width: "100%",
-        aspectRatio: "18/10",
-        flexDirection: "column",
+        aspectRatio: "21/10",
+        flexDirection: "row",
         flex: 1,
-        marginRight: 5
+        alignContent: "center",
+        alignItems: "center",
+        justifyContent: "center"
     },
     button: {
         display: "flex",

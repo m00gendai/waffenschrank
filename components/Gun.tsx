@@ -15,7 +15,9 @@ import { printSingleGun } from '../functions/printToPDF';
 import { GunType } from '../interfaces';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { checkDate } from '../utils';
-
+import { LinearGradient } from 'expo-linear-gradient';
+import { colord } from "colord";
+import { defaultViewPadding } from '../configs';
 
 export default function Gun({navigation}){
 
@@ -48,10 +50,12 @@ export default function Gun({navigation}){
         },
         imageContainer: {
             width: "100%",
-            aspectRatio: currentGun.images && currentGun.images.length == 1 ? "21/10" : "18/10",
-            flexDirection: "column",
+            aspectRatio: "21/10",
+            flexDirection: "row",
             flex: 1,
-            marginRight: 5
+            alignContent: "center",
+            alignItems: "center",
+            justifyContent: "center"
         },
         data: {
             flex: 1,
@@ -61,7 +65,7 @@ export default function Gun({navigation}){
         },
     })
 
-    async function deleteItem(gun){
+    async function deleteItem(gun:GunType){
         // Deletes gun in gun database
         await SecureStore.deleteItemAsync(`${GUN_DATABASE}_${gun.id}`)
 
@@ -74,14 +78,14 @@ export default function Gun({navigation}){
         const newCollection:GunType[] = gunCollection.toSpliced(index, 1)
         setGunCollection(newCollection)
         toggleDialogVisible(false)
-        navigation.navigate("Home")
+        navigation.navigate("GunCollection")
     }
 
     return(
         <View style={{flex: 1}}>
             
             <Appbar style={{width: "100%"}}>
-                <Appbar.BackAction  onPress={() => navigation.navigate("Home")} />
+                <Appbar.BackAction  onPress={() => navigation.navigate("GunCollection")} />
                 <Appbar.Content title={`${currentGun.manufacturer !== undefined? currentGun.manufacturer : ""} ${currentGun.model}`} />
                 <Appbar.Action icon="printer" onPress={()=>printSingleGun(currentGun, language)} />
                 <Appbar.Action icon="pencil" onPress={()=>navigation.navigate("EditGun")} />
@@ -89,8 +93,8 @@ export default function Gun({navigation}){
         
             <View style={styles.container}>   
                 <ScrollView style={{width: "100%"}}>
-                    <View style={{backgroundColor: currentGun.mainColor}}>
-                        <ScrollView horizontal style={{width:"100%", aspectRatio: "21/10", marginTop: 10, marginBottom: 10}}>
+                    <LinearGradient start={{x: 0.0, y:0.0}} end={{x: 1.0, y: 1.0}} colors={[currentGun.mainColor ? currentGun.mainColor : theme.colors.background, `${colord(currentGun.mainColor ? currentGun.mainColor : theme.colors.background).isDark() ? colord(currentGun.mainColor ? currentGun.mainColor : theme.colors.background).lighten(currentGun.mainColor ? 0.2: 0).toHex() : colord(currentGun.mainColor ? currentGun.mainColor : theme.colors.background).darken(currentGun.mainColor ? 0.2: 0).toHex()}`, currentGun.mainColor ? currentGun.mainColor : theme.colors.background]}>
+                        <ScrollView horizontal style={{width:"100%", aspectRatio: "21/10",}}>
                             {Array.from(Array(5).keys()).map((_, index) =>{
                             
                                 if(currentGun.images && index <= currentGun.images.length-1){
@@ -113,7 +117,7 @@ export default function Gun({navigation}){
                                 }                   
                             })}
                         </ScrollView>
-                    </View>
+                        </LinearGradient>
                     <View style={styles.data}>
                         <View style={{flex: 1, flexDirection: "row", flexWrap: "wrap", marginBottom: 10}}>
                             {currentGun.tags?.map((tag, index) =>{
@@ -183,18 +187,14 @@ export default function Gun({navigation}){
                     </View>
                     
                     <Portal>
-                    <Modal visible={lightBoxOpen} onDismiss={setLightBoxOpen}>
-                        <View style={{width: "100%", height: "100%", padding: 0, flexDirection: "column", flexWrap: "wrap"}}>
-                            <View style={{width: "100%", flexDirection: "row", justifyContent:"flex-end", alignItems: "center", alignContent: "center", backgroundColor: "black", flex: 2}}>
-                                <View style={{backgroundColor: "black", padding: 0}}>
-                                    <TouchableOpacity onPress={setLightBoxOpen} style={{padding: 10}}>
-                                        <Icon source="close-circle-outline" size={25} color='white'/>
-                                    </TouchableOpacity>
-                                </View>
+                        <Modal visible={lightBoxOpen} onDismiss={setLightBoxOpen}>
+                            <View style={{width: "100%", height: "100%", padding: 0, display: "flex", flexDirection: "row", flexWrap: "wrap", backgroundColor: "green"}}>
+                                <TouchableOpacity onPress={setLightBoxOpen} style={{padding: 0, margin: 0, position: "absolute", top: defaultViewPadding, right: defaultViewPadding, zIndex: 999}}>
+                                    <Icon source="close-thick" size={40} color={theme.colors.inverseSurface}/>
+                                </TouchableOpacity>
+                                {lightBoxOpen ? <ImageViewer isLightBox={true} selectedImage={currentGun.images[lightBoxIndex]}/> : null}
                             </View>
-                          {lightBoxOpen ? <ImageViewer isLightBox={true} selectedImage={currentGun.images[lightBoxIndex]}/> : null}
-                        </View>
-                    </Modal>    
+                        </Modal>    
                     </Portal>   
 
                     <Portal>
