@@ -13,7 +13,7 @@ import AmmoCollection from './components/AmmoCollection';
 import { StatusBar } from 'expo-status-bar';
 import { AmmoType, GunType, StackParamList } from './interfaces';
 import * as SecureStore from "expo-secure-store"
-import { doSortBy, getIcon } from './utils';
+import { alarm, doSortBy, getIcon } from './utils';
 import { useAmmoStore } from './stores/useAmmoStore';
 import { useTagStore } from './stores/useTagStore';
 import { useGunStore } from './stores/useGunStore';
@@ -46,15 +46,7 @@ export default function App() {
   const { setAmmoTags, setTags } = useTagStore()
   const [gunsLoaded, setGunsLoaded] = useState(false)
 
-  function alarm(title: string, error:string){
-    Alert.alert(`${title}`, `${error}`, [
-      {
-        text: 'OK',
-        onPress: () => {return},
-      },
-    ])
-  }
-
+  
   useEffect(() => {
     async function prepare() {
       try {
