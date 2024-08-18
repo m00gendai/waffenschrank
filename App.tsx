@@ -39,11 +39,21 @@ export default function App() {
 
   const [appIsReady, setAppIsReady] = useState<boolean>(false);
 
-  const { ammoDbImport, dbImport, switchLanguage, theme, switchTheme, language, generalSettings, setGeneralSettings, setDisplayAsGrid, setDisplayAmmoAsGrid, setSortBy, setSortAmmoBy, setSortAmmoIcon, setSortGunIcon, setSortGunsAscending, setSortAmmoAscending } = usePreferenceStore();
+  const { ammoDbImport, dbImport, switchLanguage, theme, switchTheme, language, generalSettings, setGeneralSettings, setDisplayAsGrid, setDisplayAmmoAsGrid, setSortBy, setSortAmmoBy, setSortAmmoIcon, setSortGunIcon, setSortGunsAscending, setSortAmmoAscending, firstOpen, setFirstOpen } = usePreferenceStore();
   const { mainMenuOpen } = useViewStore()
   const { setAmmoCollection } = useAmmoStore()
   const { setGunCollection } = useGunStore()
   const { setAmmoTags, setTags } = useTagStore()
+  const [gunsLoaded, setGunsLoaded] = useState(false)
+
+  function alarm(title: string, error:string){
+    Alert.alert(`${title}`, `${error}`, [
+      {
+        text: 'OK',
+        onPress: () => {return},
+      },
+    ])
+  }
 
   useEffect(() => {
     async function prepare() {
@@ -78,12 +88,7 @@ export default function App() {
       } catch (e) {
         console.log("catch: got so far")
         console.log(e);
-        Alert.alert("Error", `${e}`, [
-          {
-            text: 'OK',
-            onPress: () => {return},
-          },
-        ])
+        alarm("Initialisation error", e)
       } 
     }
     prepare();
@@ -92,15 +97,27 @@ export default function App() {
   const onLayoutRootView = useCallback(async () => {
     if (appIsReady) {
       await SplashScreen.hideAsync();
+      
     }
   }, [appIsReady]);
   
   useEffect(()=>{
     async function getPreferences(){
-      const preferences:string = await AsyncStorage.getItem(PREFERENCES)
-      const isPreferences = preferences === null ? null : JSON.parse(preferences)
+      let preferences:string
+      try{
+        preferences = await AsyncStorage.getItem(PREFERENCES)
+      } catch(e){
+        alarm("Preference DB Error", e)
+      }
+      let isPreferences
+      try{
+       isPreferences = preferences === null ? null : JSON.parse(preferences)
+      } catch(e){
+        alarm("Preference Parse Error", e)
+      }
       
       /* GENERAL SETTINGS AND PREFERENCES */
+      try{
       switchLanguage(isPreferences === null ? "de" : isPreferences.language === undefined ? "de" : isPreferences.language)
       switchTheme(isPreferences === null ? "default" : isPreferences.theme === undefined ? "default" : isPreferences.theme)
       setGeneralSettings(isPreferences === null ? {
@@ -112,8 +129,12 @@ export default function App() {
         displayImagesInListViewGun: true,
         resizeImages: true,
       } : isPreferences.generalSettings)
+    } catch(e){
+      alarm("General Preferences Error", e)
+    }
 
       /* AMMO PREFERENCES */
+      try{
       const ammo_tagList: string = await AsyncStorage.getItem(A_TAGS)
       const isAmmoTagList:{label: string, status: boolean}[] = ammo_tagList === null ? null : JSON.parse(ammo_tagList)
       setDisplayAmmoAsGrid(isPreferences === null ? true : isPreferences.displayAmmoAsGrid === null ? true : isPreferences.displayAmmoAsGrid)
@@ -125,8 +146,11 @@ export default function App() {
           setAmmoTags(tag)
         }) 
       }
-
+    } catch(e){
+      alarm("Ammo Preferences Error", e)
+    }
       /* GUN PREFERENCE */
+      try{
       const gun_tagList: string = await AsyncStorage.getItem(TAGS) 
       const isGunTagList:{label: string, status: boolean}[] = gun_tagList === null ? null : JSON.parse(gun_tagList)
       setDisplayAsGrid(isPreferences === null ? true : isPreferences.displayAsGrid === null ? true : isPreferences.displayAsGrid)
@@ -138,6 +162,9 @@ export default function App() {
           setTags(tag)
         }) 
       }
+    } catch(e){
+      alarm("Gun Preferences Error", e)
+    }
     }
     getPreferences()
   },[])
@@ -152,14 +179,36 @@ export default function App() {
 
   useEffect(()=>{
     async function getAmmo(){
-      const keys:string[] = await getKeys("ammo")
-      const ammunitions:AmmoType[] = await Promise.all(keys.map(async key =>{
+      let keys:string[]
+      try{
+      keys = await getKeys("ammo")
+      } catch(e){
+        alarm("Ammo Key Error", e)
+      }
+
+
+      let ammunitions:AmmoType[]
+      try{
+        ammunitions = await Promise.all(keys.map(async key =>{
         const item:string = await SecureStore.getItemAsync(`${AMMO_DATABASE}_${key}`)
         return JSON.parse(item)
       }))
+
+      if(ammunitions.length !== keys.length){
+        throw(`Key/Ammo DB Discrepancy: Found ${keys.length} keys and ${ammunitions.length} ammunitions`)
+      }
+    } catch(e){
+      alarm("Ammo DB Error", e)
+    }
+
+      try{
       const preferences:string = await AsyncStorage.getItem(PREFERENCES)
       const isPreferences = preferences === null ? null : JSON.parse(preferences)
       const filteredAmmunition = ammunitions.filter(item => item !== null) // null check if there are key corpses
+      if(ammunitions.length !== 0 && ammunitions.every(item => item ===null)){
+        throw(`Ammo DB Null Exception: Found ${keys.length} keys and ${ammunitions.length} null items`)
+      }
+
       if(filteredAmmunition.length === 0){
         setAmmoCollection([])
       }
@@ -167,20 +216,44 @@ export default function App() {
         const sortedAmmo = doSortBy(isPreferences === null ? "alphabetical" : isPreferences.sortAmmoBy === undefined ? "alphabetical" : isPreferences.sortAmmoBy, isPreferences == null? true : isPreferences.sortOrderAmmo === null ? true : isPreferences.sortOrderAmmo, filteredAmmunition) as AmmoType[]
         setAmmoCollection(sortedAmmo)
       }
+    } catch(e){
+      alarm("Ammo Preference Error", e)
+    }
     }
     getAmmo()
   },[ammoDbImport])
 
   useEffect(()=>{
     async function getGuns(){
-      const keys:string[] = await getKeys("guns")
-      const guns:GunType[] = await Promise.all(keys.map(async key =>{
+      let keys: string[]
+      try{
+      keys = await getKeys("guns")
+    }  catch(e){
+      alarm("Gun Key Error", e)
+    }
+
+
+    let guns:GunType[]
+    try{
+      guns = await Promise.all(keys.map(async key =>{
         const item:string = await SecureStore.getItemAsync(`${GUN_DATABASE}_${key}`)
         return JSON.parse(item)
       }))
+      if(guns.length !== keys.length){
+        throw(`Key/Gun DB Discrepancy: Found ${keys.length} keys and ${guns.length} guns`)
+      }
+    } catch(e){
+      alarm("Gun DB Error", e)
+    }
+
+    try{
       const preferences:string = await AsyncStorage.getItem(PREFERENCES)
       const isPreferences = preferences === null ? null : JSON.parse(preferences)
       const filteredGuns = guns.filter(item => item !== null) // null check if there are key corpses
+      if(guns.length !== 0 && guns.every(item => item ===null)){
+        throw(`Gun DB Null Exception: Found ${keys.length} keys and ${guns.length} null items`)
+      }
+
       if(filteredGuns.length === 0){
         setGunCollection([])
       } 
@@ -188,8 +261,12 @@ export default function App() {
         const sortedGuns = doSortBy(isPreferences === null ? "alphabetical" : isPreferences.sortBy === undefined ? "alphabetical" : isPreferences.sortBy, isPreferences == null? true : isPreferences.sortOrderGuns === null ? true : isPreferences.sortOrderGuns, filteredGuns) as GunType[]
         setGunCollection(sortedGuns)
       }
+    } catch(e){
+      alarm("Gun Preference Error", e)
     }
+   }
     getGuns()
+    setGunsLoaded(true)
   },[dbImport])
 
   const currentTheme = {...theme, roundness : 5}
@@ -208,6 +285,8 @@ export default function App() {
   if (!appIsReady) {
     return null;
   }
+
+
 
   return (
     <NavigationContainer theme={navTheme}>
