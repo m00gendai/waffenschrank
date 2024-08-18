@@ -25,7 +25,7 @@ import { mainMenu_ammunitionDatabase, mainMenu_gunDatabase } from "../lib/Text/m
 import { useImportExportStore } from "../stores/useImportExportStore"
 import CSVImportModal from "./CSVImportModal"
 import { flatten, unflatten } from 'flat'
-import { getImageSize, sanitizeFileName } from "../utils"
+import { alarm, getImageSize, sanitizeFileName } from "../utils"
 import * as SystemUI from "expo-system-ui"
 import * as Sharing from 'expo-sharing';
 import * as LocalAuthentication from 'expo-local-authentication';
@@ -535,13 +535,20 @@ export default function MainMenu({navigation}){
         }
         
     async function importCSV(data: DBOperations){
-        const result = await DocumentPicker.getDocumentAsync({copyToCacheDirectory: true})
+        let result 
+        
+        try{
+            result = await DocumentPicker.getDocumentAsync({copyToCacheDirectory: true})
         if(result.assets === null){
             return
         }
         if(result.assets[0].mimeType !== "text/comma-separated-values"){
-            return
+            throw("Non CSV file format detected")
         }
+    }catch(e){
+        alarm("Custom CSV Import Error", e)
+        return
+    }
         const content:string = await FileSystem.readAsStringAsync(result.assets[0].uri)
         toggleImportCSVVisible()
         const parsed:Papa.ParseResult<string[]> = Papa.parse(content)
