@@ -60,6 +60,8 @@ export default function CSVImportModal(){
                     mapped[entry[0]] = entry[1] === -1 ? `${new Date().toISOString()}` : items[entry[1]]
                 } else if(entry[0] === "caliber"){
                     mapped[entry[0]] = entry[1] === -1 ? "" : items[entry[1]].split(", ")
+                } else if(entry[0] === "status"){
+                    mapped[entry[0]] = entry[1] === -1 ? exampleGunEmpty.status : items[entry[1]]
                 } else {
                     mapped[entry[0]] = entry[1] === -1 ? "" : items[entry[1]]
                 }

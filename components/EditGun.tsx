@@ -310,7 +310,6 @@ export default function EditGun({navigation}){
         aboutToDeleteRef.current = false
     }
 
-
     return(
         <View style={{flex: 1}}>
             
