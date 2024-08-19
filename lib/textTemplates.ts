@@ -134,6 +134,14 @@ interface CaliberPickerStrings{
     tabSearch: SimpleTranslation
 }
 
+interface aboutThanksPersons{
+    michelle: SimpleTranslation
+    jonas: SimpleTranslation
+    owg: SimpleTranslation
+    waffenforum: SimpleTranslation
+    others: SimpleTranslation
+}
+
 export const cleanIntervals:CleanIntervals = {
     none: {
         de: "-",
@@ -994,6 +1002,44 @@ export const aboutThanks: SimpleTranslation = {
     fr: "Remerciements spéciaux à",
     it: "Un ringraziamento speciale a",
     ch: "Grazia fitg spezial a",
+}
+
+export const aboutThanksPersons:aboutThanksPersons = {
+    michelle:{
+        de: "Michelle Fabienne Weber-Meichtry",
+        en: "Michelle Fabienne Weber-Meichtry",
+        fr: "Michelle Fabienne Weber-Meichtry",
+        it: "Michelle Fabienne Weber-Meichtry",
+        ch: "Michelle Fabienne Weber-Meichtry",
+    },
+    jonas:{
+        de: "Jonas Hürlimann",
+        en: "Jonas Hürlimann",
+        fr: "Jonas Hürlimann",
+        it: "Jonas Hürlimann",
+        ch: "Jonas Hürlimann",
+    },
+    owg:{
+        de: "die Betatester der Ostschweizerischen Waffen-Sammler-Gesellschaft OWG",
+        en: "the beta testers of the Eastern Swiss Arms Collectors Society OWG",
+        fr: "les testeurs bêta de la Société suisse orientale des collectionneurs d'armes OWG",
+        it: "i beta tester della Società dei collezionisti di armi della Svizzera orientale OWG",
+        ch: "ils Betatestas da la Societad d'armas da la Svizra orientala OWG",
+    },
+    waffenforum:{
+        de: "die Betatester des waffenforum.ch",
+        en: "the beta testers of waffenforum.ch",
+        fr: "les testeurs bêta du waffenforum.ch",
+        it: "i beta tester di waffenforum.ch ",
+        ch: "ils betatesters dal waffenforum.ch",
+    },
+    others:{
+        de: "alle anderen Tester, ohne die die App so nicht möglich wäre",
+        en: "all the other testers without whom the app would not be possible",
+        fr: "tous les autres testeurs sans lesquels l'application ne serait pas possible",
+        it: "tutti gli altri tester, senza i quali l'app non sarebbe possibile",
+        ch: "tuot ils oters tests, sainza ils quals l'app nu füss uschè pussibla",
+    },
 }
 
 export const modalTexts: ModalText = {
