@@ -2,7 +2,7 @@ import { ScrollView, TouchableNativeFeedback, View, Image } from "react-native"
 import Animated, { LightSpeedInLeft, LightSpeedOutLeft } from "react-native-reanimated"
 import { useViewStore } from "../stores/useViewStore"
 import { ActivityIndicator, Button, Dialog, Divider, Icon, IconButton, List, Modal, Portal, Snackbar, Switch, Text, Tooltip } from "react-native-paper"
-import { aboutText, aboutThanks, databaseImportAlert, databaseOperations, generalSettingsLabels, loginGuardAlert, preferenceTitles, resizeImageAlert, toastMessages, tooltips } from "../lib/textTemplates"
+import { aboutText, aboutThanks, aboutThanksPersons, databaseImportAlert, databaseOperations, generalSettingsLabels, loginGuardAlert, preferenceTitles, resizeImageAlert, toastMessages, tooltips } from "../lib/textTemplates"
 import { usePreferenceStore } from "../stores/usePreferenceStore"
 import AsyncStorage from "@react-native-async-storage/async-storage"
 import { defaultViewPadding, languageSelection } from "../configs"
@@ -867,8 +867,10 @@ export default function MainMenu({navigation}){
                                         <Text style={{color: theme.colors.onBackground}} >{`© ${currentYear === 2024 ? currentYear : `2024 - ${currentYear}`} Marcel Weber`} </Text>
                                         <Divider style={{marginTop: 5, marginBottom: 5, width: "100%", borderWidth: 0.5, borderColor: theme.colors.onSecondary}} />
                                         <Text style={{color: theme.colors.onBackground}} >{aboutThanks[language]}</Text>
-                                        <Text>- Michelle-Fabienne Weber-Meichtry</Text>
-                                        <Text>- Jonas Hürlimann</Text>
+                                        <Text>{aboutThanksPersons.michelle[language]}</Text>
+                                        <Text>{aboutThanksPersons.jonas[language]}</Text>
+                                        <Text>{aboutThanksPersons.waffenforum[language]}</Text>
+                                        <Text>{aboutThanksPersons.others[language]}</Text>
                                         <Divider style={{marginTop: 5, marginBottom: 5, width: "100%", borderWidth: 0.5, borderColor: theme.colors.onSecondary}} />
                                         <Text>Splash & Icon: Designed by dgim-studio / Freepik</Text>
                                     </View>
