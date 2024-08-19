@@ -13,6 +13,57 @@ Enter or paste your release notes for fr-FR here
 Enter or paste your release notes for it-IT here
 </it-IT>
 
+BETA 1.2.0-rc
+
+<de-DE>
+Behoben:
+- Liste merkt sich Scrollposition nicht
+- CSV Import hat Kaliberfeld falsch gesetzt
+- CSV Import hat Status falsch gesetzt
+- Diverse kleinere Darstellungsfehler behoben
+Verbessert:
+- Munition mit Kaliber in der Listen-/Kachelansicht
+- Sortierfunktion genauer
+- Farbrahmen um Waffe ansehnlicher
+- Löschfunktion jetzt auch im Bearbeitungsmodus und besser ersichtlich
+</de-DE>
+<en-US>
+Fixed:
+- List does not remember scroll position
+- CSV import has set caliber field incorrectly
+- CSV import has set status incorrectly
+- Various minor display errors fixed
+Improved:
+- Ammunition with caliber in the list/tile view
+- Sorting function more accurate
+- Color frame around weapon more attractive
+- Delete function now also in edit mode and better visible
+</en-US>
+<fr-FR>
+Correction d'un problème :
+- La liste ne se souvient pas de la position de défilement
+- L'importation CSV ne définissait pas correctement le champ de calibre
+- L'importation CSV a un statut incorrect
+- Correction de diverses petites erreurs d'affichage
+Amélioration de l'affichage :
+- Munitions avec calibre dans la vue liste/carreau
+- Fonction de tri plus précise
+- Cadre de couleur plus visible autour de l'arme
+- Fonction d'effacement maintenant aussi en mode édition et plus visible
+</fr-FR>
+<it-IT>
+Corretto:
+- L'elenco non ricorda la posizione di scorrimento
+- L'importazione CSV ha impostato il campo calibro in modo errato
+- L'importazione CSV ha uno stato sbagliato
+- Corretti vari errori di visualizzazione minori
+Migliorato:
+- Munizioni con calibro nella vista elenco/piastrella
+- Funzione di ordinamento più accurata
+- Cornice di colore intorno all'arma più attraente
+- Funzione di cancellazione ora anche in modalità di modifica e meglio visibile
+</it-IT>
+
 BETA 1.1.1
 
 <de-DE>

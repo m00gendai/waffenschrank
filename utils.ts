@@ -5,7 +5,7 @@ import { ammoDataTemplate } from "./lib/ammoDataTemplate";
 import { requiredFieldsAmmo, requiredFieldsGun } from "./configs";
 import * as ImagePicker from "expo-image-picker"
 import { ImageResult, manipulateAsync } from 'expo-image-manipulator';
-import { Image } from "react-native"
+import { Alert, Image } from "react-native"
 
 export function doSortBy(value: SortingTypes, ascending: boolean, items: GunType[] | AmmoType[]){
     if(value === "alphabetical"){
@@ -199,3 +199,12 @@ export function checkDate(gun:GunType){
     }
     return false
 }
+
+export function alarm(title: string, error:string){
+    Alert.alert(`${title}`, `${error}`, [
+      {
+        text: 'OK',
+        onPress: () => {return},
+      },
+    ])
+  }

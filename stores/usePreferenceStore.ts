@@ -1,7 +1,6 @@
 import { create } from "zustand"
 import { colorThemes } from "../lib/colorThemes"
 import { Color, Languages, SortingTypes} from "../interfaces"
-import { GeneratedIdentifierFlags } from "typescript"
 
 interface GeneralSettings{
   displayImagesInListViewGun: boolean
@@ -42,6 +41,8 @@ interface PreferenceStore {
     sortAmmoAscending: boolean
     toggleSortAmmoAscending: () => void
     setSortAmmoAscending: (status: boolean) => void
+    firstOpen: boolean
+    setFirstOpen: () => void
   }
 
   export const usePreferenceStore = create<PreferenceStore>((set) => ({
@@ -80,5 +81,7 @@ interface PreferenceStore {
       loginGuard: false,
       emptyFields: false
     },
-    setGeneralSettings: (settings: GeneralSettings) => set((state) => ({generalSettings: settings}))
+    setGeneralSettings: (settings: GeneralSettings) => set((state) => ({generalSettings: settings})),
+    firstOpen: true,
+    setFirstOpen: () => set((state) => ({firstOpen: !state.firstOpen}))
   }))
