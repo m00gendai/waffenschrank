@@ -549,6 +549,7 @@ export default function MainMenu({navigation}){
         alarm("Custom CSV Import Error", e)
         return
     }
+    try{
         const content:string = await FileSystem.readAsStringAsync(result.assets[0].uri)
         toggleImportCSVVisible()
         const parsed:Papa.ParseResult<string[]> = Papa.parse(content)
@@ -558,6 +559,9 @@ export default function MainMenu({navigation}){
         setCSVHeader(headerRow)
         setCSVBody(bodyRows)    
         setDbCollectionType(data)
+    }catch(e){
+        alarm("Custom CSV Import File Error", e)
+    }
     }
 
     async function exportCSV(data: DBOperations){
