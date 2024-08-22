@@ -123,7 +123,7 @@ export interface CommonStyles {
   tagContainerGap: string
 }
 
-export type SortingTypes = "alphabetical" | "lastAdded" | "lastModified" | "caliber" | "paidPrice" | "marketValue"
+export type SortingTypes = "alphabetical" | "lastAdded" | "lastModified" | "caliber" | "paidPrice" | "marketValue" | "acquisitionDate"
 export type Languages = "de" | "en" | "fr" | "it" | "ch"
 export type CaliberArray = {id: string, amount: string }
 export type DBOperations = "save_arsenal_gun_db" | 

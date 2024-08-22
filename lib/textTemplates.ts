@@ -75,6 +75,7 @@ interface Sorting{
     lastAdded: SimpleTranslation
     paidPrice: SimpleTranslation
     marketValue: SimpleTranslation
+    acquisitionDate: SimpleTranslation
 }
 
 interface GunQuickShot{
@@ -871,6 +872,13 @@ export const sorting:Sorting = {
         fr: "Valeur de marché actuelle",
         it: "Valore di mercato attuale",
         ch: "Valur actuala dal martgà"
+    },
+    acquisitionDate:{
+        de: "Erwerbsdatum",     
+        en: "Acquision Date",
+        fr: "Date d'acquisition",
+        it: "Data di acquisizione",
+        ch: "Data d'acquist",        
     }
 }
 
