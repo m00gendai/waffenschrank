@@ -21,6 +21,7 @@ export interface GunType{
   lastShotAt?: string
   lastCleanedAt?: string
   paidPrice?: string
+  marketValue?: string
   cleanInterval?: string | null
 }
 
@@ -122,7 +123,7 @@ export interface CommonStyles {
   tagContainerGap: string
 }
 
-export type SortingTypes = "alphabetical" | "lastAdded" | "lastModified" | "caliber"
+export type SortingTypes = "alphabetical" | "lastAdded" | "lastModified" | "caliber" | "paidPrice" | "marketValue"
 export type Languages = "de" | "en" | "fr" | "it" | "ch"
 export type CaliberArray = {id: string, amount: string }
 export type DBOperations = "save_arsenal_gun_db" | 

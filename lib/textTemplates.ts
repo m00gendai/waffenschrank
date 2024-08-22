@@ -73,6 +73,8 @@ interface Sorting{
     alphabetic: SimpleTranslation
     lastModified: SimpleTranslation
     lastAdded: SimpleTranslation
+    paidPrice: SimpleTranslation
+    marketValue: SimpleTranslation
 }
 
 interface GunQuickShot{
@@ -856,7 +858,20 @@ export const sorting:Sorting = {
         it: "Ultimo aggiunto",
         ch: "L'ultima giada agiuntà",
     },
-    
+    paidPrice:{
+        de: "Kaufpreis",     
+        en: "Price",
+        fr: "Prix d'achat",
+        it: "Prezzo",
+        ch: "Pretsch da cumpra",
+    },
+    marketValue:{
+        de: "Aktueller Marktwert",
+        en: "Current market value",
+        fr: "Valeur de marché actuelle",
+        it: "Valore di mercato attuale",
+        ch: "Valur actuala dal martgà"
+    }
 }
 
 export const search:SimpleTranslation = {

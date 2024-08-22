@@ -62,6 +62,17 @@ export function doSortBy(value: SortingTypes, ascending: boolean, items: GunType
         }})
         return sorted
     }
+    if(value === "paidPrice"){
+        const sorted = items.sort((a, b) =>{
+            const x = a.paidPrice !== undefined ? a.paidPrice : 0
+            const y = b.paidPrice !== undefined ? b.paidPrice : 0
+            if(ascending){
+                return x > y ? 1 : x < y ? -1 : 0
+            } else {
+                return x < y ? 1 : x > y ? -1 : 0
+        }})
+        return sorted
+    }
 }
 
 export function getIcon(type:SortingTypes){
@@ -72,6 +83,10 @@ export function getIcon(type:SortingTypes){
             return "clock-plus-outline"
         case "lastModified":
             return "clock-edit-outline"
+        case "paidPrice":
+            return "cash-register"
+        case "marketValue":
+            return "chart-line"
         default:
             return "alphabetical-variant"
     }
