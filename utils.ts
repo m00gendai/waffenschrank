@@ -64,8 +64,19 @@ export function doSortBy(value: SortingTypes, ascending: boolean, items: GunType
     }
     if(value === "paidPrice"){
         const sorted = items.sort((a, b) =>{
-            const x = a.paidPrice !== undefined ? a.paidPrice : 0
-            const y = b.paidPrice !== undefined ? b.paidPrice : 0
+            const x = a.paidPrice !== undefined ? Number(a.paidPrice) : 0
+            const y = b.paidPrice !== undefined ? Number(b.paidPrice) : 0
+            if(ascending){
+                return x > y ? 1 : x < y ? -1 : 0
+            } else {
+                return x < y ? 1 : x > y ? -1 : 0
+        }})
+        return sorted
+    }
+    if(value === "marketValue"){
+        const sorted = items.sort((a, b) =>{
+            const x = a.marketValue !== undefined ? Number(a.marketValue) : 0
+            const y = b.marketValue !== undefined ? Number(b.marketValue) : 0
             if(ascending){
                 return x > y ? 1 : x < y ? -1 : 0
             } else {
