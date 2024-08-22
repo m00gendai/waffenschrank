@@ -75,6 +75,14 @@ export const gunDataTemplate:{name:string, de:string, en:string, fr:string, it: 
     
     },
     {
+        name: "marketValue",
+        de: "Aktueller Marktwert",
+        en: "Current market value",
+        fr: "Valeur de marché actuelle",
+        it: "Valore di mercato attuale",
+        ch: "Valur actuala dal martgà"
+    },
+    {
         name: "shotCount",
         de: "Schussbelastung",
         en: "Shot count",

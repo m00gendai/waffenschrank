@@ -178,8 +178,8 @@ function handleFocus(){
                         showSoftInputOnFocus={data === "acquisitionDate" ? false : true}
                         onChangeText={input => gunData !== undefined ? updateGunData(input) : updateAmmoData(input)}
                         onKeyPress={({nativeEvent}) => setIsBackspace(nativeEvent.key === "Backspace" ? true : false)}
-                        left={data === "paidPrice" ? <TextInput.Affix text="CHF " /> : null}
-                        inputMode={`${data === "paidPrice" ? "decimal" : data === "shotCount" ? "decimal" : "text"}`}
+                        left={data === "paidPrice" ? <TextInput.Affix text="CHF " /> : data === "marketValue" ? <TextInput.Affix text="CHF " />  : null}
+                        inputMode={`${data === "paidPrice" ? "decimal" : data === "marketValue" ? "decimal" : data === "shotCount" ? "decimal" : "text"}`}
                         multiline={gunData && Array.isArray(gunData[data])}
                     />
                 </View>

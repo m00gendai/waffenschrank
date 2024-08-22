@@ -62,6 +62,45 @@ export function doSortBy(value: SortingTypes, ascending: boolean, items: GunType
         }})
         return sorted
     }
+    if(value === "paidPrice"){
+        const sorted = items.sort((a, b) =>{
+            const x = a.paidPrice !== undefined ? Number(a.paidPrice) : 0
+            const y = b.paidPrice !== undefined ? Number(b.paidPrice) : 0
+            if(ascending){
+                return x > y ? 1 : x < y ? -1 : 0
+            } else {
+                return x < y ? 1 : x > y ? -1 : 0
+        }})
+        return sorted
+    }
+    if(value === "marketValue"){
+        const sorted = items.sort((a, b) =>{
+            const x = a.marketValue !== undefined ? Number(a.marketValue) : 0
+            const y = b.marketValue !== undefined ? Number(b.marketValue) : 0
+            if(ascending){
+                return x > y ? 1 : x < y ? -1 : 0
+            } else {
+                return x < y ? 1 : x > y ? -1 : 0
+        }})
+        return sorted
+    }
+    if(value === "acquisitionDate"){
+        const parseDate = (dateStr:string) => {
+            if (!dateStr) return new Date(0);
+            const [day, month, year]:number[] = dateStr.split('.').map(Number);
+            return new Date(year, month - 1, day);
+        };
+        const sorted = items.sort((a, b) =>{
+            const x = a.acquisitionDate !== undefined ? Math.floor(parseDate(a.acquisitionDate).getTime() / 1000) : 0;
+            const y = b.acquisitionDate !== undefined ? Math.floor(parseDate(b.acquisitionDate).getTime() / 1000) : 0;
+    
+            if(ascending){
+                return x > y ? 1 : x < y ? -1 : 0
+            } else {
+                return x < y ? 1 : x > y ? -1 : 0
+        }})
+        return sorted
+    }
 }
 
 export function getIcon(type:SortingTypes){
@@ -72,6 +111,12 @@ export function getIcon(type:SortingTypes){
             return "clock-plus-outline"
         case "lastModified":
             return "clock-edit-outline"
+        case "paidPrice":
+            return "cash-register"
+        case "marketValue":
+            return "chart-line"
+        case "acquisitionDate":
+            return "credit-card-clock-outline"
         default:
             return "alphabetical-variant"
     }
