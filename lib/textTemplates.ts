@@ -45,6 +45,7 @@ interface PreferenceTitle{
     printAllAmmo: SimpleTranslation
     generalSettings: SimpleTranslation
     about: SimpleTranslation
+    statistics: SimpleTranslation
 }
 
 interface DatabaseOperation{
@@ -711,6 +712,13 @@ export const preferenceTitles:PreferenceTitle = {
         fr: "Au sujet de",
         it: "Circa",
         ch: "Davart",
+    },
+    statistics:{
+        de: "Statistiken",
+        en: "Statistics",
+        fr: "Statistiques",
+        it: "Statistiche",
+        ch: "Statisticas",
     }
 }
 
