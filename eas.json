@@ -5,12 +5,6 @@
         "buildType": "apk"
       }
     },
-    "development": {
-      "developmentClient": true,
-      "env":{
-        "APP_VARIANT": "development"
-      }
-    },
     "production": {
       "android": {
         "buildType": "app-bundle",
