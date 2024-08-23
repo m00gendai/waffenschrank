@@ -1,4 +1,6 @@
-{
+const IS_DEV = process.env.APP_VARIANT === "development"
+
+export default {
   "expo": {
     "name": "Arsenal",
     "slug": "waffenschrank",
@@ -22,7 +24,7 @@
         "foregroundImage": "./assets/appIconC.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.m00gendai.arsenal",
+      "package": IS_DEV ? "com.m00gendai.arsenal.dev" : "com.m00gendai.arsenal",
       "versionCode": 9
     },
     "web": {
