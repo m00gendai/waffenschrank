@@ -100,7 +100,7 @@ export default function NewAmmo({navigation}){
         setSnackbarText(`${value.designation} ${value.manufacturer ? value.manufacturer : ""} ${toastMessages.saved[language]}`)
         onToggleSnackBar()
         setNewAmmoOpen()
-        setCurrentAmmo(ammoData)
+        setCurrentAmmo({...ammoData, id: value.id})
         const newCollection:AmmoType[] = [...ammoCollection, value]
         setAmmoCollection(newCollection)
         setSeeAmmoOpen()

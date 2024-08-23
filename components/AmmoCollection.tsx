@@ -1,5 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { FlatList, View } from 'react-native';
 import { Appbar, FAB, Menu, Switch, Text, Tooltip, Searchbar } from 'react-native-paper';
 import { defaultBottomBarHeight, defaultGridGap, defaultViewPadding } from '../configs';
@@ -26,7 +26,7 @@ export default function AmmoCollection({navigation, route}){
 
   const { displayAmmoAsGrid, toggleDisplayAmmoAsGrid, sortAmmoBy, setSortAmmoBy, language, theme, sortAmmoIcon, setSortAmmoIcon, sortAmmoAscending, toggleSortAmmoAscending } = usePreferenceStore()
   const { mainMenuOpen } = useViewStore()
-  const { ammoCollection, setAmmoCollection } = useAmmoStore()
+  const { ammoCollection, setAmmoCollection, currentAmmo } = useAmmoStore()
   const { ammo_tags } = useTagStore()
   const [isFilterOn, setIsFilterOn] = useState<boolean>(false);
   const [ammoList, setAmmoList] = useState<AmmoType[]>(ammoCollection)
@@ -35,6 +35,11 @@ export default function AmmoCollection({navigation, route}){
   useEffect(()=>{
     setAmmoList(isFilterOn ? ammoList : ammoCollection)
   ,[]})
+
+  useEffect(()=>{
+    const sortedAmmo = doSortBy(sortAmmoBy, sortAmmoAscending, ammoCollection) as AmmoType[]
+    setAmmoCollection(sortedAmmo)
+  },[ammoCollection])
   
   async function handleSortBy(type:SortingTypes){
     setSortAmmoIcon(getIcon(type))
@@ -149,7 +154,6 @@ export default function AmmoCollection({navigation, route}){
     };
   });
 
-  
   return(
     <View style={{flex: 1}}>
       <Appbar style={{width: "100%", display: "flex", flexDirection: "row", justifyContent: "space-between"}}>
@@ -197,7 +201,7 @@ export default function AmmoCollection({navigation, route}){
           columnWrapperStyle={{gap: defaultGridGap}} 
           key={`ammoCollectionGrid`} 
           style={{height: "100%", width: "100%", paddingTop: defaultViewPadding, paddingLeft: defaultViewPadding, paddingRight: defaultViewPadding, paddingBottom: 50}} 
-          data={searchQuery !== "" ? ammoList.filter(item => item.manufacturer.toLowerCase().includes(searchQuery.toLowerCase()) || item.designation.toLowerCase().includes(searchQuery.toLowerCase())) : ammoList} 
+          data={searchQuery !== "" ? ammoList.filter(item => item.manufacturer.toLowerCase().includes(searchQuery.toLowerCase()) || item.designation.toLowerCase().includes(searchQuery.toLowerCase()) || item.caliber.toLowerCase().includes(searchQuery.toLowerCase())) : ammoList} 
           renderItem={({item, index}) => <AmmoCard ammo={item} />}                     
           keyExtractor={ammo=>ammo.id} 
           ListFooterComponent={<View style={{width: "100%", height: 100}}></View>}
@@ -210,7 +214,7 @@ export default function AmmoCollection({navigation, route}){
           contentContainerStyle={{gap: defaultGridGap}}
           key={`ammoCollectionList`} 
           style={{height: "100%", width: "100%", paddingTop: defaultViewPadding, paddingLeft: defaultViewPadding, paddingRight: defaultViewPadding, paddingBottom: 50}} 
-          data={searchQuery !== "" ? ammoList.filter(item => item.manufacturer.toLowerCase().includes(searchQuery.toLowerCase()) || item.designation.toLowerCase().includes(searchQuery.toLowerCase())) : ammoList} 
+          data={searchQuery !== "" ? ammoList.filter(item => item.manufacturer.toLowerCase().includes(searchQuery.toLowerCase()) || item.designation.toLowerCase().includes(searchQuery.toLowerCase()) || item.caliber.toLowerCase().includes(searchQuery.toLowerCase())) : ammoList} 
           renderItem={({item, index}) => <AmmoCard ammo={item} />}      
           keyExtractor={gun=>gun.id} 
           ListFooterComponent={<View style={{width: "100%", height: 100}}></View>}

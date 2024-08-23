@@ -99,7 +99,7 @@ export default function NewGun({navigation}){
         setSnackbarText(`${value.manufacturer ? value.manufacturer : ""} ${value.model} ${toastMessages.saved[language]}`)
         onToggleSnackBar()
         setNewGunOpen()
-        setCurrentGun(gunData)
+        setCurrentGun({...gunData, id: value.id})
         const newCollection:GunType[] = [...gunCollection, value]
         setGunCollection(newCollection)
         setSeeGunOpen()
