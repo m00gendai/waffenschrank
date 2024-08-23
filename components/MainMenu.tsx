@@ -2,10 +2,10 @@ import { ScrollView, TouchableNativeFeedback, View, Image } from "react-native"
 import Animated, { LightSpeedInLeft, LightSpeedOutLeft } from "react-native-reanimated"
 import { useViewStore } from "../stores/useViewStore"
 import { ActivityIndicator, Button, Dialog, Divider, Icon, IconButton, List, Modal, Portal, Snackbar, Switch, Text, Tooltip } from "react-native-paper"
-import { aboutText, aboutThanks, aboutThanksPersons, databaseImportAlert, databaseOperations, generalSettingsLabels, loginGuardAlert, preferenceTitles, resizeImageAlert, toastMessages, tooltips } from "../lib/textTemplates"
+import { aboutText, aboutThanks, aboutThanksPersons, databaseImportAlert, databaseOperations, generalSettingsLabels, loginGuardAlert, preferenceTitles, resizeImageAlert, statisticItems, toastMessages, tooltips } from "../lib/textTemplates"
 import { usePreferenceStore } from "../stores/usePreferenceStore"
 import AsyncStorage from "@react-native-async-storage/async-storage"
-import { defaultViewPadding, languageSelection } from "../configs"
+import { dateLocales, defaultViewPadding, languageSelection } from "../configs"
 import { AMMO_DATABASE, A_KEY_DATABASE, A_TAGS, GUN_DATABASE, KEY_DATABASE, PREFERENCES, TAGS } from "../configs_DB"
 import { colorThemes } from "../lib/colorThemes"
 import { useEffect, useState } from "react"
@@ -655,6 +655,27 @@ export default function MainMenu({navigation}){
         })
         return trigger
     },[navigation])
+
+    function getStatistics(type){
+        switch(type){
+            case "guns":
+                return gunCollection.length
+            case "gunPrice":
+                return gunCollection.reduce((acc, curr) => {
+                    return acc + (curr.paidPrice !== undefined ? Number(curr.paidPrice) : 0);
+                }, 0)
+            case "gunValue":
+                return gunCollection.reduce((acc, curr) => {
+                    return acc + (curr.marketValue !== undefined ? Number(curr.marketValue) : 0);
+                }, 0)
+            case "ammo":
+                return ammoCollection.length
+            case "totalStock":
+                return ammoCollection.reduce((acc, curr) => {
+                    return acc + (curr.currentStock !== undefined ? Number(curr.currentStock) : 0);
+                }, 0)
+        }
+    }
     
 
     return(
@@ -861,6 +882,19 @@ export default function MainMenu({navigation}){
                                                 <Switch style={{flex: 3}} value={generalSettings.loginGuard} onValueChange={()=>handleSwitchesAlert("loginGuard")} />
                                             </View>
                                         </View>
+                                    </View>
+                                </List.Accordion>
+                                <List.Accordion left={props => <><List.Icon {...props} icon="chart-box-outline" /><List.Icon {...props} icon="chart-arc" /></>} title={preferenceTitles.statistics[language]} titleStyle={{fontWeight: "700", color: theme.colors.onBackground}}>
+                                    <View style={{ marginLeft: 5, marginRight: 5, padding: defaultViewPadding, backgroundColor: theme.colors.secondaryContainer, borderColor: theme.colors.primary, borderLeftWidth: 5}}>
+                                    <View style={{paddingTop: defaultViewPadding, paddingBottom: 5, display: "flex", flexDirection: "row", justifyContent: "space-between"}}><Text>{`${statisticItems.gunCount[language]}`}</Text><Text>{`${new Intl.NumberFormat(dateLocales[language]).format(getStatistics("guns"))}`}</Text></View>
+                                    <Divider style={{marginTop: 5, marginBottom: 5, width: "100%", borderWidth: 0.5, borderColor: theme.colors.onSecondary}} />
+                                    <View style={{paddingTop: defaultViewPadding, paddingBottom: 5, display: "flex", flexDirection: "row", justifyContent: "space-between"}}><Text>{`${statisticItems.gunPrice[language]}`}</Text><Text>{`CHF ${new Intl.NumberFormat(dateLocales[language]).format(getStatistics("gunPrice"))}`}</Text></View>
+                                    <Divider style={{marginTop: 5, marginBottom: 5, width: "100%", borderWidth: 0.5, borderColor: theme.colors.onSecondary}} />
+                                    <View style={{paddingTop: defaultViewPadding, paddingBottom: 5, display: "flex", flexDirection: "row", justifyContent: "space-between"}}><Text>{`${statisticItems.gunValue[language]}`}</Text><Text>{`CHF ${new Intl.NumberFormat(dateLocales[language]).format(getStatistics("gunValue"))}`}</Text></View>
+                                    <Divider style={{marginTop: 5, marginBottom: 5, width: "100%", borderWidth: 0.5, borderColor: theme.colors.onSecondary}} />
+                                    <View style={{paddingTop: defaultViewPadding, paddingBottom: 5, display: "flex", flexDirection: "row", justifyContent: "space-between"}}><Text>{`${statisticItems.ammoCount[language]}`}</Text><Text>{`${new Intl.NumberFormat(dateLocales[language]).format(getStatistics("ammo"))}`}</Text></View>
+                                    <Divider style={{marginTop: 5, marginBottom: 5, width: "100%", borderWidth: 0.5, borderColor: theme.colors.onSecondary}} />
+                                    <View style={{paddingTop: defaultViewPadding, paddingBottom: 5, display: "flex", flexDirection: "row", justifyContent: "space-between"}}><Text>{`${statisticItems.roundCount[language]}`}</Text><Text>{`${new Intl.NumberFormat(dateLocales[language]).format(getStatistics("totalStock"))}`}</Text></View>
                                     </View>
                                 </List.Accordion>
                                 <List.Accordion left={props => <><List.Icon {...props} icon="application-brackets-outline" /><List.Icon {...props} icon="cellphone-information" /></>} title={preferenceTitles.about[language]} titleStyle={{fontWeight: "700", color: theme.colors.onBackground}}>
