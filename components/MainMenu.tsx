@@ -181,9 +181,13 @@ export default function MainMenu({navigation}){
         if(data === "import_custom_gun_csv"){
             toggleImportModalVisible()
             setDbModalText(databaseOperations.import[language])
-            await importCSV(data).then(()=>{
-                dbImportSuccess("import_custom_gun_csv")
-            })
+            try{
+                await importCSV(data).then(()=>{
+                    dbImportSuccess("import_custom_gun_csv")
+                })
+            }catch(e){
+                alarm("DB ops error import_custom_gun_csv", e)
+            }
         }
         if(data === "import_custom_ammo_csv"){
             toggleImportModalVisible()
