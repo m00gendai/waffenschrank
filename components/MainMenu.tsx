@@ -2,7 +2,7 @@ import { ScrollView, TouchableNativeFeedback, View, Image } from "react-native"
 import Animated, { LightSpeedInLeft, LightSpeedOutLeft } from "react-native-reanimated"
 import { useViewStore } from "../stores/useViewStore"
 import { ActivityIndicator, Button, Dialog, Divider, Icon, IconButton, List, Modal, Portal, Snackbar, Switch, Text, Tooltip } from "react-native-paper"
-import { aboutText, aboutThanks, aboutThanksPersons, databaseImportAlert, databaseOperations, generalSettingsLabels, loginGuardAlert, preferenceTitles, resizeImageAlert, toastMessages, tooltips } from "../lib/textTemplates"
+import { aboutText, aboutThanks, aboutThanksPersons, databaseImportAlert, databaseOperations, generalSettingsLabels, loginGuardAlert, preferenceTitles, resizeImageAlert, statisticItems, toastMessages, tooltips } from "../lib/textTemplates"
 import { usePreferenceStore } from "../stores/usePreferenceStore"
 import AsyncStorage from "@react-native-async-storage/async-storage"
 import { dateLocales, defaultViewPadding, languageSelection } from "../configs"
@@ -886,15 +886,15 @@ export default function MainMenu({navigation}){
                                 </List.Accordion>
                                 <List.Accordion left={props => <><List.Icon {...props} icon="chart-box-outline" /><List.Icon {...props} icon="chart-arc" /></>} title={preferenceTitles.statistics[language]} titleStyle={{fontWeight: "700", color: theme.colors.onBackground}}>
                                     <View style={{ marginLeft: 5, marginRight: 5, padding: defaultViewPadding, backgroundColor: theme.colors.secondaryContainer, borderColor: theme.colors.primary, borderLeftWidth: 5}}>
-                                    <View style={{paddingTop: defaultViewPadding, paddingBottom: 5, display: "flex", flexDirection: "row", justifyContent: "space-between"}}><Text>{`Anzahl Waffen:`}</Text><Text>{`${new Intl.NumberFormat(dateLocales[language]).format(getStatistics("guns"))}`}</Text></View>
+                                    <View style={{paddingTop: defaultViewPadding, paddingBottom: 5, display: "flex", flexDirection: "row", justifyContent: "space-between"}}><Text>{`${statisticItems.gunCount[language]}`}</Text><Text>{`${new Intl.NumberFormat(dateLocales[language]).format(getStatistics("guns"))}`}</Text></View>
                                     <Divider style={{marginTop: 5, marginBottom: 5, width: "100%", borderWidth: 0.5, borderColor: theme.colors.onSecondary}} />
-                                    <View style={{paddingTop: defaultViewPadding, paddingBottom: 5, display: "flex", flexDirection: "row", justifyContent: "space-between"}}><Text>{`Kaufwert Waffen:`}</Text><Text>{`CHF ${new Intl.NumberFormat(dateLocales[language]).format(getStatistics("gunPrice"))}`}</Text></View>
+                                    <View style={{paddingTop: defaultViewPadding, paddingBottom: 5, display: "flex", flexDirection: "row", justifyContent: "space-between"}}><Text>{`${statisticItems.gunPrice[language]}`}</Text><Text>{`CHF ${new Intl.NumberFormat(dateLocales[language]).format(getStatistics("gunPrice"))}`}</Text></View>
                                     <Divider style={{marginTop: 5, marginBottom: 5, width: "100%", borderWidth: 0.5, borderColor: theme.colors.onSecondary}} />
-                                    <View style={{paddingTop: defaultViewPadding, paddingBottom: 5, display: "flex", flexDirection: "row", justifyContent: "space-between"}}><Text>{`Marktwert Waffen:`}</Text><Text>{`CHF ${new Intl.NumberFormat(dateLocales[language]).format(getStatistics("gunValue"))}`}</Text></View>
+                                    <View style={{paddingTop: defaultViewPadding, paddingBottom: 5, display: "flex", flexDirection: "row", justifyContent: "space-between"}}><Text>{`${statisticItems.gunValue[language]}`}</Text><Text>{`CHF ${new Intl.NumberFormat(dateLocales[language]).format(getStatistics("gunValue"))}`}</Text></View>
                                     <Divider style={{marginTop: 5, marginBottom: 5, width: "100%", borderWidth: 0.5, borderColor: theme.colors.onSecondary}} />
-                                    <View style={{paddingTop: defaultViewPadding, paddingBottom: 5, display: "flex", flexDirection: "row", justifyContent: "space-between"}}><Text>{`Munitionsorten:`}</Text><Text>{`${new Intl.NumberFormat(dateLocales[language]).format(getStatistics("ammo"))}`}</Text></View>
+                                    <View style={{paddingTop: defaultViewPadding, paddingBottom: 5, display: "flex", flexDirection: "row", justifyContent: "space-between"}}><Text>{`${statisticItems.ammoCount[language]}`}</Text><Text>{`${new Intl.NumberFormat(dateLocales[language]).format(getStatistics("ammo"))}`}</Text></View>
                                     <Divider style={{marginTop: 5, marginBottom: 5, width: "100%", borderWidth: 0.5, borderColor: theme.colors.onSecondary}} />
-                                    <View style={{paddingTop: defaultViewPadding, paddingBottom: 5, display: "flex", flexDirection: "row", justifyContent: "space-between"}}><Text>{`Anzahl Schuss total:`}</Text><Text>{`${new Intl.NumberFormat(dateLocales[language]).format(getStatistics("totalStock"))}`}</Text></View>
+                                    <View style={{paddingTop: defaultViewPadding, paddingBottom: 5, display: "flex", flexDirection: "row", justifyContent: "space-between"}}><Text>{`${statisticItems.roundCount[language]}`}</Text><Text>{`${new Intl.NumberFormat(dateLocales[language]).format(getStatistics("totalStock"))}`}</Text></View>
                                     </View>
                                 </List.Accordion>
                                 <List.Accordion left={props => <><List.Icon {...props} icon="application-brackets-outline" /><List.Icon {...props} icon="cellphone-information" /></>} title={preferenceTitles.about[language]} titleStyle={{fontWeight: "700", color: theme.colors.onBackground}}>

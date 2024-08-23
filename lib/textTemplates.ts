@@ -1163,3 +1163,49 @@ export const caliberPickerStrings:CaliberPickerStrings = {
         ch: "Tschertga",
     }
 }
+
+interface StatisticItems{
+    gunCount: SimpleTranslation
+    gunPrice: SimpleTranslation
+    gunValue: SimpleTranslation
+    ammoCount: SimpleTranslation
+    roundCount: SimpleTranslation
+}
+
+export const statisticItems:StatisticItems = {
+    gunCount:{
+        de: "Anzahl Waffen",
+        en: "Number of weapons",
+        fr: "Nombre d'armes",
+        it: "Numero di armi",
+        ch: "Dumber d'armas",
+    },
+    gunPrice:{
+        de: "Kaufwert Waffen",
+        en: "Purchase value arms",
+        fr: "Valeur d'achat armes",
+        it: "Valore d'acquisto armi",
+        ch: "Valur da cumpra d'armas",
+    },
+    gunValue:{
+        de: "Marktwert Waffen",
+        en: "Market value arms",
+        fr: "Valeur marchande armes",
+        it: "Valore di mercato armi",
+        ch: "Valur da martgà Armas",
+    },
+    ammoCount:{
+        de: "Munitionssorten",
+        en: "Types of ammunition",
+        fr: "Types de munitions",
+        it: "Varietà di munizioni",
+        ch: "Spezias da muniziun",
+    },
+    roundCount:{
+        de: "Anzahl Schuss total",
+        en: "Total round count",
+        fr: "Nombre de coups total",
+        it: "Numero totale di cartucce",
+        ch: "Dumber da patronas total",
+    }
+}
