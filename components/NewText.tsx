@@ -191,6 +191,8 @@ function handleFocus(){
                             data === "cleanInterval" ? setShowCleanModal(true) :
                             null
                         :null}}
+                        returnKeyType='done'
+                        returnKeyLabel='OK'
                     />
                 </Pressable>
            

@@ -79,6 +79,8 @@ export default function NewText({data, gunData, setGunData, ammoData, setAmmoDat
             onKeyPress={({nativeEvent}) => setIsBackspace(nativeEvent.key === "Backspace" ? true : false)}
             onChangeText={(input:string) => gunData ? updateGunData(input) : updateAmmoData(input)}
             multiline={true}
+            returnKeyType='done'
+            returnKeyLabel='OK'
         />
     )
 }

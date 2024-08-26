@@ -58,7 +58,8 @@ export default function QuickStock({navigation}){
                       <IconButton mode="contained" icon="plus" selected={stockChange === "inc" ? true : false} onPress={()=>setStockChange("inc")}/>
                       <IconButton mode="contained" icon="minus" selected={stockChange === "dec" ? true : false} onPress={()=>setStockChange("dec")} />
                     </View>
-                    <TextInput style={{width: "100%"}} placeholder={ammoQuickUpdate.placeholder[language]} keyboardType={"number-pad"} value={input} onChangeText={input => setInput(input.replace(/[^0-9]/g, ''))} inputMode='decimal'/>
+                    <TextInput style={{width: "100%"}} placeholder={ammoQuickUpdate.placeholder[language]} keyboardType={"number-pad"} value={input} onChangeText={input => setInput(input.replace(/[^0-9]/g, ''))} inputMode='decimal' returnKeyType='done'
+                        returnKeyLabel='OK'/>
                     <View style={{width: "100%", display: "flex", flexDirection: "row", justifyContent: "space-between", marginTop: 10}}>
                     <IconButton mode="contained" icon="check" onPress={() => saveNewStock(currentAmmo)} style={{width: 50, backgroundColor: theme.colors.primary}} iconColor={theme.colors.onPrimary}/>
                       <IconButton mode="contained" icon="cancel" onPress={()=>navigation.goBack()} style={{width: 50, backgroundColor: theme.colors.secondaryContainer}} iconColor={theme.colors.onSecondaryContainer}/>
