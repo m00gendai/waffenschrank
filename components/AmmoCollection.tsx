@@ -174,7 +174,7 @@ export default function AmmoCollection({navigation, route}){
                 <Switch value={isFilterOn} onValueChange={()=>handleFilterSwitch()} />
               </View>
                 {ammo_tags.map((tag, index)=>{
-                  return <Checkbox.Item key={`filter_${tag}_${index}`} label={tag.label} status={boxes.includes(tag.label) ? "checked" : "unchecked"} onPress={()=>handleFilterPress(tag)}/>
+                  return <Checkbox.Item mode="android" key={`filter_${tag}_${index}`} label={tag.label} status={boxes.includes(tag.label) ? "checked" : "unchecked"} onPress={()=>handleFilterPress(tag)}/>
                 })}
               </View>
             </Menu>
