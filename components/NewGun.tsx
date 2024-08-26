@@ -1,4 +1,4 @@
-import { StyleSheet, View, ScrollView, Alert } from 'react-native';
+import { StyleSheet, View, ScrollView, Alert, Platform } from 'react-native';
 import { Appbar, FAB, Snackbar } from 'react-native-paper';
 import * as ImagePicker from "expo-image-picker"
 import { useEffect, useState } from 'react';
@@ -155,7 +155,7 @@ export default function NewGun({navigation}){
     }  
      
     const pickCameraAsync = async (indx:number) =>{
-        const permission: ImagePicker.MediaLibraryPermissionResponse = await ImagePicker.requestMediaLibraryPermissionsAsync()
+        const permission: ImagePicker.MediaLibraryPermissionResponse | ImagePicker.CameraPermissionResponse = Platform.OS === "android" ? await ImagePicker.requestMediaLibraryPermissionsAsync() : await ImagePicker.requestCameraPermissionsAsync()
 
         if(!permission){
             setGranted(false)

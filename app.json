@@ -46,5 +46,11 @@
       "android.permission.READ_MEDIA_IMAGES",
       "android.permission.READ_MEDIA_VISUAL_USER_SELECTED"
     ]
+  },
+  "ios": {
+    "infoPlist": {
+      "NSCameraUsageDescription": "This app needs access to your camera to take photos.",
+      "NSPhotoLibraryUsageDescription": "This app needs access to your photo library to save photos."
+    }
   }
 }

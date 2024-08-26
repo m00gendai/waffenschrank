@@ -1,4 +1,4 @@
-import { StyleSheet, View, ScrollView, Alert } from 'react-native';
+import { StyleSheet, View, ScrollView, Alert, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Appbar, FAB, Snackbar } from 'react-native-paper';
 import * as ImagePicker from "expo-image-picker"
@@ -156,7 +156,7 @@ export default function NewAmmo({navigation}){
     }   
 
     const pickCameraAsync = async (indx:number) =>{
-        const permission: ImagePicker.MediaLibraryPermissionResponse = await ImagePicker.requestMediaLibraryPermissionsAsync()
+        const permission: ImagePicker.MediaLibraryPermissionResponse | ImagePicker.CameraPermissionResponse = Platform.OS === "android" ? await ImagePicker.requestMediaLibraryPermissionsAsync() : await ImagePicker.requestCameraPermissionsAsync()
 
         if(!permission){
             setGranted(false)
