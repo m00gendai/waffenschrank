@@ -1,4 +1,4 @@
-import { ScrollView, TouchableNativeFeedback, View, Image } from "react-native"
+import { ScrollView, TouchableNativeFeedback, View, Image, Platform } from "react-native"
 import Animated, { LightSpeedInLeft, LightSpeedOutLeft } from "react-native-reanimated"
 import { useViewStore } from "../stores/useViewStore"
 import { ActivityIndicator, Button, Dialog, Divider, Icon, IconButton, List, Modal, Portal, Snackbar, Switch, Text, Tooltip } from "react-native-paper"
@@ -52,7 +52,6 @@ export default function MainMenu({navigation}){
     const currentYear:number = date.getFullYear()
 
     async function handleThemeSwitch(color:string){
-        console.log(color)
         switchTheme(color)
         SystemUI.setBackgroundColorAsync(colorThemes[color].background)
         const preferences:string = await AsyncStorage.getItem(PREFERENCES)
@@ -90,141 +89,177 @@ export default function MainMenu({navigation}){
             setImportSize(gunCollection.length)
             setDbModalText(databaseOperations.export[language])
             try{
-            await handleSaveGunDb().then(()=>{
-                dbSaveSuccess()
-            })
-        }catch(e){
-            alarm("DB ops error save_arsenal_gun_db", e)
-        }
+                if(Platform.OS === "android"){
+                    await handleSaveGunDb().then(()=>{
+                        dbSaveSuccess()
+                    })
+                }
+                if(Platform.OS === "ios"){
+                    await handleShareGunDb().then(async (res)=>{
+                        await Sharing.shareAsync(res).then(()=>{
+                            dbSaveSuccess()
+                        })
+                    })
+                }
+            }catch(e){
+                alarm("DB ops error save_arsenal_gun_db", e)
+            }
         }
         if(data === "save_arsenal_gun_csv"){
             setImportSize(gunCollection.length)
             setDbModalText(databaseOperations.export[language])
             try{
-            await exportCSV("save_arsenal_gun_csv").then(()=>{
-                dbSaveSuccess()
-            })
-        }catch(e){
-            alarm("DB ops error save_arsenal_gun_csv", e)
-        }
+                if(Platform.OS === "android"){
+                    await exportCSV("save_arsenal_gun_csv").then(()=>{
+                        dbSaveSuccess()
+                    })
+                }
+                if(Platform.OS === "ios"){
+                    await shareCSV("share_arsenal_gun_csv").then(async (res)=>{
+                        await Sharing.shareAsync(res).then(()=>{
+                            dbSaveSuccess()
+                        })
+                    })
+                }
+            }catch(e){
+                alarm("DB ops error save_arsenal_gun_csv", e)
+            }
         }
         if(data === "share_arsenal_gun_db"){
             setImportSize(gunCollection.length)
             setDbModalText(databaseOperations.export[language])
             try{
-            await handleShareGunDb().then(async (res)=>{
-                await Sharing.shareAsync(res).then(()=>{
-                    dbSaveSuccess()
+                await handleShareGunDb().then(async (res)=>{
+                    await Sharing.shareAsync(res).then(()=>{
+                        dbSaveSuccess()
+                    })
                 })
-            })
-        }catch(e){
-            alarm("DB ops error share_arsenal_gun_db", e)
-        }
+            }catch(e){
+                alarm("DB ops error share_arsenal_gun_db", e)
+            }
         }
         if(data === "share_arsenal_gun_csv"){
             setImportSize(gunCollection.length)
             setDbModalText(databaseOperations.export[language])
             try{
-            await shareCSV("share_arsenal_gun_csv").then(async (res)=>{
-                await Sharing.shareAsync(res).then(()=>{
-                    dbSaveSuccess()
+                await shareCSV("share_arsenal_gun_csv").then(async (res)=>{
+                    await Sharing.shareAsync(res).then(()=>{
+                        dbSaveSuccess()
+                    })
                 })
-            })
-        }catch(e){
-            alarm("DB ops errorshare_arsenal_gun_csv", e)
-        }
+            }catch(e){
+                alarm("DB ops errorshare_arsenal_gun_csv", e)
+            }
         }
         if(data === "save_arsenal_ammo_db"){
             setImportSize(ammoCollection.length)
             setDbModalText(databaseOperations.export[language])
             try{
-            await handleSaveAmmoDb().then(()=>{
-                dbSaveSuccess()
-            })
-        }catch(e){
-            alarm("DB ops error save_arsenal_ammo_db", e)
-        }
+                if(Platform.OS === "android"){
+                    await handleSaveAmmoDb().then(()=>{
+                        dbSaveSuccess()
+                    })
+                }
+                if(Platform.OS === "ios"){
+                    await handleShareAmmoDb().then(async (res)=>{
+                        await Sharing.shareAsync(res).then(()=>{
+                            dbSaveSuccess()
+                        })
+                    })
+                }
+            }catch(e){
+                alarm("DB ops error save_arsenal_ammo_db", e)
+            }
         }
         if(data === "save_arsenal_ammo_csv"){
             setImportSize(ammoCollection.length)
             setDbModalText(databaseOperations.export[language])
             try{
-            await exportCSV("save_arsenal_ammo_csv").then(()=>{
-                dbSaveSuccess()
-            })
-        }catch(e){
-            alarm("DB ops error save_arsenal_ammo_csv", e)
-        }
+                if(Platform.OS === "android"){
+                    await exportCSV("save_arsenal_ammo_csv").then(()=>{
+                        dbSaveSuccess()
+                    })
+                }
+                if(Platform.OS === "ios"){
+                    await shareCSV("share_arsenal_ammo_csv").then(async (res)=>{
+                        await Sharing.shareAsync(res).then(()=>{
+                            dbSaveSuccess()
+                        })
+                    })
+                }
+            }catch(e){
+                alarm("DB ops error save_arsenal_ammo_csv", e)
+            }
         }
         if(data === "share_arsenal_ammo_db"){
             setImportSize(ammoCollection.length)
             setDbModalText(databaseOperations.export[language])
             try{
-            await handleShareAmmoDb().then(async (res)=>{
-                await Sharing.shareAsync(res).then(()=>{
-                    dbSaveSuccess()
+                await handleShareAmmoDb().then(async (res)=>{
+                    await Sharing.shareAsync(res).then(()=>{
+                        dbSaveSuccess()
+                    })
                 })
-            })
-        }catch(e){
-            alarm("DB ops error share_arsenal_ammo_db", e)
-        }
+            }catch(e){
+                alarm("DB ops error share_arsenal_ammo_db", e)
+            }
         }
         if(data === "share_arsenal_ammo_csv"){
             setImportSize(ammoCollection.length)
             setDbModalText(databaseOperations.export[language])
             try{
-            await shareCSV("share_arsenal_ammo_csv").then(async (res)=>{
-                await Sharing.shareAsync(res).then(()=>{
-                    dbSaveSuccess()
+                await shareCSV("share_arsenal_ammo_csv").then(async (res)=>{
+                    await Sharing.shareAsync(res).then(()=>{
+                        dbSaveSuccess()
+                    })
                 })
-            })
-        }catch(e){
-            alarm("DB ops error share_arsenal_ammo_csv", e)
-        }
+            }catch(e){
+                alarm("DB ops error share_arsenal_ammo_csv", e)
+            }
         }
         if(data === "import_arsenal_gun_db"){
             toggleImportModalVisible()
             setDbModalText(databaseOperations.import[language])
             try{
-            await handleImportGunDb().then(()=>{
-                dbImportSuccess("import_arsenal_gun_db")
-            })
-        }catch(e){
-            alarm("DB ops error import_arsenal_gun_db", e)
-        }
+                await handleImportGunDb().then(()=>{
+                    dbImportSuccess("import_arsenal_gun_db")
+                })
+            }catch(e){
+                alarm("DB ops error import_arsenal_gun_db", e)
+            }
         }
         if(data === "import_arsenal_ammo_db"){
             toggleImportModalVisible()
             setDbModalText(databaseOperations.import[language])
             try{
-            await handleImportAmmoDb().then(()=>{
-                dbImportSuccess("import_arsenal_ammo_db")
-            })
-        }catch(e){
-            alarm("DB ops error import_arsenal_ammo_db", e)
-        }
+                await handleImportAmmoDb().then(()=>{
+                    dbImportSuccess("import_arsenal_ammo_db")
+                })
+            }catch(e){
+                alarm("DB ops error import_arsenal_ammo_db", e)
+            }
         }
         if(data === "import_arsenal_gun_csv"){
             toggleImportModalVisible()
             setDbModalText(databaseOperations.import[language])
             try{
-            await importArsenalGunCSV().then(()=>{
-                dbImportSuccess("import_arsenal_gun_csv")
-            })
-        }catch(e){
-            alarm("DB ops error import_arsenal_gun_csv", e)
-        }
+                await importArsenalGunCSV().then(()=>{
+                    dbImportSuccess("import_arsenal_gun_csv")
+                })
+            }catch(e){
+                alarm("DB ops error import_arsenal_gun_csv", e)
+            }
         }
         if(data === "import_arsenal_ammo_csv"){
             toggleImportModalVisible()
             setDbModalText(databaseOperations.import[language])
             try{
-            await importArsenalAmmoCSV().then(()=>{
-                dbImportSuccess("import_arsenal_ammo_csv")
-            })
-        }catch(e){
-            alarm("DB ops error import_arsenal_ammo_csv", e)
-        }
+                await importArsenalAmmoCSV().then(()=>{
+                    dbImportSuccess("import_arsenal_ammo_csv")
+                })
+            }catch(e){
+                alarm("DB ops error import_arsenal_ammo_csv", e)
+            }
         }
         if(data === "import_custom_gun_csv"){
             toggleImportModalVisible()
@@ -241,12 +276,12 @@ export default function MainMenu({navigation}){
             toggleImportModalVisible()
             setDbModalText(databaseOperations.import[language])
             try{
-            await importCSV(data).then(()=>{
-                dbImportSuccess("import_custom_ammo_csv")
-            })
-        }catch(e){
-            alarm("DB ops error import_custom_ammo_csv", e)
-        }
+                await importCSV(data).then(()=>{
+                    dbImportSuccess("import_custom_ammo_csv")
+                })
+            }catch(e){
+                alarm("DB ops error import_custom_ammo_csv", e)
+            }
         }
     }
 
@@ -428,7 +463,7 @@ export default function MainMenu({navigation}){
                     ) 
 
                     const base64Image = resizedImage.base64;
-                    const fileUri = FileSystem.documentDirectory + `${sanitizeFileName(gun.id)}_image_${index}`;
+                    const fileUri = FileSystem.documentDirectory + `${sanitizeFileName(gun.id)}_image_${index}.jpg`;
                     await FileSystem.writeAsStringAsync(fileUri, base64Image, {
                         encoding: FileSystem.EncodingType.Base64,
                     })
@@ -518,7 +553,7 @@ export default function MainMenu({navigation}){
                     ) 
 
                     const base64Image = resizedImage.base64;
-                    const fileUri = FileSystem.documentDirectory + `${sanitizeFileName(ammo.id)}_image_${index}`;
+                    const fileUri = FileSystem.documentDirectory + `${sanitizeFileName(ammo.id)}_image_${index}.jpg`;
                     await FileSystem.writeAsStringAsync(fileUri, base64Image, {
                         encoding: FileSystem.EncodingType.Base64,
                     })
@@ -598,7 +633,8 @@ export default function MainMenu({navigation}){
         if(result.assets === null){
             return
         }
-        if(result.assets[0].mimeType !== "text/comma-separated-values"){
+
+        if(result.assets[0].mimeType !== "text/comma-separated-values" && result.assets[0].mimeType !== "text/csv"){
             throw("Non CSV file format detected")
         }
     }catch(e){
