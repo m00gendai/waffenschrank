@@ -1,7 +1,7 @@
 import { IconButton, List, Surface, TextInput, Text, Badge, Portal, Modal, RadioButton, Divider, Button, Searchbar } from 'react-native-paper';
 import { useState } from 'react';
 import { GunType, AmmoType } from '../interfaces';
-import { TouchableNativeFeedback, View, ScrollView, Pressable } from 'react-native';
+import { TouchableNativeFeedback, View, ScrollView, Pressable, Platform } from 'react-native';
 import DateTimePicker from 'react-native-ui-datepicker';
 import dayjs from 'dayjs';
 import ColorPicker, { Panel1, Swatches, Preview, HueSlider } from 'reanimated-color-picker';
@@ -152,20 +152,19 @@ function handleFocus(){
 }
 
     return(
-        <View style={{flex: 1}}>
-            <TouchableNativeFeedback 
-                style={{flex: 1}} 
-                onPress={()=>{
-                    data === "acquisitionDate" ? setShowDateTime(true) :
-                    data === "lastCleanedAt" ? setShowDateTime(true) : 
-                    data === "lastShotAt" ? setShowDateTime(true) : 
-                    data === "mainColor" ? setShowModal(true) : 
-                    data === "caliber" ? setShowModalCaliber(true) : 
-                    data === "lastTopUpAt" ? setShowDateTime(true) : 
-                    data === "cleanInterval" ? setShowCleanModal(true) :
-                    null}}
-            >          
-                <View style={{flex: 1}}>
+
+          <View style={{flex: 1}}>
+                <Pressable style={{flex: 1}} onPress={()=>{
+                            Platform.OS === "android" ?
+                            data === "acquisitionDate" ? setShowDateTime(true) :
+                            data === "lastCleanedAt" ? setShowDateTime(true) : 
+                            data === "lastShotAt" ? setShowDateTime(true) : 
+                            data === "mainColor" ? setShowModal(true) : 
+                            data === "caliber" ? setShowModalCaliber(true) : 
+                            data === "lastTopUpAt" ? setShowDateTime(true) : 
+                            data === "cleanInterval" ? setShowCleanModal(true) :
+                            null
+                        :null}}>
                     <TextInput
                         label={`${label}${gunData !== undefined ? requiredFieldsGun.includes(data) ? "*" : "" : requiredFieldsAmmo.includes(data) ? "*" : ""} ${isFocus ? `${charCount}/${MAX_CHAR_COUNT}` : ``}`} 
                         style={{
@@ -181,9 +180,20 @@ function handleFocus(){
                         left={data === "paidPrice" ? <TextInput.Affix text="CHF " /> : data === "marketValue" ? <TextInput.Affix text="CHF " />  : null}
                         inputMode={`${data === "paidPrice" ? "decimal" : data === "marketValue" ? "decimal" : data === "shotCount" ? "decimal" : "text"}`}
                         multiline={gunData && Array.isArray(gunData[data])}
+                        onPressIn={()=>{
+                            Platform.OS === "ios" ?
+                            data === "acquisitionDate" ? setShowDateTime(true) :
+                            data === "lastCleanedAt" ? setShowDateTime(true) : 
+                            data === "lastShotAt" ? setShowDateTime(true) : 
+                            data === "mainColor" ? setShowModal(true) : 
+                            data === "caliber" ? setShowModalCaliber(true) : 
+                            data === "lastTopUpAt" ? setShowDateTime(true) : 
+                            data === "cleanInterval" ? setShowCleanModal(true) :
+                            null
+                        :null}}
                     />
-                </View>
-            </TouchableNativeFeedback>
+                </Pressable>
+           
             
             {/* DATE TIME PICKER */}
             <ModalContainer 
@@ -319,6 +329,6 @@ function handleFocus(){
                 buttonCNL={<IconButton icon="cancel" onPress={() => handleCleanIntervalCancel()} style={{width: 50, backgroundColor: theme.colors.secondaryContainer}} iconColor={theme.colors.onSecondaryContainer} />}
                 buttonDEL={null}
             />
-            </View>
+           </View>
     )
 }
