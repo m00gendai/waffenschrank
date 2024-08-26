@@ -111,6 +111,7 @@ return(
                                   onChangeText={val => handleInputChange(ammo.id, index, val)}
                                   returnKeyType='done'
                         returnKeyLabel='OK'
+                        inputMode="decimal"
                                 />
                                 {handleErrorMessage(ammo, val) ? <HelperText type="error" visible={handleErrorMessage(ammo, val)}>
                                   {ammo.currentStock === null ? gunQuickShot.errorNoAmountDefined[language] : ammo.currentStock === undefined ? gunQuickShot.errorNoAmountDefined[language] : gunQuickShot.errorAmountTooLow[language].replace("{{AMOUNT}}", ammo.currentStock)}
@@ -128,6 +129,7 @@ return(
                         value={shotCountNonStock}
                         onChangeText={shotCountNonStock => setShotCountNonStock(shotCountNonStock.replace(/[^0-9]/g, ''))}
                         label={gunQuickShot.updateNonStockInput[language]}
+                        inputMode="decimal"
                         returnKeyType='done'
                         returnKeyLabel='OK'
                       ></TextInput>
