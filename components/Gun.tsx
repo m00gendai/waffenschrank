@@ -176,7 +176,7 @@ export default function Gun({navigation}){
                         <View style={{flex: 1, flexDirection: "column"}} >
                         {checkBoxes.map(checkBox=>{
                             return(
-                                <Checkbox.Item key={checkBox.name} label={checkBox[language]} status={currentGun.status && currentGun.status[checkBox.name] ? "checked" : "unchecked"}/>
+                                <Checkbox.Item mode="android" key={checkBox.name} label={checkBox[language]} status={currentGun.status && currentGun.status[checkBox.name] ? "checked" : "unchecked"}/>
                             )
                         })}
                         </View>
