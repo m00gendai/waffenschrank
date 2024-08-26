@@ -53,7 +53,7 @@ if(checked === ""){
         <View>
             {checkBoxes.map(checkBox=>{
                 return(
-                    <Checkbox.Item key={checkBox.name} label={checkBox[language]} status={checked[checkBox.name] ? "checked" : "unchecked"} onPress={()=>{handleCheckBoxCheck(checkBox.name)}}/>
+                    <Checkbox.Item mode={"android"} key={checkBox.name} label={checkBox[language]} status={checked[checkBox.name] ? "checked" : "unchecked"} onPress={()=>{handleCheckBoxCheck(checkBox.name)}}/>
                 )
             })}
             
