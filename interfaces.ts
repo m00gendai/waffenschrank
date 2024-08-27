@@ -106,6 +106,7 @@ export interface Elevation {
 
 export interface CommonStyles {
   allPageMargin: string
+  allPageMarginIOS: number
   allTitleFontSize: string
   allSubtitleFontSize: string
   allTableFontSize: string
