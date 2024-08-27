@@ -9,6 +9,8 @@ import { usePreferenceStore } from '../stores/usePreferenceStore';
 import { pdfFooter, pdfTitle } from '../lib/textTemplates';
 import { dateLocales } from '../configs';
 import { ammoDataTemplate, ammoRemarks } from '../lib/ammoDataTemplate';
+import { Platform } from 'react-native';
+import * as Sharing from 'expo-sharing';
 
 async function getGunImages(guns:GunType[]){
   const imageArray: null | string[][] = []
@@ -63,6 +65,7 @@ const getTranslation = (key: string, language: string): string => {
 
   const commonStyles:CommonStyles={
     allPageMargin: "15mm",
+    allPageMarginIOS: Math.ceil(15*2.83465),
     allTitleFontSize: "30px",
     allSubtitleFontSize: "12px",
     allTableFontSize: "15px",
@@ -111,7 +114,7 @@ export async function printSingleGun(gun:GunType, language: string){
       <body>
       <div class="bodyContent">
         <h1>${gun.manufacturer ? gun.manufacturer : ""} ${gun.model}</h1>
-        ${gun.images && gun.images.length !== 0 ? `<div class="imageContainer">${imgs.map(img => {return `<div class="image" style="background-image: url(data:image/jpeg;base64,${img});"></div>`}).join("")}</div>`: ""}
+        ${gun.images && gun.images.length !== 0 ? `<div class="imageContainer">${imgs.map(img => {return `<div class="imageDiv"><img class="image" src="data:image/jpeg;base64,${img}" /></div>`}).join("")}</div>`: ""}
         ${gun.tags && gun.tags.length !== 0 ? `<div class="tagContainer">${gun.tags.map(tag => {return `<div class="tag">${tag}</div>`}).join("")}</div>` : ""}
         ${gun.tags && gun.tags.length !== 0 ? `<hr />` : ""}
         ${gun.status && Object.entries(gun.status).length !== 0 ? `<div class="tagContainer">${Object.entries(gun.status).map(status => {return status[1] && art5Keys.includes(status[0]) ? `<div class="tag">${getTranslation(status[0], language)}</div>` : ""}).join("")}</div>` : ""}
@@ -139,6 +142,7 @@ export async function printSingleGun(gun:GunType, language: string){
         align-content: flex-start;
         margin: 0;
         padding: 0;
+        font-family: "Helvetica";
       }
       h1{
         position: relative;
@@ -156,28 +160,32 @@ export async function printSingleGun(gun:GunType, language: string){
         padding: 0;
         box-sizing: border-box;
       }
-      .imageContainer{
+      .imageContainer {
+        position: relative;
+            width: 100%;
+            aspect-ratio: 30/10;
+            display: flex;
+            gap: ${commonStyles.imageGap};
+            justify-content: center;
+            align-items: center;
+            flex-wrap: nowrap;
+            margin: 10px 0;
+            box-shadow: 0px 2px 5px -2px black;
+            padding: 5px;
+      }
+      .imageDiv {
         position: relative;
         width: 100%;
-        aspect-ratio: 30/10;
+        height: 100%;
         display: flex;
-        gap: ${commonStyles.imageGap};
         justify-content: center;
         align-items: center;
-        flex-wrap: nowrap;
-        margin: 10px 0;
-        box-shadow: 0px 2px 5px -2px black;
-        padding: 5px;
       }
-        .image{
-            position: relative;
-            width: 100%;
-            height: 100%;
-            
-            background-size:contain;
-            background-position: top;
-            background-repeat: no-repeat;
-        }
+      .image {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+      }
     .tagContainer{
         position: relative;
         width: 100%;
@@ -252,18 +260,21 @@ export async function printSingleGun(gun:GunType, language: string){
 
 
         // On iOS/android prints the given html. On web prints the HTML from the current page.
-        const { uri } = await Print.printToFileAsync({html, height:842, width:595});
+        const { uri } = await Print.printToFileAsync({html, height:842, width:595, margins: {top: commonStyles.allPageMarginIOS, right: commonStyles.allPageMarginIOS, bottom: commonStyles.allPageMarginIOS, left: commonStyles.allPageMarginIOS}});
         console.log('File has been saved to:', uri);
        
        // await shareAsync(uri, { UTI: '.pdf', mimeType: 'application/pdf' });
        FileSystem.getContentUriAsync(uri).then(cUri => {
-        /* if (Platform.OS === 'ios') {
-          Sharing.shareAsync(cUri); */
+        if (Platform.OS === 'ios') {
+          Sharing.shareAsync(cUri);
+         }
+         if(Platform.OS === "android"){
         IntentLauncher.startActivityAsync('android.intent.action.VIEW', {
             data: cUri,
             flags: 1,
             type: 'application/pdf'
          });
+        }
       });
       
 }
@@ -298,7 +309,7 @@ export async function printSingleAmmo(ammo:AmmoType, language: string){
     <body>
     <div class="bodyContent">
       <h1>${ammo.manufacturer ? ammo.manufacturer : ""} ${ammo.designation}</h1>
-      ${ammo.images && ammo.images.length !== 0 ? `<div class="imageContainer">${imgs.map(img => {return `<div class="image" style="background-image: url(data:image/jpeg;base64,${img});"></div>`}).join("")}</div>`: ""}
+      ${ammo.images && ammo.images.length !== 0 ? `<div class="imageContainer">${imgs.map(img => {return `<div class="imageDiv"><img class="image" src="data:image/jpeg;base64,${img}" /></div>`}).join("")}</div>`: ""}
       ${ammo.tags && ammo.tags.length !== 0 ? `<div class="tagContainer">${ammo.tags.map(tag => {return `<div class="tag">${tag}</div>`}).join("")}</div>` : ""}
       ${ammo.tags && ammo.tags.length !== 0 ? `<hr />` : ""}
       <table>
@@ -326,6 +337,7 @@ export async function printSingleAmmo(ammo:AmmoType, language: string){
      align-content: flex-start;
      margin: 0;
      padding: 0;
+     font-family: "Helvetica";
    }
    h1{
      position: relative;
@@ -343,28 +355,32 @@ export async function printSingleAmmo(ammo:AmmoType, language: string){
      padding: 0;
      box-sizing: border-box;
    }
-   .imageContainer{
-     position: relative;
-     width: 100%;
-     aspect-ratio: 30/10;
-     display: flex;
-     gap: ${commonStyles.imageGap};
-     justify-content: center;
-     align-items: center;
-     flex-wrap: nowrap;
-     margin: 10px 0;
-     box-shadow: 0px 2px 5px -2px black;
-     padding: 5px;
-   }
-     .image{
-         position: relative;
-         width: 100%;
-         height: 100%;
-         
-         background-size:contain;
-         background-position: top;
-         background-repeat: no-repeat;
-     }
+   .imageContainer {
+    position: relative;
+        width: 100%;
+        aspect-ratio: 30/10;
+        display: flex;
+        gap: ${commonStyles.imageGap};
+        justify-content: center;
+        align-items: center;
+        flex-wrap: nowrap;
+        margin: 10px 0;
+        box-shadow: 0px 2px 5px -2px black;
+        padding: 5px;
+  }
+  .imageDiv {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  .image {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+  }
  .tagContainer{
      position: relative;
      width: 100%;
@@ -439,18 +455,21 @@ export async function printSingleAmmo(ammo:AmmoType, language: string){
 
 
       // On iOS/android prints the given html. On web prints the HTML from the current page.
-      const { uri } = await Print.printToFileAsync({html, height:842, width:595});
+      const { uri } = await Print.printToFileAsync({html, height:842, width:595, margins: {top: commonStyles.allPageMarginIOS, right: commonStyles.allPageMarginIOS, bottom: commonStyles.allPageMarginIOS, left: commonStyles.allPageMarginIOS}});
       console.log('File has been saved to:', uri);
      
      // await shareAsync(uri, { UTI: '.pdf', mimeType: 'application/pdf' });
      FileSystem.getContentUriAsync(uri).then(cUri => {
-      /* if (Platform.OS === 'ios') {
-        Sharing.shareAsync(cUri); */
+      if (Platform.OS === 'ios') {
+        Sharing.shareAsync(cUri);
+       }
+       if(Platform.OS === "android"){
       IntentLauncher.startActivityAsync('android.intent.action.VIEW', {
           data: cUri,
           flags: 1,
           type: 'application/pdf'
        });
+      }
     });
     
 }
@@ -689,6 +708,7 @@ export async function printGunCollection(guns:GunType[], language: string){
      align-content: flex-start;
      margin: 0;
      padding: 0;
+     font-family: "Helvetica";
    }
    h1{
      position: relative;
@@ -760,18 +780,21 @@ export async function printGunCollection(guns:GunType[], language: string){
 
 
       // On iOS/android prints the given html. On web prints the HTML from the current page.
-      const { uri } = await Print.printToFileAsync({html, height:595, width:842});
+      const { uri } = await Print.printToFileAsync({html, height:595, width:842, margins: {top: commonStyles.allPageMarginIOS, right: commonStyles.allPageMarginIOS, bottom: commonStyles.allPageMarginIOS, left: commonStyles.allPageMarginIOS}});
       console.log('File has been saved to:', uri);
      
      // await shareAsync(uri, { UTI: '.pdf', mimeType: 'application/pdf' });
      FileSystem.getContentUriAsync(uri).then(cUri => {
-      /* if (Platform.OS === 'ios') {
-        Sharing.shareAsync(cUri); */
+       if (Platform.OS === 'ios') {
+        Sharing.shareAsync(cUri);
+       }
+       if(Platform.OS === "android"){
       IntentLauncher.startActivityAsync('android.intent.action.VIEW', {
           data: cUri,
           flags: 1,
           type: 'application/pdf'
        });
+      }
     });
     
 }
@@ -829,6 +852,7 @@ export async function printGunCollectionArt5(guns:GunType[], language: string){
      align-content: flex-start;
      margin: 0;
      padding: 0;
+     font-family: "Helvetica";
    }
    h1{
      position: relative;
@@ -900,18 +924,21 @@ export async function printGunCollectionArt5(guns:GunType[], language: string){
 
 
       // On iOS/android prints the given html. On web prints the HTML from the current page.
-      const { uri } = await Print.printToFileAsync({html, height:595, width:842});
+      const { uri } = await Print.printToFileAsync({html, height:595, width:842, margins: {top: commonStyles.allPageMarginIOS, right: commonStyles.allPageMarginIOS, bottom: commonStyles.allPageMarginIOS, left: commonStyles.allPageMarginIOS}});
       console.log('File has been saved to:', uri);
      
      // await shareAsync(uri, { UTI: '.pdf', mimeType: 'application/pdf' });
      FileSystem.getContentUriAsync(uri).then(cUri => {
-      /* if (Platform.OS === 'ios') {
-        Sharing.shareAsync(cUri); */
+      if (Platform.OS === 'ios') {
+        Sharing.shareAsync(cUri);
+       }
+       if(Platform.OS === "android"){
       IntentLauncher.startActivityAsync('android.intent.action.VIEW', {
           data: cUri,
           flags: 1,
           type: 'application/pdf'
        });
+      }
     });
     
 }
@@ -1153,6 +1180,7 @@ export async function printAmmoCollection(ammunition:AmmoType[], language: strin
      align-content: flex-start;
      margin: 0;
      padding: 0;
+     font-family: "Helvetica";
    }
    h1{
      position: relative;
@@ -1224,18 +1252,21 @@ export async function printAmmoCollection(ammunition:AmmoType[], language: strin
 
 
       // On iOS/android prints the given html. On web prints the HTML from the current page.
-      const { uri } = await Print.printToFileAsync({html, height:595, width:842});
+      const { uri } = await Print.printToFileAsync({html, height:595, width:842, margins: {top: commonStyles.allPageMarginIOS, right: commonStyles.allPageMarginIOS, bottom: commonStyles.allPageMarginIOS, left: commonStyles.allPageMarginIOS}});
       console.log('File has been saved to:', uri);
      
      // await shareAsync(uri, { UTI: '.pdf', mimeType: 'application/pdf' });
      FileSystem.getContentUriAsync(uri).then(cUri => {
-      /* if (Platform.OS === 'ios') {
-        Sharing.shareAsync(cUri); */
+      if (Platform.OS === 'ios') {
+        Sharing.shareAsync(cUri);
+       }
+       if(Platform.OS === "android"){
       IntentLauncher.startActivityAsync('android.intent.action.VIEW', {
           data: cUri,
           flags: 1,
           type: 'application/pdf'
        });
+      }
     });
     
 }
