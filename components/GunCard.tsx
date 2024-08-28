@@ -37,7 +37,7 @@ export default function GunCard({gun}:Props){
               >
         <Card 
             style={{
-                width: (Dimensions.get("window").width / (displayAsGrid ? 2 : 1)) - (defaultGridGap + (displayAsGrid ? defaultViewPadding/2 : defaultViewPadding)),
+                width: (Dimensions.get("window").width / (displayAsGrid ? Dimensions.get("window").width > Dimensions.get("window").height ? 4 : 2 : 1)) - (defaultGridGap + (displayAsGrid ? defaultViewPadding/2 : defaultViewPadding)),
             }}
         >
             <Card.Title

@@ -30,7 +30,7 @@ import EditGun from './components/EditGun';
 import EditAmmo from './components/EditAmmo';
 import * as SplashScreen from 'expo-splash-screen';
 import * as LocalAuthentication from 'expo-local-authentication';
-import { Alert } from 'react-native';
+import { Alert, Dimensions } from 'react-native';
 
 
 SplashScreen.preventAutoHideAsync();
@@ -358,7 +358,7 @@ export default function App() {
             <Stack.Screen
               name="MainMenu"
               component={MainMenu}
-              options={{headerShown: false, cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS, gestureDirection: "horizontal-inverted"}} 
+              options={{headerShown: false, cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS, gestureDirection: "horizontal-inverted", presentation: "transparentModal", cardStyle: { backgroundColor: Dimensions.get("window").width > Dimensions.get("window").height ? "transparent" : theme.colors.background}}} 
             />
 
           </Stack.Navigator>

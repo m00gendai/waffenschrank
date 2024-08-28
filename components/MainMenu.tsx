@@ -1,4 +1,4 @@
-import { ScrollView, TouchableNativeFeedback, View, Image, Platform } from "react-native"
+import { ScrollView, TouchableNativeFeedback, View, Image, Platform, Dimensions } from "react-native"
 import Animated, { LightSpeedInLeft, LightSpeedOutLeft } from "react-native-reanimated"
 import { useViewStore } from "../stores/useViewStore"
 import { ActivityIndicator, Button, Dialog, Divider, Icon, IconButton, List, Modal, Portal, Snackbar, Switch, Text, Tooltip } from "react-native-paper"
@@ -772,8 +772,8 @@ export default function MainMenu({navigation}){
 
     return(
         
-           <View style={{flex: 1}}>
-                <View style={{width: "100%", height: "100%", backgroundColor: theme.colors.background}}>
+           <View style={{height: "100%", width: Dimensions.get("window").width > Dimensions.get("window").height ? "60%" : "100%"}}>
+                <View style={{width: "100%", height: "100%"}}>
                     <TouchableNativeFeedback onPress={()=>navigation.goBack()}>
                         <View style={{width: "100%", height: 50, display: "flex", flexDirection: "row", justifyContent: "flex-start", alignItems: "center", paddingLeft: 20, backgroundColor: theme.colors.primary}}>
                             <Icon source="arrow-left" size={20} color={theme.colors.onPrimary}/>

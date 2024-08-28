@@ -1,6 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useEffect, useRef, useState } from 'react';
-import { FlatList, TouchableOpacity, View } from 'react-native';
+import { Dimensions, FlatList, TouchableOpacity, View } from 'react-native';
 import { Appbar, FAB, Menu, Switch, Text, Tooltip, Searchbar, Button, Icon } from 'react-native-paper';
 import { defaultBottomBarHeight, defaultGridGap, defaultViewPadding } from '../configs';
 import { PREFERENCES } from "../configs_DB"
@@ -156,7 +156,7 @@ export default function GunCollection({navigation, route}){
   });
 
   return(
-    <View style={{flex: 1}}>
+    <View style={{flex: 1, backgroundColor: "transparent"}}>
       <Appbar style={{width: "100%", display: "flex", flexDirection: "row", justifyContent: "space-between"}}>
         <View  style={{display: "flex", flexDirection: "row", justifyContent: "flex-start"}}>
           <Appbar.Action icon={"menu"} onPress={()=>navigation.navigate("MainMenu")} />
@@ -198,12 +198,27 @@ export default function GunCollection({navigation, route}){
       </Appbar>
       <Animated.View style={[{paddingLeft: defaultViewPadding, paddingRight: defaultViewPadding}, animatedStyle]}>{searchBannerVisible ? <Searchbar placeholder={search[language]} onChangeText={setSearchQuery} value={searchQuery} /> : null}</Animated.View>
       {displayAsGrid ? 
+        Dimensions.get("window").width > Dimensions.get("window").height ?
+        <FlatList 
+          numColumns={4} 
+          initialNumToRender={10} 
+          contentContainerStyle={{gap: defaultGridGap}}
+          columnWrapperStyle={{gap: defaultGridGap}} 
+          key={`gunCollectionGrid4`} 
+          style={{height: "100%", width: "100%", paddingTop: defaultViewPadding, paddingLeft: defaultViewPadding, paddingRight: defaultViewPadding, paddingBottom: 50}} 
+          data={searchQuery !== "" ? gunList.filter(item => item.manufacturer && item.manufacturer.toLowerCase().includes(searchQuery.toLowerCase()) || item.model && item.model.toLowerCase().includes(searchQuery.toLowerCase()) || (Array.isArray(item.caliber) ? item.caliber.join(", ").toLowerCase().includes(searchQuery.toLowerCase()) : "")) : gunList}
+          renderItem={({item, index}) => <GunCard gun={item} />}                     
+          keyExtractor={gun=>gun.id} 
+          ListFooterComponent={<View style={{width: "100%", height: 100}}></View>}
+          ListEmptyComponent={null}
+        />
+        :
         <FlatList 
           numColumns={2} 
           initialNumToRender={10} 
           contentContainerStyle={{gap: defaultGridGap}}
           columnWrapperStyle={{gap: defaultGridGap}} 
-          key={`gunCollectionGrid`} 
+          key={`gunCollectionGrid2`} 
           style={{height: "100%", width: "100%", paddingTop: defaultViewPadding, paddingLeft: defaultViewPadding, paddingRight: defaultViewPadding, paddingBottom: 50}} 
           data={searchQuery !== "" ? gunList.filter(item => item.manufacturer && item.manufacturer.toLowerCase().includes(searchQuery.toLowerCase()) || item.model && item.model.toLowerCase().includes(searchQuery.toLowerCase()) || (Array.isArray(item.caliber) ? item.caliber.join(", ").toLowerCase().includes(searchQuery.toLowerCase()) : "")) : gunList}
           renderItem={({item, index}) => <GunCard gun={item} />}                     
