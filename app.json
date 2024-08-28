@@ -15,7 +15,9 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.m00gendai.arsenal",
+      "name": "Arsenal: Armamentarium"
     },
     "android": {
       "adaptiveIcon": {
