@@ -671,6 +671,18 @@ export const calibers:{range:string, variants: {name: string}[]}[] = [
           ],         
     },
     {
+        range: "Luft",
+        variants: [
+            {"name":".177 / 4.5mm"},
+            {"name":".22 / 5.5mm"},
+            {"name":".25 / 6.25mm"},
+            {"name":".30 / 7.62mm"},
+            {"name":".357 / 9.02mm"},
+            {"name":"6mm BB"},
+            {"name":"8mm BB"},
+        ]
+    },
+    {
         range: "Anderes",
         variants: [
             {"name": "Granaten"},
