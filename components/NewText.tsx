@@ -10,6 +10,8 @@ import { usePreferenceStore } from '../stores//usePreferenceStore';
 import { defaultModalBackdrop, defaultViewPadding, requiredFieldsAmmo, requiredFieldsGun } from '../configs';
 import ModalContainer from './ModalContainer';
 import { caliberPickerStrings, cleanIntervals, modalTexts } from '../lib/textTemplates';
+import { GetColorName } from 'hex-color-to-color-name';
+import { useGunStore } from '../stores/useGunStore';
 
 interface Props{
     data: string
@@ -36,6 +38,7 @@ export default function NewText({data, gunData, setGunData, ammoData, setAmmoDat
     const [caliberView, setCaliberView] = useState<"search" | "list">("list")
 
     const { language, theme } = usePreferenceStore()
+    const { currentGun } = useGunStore()
 
     const [charCount, setCharCount] = useState(0)
     const [isBackspace, setIsBackspace] = useState<boolean>(false)
@@ -93,7 +96,13 @@ export default function NewText({data, gunData, setGunData, ammoData, setAmmoDat
     }
 
     const onSelectColor = ({ hex }) => {
-        setColor(hex)
+        console.log(hex.length)
+        if(hex.length === 9){
+            setColor(hex.substring(0,7))
+        } else {
+            setColor(hex)
+        }
+        
     };
 
     function handleColorConfirm(){
@@ -221,6 +230,7 @@ function handleInputPress(){
                 visible={showModal}
                 setVisible={setShowModal}
                 content={<ColorPicker style={{ width: '100%', padding: 10 }} value={gunData ? gunData[data] : "#000"} onComplete={onSelectColor}>
+                <View style={{width: "100%", display: "flex", flexDirection: "row", justifyContent: "space-between"}}><Text>{currentGun ? GetColorName(currentGun.mainColor) : ""}</Text><Text>{GetColorName(color)}</Text></View>
                 <Preview style={{marginBottom: 10}} />
                 <Panel1 style={{marginBottom: 10}} />
                 <HueSlider style={{marginBottom: 20, marginTop: 20}} />
