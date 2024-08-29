@@ -15,6 +15,7 @@ import { printSingleAmmo, printSingleGun } from '../functions/printToPDF';
 import { AmmoType } from '../interfaces';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { defaultViewPadding } from '../configs';
+import { alarm } from '../utils';
 
 
 export default function Ammo({navigation}){
@@ -78,13 +79,21 @@ export default function Ammo({navigation}){
         navigation.navigate("AmmoCollection")
     }
 
+    function handlePrintPress(){
+        try{
+            printSingleAmmo(currentAmmo, language)
+        }catch(e){
+            alarm("Print Single Ammo Error", e)
+        }
+    }
+
     return(
         <View style={{flex: 1}}>
             
             <Appbar style={{width: "100%"}}>
                 <Appbar.BackAction  onPress={() => navigation.navigate("AmmoCollection")} />
                 <Appbar.Content title={`${currentAmmo.designation} ${currentAmmo.manufacturer !== undefined? currentAmmo.manufacturer : ""}`} />
-                <Appbar.Action icon="printer" onPress={()=>printSingleAmmo(currentAmmo, language)} />
+                <Appbar.Action icon="printer" onPress={()=>handlePrintPress()} />
                 <Appbar.Action icon="pencil" onPress={()=>navigation.navigate("EditAmmo")} />
             </Appbar>
         

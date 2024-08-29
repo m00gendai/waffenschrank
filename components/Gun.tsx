@@ -14,7 +14,7 @@ import { cleanIntervals, gunDeleteAlert } from '../lib/textTemplates';
 import { printSingleGun } from '../functions/printToPDF';
 import { GunType } from '../interfaces';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { checkDate } from '../utils';
+import { alarm, checkDate } from '../utils';
 import { LinearGradient } from 'expo-linear-gradient';
 import { colord } from "colord";
 import { defaultViewPadding } from '../configs';
@@ -81,13 +81,21 @@ export default function Gun({navigation}){
         navigation.navigate("GunCollection")
     }
 
+    function handlePrintPress(){
+        try{
+            printSingleGun(currentGun, language)
+        }catch(e){
+            alarm("Print Single Gun Error", e)
+        }
+    }
+
     return(
         <View style={{flex: 1}}>
             
             <Appbar style={{width: "100%"}}>
                 <Appbar.BackAction  onPress={() => navigation.navigate("GunCollection")} />
                 <Appbar.Content title={`${currentGun.manufacturer !== undefined? currentGun.manufacturer : ""} ${currentGun.model}`} />
-                <Appbar.Action icon="printer" onPress={()=>printSingleGun(currentGun, language)} />
+                <Appbar.Action icon="printer" onPress={()=>handlePrintPress()} />
                 <Appbar.Action icon="pencil" onPress={()=>navigation.navigate("EditGun")} />
             </Appbar>
         
