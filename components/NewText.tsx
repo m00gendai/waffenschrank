@@ -1,7 +1,7 @@
 import { IconButton, List, Surface, TextInput, Text, Badge, Portal, Modal, RadioButton, Divider, Button, Searchbar } from 'react-native-paper';
 import { useState } from 'react';
 import { GunType, AmmoType } from '../interfaces';
-import { TouchableNativeFeedback, View, ScrollView, Pressable, Platform } from 'react-native';
+import { TouchableNativeFeedback, View, ScrollView, Pressable, Platform, Keyboard } from 'react-native';
 import DateTimePicker from 'react-native-ui-datepicker';
 import dayjs from 'dayjs';
 import ColorPicker, { Panel1, Swatches, Preview, HueSlider } from 'reanimated-color-picker';
@@ -151,20 +151,22 @@ function handleFocus(){
     setCharCount(input !== undefined && input !== null ? input.length : 0)
 }
 
+function handleInputPress(){
+    Keyboard.dismiss()
+        data === "acquisitionDate" ? setShowDateTime(true) :
+        data === "lastCleanedAt" ? setShowDateTime(true) : 
+        data === "lastShotAt" ? setShowDateTime(true) : 
+        data === "mainColor" ? setShowModal(true) : 
+        data === "caliber" ? setShowModalCaliber(true) : 
+        data === "lastTopUpAt" ? setShowDateTime(true) : 
+        data === "cleanInterval" ? setShowCleanModal(true) :
+        null
+    }
+
     return(
 
           <View style={{flex: 1}}>
-                <Pressable style={{flex: 1}} onPress={()=>{
-                            Platform.OS === "android" ?
-                            data === "acquisitionDate" ? setShowDateTime(true) :
-                            data === "lastCleanedAt" ? setShowDateTime(true) : 
-                            data === "lastShotAt" ? setShowDateTime(true) : 
-                            data === "mainColor" ? setShowModal(true) : 
-                            data === "caliber" ? setShowModalCaliber(true) : 
-                            data === "lastTopUpAt" ? setShowDateTime(true) : 
-                            data === "cleanInterval" ? setShowCleanModal(true) :
-                            null
-                        :null}}>
+                <Pressable style={{flex: 1}} onPress={()=>{Platform.OS === "android" ? handleInputPress() : null}}>
                     <TextInput
                         label={`${label}${gunData !== undefined ? requiredFieldsGun.includes(data) ? "*" : "" : requiredFieldsAmmo.includes(data) ? "*" : ""} ${isFocus ? `${charCount}/${MAX_CHAR_COUNT}` : ``}`} 
                         style={{
@@ -180,19 +182,10 @@ function handleFocus(){
                         left={data === "paidPrice" ? <TextInput.Affix text="CHF " /> : data === "marketValue" ? <TextInput.Affix text="CHF " />  : null}
                         inputMode={`${data === "paidPrice" ? "decimal" : data === "marketValue" ? "decimal" : data === "shotCount" ? "decimal" : "text"}`}
                         multiline={gunData && Array.isArray(gunData[data])}
-                        onPress={()=>{
-                            Platform.OS === "ios" ?
-                            data === "acquisitionDate" ? setShowDateTime(true) :
-                            data === "lastCleanedAt" ? setShowDateTime(true) : 
-                            data === "lastShotAt" ? setShowDateTime(true) : 
-                            data === "mainColor" ? setShowModal(true) : 
-                            data === "caliber" ? setShowModalCaliber(true) : 
-                            data === "lastTopUpAt" ? setShowDateTime(true) : 
-                            data === "cleanInterval" ? setShowCleanModal(true) :
-                            null
-                        :null}}
+                        onPress={()=>{Platform.OS === "ios" ? handleInputPress() : null}}
                         returnKeyType='done'
                         returnKeyLabel='OK'
+                        onSubmitEditing={()=>Keyboard.dismiss()}
                     />
                 </Pressable>
            
