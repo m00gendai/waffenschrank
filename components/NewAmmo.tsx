@@ -1,4 +1,4 @@
-import { StyleSheet, View, ScrollView, Alert, Platform } from 'react-native';
+import { StyleSheet, View, ScrollView, Alert, Platform, KeyboardAvoidingView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Appbar, Button, Dialog, FAB, Snackbar, Text } from 'react-native-paper';
 import * as ImagePicker from "expo-image-picker"
@@ -279,7 +279,7 @@ export default function NewAmmo({navigation}){
      
 
     return(
-        <View style={{flex: 1}}>
+        <KeyboardAvoidingView behavior='padding' style={{flex: 1}}>
 
             
             <Appbar style={{width: "100%"}}>
@@ -364,7 +364,7 @@ export default function NewAmmo({navigation}){
                     </Dialog.Actions>
                 </Dialog>
 
-        </View>
+        </KeyboardAvoidingView>
     )
 }
 

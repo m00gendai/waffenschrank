@@ -1,4 +1,4 @@
-import { StyleSheet, View, ScrollView, Alert, Platform } from 'react-native';
+import { StyleSheet, View, ScrollView, Alert, Platform, KeyboardAvoidingView } from 'react-native';
 import { Appbar, Button, Dialog, FAB, Snackbar, Text } from 'react-native-paper';
 import * as ImagePicker from "expo-image-picker"
 import { useEffect, useState } from 'react';
@@ -236,7 +236,7 @@ useEffect(() => {
  
 
     return(
-        <View style={{flex: 1}}>
+        <KeyboardAvoidingView behavior='padding' style={{flex: 1}}>
             
             <Appbar style={{width: "100%"}}>
                 <Appbar.BackAction  onPress={() => navigation.goBack()} />
@@ -322,7 +322,7 @@ useEffect(() => {
                 </Dialog>
 
 
-        </View> 
+        </KeyboardAvoidingView> 
     )
 }
 

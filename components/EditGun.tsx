@@ -1,4 +1,4 @@
-import { StyleSheet, View, ScrollView, Alert, Platform} from 'react-native';
+import { StyleSheet, View, ScrollView, Alert, Platform, KeyboardAvoidingView} from 'react-native';
 import { Appbar, Button, Dialog, Icon, SegmentedButtons, Snackbar, Text } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as ImagePicker from "expo-image-picker"
@@ -311,7 +311,7 @@ export default function EditGun({navigation}){
     }
 
     return(
-        <View style={{flex: 1}}>
+        <KeyboardAvoidingView behavior="padding" style={{flex: 1}}>
             
             <Appbar style={{width: "100%"}}>
                 <Appbar.BackAction  onPress={() => navigation.goBack()} />
@@ -453,7 +453,7 @@ export default function EditGun({navigation}){
               
                     
                    
-        </View>
+        </KeyboardAvoidingView>
     )
 }
 
