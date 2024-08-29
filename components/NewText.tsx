@@ -180,7 +180,7 @@ function handleFocus(){
                         left={data === "paidPrice" ? <TextInput.Affix text="CHF " /> : data === "marketValue" ? <TextInput.Affix text="CHF " />  : null}
                         inputMode={`${data === "paidPrice" ? "decimal" : data === "marketValue" ? "decimal" : data === "shotCount" ? "decimal" : "text"}`}
                         multiline={gunData && Array.isArray(gunData[data])}
-                        onPressIn={()=>{
+                        onPress={()=>{
                             Platform.OS === "ios" ?
                             data === "acquisitionDate" ? setShowDateTime(true) :
                             data === "lastCleanedAt" ? setShowDateTime(true) : 
