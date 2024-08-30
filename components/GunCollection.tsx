@@ -163,20 +163,24 @@ export default function GunCollection({navigation, route}){
         </View>
         <View  style={{display: "flex", flexDirection: "row", justifyContent: "flex-end"}}>
           <Appbar.Action icon="magnify" onPress={()=>handleSearch()}/>
+          <Appbar.Action icon="filter" disabled={tags.length === 0 ? true : false} onPress={() =>{handleMenu("filterBy", true)}} />
           <Menu
             visible={menuVisibility.filterBy}
             onDismiss={()=>handleMenu("filterBy", false)}
-            anchor={tags.length === 0 ? <Tooltip title={tooltips.tagFilter[language]}><Appbar.Action icon="filter" disabled={tags.length === 0 ? true : false} onPress={() =>{handleMenu("filterBy", true)}} /></Tooltip> : <Appbar.Action icon="filter" disabled={tags.length === 0 ? true : false} onPress={() =>{handleMenu("filterBy", true)}} />}
+            anchor={{x:Dimensions.get("window").width/6, y: 75}}
             anchorPosition='bottom'
+            style={{width: Dimensions.get("window").width/1.5}}
           >
-            <View style={{padding: defaultViewPadding}}>
+            <View style={{flex: 1, padding: defaultViewPadding}}>
               <View style={{display: "flex", flexDirection: "row", justifyContent: "flex-start", alignItems: "center"}}>
                 <Text>Filter:</Text>
                 <Switch value={isFilterOn} onValueChange={()=>handleFilterSwitch()} />
               </View>
+              <View>
               {tags.map((tag, index)=>{
-                return <Checkbox.Item mode="android" key={`filter_${tag}_${index}`} label={tag.label} status={boxes.includes(tag.label) ? "checked" : "unchecked"} onPress={()=>handleFilterPress(tag)}/>
+                return <Checkbox.Item mode="android" key={`filter_${tag}_${index}`} label={tag.label} status={boxes.includes(tag.label) ? "checked" : "unchecked"} onPress={()=>handleFilterPress(tag)} />
               })}
+              </View>
             </View>
           </Menu>
           <Appbar.Action icon={displayAsGrid ? "view-grid" : "format-list-bulleted-type"} onPress={handleDisplaySwitch} />
