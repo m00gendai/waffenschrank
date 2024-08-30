@@ -207,6 +207,7 @@ function handleInputPress(){
                 content={<DateTimePicker
                             mode="single"
                             locale="de"
+                            firstDayOfWeek={1}
                             date={date}
                             onChange={(params) => updateDate(params.date)}
                             selectedItemColor={theme.colors.primaryContainer}
