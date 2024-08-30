@@ -10,6 +10,7 @@ export interface GunType{
   serial?: string | null
   permit?: string | null
   acquisitionDate?: string | null
+  boughtFrom?: string | null
   mainColor?: string | null
   remarks? : string | null
   images: string[]

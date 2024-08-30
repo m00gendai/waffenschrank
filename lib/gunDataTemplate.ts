@@ -75,6 +75,14 @@ export const gunDataTemplate:{name:string, de:string, en:string, fr:string, it: 
     
     },
     {
+        name: "boughtFrom",
+        de: "Gekauft bei/von",     
+        en: "Acquired from",
+        fr: "Acquis auprès de/par",
+        it: "Acquistati presso/da",
+        ch: "Acquistà tar/da",
+    },
+    {
         name: "marketValue",
         de: "Aktueller Marktwert",
         en: "Current market value",
