@@ -4,7 +4,7 @@ import { GunType, AmmoType } from '../interfaces';
 import { TouchableNativeFeedback, View, ScrollView, Pressable, Platform, Keyboard } from 'react-native';
 import DateTimePicker from 'react-native-ui-datepicker';
 import dayjs from 'dayjs';
-import ColorPicker, { Panel1, Swatches, Preview, HueSlider } from 'reanimated-color-picker';
+import ColorPicker, { Panel1, Swatches, Preview, HueSlider, InputWidget } from 'reanimated-color-picker';
 import { calibers } from '../lib/caliberData';
 import { usePreferenceStore } from '../stores//usePreferenceStore';
 import { defaultModalBackdrop, defaultViewPadding, requiredFieldsAmmo, requiredFieldsGun } from '../configs';
@@ -96,7 +96,6 @@ export default function NewText({data, gunData, setGunData, ammoData, setAmmoDat
     }
 
     const onSelectColor = ({ hex }) => {
-        console.log(hex.length)
         if(hex.length === 9){
             setColor(hex.substring(0,7))
         } else {
@@ -232,9 +231,12 @@ function handleInputPress(){
                 content={<ColorPicker style={{ width: '100%', padding: 10 }} value={gunData ? gunData[data] : "#000"} onComplete={onSelectColor}>
                 <View style={{width: "100%", display: "flex", flexDirection: "row", justifyContent: "space-between"}}><Text>{currentGun ? GetColorName(currentGun.mainColor) : ""}</Text><Text>{GetColorName(color)}</Text></View>
                 <Preview style={{marginBottom: 10}} />
+                <ScrollView >
                 <Panel1 style={{marginBottom: 10}} />
-                <HueSlider style={{marginBottom: 20, marginTop: 20}} />
+                <HueSlider style={{marginBottom: 10}} />
+                <View style={{paddingRight: defaultViewPadding/2, marginBottom: 10}}><InputWidget formats={["HEX", "RGB", "HSL"]} disableAlphaChannel/></View>
                 <Swatches colors={["#000000", "#c0c0c0", "#e0e0e0", "#818589", "#6b8e23", "#877348", "#f6d7b0", "#ff69b4", "#ffc5cb", "#dd8a3c", "#56301d"]}/>
+                </ScrollView>
             </ColorPicker>}
             buttonACK={<IconButton icon="check" onPress={() => handleColorConfirm()} style={{width: 50, backgroundColor: theme.colors.primary}} iconColor={theme.colors.onPrimary}/>}
             buttonCNL={<IconButton icon="cancel" onPress={() => handleColorCancel()} style={{width: 50, backgroundColor: theme.colors.secondaryContainer}} iconColor={theme.colors.onSecondaryContainer} />}
