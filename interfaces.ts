@@ -30,6 +30,10 @@ export interface GunTypeStatus{
   highCapacityMagazine: boolean
   short: boolean
   fullAuto: boolean
+  launcher: boolean
+  decepticon: boolean
+  blooptoob: boolean
+  grandfather: boolean
 }
 
 export interface AmmoType{

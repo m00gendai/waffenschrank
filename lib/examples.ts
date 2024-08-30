@@ -25,7 +25,11 @@ export const exampleGun:GunType = {
         "exFullAuto": false, 
         "fullAuto": false, 
         "highCapacityMagazine": true, 
-        "short": false
+        "short": false,
+        "launcher": false,
+        "decepticon": false,
+        "blooptoob": false,
+        "grandfather": true
     },
     "tags": ["Pistole"]
 }
@@ -55,7 +59,11 @@ export const exampleGunEmpty:GunType = {
         "exFullAuto": false, 
         "fullAuto": false, 
         "highCapacityMagazine": false, 
-        "short": false
+        "short": false,
+        "launcher": false,
+        "decepticon": false,
+        "blooptoob": false,
+        "grandfather": false
     },
     "tags": []
 }
