@@ -114,6 +114,11 @@ export default function NewText({data, gunData, setGunData, ammoData, setAmmoDat
         setShowModal(false)
     }
 
+    function handleColorDelete(){
+        updateGunData("")
+        setShowModal(false)
+    }
+
     function handleCaliberItemSelect(name:string){
         if(gunData !== undefined){
         if(activeCaliber.includes(name)){
@@ -230,7 +235,7 @@ function handleInputPress(){
                 visible={showModal}
                 setVisible={setShowModal}
                 content={<ColorPicker style={{ width: '100%', padding: 10 }} value={gunData ? gunData[data] : "#000"} onComplete={onSelectColor}>
-                <View style={{width: "100%", display: "flex", flexDirection: "row", justifyContent: "space-between"}}><Text>{currentGun ? GetColorName(currentGun.mainColor) : ""}</Text><Text>{GetColorName(color)}</Text></View>
+                <View style={{width: "100%", display: "flex", flexDirection: "row", justifyContent: "space-between"}}><Text>{currentGun ? GetColorName(currentGun.mainColor) : ""}</Text><Text>{currentGun ? GetColorName(currentGun.mainColor) : ""}</Text></View>
                 <Preview style={{marginBottom: 10}} />
                 <ScrollView >
                 <Panel1 style={{marginBottom: 10}} />
@@ -241,7 +246,8 @@ function handleInputPress(){
             </ColorPicker>}
             buttonACK={<IconButton icon="check" onPress={() => handleColorConfirm()} style={{width: 50, backgroundColor: theme.colors.primary}} iconColor={theme.colors.onPrimary}/>}
             buttonCNL={<IconButton icon="cancel" onPress={() => handleColorCancel()} style={{width: 50, backgroundColor: theme.colors.secondaryContainer}} iconColor={theme.colors.onSecondaryContainer} />}
-            buttonDEL={null}
+            buttonDEL={<IconButton mode="contained" onPress={()=>handleColorDelete()} icon={"delete"} style={{width: 50, backgroundColor: theme.colors.errorContainer}} iconColor={theme.colors.onErrorContainer}/>}
+             
             />
 
             {/* CALIBER PICKER */}
