@@ -13,6 +13,31 @@ Enter or paste your release notes for fr-FR here
 Enter or paste your release notes for it-IT here
 </it-IT>
 
+V1.2.0
+
+iOS
+Fixed:
+Scrolling opens Dialog Windows
+Keyboard overlap
+
+<de-DE>
+Behoben:
+- Abbrechen Aufnahme neues Objekt nicht möglich
+- Lange Schlagwörter führt zu Darsellungsfehler im Filtermenü
+Neu:
+- Luftgewehr/Airsoft Munition
+- Farbnamen (Englisch) statt Hex-Code in Waffenansicht
+</de-DE>
+<en-US>
+</en-US>
+<fr-FR>
+Enter or paste your release notes for fr-FR here
+</fr-FR>
+<it-IT>
+Enter or paste your release notes for it-IT here
+</it-IT>
+
+
 V1.1.0
 
 <de-DE>
