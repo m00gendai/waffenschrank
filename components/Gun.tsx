@@ -1,4 +1,4 @@
-import { StyleSheet, View, ScrollView, Alert, TouchableNativeFeedback, TouchableOpacity } from 'react-native';
+import { StyleSheet, View, ScrollView, Alert, TouchableNativeFeedback, TouchableOpacity, Pressable } from 'react-native';
 import { Button, Appbar, Icon, Checkbox, Chip, Text, Portal, Dialog, Modal, IconButton } from 'react-native-paper';
 import { checkBoxes, gunDataTemplate, gunRemarks } from "../lib/gunDataTemplate"
 import * as SecureStore from "expo-secure-store"
@@ -19,6 +19,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { colord } from "colord";
 import { defaultViewPadding } from '../configs';
 import { GetColorName } from 'hex-color-to-color-name';
+import * as Sharing from 'expo-sharing';
 
 export default function Gun({navigation}){
 
@@ -89,6 +90,10 @@ export default function Gun({navigation}){
         }catch(e){
             alarm("Print Single Gun Error", e)
         }
+    }
+
+    async function handleShareImage(img:string){
+        await Sharing.shareAsync(img)
     }
 
     return(
@@ -200,9 +205,10 @@ export default function Gun({navigation}){
                     <Portal>
                         <Modal visible={lightBoxOpen} onDismiss={setLightBoxOpen}>
                             <View style={{width: "100%", height: "100%", padding: 0, display: "flex", flexDirection: "row", flexWrap: "wrap", backgroundColor: "green"}}>
-                                <TouchableOpacity onPress={setLightBoxOpen} style={{padding: 0, margin: 0, position: "absolute", top: defaultViewPadding, right: defaultViewPadding, zIndex: 999}}>
-                                    <Icon source="close-thick" size={40} color={theme.colors.inverseSurface}/>
-                                </TouchableOpacity>
+                                <View style={{padding: 0, margin: 0, position: "absolute", top: defaultViewPadding, right: defaultViewPadding, left: defaultViewPadding, zIndex: 999, display: "flex", flexDirection: "row", justifyContent: "space-between"}}>
+                                    <Pressable onPress={()=>handleShareImage(currentGun.images[lightBoxIndex])}><Icon source="share-variant" size={40} color={theme.colors.inverseSurface}/></Pressable>
+                                    <Pressable onPress={setLightBoxOpen} ><Icon source="close-thick" size={40} color={theme.colors.inverseSurface}/></Pressable>
+                                </View>
                                 {lightBoxOpen ? <ImageViewer isLightBox={true} selectedImage={currentGun.images[lightBoxIndex]}/> : null}
                             </View>
                         </Modal>    
