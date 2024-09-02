@@ -161,7 +161,13 @@ export default function NewText({data, gunData, setGunData, ammoData, setAmmoDat
 
 function handleFocus(){
     setFocus(true)
-    setCharCount(input !== undefined && input !== null ? input.length : 0)
+    if(input === undefined){
+        setCharCount(0)
+    } else if(input === null){
+        setCharCount(0)
+    } else {
+        setCharCount(input.toString().length)
+    }
 }
 
 function handleInputPress(){
@@ -193,7 +199,7 @@ function handleInputPress(){
                         onChangeText={input => gunData !== undefined ? updateGunData(input) : updateAmmoData(input)}
                         onKeyPress={({nativeEvent}) => setIsBackspace(nativeEvent.key === "Backspace" ? true : false)}
                         left={data === "paidPrice" ? <TextInput.Affix text="CHF " /> : data === "marketValue" ? <TextInput.Affix text="CHF " />  : null}
-                        inputMode={`${data === "paidPrice" ? "decimal" : data === "marketValue" ? "decimal" : data === "shotCount" ? "decimal" : "text"}`}
+                        inputMode={`${data === "paidPrice" ? "decimal" : data === "marketValue" ? "decimal" : data === "shotCount" ? "decimal" : data === "currentStock" ? "decimal" : data === "criticalStock" ? "decimal" : "text"}`}
                         multiline={gunData && Array.isArray(gunData[data])}
                         onPress={()=>{Platform.OS === "ios" ? handleInputPress() : null}}
                         returnKeyType='done'
