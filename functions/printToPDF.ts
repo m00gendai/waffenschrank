@@ -661,7 +661,7 @@ return(
 }
 
 export async function printGunCollection(guns:GunType[], language: string){
-
+console.log("HELLO THIS IS GUN COLLECTION")
   const date:Date = new Date()
   const dateOptions:Intl.DateTimeFormatOptions = {
       weekday: 'long',
@@ -784,19 +784,19 @@ export async function printGunCollection(guns:GunType[], language: string){
       console.log('File has been saved to:', uri);
      
      // await shareAsync(uri, { UTI: '.pdf', mimeType: 'application/pdf' });
-     FileSystem.getContentUriAsync(uri).then(cUri => {
+     const cUri = await FileSystem.getContentUriAsync(uri)
+      console.log("begin printing gun collection")
        if (Platform.OS === 'ios') {
-        Sharing.shareAsync(cUri);
-       }
-       if(Platform.OS === "android"){
-      IntentLauncher.startActivityAsync('android.intent.action.VIEW', {
+        console.log("ios")
+        await Sharing.shareAsync(cUri);
+       } else if(Platform.OS === "android"){
+        console.log("android")
+      await IntentLauncher.startActivityAsync('android.intent.action.VIEW', {
           data: cUri,
           flags: 1,
           type: 'application/pdf'
        });
-      }
-    });
-    
+      }    
 }
 
 export async function printGunCollectionArt5(guns:GunType[], language: string){

@@ -768,6 +768,38 @@ export default function MainMenu({navigation}){
                 }, 0)
         }
     }
+
+    function handlePrints(printer: "gunCollection" | "gunCollectionArt5" | "ammoCollection"){
+        console.log(printer)
+        console.log("Im printing tables!")
+        switch(printer){
+            case "gunCollection":
+                try{
+                    console.log("Im printing gun collection!")
+                printGunCollection(gunCollection, language);
+                return
+                } catch(e){
+                    alarm("printGunCollection Error", e)
+                }
+            case "gunCollectionArt5":
+                try{
+                    console.log("Im printing gun collection art 5!")
+                    printGunCollectionArt5(gunCollection, language);
+                    return
+                } catch(e){
+                    alarm("printGunCollectioNArt5 Error", e)
+                }
+            case "ammoCollection":
+                try{
+                    console.log("Im printing ammo collection!")
+                    printAmmoCollection(ammoCollection, language);
+                    return
+                } catch(e){
+                    alarm("printAmmoCollection Error", e)
+                }
+                
+        }
+    }
     
 
     return(
@@ -919,14 +951,14 @@ export default function MainMenu({navigation}){
                                                 <Text style={{width: "80%"}}>{preferenceTitles.printAllGuns[language]}</Text>
                                                 {gunCollection.length === 0 ?<Tooltip title={tooltips.noGunsAddedYet[language]}><IconButton icon="table-off" mode="contained" disabled /></Tooltip>
                                                 :
-                                                <IconButton icon="table-large" onPress={()=>printGunCollection(gunCollection, language)} mode="contained" iconColor={theme.colors.onPrimary} style={{backgroundColor: theme.colors.primary}}/>}
+                                                <IconButton icon="table-large" onPress={()=>handlePrints("gunCollection")} mode="contained" iconColor={theme.colors.onPrimary} style={{backgroundColor: theme.colors.primary}}/>}
                                             </View>   
                                             <Divider style={{width: "100%", borderWidth: 0.5, borderColor: theme.colors.onSecondary}} />
                                             <View style={{display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between", width: "100%"}}>
                                                 <Text style={{width: "80%"}}>{preferenceTitles.printArt5[language]}</Text>
                                                 {gunCollection.length === 0 ?<Tooltip title={tooltips.noGunsAddedYet[language]}><IconButton icon="table-off" mode="contained" disabled /></Tooltip>
                                                 :
-                                                <IconButton icon="table-large" onPress={()=>printGunCollectionArt5(gunCollection, language)} mode="contained" iconColor={theme.colors.onPrimary} style={{backgroundColor: theme.colors.primary}}/>}
+                                                <IconButton icon="table-large" onPress={()=>handlePrints("gunCollectionArt5")} mode="contained" iconColor={theme.colors.onPrimary} style={{backgroundColor: theme.colors.primary}}/>}
                                             </View>   
                                             {/*<Button style={{width: "45%"}} icon="badge-account-outline" onPress={()=>printGunGallery(gunCollection, language)} mode="contained">{preferenceTitles.printGallery[language]}</Button>*/}
 
@@ -940,7 +972,7 @@ export default function MainMenu({navigation}){
                                                 <Text style={{width: "80%"}}>{preferenceTitles.printAllAmmo[language]}</Text>
                                                 {ammoCollection.length === 0 ?<Tooltip title={tooltips.noAmmoAddedYet[language]}><IconButton icon="table-off" mode="contained" disabled /></Tooltip>
                                                 :
-                                                <IconButton icon="table-large" onPress={()=>printAmmoCollection(ammoCollection, language)} mode="contained" iconColor={theme.colors.onPrimary} style={{backgroundColor: theme.colors.primary}}/>}
+                                                <IconButton icon="table-large" onPress={()=>handlePrints("ammoCollection")} mode="contained" iconColor={theme.colors.onPrimary} style={{backgroundColor: theme.colors.primary}}/>}
                                             </View>   
                                            {/* <Button style={{width: "45%"}} icon="badge-account-outline" onPress={()=>printAmmoGallery(ammoCollection, language)} mode="contained">{preferenceTitles.printGallery[language]}</Button> */}
                                         </View>
