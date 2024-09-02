@@ -780,6 +780,7 @@ console.log("HELLO THIS IS GUN COLLECTION")
 
 
       // On iOS/android prints the given html. On web prints the HTML from the current page.
+      console.log("finished HTML")
       const { uri } = await Print.printToFileAsync({html, height:595, width:842, margins: {top: commonStyles.allPageMarginIOS, right: commonStyles.allPageMarginIOS, bottom: commonStyles.allPageMarginIOS, left: commonStyles.allPageMarginIOS}});
       console.log('File has been saved to:', uri);
      
@@ -800,7 +801,7 @@ console.log("HELLO THIS IS GUN COLLECTION")
 }
 
 export async function printGunCollectionArt5(guns:GunType[], language: string){
-
+console.log("HELLO THIS IS GUN COLLECTION ART 5")
   const date:Date = new Date()
   const dateOptions:Intl.DateTimeFormatOptions = {
       weekday: 'long',
@@ -925,24 +926,25 @@ export async function printGunCollectionArt5(guns:GunType[], language: string){
   </html>
   `;
 
-
+  console.log("finished HTML")
       // On iOS/android prints the given html. On web prints the HTML from the current page.
       const { uri } = await Print.printToFileAsync({html, height:595, width:842, margins: {top: commonStyles.allPageMarginIOS, right: commonStyles.allPageMarginIOS, bottom: commonStyles.allPageMarginIOS, left: commonStyles.allPageMarginIOS}});
       console.log('File has been saved to:', uri);
      
      // await shareAsync(uri, { UTI: '.pdf', mimeType: 'application/pdf' });
-     FileSystem.getContentUriAsync(uri).then(cUri => {
+     const cUri = await FileSystem.getContentUriAsync(uri)
       if (Platform.OS === 'ios') {
-        Sharing.shareAsync(cUri);
-       }
-       if(Platform.OS === "android"){
-      IntentLauncher.startActivityAsync('android.intent.action.VIEW', {
+        console.log("ios")
+        await Sharing.shareAsync(cUri);
+       }else if(Platform.OS === "android"){
+        console.log("android")
+      await IntentLauncher.startActivityAsync('android.intent.action.VIEW', {
           data: cUri,
           flags: 1,
           type: 'application/pdf'
        });
-      }
-    });
+      
+    };
     
 }
 
@@ -1136,7 +1138,7 @@ export async function printGunGallery(guns:GunType[], language: string){
 }
 
 export async function printAmmoCollection(ammunition:AmmoType[], language: string){
-
+console.log("HELLO THIS IS AMMO COLLECTION")
   const date:Date = new Date()
   const dateOptions:Intl.DateTimeFormatOptions = {
       weekday: 'long',
@@ -1253,23 +1255,23 @@ export async function printAmmoCollection(ammunition:AmmoType[], language: strin
   </html>
   `;
 
-
+  console.log("finished HTML")
       // On iOS/android prints the given html. On web prints the HTML from the current page.
       const { uri } = await Print.printToFileAsync({html, height:595, width:842, margins: {top: commonStyles.allPageMarginIOS, right: commonStyles.allPageMarginIOS, bottom: commonStyles.allPageMarginIOS, left: commonStyles.allPageMarginIOS}});
       console.log('File has been saved to:', uri);
      
      // await shareAsync(uri, { UTI: '.pdf', mimeType: 'application/pdf' });
-     FileSystem.getContentUriAsync(uri).then(cUri => {
+     const cUri = await FileSystem.getContentUriAsync(uri)
       if (Platform.OS === 'ios') {
-        Sharing.shareAsync(cUri);
-       }
-       if(Platform.OS === "android"){
-      IntentLauncher.startActivityAsync('android.intent.action.VIEW', {
+        console.log("ios")
+        await Sharing.shareAsync(cUri);
+       } else if(Platform.OS === "android"){
+        console.log("android")
+      await IntentLauncher.startActivityAsync('android.intent.action.VIEW', {
           data: cUri,
           flags: 1,
           type: 'application/pdf'
        });
-      }
-    });
+      };
     
 }
