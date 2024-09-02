@@ -15,26 +15,74 @@ Enter or paste your release notes for it-IT here
 
 V1.2.0
 
+Detailed Fixes:
+Both platforms
+- Cancel of new object not possible
+- Long keywords display error filter menu
+- Calendar week starts Sunday
+- Weapon: main colour not deletable
+- Ammunition: Current quantity cannot be edited
+- Potential freezing on spreadsheet printing
+- QuickShot negative quantities possible
 iOS
-Fixed:
-Scrolling opens Dialog Windows
-Keyboard overlap
+- Scrolling opens Dialog Windows
+- Keyboard overlap
 
 <de-DE>
 Behoben:
-- Abbrechen Aufnahme neues Objekt nicht möglich
-- Lange Schlagwörter führt zu Darsellungsfehler im Filtermenü
+- Diverse Fehler
+Verbessert:
+- Farbnamen statt Hex-Code (Englisch)
+- Eingabefeld für Farben
+- Mehr Artikel 5
+- Kalibersuche toleranter
 Neu:
 - Luftgewehr/Airsoft Munition
-- Farbnamen (Englisch) statt Hex-Code in Waffenansicht
+- Feld für Kaufort
+- Bilder teilen
+- Objekt Klonen (langer Druck in Listenansicht)
 </de-DE>
 <en-US>
+Fixed:
+- Miscellaneous bugs
+Improved:
+- Colour names instead of hex code (English)
+- Input field for colours
+- more Article 5
+- Calibre search more tolerant
+New:
+- Air rifle/Airsoft ammunition
+- field for place of purchase
+- Share pictures
+- Object Clone (long press in list view)
 </en-US>
 <fr-FR>
-Enter or paste your release notes for fr-FR here
+Corrigé:
+- Diverses erreurs
+Amélioré:
+- Nom de couleur au lieu du code hexagonal (anglais)
+- Zone de saisie des couleurs
+- Voir article 5
+- recherche de calibre plus tolérant
+Nouveau:
+- Fusil à air comprimé/Munitions Airsoft
+- Champ pour le lieu d'achat
+- Partager des images
+- Clonage d'objets (longue impression en vue liste)
 </fr-FR>
 <it-IT>
-Enter or paste your release notes for it-IT here
+Risolto:
+- Errori vari
+Migliorato:
+- Nome del colore invece del codice esagonale (Inglese)
+- Campo di inserimento dei colori
+- Più articolo 5
+- Ricerca del calibro più tollerante
+Nuovo:
+- Fucili ad aria compressa/Munizioni Airsoft
+- Campo per il luogo di acquisto
+- Condividi immagini
+- Oggetto Clonazione (premere a lungo nella vista a lista)
 </it-IT>
 
 
