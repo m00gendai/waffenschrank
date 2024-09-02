@@ -1,4 +1,4 @@
-import { StyleSheet, View, ScrollView, Alert, TouchableNativeFeedback, TouchableOpacity } from 'react-native';
+import { StyleSheet, View, ScrollView, Alert, TouchableNativeFeedback, TouchableOpacity, Pressable } from 'react-native';
 import { Button, Appbar, Icon, Chip, Text, Dialog, Portal, Modal} from 'react-native-paper';
 import { ammoDataTemplate, ammoRemarks } from "../lib/ammoDataTemplate"
 import * as SecureStore from "expo-secure-store"
@@ -16,6 +16,7 @@ import { AmmoType } from '../interfaces';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { defaultViewPadding } from '../configs';
 import { alarm } from '../utils';
+import * as Sharing from 'expo-sharing';
 
 
 export default function Ammo({navigation}){
@@ -87,6 +88,11 @@ export default function Ammo({navigation}){
         }
     }
 
+    async function handleShareImage(img:string){
+        await Sharing.shareAsync(img)
+    }
+
+
     return(
         <View style={{flex: 1}}>
             
@@ -156,9 +162,10 @@ export default function Ammo({navigation}){
                     <Portal>
                         <Modal visible={lightBoxOpen} onDismiss={setLightBoxOpen}>
                             <View style={{width: "100%", height: "100%", padding: 0, display: "flex", flexDirection: "row", flexWrap: "wrap", backgroundColor: "green"}}>
-                                <TouchableOpacity onPress={setLightBoxOpen} style={{padding: 0, margin: 0, position: "absolute", top: defaultViewPadding, right: defaultViewPadding, zIndex: 999}}>
-                                    <Icon source="close-thick" size={40} color={theme.colors.inverseSurface}/>
-                                </TouchableOpacity>
+                            <View style={{padding: 0, margin: 0, position: "absolute", top: defaultViewPadding, right: defaultViewPadding, left: defaultViewPadding, zIndex: 999, display: "flex", flexDirection: "row", justifyContent: "space-between"}}>
+                                    <Pressable onPress={()=>handleShareImage(currentAmmo.images[lightBoxIndex])}><Icon source="share-variant" size={40} color={theme.colors.inverseSurface}/></Pressable>
+                                    <Pressable onPress={setLightBoxOpen} ><Icon source="close-thick" size={40} color={theme.colors.inverseSurface}/></Pressable>
+                                </View>
                                 {lightBoxOpen ? <ImageViewer isLightBox={true} selectedImage={currentAmmo.images[lightBoxIndex]}/> : null}
                             </View>
                         </Modal>    
