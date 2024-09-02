@@ -146,6 +146,11 @@ interface aboutThanksPersons{
     others: SimpleTranslation
 }
 
+interface LongPressActions{
+    clone: SimpleTranslation
+    delete: SimpleTranslation
+}
+
 export const cleanIntervals:CleanIntervals = {
     none: {
         de: "-",
@@ -1207,5 +1212,22 @@ export const statisticItems:StatisticItems = {
         fr: "Nombre de coups total",
         it: "Numero totale di cartucce",
         ch: "Dumber da patronas total",
+    }
+}
+
+export const longPressActions:LongPressActions = {
+    clone:{
+        de: "Klonen",
+        en: "Clone",
+        fr: "Clone",
+        it: "Clone",
+        ch: "Clona",
+    },
+    delete: {
+        de: "Löschen",
+        en: "Delete",
+        fr: "Supprimer",
+        it: "Cancellare",
+        ch: "Stizzar",
     }
 }
