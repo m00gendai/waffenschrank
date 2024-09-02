@@ -27,20 +27,22 @@ import Animated, { Easing, SlideInDown, SlideOutDown } from 'react-native-reanim
 
 export default function NewAmmo({navigation}){
 
-    const [selectedImage, setSelectedImage] = useState<string[]>(null)
+    const { language, theme, generalSettings } = usePreferenceStore()
+    const { setNewAmmoOpen, setSeeAmmoOpen } = useViewStore()
+    const { setCurrentAmmo, currentAmmo, ammoCollection, setAmmoCollection } = useAmmoStore()
+
+    const [selectedImage, setSelectedImage] = useState<string[]>(currentAmmo ? currentAmmo.images : null)
     const [initCheck, setInitCheck] = useState<boolean>(true)
     const [granted, setGranted] = useState<boolean>(false)
-    const [ammoData, setAmmoData] = useState<AmmoType>(exampleAmmoEmpty)
-    const [ammoDataCompare, setAmmoDataCompare] = useState<AmmoType>(exampleAmmoEmpty)
+    const [ammoData, setAmmoData] = useState<AmmoType>(currentAmmo ? currentAmmo : exampleAmmoEmpty)
+    const [ammoDataCompare, setAmmoDataCompare] = useState<AmmoType>(currentAmmo ? currentAmmo : exampleAmmoEmpty)
     const [visible, setVisible] = useState<boolean>(false);
     const [snackbarText, setSnackbarText] = useState<string>("")
     const [saveState, setSaveState] = useState<boolean>(null)
     const [unsavedVisible, toggleUnsavedDialogVisible] = useState<boolean>(false)
     const [exitAction, setExitAction] = useState(null);
 
-    const { language, theme, generalSettings } = usePreferenceStore()
-    const { setNewAmmoOpen, setSeeAmmoOpen } = useViewStore()
-    const { setCurrentAmmo, ammoCollection, setAmmoCollection } = useAmmoStore()
+    
 
     useEffect(()=>{
         if(initCheck){

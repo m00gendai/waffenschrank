@@ -26,20 +26,20 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function NewGun({navigation}){
 
-    const [selectedImage, setSelectedImage] = useState<string[]>(null)
+    const { language, theme, generalSettings } = usePreferenceStore()
+    const { setNewGunOpen, setSeeGunOpen } = useViewStore()
+    const { setCurrentGun, gunCollection, setGunCollection, currentGun } = useGunStore()
+
+    const [selectedImage, setSelectedImage] = useState<string[]>(currentGun ? currentGun.images : null)
     const [initCheck, setInitCheck] = useState<boolean>(true)
     const [granted, setGranted] = useState<boolean>(false)
-    const [gunData, setGunData] = useState<GunType>(exampleGunEmpty)
-    const [gunDataCompare, setGunDataCompare] = useState<GunType>(exampleGunEmpty)
+    const [gunData, setGunData] = useState<GunType>(currentGun ? currentGun : exampleGunEmpty)
+    const [gunDataCompare, setGunDataCompare] = useState<GunType>(currentGun ? currentGun : exampleGunEmpty)
     const [visible, setVisible] = useState<boolean>(false);
     const [snackbarText, setSnackbarText] = useState<string>("")
     const [saveState, setSaveState] = useState<boolean>(null)
     const [unsavedVisible, toggleUnsavedDialogVisible] = useState<boolean>(false)
     const [exitAction, setExitAction] = useState(null);
-
-    const { language, theme, generalSettings } = usePreferenceStore()
-    const { setNewGunOpen, setSeeGunOpen } = useViewStore()
-    const { setCurrentGun, gunCollection, setGunCollection } = useGunStore()
 
     useEffect(()=>{
         if(initCheck){
