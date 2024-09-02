@@ -201,7 +201,7 @@ export default function AmmoCollection({navigation, route}){
           columnWrapperStyle={{gap: defaultGridGap}} 
           key={`ammoCollectionGrid`} 
           style={{height: "100%", width: "100%", paddingTop: defaultViewPadding, paddingLeft: defaultViewPadding, paddingRight: defaultViewPadding, paddingBottom: 50}} 
-          data={searchQuery !== "" ? ammoList.filter(item => item.manufacturer.toLowerCase().includes(searchQuery.toLowerCase()) || item.designation.toLowerCase().includes(searchQuery.toLowerCase()) || item.caliber.toLowerCase().includes(searchQuery.toLowerCase())) : ammoList} 
+          data={searchQuery !== "" ? ammoList.filter(item => item.manufacturer.toLowerCase().replaceAll(".", "").replaceAll(" ", "").includes(searchQuery.toLowerCase()) || item.designation.toLowerCase().replaceAll(".", "").replaceAll(" ", "").includes(searchQuery.toLowerCase()) || item.caliber.toLowerCase().replaceAll(".", "").replaceAll(" ", "").includes(searchQuery.toLowerCase())) : ammoList} 
           renderItem={({item, index}) => <AmmoCard ammo={item} />}                     
           keyExtractor={ammo=>ammo.id} 
           ListFooterComponent={<View style={{width: "100%", height: 100}}></View>}
@@ -214,7 +214,7 @@ export default function AmmoCollection({navigation, route}){
           contentContainerStyle={{gap: defaultGridGap}}
           key={`ammoCollectionList`} 
           style={{height: "100%", width: "100%", paddingTop: defaultViewPadding, paddingLeft: defaultViewPadding, paddingRight: defaultViewPadding, paddingBottom: 50}} 
-          data={searchQuery !== "" ? ammoList.filter(item => item.manufacturer.toLowerCase().includes(searchQuery.toLowerCase()) || item.designation.toLowerCase().includes(searchQuery.toLowerCase()) || item.caliber.toLowerCase().includes(searchQuery.toLowerCase())) : ammoList} 
+          data={searchQuery !== "" ? ammoList.filter(item => item.manufacturer.toLowerCase().replaceAll(".", "").replaceAll(" ", "").includes(searchQuery.toLowerCase()) || item.designation.toLowerCase().replaceAll(".", "").replaceAll(" ", "").includes(searchQuery.toLowerCase()) || item.caliber.toLowerCase().replaceAll(".", "").replaceAll(" ", "").includes(searchQuery.toLowerCase())) : ammoList} 
           renderItem={({item, index}) => <AmmoCard ammo={item} />}      
           keyExtractor={gun=>gun.id} 
           ListFooterComponent={<View style={{width: "100%", height: 100}}></View>}

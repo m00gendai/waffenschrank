@@ -210,7 +210,7 @@ export default function GunCollection({navigation, route}){
           columnWrapperStyle={{gap: defaultGridGap}} 
           key={`gunCollectionGrid4`} 
           style={{height: "100%", width: "100%", paddingTop: defaultViewPadding, paddingLeft: defaultViewPadding, paddingRight: defaultViewPadding, paddingBottom: 50}} 
-          data={searchQuery !== "" ? gunList.filter(item => item.manufacturer && item.manufacturer.toLowerCase().includes(searchQuery.toLowerCase()) || item.model && item.model.toLowerCase().includes(searchQuery.toLowerCase()) || (Array.isArray(item.caliber) ? item.caliber.join(", ").toLowerCase().includes(searchQuery.toLowerCase()) : "")) : gunList}
+          data={searchQuery !== "" ? gunList.filter(item => item.manufacturer && item.manufacturer.toLowerCase().replaceAll(".", "").replaceAll(" ", "").includes(searchQuery.toLowerCase()) || item.model && item.model.toLowerCase().replaceAll(".", "").replaceAll(" ", "").includes(searchQuery.toLowerCase()) || (Array.isArray(item.caliber) ? item.caliber.join(", ").toLowerCase().replaceAll(".", "").replaceAll(" ", "").includes(searchQuery.toLowerCase()) : "")) : gunList}
           renderItem={({item, index}) => <GunCard gun={item} />}                     
           keyExtractor={gun=>gun.id} 
           ListFooterComponent={<View style={{width: "100%", height: 100}}></View>}
@@ -224,7 +224,7 @@ export default function GunCollection({navigation, route}){
           columnWrapperStyle={{gap: defaultGridGap}} 
           key={`gunCollectionGrid2`} 
           style={{height: "100%", width: "100%", paddingTop: defaultViewPadding, paddingLeft: defaultViewPadding, paddingRight: defaultViewPadding, paddingBottom: 50}} 
-          data={searchQuery !== "" ? gunList.filter(item => item.manufacturer && item.manufacturer.toLowerCase().includes(searchQuery.toLowerCase()) || item.model && item.model.toLowerCase().includes(searchQuery.toLowerCase()) || (Array.isArray(item.caliber) ? item.caliber.join(", ").toLowerCase().includes(searchQuery.toLowerCase()) : "")) : gunList}
+          data={searchQuery !== "" ? gunList.filter(item => item.manufacturer && item.manufacturer.toLowerCase().replaceAll(".", "").replaceAll(" ", "").includes(searchQuery.toLowerCase()) || item.model && item.model.toLowerCase().replaceAll(".", "").replaceAll(" ", "").includes(searchQuery.toLowerCase()) || (Array.isArray(item.caliber) ? item.caliber.join(", ").toLowerCase().replaceAll(".", "").replaceAll(" ", "").includes(searchQuery.toLowerCase()) : "")) : gunList}
           renderItem={({item, index}) => <GunCard gun={item} />}                     
           keyExtractor={gun=>gun.id} 
           ListFooterComponent={<View style={{width: "100%", height: 100}}></View>}
@@ -237,7 +237,7 @@ export default function GunCollection({navigation, route}){
           contentContainerStyle={{gap: defaultGridGap}}
           key={`gunCollectionList`} 
           style={{height: "100%", width: "100%", paddingTop: defaultViewPadding, paddingLeft: defaultViewPadding, paddingRight: defaultViewPadding, paddingBottom: 50}} 
-          data={searchQuery !== "" ? gunList.filter(item => item.manufacturer && item.manufacturer.toLowerCase().includes(searchQuery.toLowerCase()) || item.model && item.model.toLowerCase().includes(searchQuery.toLowerCase()) || (Array.isArray(item.caliber) ? item.caliber.join(", ").toLowerCase().includes(searchQuery.toLowerCase()) : "")) : gunList} 
+          data={searchQuery !== "" ? gunList.filter(item => item.manufacturer && item.manufacturer.toLowerCase().replaceAll(".", "").replaceAll(" ", "").includes(searchQuery.toLowerCase()) || item.model && item.model.toLowerCase().replaceAll(".", "").replaceAll(" ", "").includes(searchQuery.toLowerCase()) || (Array.isArray(item.caliber) ? item.caliber.join(", ").toLowerCase().replaceAll(".", "").replaceAll(" ", "").includes(searchQuery.toLowerCase()) : "")) : gunList} 
           renderItem={({item, index}) => <GunCard gun={item} />}      
           keyExtractor={gun=>gun.id} 
           ListFooterComponent={<View style={{width: "100%", height: 100}}></View>}

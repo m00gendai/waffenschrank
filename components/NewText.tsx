@@ -305,7 +305,7 @@ function handleInputPress(){
                 <ScrollView>
                 {calibers.map((caliber, index) =>{
                         return caliber.variants.map((variant, index)=>{
-                            if(variant.name.toLowerCase().includes(caliberQuery.toLowerCase())){
+                            if(variant.name.toLowerCase().replaceAll(".", "").replaceAll(" ", "").includes(caliberQuery.toLowerCase())){
                             return(
                                 <List.Item key={`${variant.name}_${index}`} title={variant.name} titleStyle={{color: activeCaliber !== undefined && activeCaliber !== null && activeCaliber.length !== 0 && activeCaliber.includes(variant.name) ? theme.colors.onTertiary : theme.colors.onTertiaryContainer}} onPress={()=>handleCaliberItemSelect(variant.name)} style={{backgroundColor: activeCaliber.includes(variant.name) ? theme.colors.tertiary : "transparent"}}/>
                             )}
