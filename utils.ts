@@ -31,8 +31,8 @@ export function doSortBy(value: SortingTypes, ascending: boolean, items: GunType
     }
     if(value === "lastAdded"){
         const sorted = items.sort((a, b) =>{
-            const x = a.createdAt
-            const y = b.createdAt
+            const x = new Date(a.createdAt).getTime()
+            const y = new Date(b.createdAt).getTime()
             if(ascending){
                 return x > y ? 1 : x < y ? -1 : 0
             } else {
@@ -42,8 +42,8 @@ export function doSortBy(value: SortingTypes, ascending: boolean, items: GunType
     }
     if(value === "lastModified"){
         const sorted = items.sort((a, b) =>{
-            const x = a.lastModifiedAt !== undefined ? a.lastModifiedAt : a.createdAt
-            const y = b.lastModifiedAt !== undefined ? b.lastModifiedAt : b.createdAt
+            const x = a.lastModifiedAt !== undefined ? new Date(a.lastModifiedAt).getTime() : new Date(a.createdAt).getTime()
+            const y = b.lastModifiedAt !== undefined ? new Date(b.lastModifiedAt).getTime() : new Date(b.createdAt).getTime()
             if(ascending){
                 return x > y ? 1 : x < y ? -1 : 0
             } else {
