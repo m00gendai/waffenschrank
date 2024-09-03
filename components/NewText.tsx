@@ -182,6 +182,14 @@ function handleInputPress(){
         null
     }
 
+    function checkColor(color:string){
+        console.log(color)
+        if(color.length === 9){
+            return color.substring(0,7)
+        }
+        return color
+    }
+
     return(
 
           <View style={{flex: 1}}>
@@ -241,12 +249,12 @@ function handleInputPress(){
                 visible={showModal}
                 setVisible={setShowModal}
                 content={<ColorPicker style={{ width: '100%', padding: 10 }} value={gunData ? gunData[data] : "#000"} onComplete={onSelectColor}>
-                <View style={{width: "100%", display: "flex", flexDirection: "row", justifyContent: "space-between"}}><Text>{currentGun ? GetColorName(currentGun.mainColor) : ""}</Text><Text>{currentGun ? GetColorName(currentGun.mainColor) : ""}</Text></View>
+                <View style={{width: "100%", display: "flex", flexDirection: "row", justifyContent: "space-between"}}><Text>{currentGun ? GetColorName(checkColor(currentGun.mainColor)) : ""}</Text><Text>{currentGun ? GetColorName(checkColor(currentGun.mainColor)) : ""}</Text></View>
                 <Preview style={{marginBottom: 10}} />
                 <ScrollView >
                 <Panel1 style={{marginBottom: 10}} />
                 <HueSlider style={{marginBottom: 10}} />
-                <View style={{paddingRight: defaultViewPadding/2, marginBottom: 10}}><InputWidget formats={["HEX", "RGB", "HSL"]} disableAlphaChannel/></View>
+                <View style={{paddingRight: defaultViewPadding/2, marginBottom: 10}}><InputWidget inputStyle={{color: theme.colors.onBackground}} iconColor={theme.colors.primary} inputTitleStyle={{color: theme.colors.onBackground}} formats={["HEX", "RGB", "HSL"]} disableAlphaChannel/></View>
                 <Swatches colors={["#000000", "#c0c0c0", "#e0e0e0", "#818589", "#6b8e23", "#877348", "#f6d7b0", "#ff69b4", "#ffc5cb", "#dd8a3c", "#56301d"]}/>
                 </ScrollView>
             </ColorPicker>}
