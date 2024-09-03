@@ -96,6 +96,14 @@ export default function Gun({navigation}){
         await Sharing.shareAsync(img)
     }
 
+    function checkColor(color:string){
+        console.log(color)
+        if(color.length === 9){
+            return color.substring(0,8)
+        }
+        return color
+    }
+
     return(
         <View style={{flex: 1}}>
             
@@ -147,7 +155,7 @@ export default function Gun({navigation}){
                                         {Array.isArray(currentGun[item.name]) ?
                                         <Text style={{width: "100%", fontSize: 18, marginBottom: 5, paddingBottom: 5, borderBottomColor: theme.colors.primary, borderBottomWidth: 0.2}}>{currentGun[item.name] ? currentGun[item.name].join("\n") : ""}</Text>
                                         :
-                                        <Text style={{width: "100%", fontSize: 18, marginBottom: 5, paddingBottom: 5, borderBottomColor: theme.colors.primary, borderBottomWidth: 0.2}}>{item.name === "mainColor" ?  currentGun.mainColor ? GetColorName(`${currentGun.mainColor.split("#")[1]}`) : "" : item.name === "paidPrice" ? `CHF ${currentGun[item.name] ? currentGun[item.name] :  ""}` : item.name === "marketValue" ? `CHF ${currentGun[item.name] ? currentGun[item.name] : ""}` : item.name === "cleanInterval" && cleanIntervals[currentGun[item.name]] !== undefined ? cleanIntervals[currentGun[item.name]][language] : currentGun[item.name]}</Text>
+                                        <Text style={{width: "100%", fontSize: 18, marginBottom: 5, paddingBottom: 5, borderBottomColor: theme.colors.primary, borderBottomWidth: 0.2}}>{item.name === "mainColor" ?  currentGun.mainColor ? GetColorName(`${checkColor(currentGun.mainColor).split("#")[1]}`) : "" : item.name === "paidPrice" ? `CHF ${currentGun[item.name] ? currentGun[item.name] :  ""}` : item.name === "marketValue" ? `CHF ${currentGun[item.name] ? currentGun[item.name] : ""}` : item.name === "cleanInterval" && cleanIntervals[currentGun[item.name]] !== undefined ? cleanIntervals[currentGun[item.name]][language] : currentGun[item.name]}</Text>
                                         }
                                         {item.name === "lastCleanedAt" && checkDate(currentGun) ? 
                                             <View style={{position:"absolute", top: 0, right: 0, bottom: 0, left: 0, display: "flex", flexDirection: "row", justifyContent: "flex-end", alignItems: "center"}}>
@@ -171,7 +179,7 @@ export default function Gun({navigation}){
                                     {Array.isArray(currentGun[item.name]) ?
                                     <Text style={{width: "100%", fontSize: 18, marginBottom: 5, paddingBottom: 5, borderBottomColor: theme.colors.primary, borderBottomWidth: 0.2}}>{currentGun[item.name] ? currentGun[item.name].join("\n") : ""}</Text>
                                     :
-                                    <Text style={{width: "100%", fontSize: 18, marginBottom: 5, paddingBottom: 5, borderBottomColor: theme.colors.primary, borderBottomWidth: 0.2}}>{item.name === "mainColor" ?  currentGun.mainColor ? GetColorName(`${currentGun.mainColor.split("#")[1]}`) : "" : item.name === "paidPrice" ? `CHF ${currentGun[item.name] ? currentGun[item.name] : ""}` : item.name === "marketValue" ? `CHF ${currentGun[item.name] ? currentGun[item.name] : ""}` : item.name === "cleanInterval" && currentGun[item.name] !== undefined ? cleanIntervals[currentGun[item.name]][language] : currentGun[item.name]}</Text>
+                                    <Text style={{width: "100%", fontSize: 18, marginBottom: 5, paddingBottom: 5, borderBottomColor: theme.colors.primary, borderBottomWidth: 0.2}}>{item.name === "mainColor" ?  currentGun.mainColor ? GetColorName(`${checkColor(currentGun.mainColor).split("#")[1]}`) : "" : item.name === "paidPrice" ? `CHF ${currentGun[item.name] ? currentGun[item.name] : ""}` : item.name === "marketValue" ? `CHF ${currentGun[item.name] ? currentGun[item.name] : ""}` : item.name === "cleanInterval" && currentGun[item.name] !== undefined ? cleanIntervals[currentGun[item.name]][language] : currentGun[item.name]}</Text>
                                     }
                                     {item.name === "lastCleanedAt" && checkDate(currentGun) ? 
                                         <View style={{position:"absolute", top: 0, right: 0, bottom: 0, left: 0, display: "flex", flexDirection: "row", justifyContent: "flex-end", alignItems: "center"}}>
