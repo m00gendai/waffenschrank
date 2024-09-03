@@ -30,15 +30,19 @@ export function doSortBy(value: SortingTypes, ascending: boolean, items: GunType
         return sorted
     }
     if(value === "lastAdded"){
+        try{
         const sorted = items.sort((a, b) =>{
-            const x = new Date(a.createdAt).getTime()
-            const y = new Date(b.createdAt).getTime()
+            const x = a.createdAt === undefined ? 0 : a.createdAt === null ? 0 : a.createdAt === "" ? 0 : new Date(a.createdAt).getTime()
+            const y = b.createdAt === undefined ? 0 : b.createdAt === null ? 0 : b.createdAt === "" ? 0 : new Date(b.createdAt).getTime()
             if(ascending){
                 return x > y ? 1 : x < y ? -1 : 0
             } else {
                 return x < y ? 1 : x > y ? -1 : 0
         }})
         return sorted
+    }catch(e){
+        console.log(e)
+    }
     }
     if(value === "lastModified"){
         const sorted = items.sort((a, b) =>{
