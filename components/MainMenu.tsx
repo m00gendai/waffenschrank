@@ -769,14 +769,14 @@ export default function MainMenu({navigation}){
         }
     }
 
-    function handlePrints(printer: "gunCollection" | "gunCollectionArt5" | "ammoCollection"){
+    async function handlePrints(printer: "gunCollection" | "gunCollectionArt5" | "ammoCollection"){
         console.log(printer)
         console.log("Im printing tables!")
         switch(printer){
             case "gunCollection":
                 try{
                     console.log("Im printing gun collection!")
-                printGunCollection(gunCollection, language);
+                await printGunCollection(gunCollection, language);
                 return
                 } catch(e){
                     alarm("printGunCollection Error", e)
@@ -784,7 +784,7 @@ export default function MainMenu({navigation}){
             case "gunCollectionArt5":
                 try{
                     console.log("Im printing gun collection art 5!")
-                    printGunCollectionArt5(gunCollection, language);
+                   await printGunCollectionArt5(gunCollection, language);
                     return
                 } catch(e){
                     alarm("printGunCollectioNArt5 Error", e)
@@ -792,7 +792,7 @@ export default function MainMenu({navigation}){
             case "ammoCollection":
                 try{
                     console.log("Im printing ammo collection!")
-                    printAmmoCollection(ammoCollection, language);
+                   await printAmmoCollection(ammoCollection, language);
                     return
                 } catch(e){
                     alarm("printAmmoCollection Error", e)
