@@ -183,7 +183,6 @@ function handleInputPress(){
     }
 
     function checkColor(color:string){
-        console.log(color)
         if(color.length === 9){
             return color.substring(0,7)
         }
