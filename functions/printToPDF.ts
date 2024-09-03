@@ -259,9 +259,15 @@ export async function printSingleGun(gun:GunType, language: string){
     `;
 
     if (Platform.OS === 'ios') {
-      console.log("ios")
-      const { uri } = await Print.printToFileAsync({ html });
-      await shareAsync(uri, { UTI: '.pdf', mimeType: 'application/pdf' });
+      const file = await Print.printToFileAsync({
+        html: html,
+        height:842, 
+        width:595, 
+        margins: {top: commonStyles.allPageMarginIOS, right: commonStyles.allPageMarginIOS, bottom: commonStyles.allPageMarginIOS, left: commonStyles.allPageMarginIOS},
+        base64: true
+      });
+      console.log(file.uri);
+      await shareAsync(file.uri);
     } else if(Platform.OS === "android"){
       console.log("android")
       const { uri } = await Print.printToFileAsync({html, height:595, width:842, margins: {top: commonStyles.allPageMarginIOS, right: commonStyles.allPageMarginIOS, bottom: commonStyles.allPageMarginIOS, left: commonStyles.allPageMarginIOS}});
@@ -450,24 +456,27 @@ export async function printSingleAmmo(ammo:AmmoType, language: string){
   </html>
   `;
 
-
-      // On iOS/android prints the given html. On web prints the HTML from the current page.
-      const { uri } = await Print.printToFileAsync({html, height:842, width:595, margins: {top: commonStyles.allPageMarginIOS, right: commonStyles.allPageMarginIOS, bottom: commonStyles.allPageMarginIOS, left: commonStyles.allPageMarginIOS}});
-      console.log('File has been saved to:', uri);
-     
-     // await shareAsync(uri, { UTI: '.pdf', mimeType: 'application/pdf' });
-     FileSystem.getContentUriAsync(uri).then(cUri => {
-      if (Platform.OS === 'ios') {
-      //  Sharing.shareAsync(cUri);
-       }
-       if(Platform.OS === "android"){
-      IntentLauncher.startActivityAsync('android.intent.action.VIEW', {
-          data: cUri,
-          flags: 1,
-          type: 'application/pdf'
-       });
-      }
+  if (Platform.OS === 'ios') {
+    const file = await Print.printToFileAsync({
+      html: html,
+      height:842, 
+      width:595, 
+      margins: {top: commonStyles.allPageMarginIOS, right: commonStyles.allPageMarginIOS, bottom: commonStyles.allPageMarginIOS, left: commonStyles.allPageMarginIOS},
+      base64: true
     });
+    console.log(file.uri);
+    await shareAsync(file.uri);
+  } else if(Platform.OS === "android"){
+    console.log("android")
+    const { uri } = await Print.printToFileAsync({html, height:595, width:842, margins: {top: commonStyles.allPageMarginIOS, right: commonStyles.allPageMarginIOS, bottom: commonStyles.allPageMarginIOS, left: commonStyles.allPageMarginIOS}});
+    const cUri = await FileSystem.getContentUriAsync(uri)
+    console.log('File has been saved to:', uri);
+    await IntentLauncher.startActivityAsync('android.intent.action.VIEW', {
+        data: cUri,
+        flags: 1,
+        type: 'application/pdf'
+    });
+  }   
     
 }
 
