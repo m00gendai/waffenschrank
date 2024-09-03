@@ -52,12 +52,12 @@ export default function NewText({data, gunData, setGunData, ammoData, setAmmoDat
         if(charCount < MAX_CHAR_COUNT){
             setCharCount(input !== undefined ? input.length : 0)
             setInput(Array.isArray(input) ? input.join("\n") : input)
-            setGunData({...gunData, [data]: input})
+            setGunData({...gunData, [data]: Array.isArray(input) ? input : input.trim()})
         }
         if(charCount >= MAX_CHAR_COUNT && isBackspace){
             setCharCount(input !== undefined ? input.length : 0)
             setInput(Array.isArray(input) ? input.join("\n") : input)
-            setGunData({...gunData, [data]: input})
+            setGunData({...gunData, [data]: Array.isArray(input) ? input : input.trim()})
         }
     }
 
@@ -65,12 +65,12 @@ export default function NewText({data, gunData, setGunData, ammoData, setAmmoDat
         if(charCount < MAX_CHAR_COUNT){
             setCharCount(input !== undefined ? input.length : 0)
             setInput(input)
-            setAmmoData({...ammoData, [data]: input})
+            setAmmoData({...ammoData, [data]: Array.isArray(input) ? input : input.trim()})
         }
         if(charCount >= MAX_CHAR_COUNT && isBackspace){
             setCharCount(input !== undefined ? input.length : 0)
             setInput(input)
-            setAmmoData({...ammoData, [data]: input})
+            setAmmoData({...ammoData, [data]: Array.isArray(input) ? input : input.trim()})
         }
     }
 
