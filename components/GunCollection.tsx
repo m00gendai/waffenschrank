@@ -27,7 +27,7 @@ export default function GunCollection({navigation, route}){
 
   const { displayAsGrid, toggleDisplayAsGrid, sortBy, setSortBy, language, setSortGunIcon, sortGunIcon, sortGunsAscending, toggleSortGunsAscending, theme } = usePreferenceStore()
   const { mainMenuOpen } = useViewStore()
-  const { gunCollection, setGunCollection, currentGun } = useGunStore()
+  const { gunCollection, setGunCollection, currentGun, setCurrentGun } = useGunStore()
   const { tags } = useTagStore()
   const [isFilterOn, setIsFilterOn] = useState<boolean>(false);
   const [gunList, setGunList] = useState<GunType[]>(gunCollection)
@@ -155,6 +155,11 @@ export default function GunCollection({navigation, route}){
     };
   });
 
+  function handleFAB(){
+    setCurrentGun(null)
+    navigation.navigate("NewGun")
+  }
+
   return(
     <View style={{flex: 1, backgroundColor: "transparent"}}>
       <Appbar style={{width: "100%", display: "flex", flexDirection: "row", justifyContent: "space-between"}}>
@@ -248,7 +253,7 @@ export default function GunCollection({navigation, route}){
       <Animated.View style={[{position: "absolute", bottom: defaultBottomBarHeight+defaultViewPadding, right: 0, margin: 16, width: 56, height: 56, backgroundColor: "transparent", display: "flex", justifyContent: "center", alignItems: "center"}, gunCollection.length === 0 ? pulsate : null]}>
         <FAB
           icon="plus"
-          onPress={()=>navigation.navigate("NewGun")}
+          onPress={()=>handleFAB()}
           disabled={mainMenuOpen ? true : false}
           style={{width: 56, height: 56}}
         />

@@ -26,7 +26,7 @@ export default function AmmoCollection({navigation, route}){
 
   const { displayAmmoAsGrid, toggleDisplayAmmoAsGrid, sortAmmoBy, setSortAmmoBy, language, theme, sortAmmoIcon, setSortAmmoIcon, sortAmmoAscending, toggleSortAmmoAscending } = usePreferenceStore()
   const { mainMenuOpen } = useViewStore()
-  const { ammoCollection, setAmmoCollection, currentAmmo } = useAmmoStore()
+  const { ammoCollection, setAmmoCollection, currentAmmo, setCurrentAmmo } = useAmmoStore()
   const { ammo_tags } = useTagStore()
   const [isFilterOn, setIsFilterOn] = useState<boolean>(false);
   const [ammoList, setAmmoList] = useState<AmmoType[]>(ammoCollection)
@@ -154,6 +154,11 @@ export default function AmmoCollection({navigation, route}){
     };
   });
 
+  function handleFAB(){
+    setCurrentAmmo(null)
+    navigation.navigate("NewAmmo")
+  }
+
   return(
     <View style={{flex: 1}}>
       <Appbar style={{width: "100%", display: "flex", flexDirection: "row", justifyContent: "space-between"}}>
@@ -225,7 +230,7 @@ export default function AmmoCollection({navigation, route}){
       <Animated.View style={[{position: "absolute", bottom: defaultBottomBarHeight+defaultViewPadding, right: 0, margin: 16, width: 56, height: 56, backgroundColor: "transparent", display: "flex", justifyContent: "center", alignItems: "center"}, ammoCollection.length === 0 ? pulsate : null]}>
         <FAB
           icon="plus"
-          onPress={()=>navigation.navigate("NewAmmo")}
+          onPress={()=>handleFAB()}
           disabled={mainMenuOpen ? true : false}
           style={{width: 56, height: 56}}
         />
