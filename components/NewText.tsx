@@ -75,6 +75,7 @@ export default function NewText({data, gunData, setGunData, ammoData, setAmmoDat
     }
 
     function updateDate(input){
+        console.log(input)
         setInput(new Date(input).toLocaleDateString("de-CH"))
         setDate(input)
     }
@@ -230,7 +231,8 @@ function handleInputPress(){
                             onChange={(params) => updateDate(params.date)}
                             selectedItemColor={theme.colors.primaryContainer}
                             calendarTextStyle={{color: theme.colors.onBackground}}
-                            headerTextStyle={{color: theme.colors.primary}}
+                            headerTextStyle={{color: theme.colors.primary, padding: defaultViewPadding}}
+                            headerTextContainerStyle={{backgroundColor: theme.colors.primaryContainer, elevation: 5, marginLeft: defaultViewPadding, marginRight: defaultViewPadding}}
                             weekDaysTextStyle={{color: theme.colors.onBackground}}
                             headerButtonColor={theme.colors.primary}
                             monthContainerStyle={{backgroundColor: theme.colors.secondaryContainer, borderColor: theme.colors.secondaryContainer}}
