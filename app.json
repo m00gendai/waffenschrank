@@ -18,7 +18,7 @@
       "supportsTablet": true,
       "bundleIdentifier": "com.m00gendai.arsenal",
       "name": "Arsenal: Armamentarium",
-      "buildNumber": "4"
+      "buildNumber": "5"
     },
     "android": {
       "adaptiveIcon": {
@@ -26,7 +26,7 @@
         "backgroundColor": "#ffffff"
       },
       "package": "com.m00gendai.arsenal",
-      "versionCode": 13
+      "versionCode": 14
     },
     "web": {
       "favicon": "./assets/appIconC.png"

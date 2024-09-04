@@ -13,6 +13,29 @@ Enter or paste your release notes for fr-FR here
 Enter or paste your release notes for it-IT here
 </it-IT>
 
+V1.2.3
+
+iOS:
+Behoben:
+- Bilder nach Update nicht mehr sichtbar
+- Warnung-Popup für die PDF Funktionen
+
+<de-DE>
+Code-Änderungen, keine sichtbaren Auswirkungen
+</de-DE>
+<en-US>
+Code changes, no visible impact
+</en-US>
+<fr-FR>
+Changements de code, aucune incidence visible
+</fr-FR>
+<it-IT>
+Cambiamenti di codice, nessun impatto visibile
+</it-IT>
+
+V1.2.2
+Removed Herobrine
+
 V1.2.1
 
 <de-DE>
