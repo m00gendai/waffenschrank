@@ -19,7 +19,7 @@ async function getGunImages(guns:GunType[]){
     let imgs: null | string[] = null
     if(gun.images && gun.images.length !== 0){
         imgs = await Promise.all(gun.images.map(async image =>{
-            return await FileSystem.readAsStringAsync(image, { encoding: 'base64' });
+            return await FileSystem.readAsStringAsync(`${FileSystem.documentDirectory}${image.split("/").pop()}`, { encoding: 'base64' });
         }))
         imageArray.push(imgs)
     } else {
@@ -36,7 +36,7 @@ async function getAmmoImages(ammunition:AmmoType[]){
     let imgs: null | string[] = null
     if(ammo.images && ammo.images.length !== 0){
         imgs = await Promise.all(ammo.images.map(async image =>{
-            return await FileSystem.readAsStringAsync(image, { encoding: 'base64' });
+            return await FileSystem.readAsStringAsync(`${FileSystem.documentDirectory}${image.split("/").pop()}`, { encoding: 'base64' });
         }))
         imageArray.push(imgs)
     } else {
@@ -89,7 +89,7 @@ export async function printSingleGun(gun:GunType, language: string){
     let imgs: null | string[] = null
     if(gun.images && gun.images.length !== 0){
         imgs = await Promise.all(gun.images.map(async image =>{
-            return await FileSystem.readAsStringAsync(image, { encoding: 'base64' });
+            return await FileSystem.readAsStringAsync(`${FileSystem.documentDirectory}${image.split("/").pop()}`, { encoding: 'base64' });
         }))
     }
 
@@ -287,7 +287,7 @@ export async function printSingleAmmo(ammo:AmmoType, language: string){
   let imgs: null | string[] = null
   if(ammo.images && ammo.images.length !== 0){
       imgs = await Promise.all(ammo.images.map(async image =>{
-          return await FileSystem.readAsStringAsync(image, { encoding: 'base64' });
+          return await FileSystem.readAsStringAsync(`${FileSystem.documentDirectory}${image.split("/").pop()}`, { encoding: 'base64' });
       }))
   }
 
