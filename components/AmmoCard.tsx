@@ -13,6 +13,7 @@ import { AMMO_DATABASE, KEY_DATABASE } from '../configs_DB';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as SecureStore from "expo-secure-store"
 import { ammoDeleteAlert, gunDeleteAlert, longPressActions } from '../lib/textTemplates';
+import * as FileSystem from 'expo-file-system';
 
 interface Props{
     ammo: AmmoType
@@ -99,7 +100,7 @@ export default function AmmoCard({ammo}:Props){
             {displayAmmoAsGrid ? 
             <>
                 <Card.Cover 
-                    source={ammo.images && ammo.images.length != 0 ? { uri: ammo.images[0] } : require(`../assets//540940_several different realistic bullets and ammunition_xl-1024-v1-0.png`)} 
+                    source={ammo.images && ammo.images.length != 0 ? { uri: `${FileSystem.documentDirectory}${ammo.images[0].split("/").pop()}` } : require(`../assets//540940_several different realistic bullets and ammunition_xl-1024-v1-0.png`)} 
                     style={{
                         height: 100
                     }}
@@ -141,7 +142,7 @@ export default function AmmoCard({ammo}:Props){
                 }}
             >
                 {generalSettings.displayImagesInListViewAmmo ? <Card.Cover 
-                    source={ammo.images && ammo.images.length != 0 ? { uri: ammo.images[0] } : require(`../assets//540940_several different realistic bullets and ammunition_xl-1024-v1-0.png`)} 
+                    source={ammo.images && ammo.images.length != 0 ? { uri: `${FileSystem.documentDirectory}${ammo.images[0].split("/").pop()}` } : require(`../assets//540940_several different realistic bullets and ammunition_xl-1024-v1-0.png`)} 
                     style={{
                         height: "75%",
                         aspectRatio: "4/3"

@@ -134,15 +134,15 @@ export default function EditAmmo({navigation}){
 
             const newImage = selectedImage;
             if (newImage && newImage.length !== 0) {
-                newImage.splice(indx, 1, newPath);
+                newImage.splice(indx, 1, fileName);
                 setSelectedImage(newImage);
                 setAmmoData({ ...ammoData, images: newImage });
             } else {
-                setSelectedImage([newPath]);
+                setSelectedImage([fileName]);
                 if (ammoData && ammoData.images && ammoData.images.length !== 0) {
-                    setAmmoData({ ...ammoData, images: [...ammoData.images, newPath] });
+                    setAmmoData({ ...ammoData, images: [...ammoData.images, fileName] });
                 } else {
-                    setAmmoData({ ...ammoData, images: [newPath] });
+                    setAmmoData({ ...ammoData, images: [fileName] });
                 }
             }
         } catch (error) {
@@ -182,15 +182,15 @@ export default function EditAmmo({navigation}){
 
             const newImage = selectedImage;
             if (newImage && newImage.length !== 0) {
-                newImage.splice(indx, 1, newPath);
+                newImage.splice(indx, 1, fileName);
                 setSelectedImage(newImage);
                 setAmmoData({ ...ammoData, images: newImage });
             } else {
-                setSelectedImage([newPath]);
+                setSelectedImage([fileName]);
                 if (ammoData && ammoData.images && ammoData.images.length !== 0) {
-                    setAmmoData({ ...ammoData, images: [...ammoData.images, newPath] });
+                    setAmmoData({ ...ammoData, images: [...ammoData.images, fileName] });
                 } else {
-                    setAmmoData({ ...ammoData, images: [newPath] });
+                    setAmmoData({ ...ammoData, images: [fileName] });
                 }
             }
         } catch (error) {
