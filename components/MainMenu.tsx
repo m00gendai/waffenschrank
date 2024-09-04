@@ -297,7 +297,7 @@ export default function MainMenu({navigation}){
             const exportableGunCollection:GunType[] = await Promise.all(gunCollection.map(async gun =>{
                 if(gun.images !== null && gun.images.length !== 0){
                     const base64images:string[] = await Promise.all(gun.images?.map(async image =>{
-                        const base64string:string = await FileSystem.readAsStringAsync(image, { encoding: 'base64' });
+                        const base64string:string = await FileSystem.readAsStringAsync(`${FileSystem.documentDirectory}${image.split("/").pop()}`, { encoding: 'base64' });
                         return base64string
                     }))
                     const exportableGun:GunType = {...gun, images: base64images}
@@ -324,7 +324,7 @@ export default function MainMenu({navigation}){
             const exportableAmmoCollection:AmmoType[] = await Promise.all(ammoCollection.map(async ammo =>{
                 if(ammo.images !== null && ammo.images.length !== 0){
                     const base64images:string[] = await Promise.all(ammo.images?.map(async image =>{
-                        const base64string:string = await FileSystem.readAsStringAsync(image, { encoding: 'base64' });
+                        const base64string:string = await FileSystem.readAsStringAsync(`${FileSystem.documentDirectory}${image.split("/").pop()}`, { encoding: 'base64' });
                         return base64string
                     }))
                     const exportableAmmo:AmmoType = {...ammo, images: base64images}
@@ -366,7 +366,7 @@ export default function MainMenu({navigation}){
             const exportableGunCollection:GunType[] = await Promise.all(gunCollection.map(async gun =>{
                 if(gun.images !== null && gun.images.length !== 0){
                     const base64images:string[] = await Promise.all(gun.images?.map(async image =>{
-                        const base64string:string = await FileSystem.readAsStringAsync(image, { encoding: 'base64' });
+                        const base64string:string = await FileSystem.readAsStringAsync(`${FileSystem.documentDirectory}${image.split("/").pop()}`, { encoding: 'base64' });
                         return base64string
                     }))
                     const exportableGun:GunType = {...gun, images: base64images}
@@ -395,7 +395,7 @@ export default function MainMenu({navigation}){
             const exportableAmmoCollection:AmmoType[] = await Promise.all(ammoCollection.map(async ammo =>{
                 if(ammo.images !== null && ammo.images.length !== 0){
                     const base64images:string[] = await Promise.all(ammo.images?.map(async image =>{
-                        const base64string:string = await FileSystem.readAsStringAsync(image, { encoding: 'base64' });
+                        const base64string:string = await FileSystem.readAsStringAsync(`${FileSystem.documentDirectory}${image.split("/").pop()}`, { encoding: 'base64' });
                         return base64string
                     }))
                     const exportableAmmo:AmmoType = {...ammo, images: base64images}
