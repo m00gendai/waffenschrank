@@ -1,4 +1,4 @@
-import { StyleSheet, View, ScrollView, Alert, TouchableNativeFeedback, TouchableOpacity, Pressable } from 'react-native';
+import { StyleSheet, View, ScrollView, Alert, TouchableNativeFeedback, TouchableOpacity, Pressable, Platform } from 'react-native';
 import { Button, Appbar, Icon, Chip, Text, Dialog, Portal, Modal} from 'react-native-paper';
 import { ammoDataTemplate, ammoRemarks } from "../lib/ammoDataTemplate"
 import * as SecureStore from "expo-secure-store"
@@ -10,7 +10,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { usePreferenceStore } from '../stores/usePreferenceStore';
 import { useViewStore } from '../stores/useViewStore';
 import { useAmmoStore } from '../stores/useAmmoStore';
-import { ammoDeleteAlert } from '../lib/textTemplates';
+import { ammoDeleteAlert, iosWarningText } from '../lib/textTemplates';
 import { printSingleAmmo, printSingleGun } from '../functions/printToPDF';
 import { AmmoType } from '../interfaces';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -27,6 +27,8 @@ export default function Ammo({navigation}){
     const { setSeeAmmoOpen, editAmmoOpen, setEditAmmoOpen, lightBoxOpen, setLightBoxOpen } = useViewStore()
     const { language, theme, generalSettings } = usePreferenceStore()
     const { currentAmmo, setCurrentAmmo, ammoCollection, setAmmoCollection } = useAmmoStore()
+
+    const [iosWarning, toggleiosWarning] = useState<boolean>(false)
 
     const showModal = (index:number) => {
         setLightBoxOpen()
@@ -80,7 +82,12 @@ export default function Ammo({navigation}){
         navigation.navigate("AmmoCollection")
     }
 
+    function handleIosPrint(){
+        toggleiosWarning(true)
+    }
+
     function handlePrintPress(){
+        toggleiosWarning(false)
         try{
             printSingleAmmo(currentAmmo, language)
         }catch(e){
@@ -99,7 +106,7 @@ export default function Ammo({navigation}){
             <Appbar style={{width: "100%"}}>
                 <Appbar.BackAction  onPress={() => navigation.navigate("AmmoCollection")} />
                 <Appbar.Content title={`${currentAmmo.designation} ${currentAmmo.manufacturer !== undefined? currentAmmo.manufacturer : ""}`} />
-                <Appbar.Action icon="printer" onPress={()=>handlePrintPress()} />
+                <Appbar.Action icon="printer" onPress={()=>Platform.OS === "ios" ? handleIosPrint() : handlePrintPress()} />
                 <Appbar.Action icon="pencil" onPress={()=>navigation.navigate("EditAmmo")} />
             </Appbar>
         
@@ -193,6 +200,20 @@ export default function Ammo({navigation}){
                     </View>
                 </ScrollView>
             </View>
+            
+            <Dialog visible={iosWarning} onDismiss={()=>toggleiosWarning(false)}>
+                    <Dialog.Title>
+                    {iosWarningText.title[language]}
+                    </Dialog.Title>
+                    <Dialog.Content>
+                        <Text>{iosWarningText.text[language]}</Text>
+                    </Dialog.Content>
+                    <Dialog.Actions>
+                        <Button onPress={()=>handlePrintPress()} icon="heart" buttonColor={theme.colors.errorContainer} textColor={theme.colors.onErrorContainer}>{iosWarningText.ok[language]}</Button>
+                        <Button onPress={()=>toggleiosWarning(false)} icon="heart-broken" buttonColor={theme.colors.secondary} textColor={theme.colors.onSecondary}>{iosWarningText.cancel[language]}</Button>
+                    </Dialog.Actions>
+                </Dialog>
+
         </View>
     )
 }

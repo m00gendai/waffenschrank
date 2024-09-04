@@ -2,7 +2,7 @@ import { ScrollView, TouchableNativeFeedback, View, Image, Platform, Dimensions 
 import Animated, { LightSpeedInLeft, LightSpeedOutLeft } from "react-native-reanimated"
 import { useViewStore } from "../stores/useViewStore"
 import { ActivityIndicator, Button, Dialog, Divider, Icon, IconButton, List, Modal, Portal, Snackbar, Switch, Text, Tooltip } from "react-native-paper"
-import { aboutText, aboutThanks, aboutThanksPersons, databaseImportAlert, databaseOperations, generalSettingsLabels, loginGuardAlert, preferenceTitles, resizeImageAlert, statisticItems, toastMessages, tooltips } from "../lib/textTemplates"
+import { aboutText, aboutThanks, aboutThanksPersons, databaseImportAlert, databaseOperations, generalSettingsLabels, iosWarningText, loginGuardAlert, preferenceTitles, resizeImageAlert, statisticItems, toastMessages, tooltips } from "../lib/textTemplates"
 import { usePreferenceStore } from "../stores/usePreferenceStore"
 import AsyncStorage from "@react-native-async-storage/async-storage"
 import { dateLocales, defaultViewPadding, languageSelection } from "../configs"
@@ -44,6 +44,9 @@ export default function MainMenu({navigation}){
     const [snackbarText, setSnackbarText] = useState<string>("")
     const [dbModalText, setDbModalText] = useState<string>("")
     const [dbOperation, setDbOperation] = useState<DBOperations | "">("")
+
+    const [iosWarning, toggleiosWarning] = useState<boolean>(false)
+    const [printerSrc, setPrinterSrc] = useState<null | "gunCollection" | "gunCollectionArt5" | "ammoCollection">(null)
 
     const onToggleSnackBar = () => setToastVisible(true);
     const onDismissSnackBar = () => setToastVisible(false);
@@ -769,7 +772,16 @@ export default function MainMenu({navigation}){
         }
     }
 
-    async function handlePrints(printer: "gunCollection" | "gunCollectionArt5" | "ammoCollection"){
+    async function handleIOSprints(printer: "gunCollection" | "gunCollectionArt5" | "ammoCollection"){
+        setPrinterSrc(printer)
+        toggleiosWarning(true)
+    }
+
+    async function handlePrints(printer: null | "gunCollection" | "gunCollectionArt5" | "ammoCollection"){
+        if(printer === null){
+            return
+        }
+        toggleiosWarning(false)
         console.log(printer)
         console.log("Im printing tables!")
         switch(printer){
@@ -951,14 +963,14 @@ export default function MainMenu({navigation}){
                                                 <Text style={{width: "80%"}}>{preferenceTitles.printAllGuns[language]}</Text>
                                                 {gunCollection.length === 0 ?<Tooltip title={tooltips.noGunsAddedYet[language]}><IconButton icon="table-off" mode="contained" disabled /></Tooltip>
                                                 :
-                                                <IconButton icon="table-large" onPress={()=>handlePrints("gunCollection")} mode="contained" iconColor={theme.colors.onPrimary} style={{backgroundColor: theme.colors.primary}}/>}
+                                                <IconButton icon="table-large" onPress={()=>Platform.OS === "ios" ? handleIOSprints("gunCollection") : handlePrints("gunCollection")} mode="contained" iconColor={theme.colors.onPrimary} style={{backgroundColor: theme.colors.primary}}/>}
                                             </View>   
                                             <Divider style={{width: "100%", borderWidth: 0.5, borderColor: theme.colors.onSecondary}} />
                                             <View style={{display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between", width: "100%"}}>
                                                 <Text style={{width: "80%"}}>{preferenceTitles.printArt5[language]}</Text>
                                                 {gunCollection.length === 0 ?<Tooltip title={tooltips.noGunsAddedYet[language]}><IconButton icon="table-off" mode="contained" disabled /></Tooltip>
                                                 :
-                                                <IconButton icon="table-large" onPress={()=>handlePrints("gunCollectionArt5")} mode="contained" iconColor={theme.colors.onPrimary} style={{backgroundColor: theme.colors.primary}}/>}
+                                                <IconButton icon="table-large" onPress={()=>Platform.OS === "ios" ? handleIOSprints("gunCollectionArt5") : handlePrints("gunCollectionArt5")} mode="contained" iconColor={theme.colors.onPrimary} style={{backgroundColor: theme.colors.primary}}/>}
                                             </View>   
                                             {/*<Button style={{width: "45%"}} icon="badge-account-outline" onPress={()=>printGunGallery(gunCollection, language)} mode="contained">{preferenceTitles.printGallery[language]}</Button>*/}
 
@@ -972,7 +984,7 @@ export default function MainMenu({navigation}){
                                                 <Text style={{width: "80%"}}>{preferenceTitles.printAllAmmo[language]}</Text>
                                                 {ammoCollection.length === 0 ?<Tooltip title={tooltips.noAmmoAddedYet[language]}><IconButton icon="table-off" mode="contained" disabled /></Tooltip>
                                                 :
-                                                <IconButton icon="table-large" onPress={()=>handlePrints("ammoCollection")} mode="contained" iconColor={theme.colors.onPrimary} style={{backgroundColor: theme.colors.primary}}/>}
+                                                <IconButton icon="table-large" onPress={()=>Platform.OS === "ios" ? handleIOSprints("ammoCollection") : handlePrints("ammoCollection")} mode="contained" iconColor={theme.colors.onPrimary} style={{backgroundColor: theme.colors.primary}}/>}
                                             </View>   
                                            {/* <Button style={{width: "45%"}} icon="badge-account-outline" onPress={()=>printAmmoGallery(ammoCollection, language)} mode="contained">{preferenceTitles.printGallery[language]}</Button> */}
                                         </View>
@@ -1105,6 +1117,19 @@ export default function MainMenu({navigation}){
                 <ActivityIndicator size="large" animating={true} />
                 <Text variant="bodyLarge" style={{width: "100%", textAlign: "center", color: theme.colors.onBackground, marginTop: 10, backgroundColor: theme.colors.background}}>{`${dbModalText}: ${importProgress}/${importSize}`}</Text>
             </Modal>
+
+            <Dialog visible={iosWarning} onDismiss={()=>toggleiosWarning(false)}>
+                    <Dialog.Title>
+                    {iosWarningText.title[language]}
+                    </Dialog.Title>
+                    <Dialog.Content>
+                        <Text>{iosWarningText.text[language]}</Text>
+                    </Dialog.Content>
+                    <Dialog.Actions>
+                        <Button onPress={()=>handlePrints(printerSrc)} icon="heart" buttonColor={theme.colors.errorContainer} textColor={theme.colors.onErrorContainer}>{iosWarningText.ok[language]}</Button>
+                        <Button onPress={()=>toggleiosWarning(false)} icon="heart-broken" buttonColor={theme.colors.secondary} textColor={theme.colors.onSecondary}>{iosWarningText.cancel[language]}</Button>
+                    </Dialog.Actions>
+                </Dialog>
 
             </View>
     )
