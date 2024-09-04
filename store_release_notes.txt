@@ -13,6 +13,45 @@ Enter or paste your release notes for fr-FR here
 Enter or paste your release notes for it-IT here
 </it-IT>
 
+V1.2.1
+
+<de-DE>
+Behoben:
+- Neues Objekt mit alten Daten
+- Fehlerhafter Farbtext
+- Farbauswahl: Texte teils nicht an Hintergrundfarbe angepasst
+- Unnötige Leerzeichen in Exporten
+- Sortieren nach zuletzt hinzugefügt/zuletzt bearbeitet fehlerhafte Reihenfolge
+- Datumauswahl: Knopf für schnelle Monats- und Jahresauswahl zu wenig sichtbar
+</de-DE>
+<en-US>
+Fixed:
+- New object with old data
+- Incorrect colour text
+- Colour selection: texts not adapted to background colour
+- Unnecessary spaces in exports
+- Sort by last added/last edited incorrect order
+- Date selection: Button for quick month and year selection not visible enough
+</en-US>
+<fr-FR>
+Corrigé:
+- Nouvel objet avec d'anciennes données
+- Texte de couleur erroné
+- Choix des couleurs: Textes partiellement non adaptés à la couleur d'arrière-plan
+- Espaces inutiles dans les exportations
+- Tri par dernier ajout/dernier édité ordre erroné
+- Sélection de date: le bouton pour sélection rapide du mois et de l'année est trop peu visible
+</fr-FR>
+<it-IT>
+Risolto:
+- Nuovo oggetto con dati vecchi
+- Testo a colori errato
+- Selezione colore: testi non adattati al colore di sfondo
+- Spazi inutili nelle esportazioni
+- Ordina per ultimo aggiunto/ultimo modificato ordine errato
+- Selezione data: pulsante per la selezione rapida del mese e dell' anno troppo poco visibile
+</it-IT>
+
 V1.2.0
 
 Detailed Fixes:
