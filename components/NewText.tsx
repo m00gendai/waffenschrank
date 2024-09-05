@@ -7,7 +7,7 @@ import dayjs from 'dayjs';
 import ColorPicker, { Panel1, Swatches, Preview, HueSlider, InputWidget } from 'reanimated-color-picker';
 import { calibers } from '../lib/caliberData';
 import { usePreferenceStore } from '../stores//usePreferenceStore';
-import { defaultModalBackdrop, defaultViewPadding, requiredFieldsAmmo, requiredFieldsGun } from '../configs';
+import { dateTimeOptions, defaultModalBackdrop, defaultViewPadding, requiredFieldsAmmo, requiredFieldsGun } from '../configs';
 import ModalContainer from './ModalContainer';
 import { caliberPickerStrings, cleanIntervals, modalTexts } from '../lib/textTemplates';
 import { GetColorName } from 'hex-color-to-color-name';
@@ -76,7 +76,7 @@ export default function NewText({data, gunData, setGunData, ammoData, setAmmoDat
 
     function updateDate(input){
         console.log(input)
-        setInput(new Date(input).toLocaleDateString("de-CH"))
+        setInput(new Date(input).toLocaleDateString("de-CH", dateTimeOptions))
         setDate(input)
     }
 
