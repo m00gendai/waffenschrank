@@ -1,6 +1,8 @@
-{
+export const IS_DEV = process.env.APP_VARIANT === 'development';
+
+export default {
   "expo": {
-    "name": "Arsenal",
+    "name": IS_DEV ? " Arsenal DEV" : "Arsenal",
     "slug": "waffenschrank",
     "version": "1.2.3",
     "orientation": "portrait",
@@ -16,7 +18,7 @@
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.m00gendai.arsenal",
+      "bundleIdentifier": IS_DEV ? "com.m00gendai.arsenal.dev" : "com.m00gendai.arsenal",
       "name": "Arsenal: Armamentarium",
       "buildNumber": "5"
     },
@@ -25,7 +27,7 @@
         "foregroundImage": "./assets/appIconC.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.m00gendai.arsenal",
+      "package": IS_DEV ? "com.m00gendai.arsenal.dev" : "com.m00gendai.arsenal",
       "versionCode": 14
     },
     "web": {
@@ -35,7 +37,14 @@
       "expo-secure-store",
       "expo-build-properties",
       "expo-asset",
-      "expo-local-authentication"
+      "expo-local-authentication",
+      [
+        "./plugins/withAndroidMainActivityAttributes",
+        {
+          "android:largeHeap": true,
+          "android:hardwareAccelerated": true
+        }
+      ]
     ],
     "extra": {
       "eas": {
