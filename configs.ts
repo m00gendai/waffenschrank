@@ -17,6 +17,12 @@ export const dateLocales:SimpleTranslation = {
     ch: "de-CH"
 }
 
+export const dateTimeOptions:Intl.DateTimeFormatOptions = {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit"
+}
+
 export const languageSelection:{flag:string, code:Languages}[] = [
     {flag: "🇩🇪", code: "de"},
     {flag: "🇨🇭", code: "ch"},
