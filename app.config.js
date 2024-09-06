@@ -41,7 +41,7 @@ export default {
       [
         "./plugins/withAndroidMainActivityAttributes",
         {
-          "android:largeHeap": true,
+          "android:largeHeap": false,
           "android:hardwareAccelerated": true
         }
       ]
