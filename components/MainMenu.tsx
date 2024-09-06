@@ -29,6 +29,7 @@ import { alarm, getImageSize, sanitizeFileName } from "../utils"
 import * as SystemUI from "expo-system-ui"
 import * as Sharing from 'expo-sharing';
 import * as LocalAuthentication from 'expo-local-authentication';
+import { Dirs, Util, FileSystem as fs } from 'react-native-file-access';
 
 
 
@@ -49,7 +50,11 @@ export default function MainMenu({navigation}){
     const [printerSrc, setPrinterSrc] = useState<null | "gunCollection" | "gunCollectionArt5" | "ammoCollection">(null)
 
     const onToggleSnackBar = () => setToastVisible(true);
-    const onDismissSnackBar = () => setToastVisible(false);
+    const onDismissSnackBar = () => {
+        setToastVisible(false);
+        resetImportProgress(0)
+        resetImportSize(0)
+    }
 
     const date: Date = new Date()
     const currentYear:number = date.getFullYear()
@@ -73,8 +78,7 @@ export default function MainMenu({navigation}){
         setDbModalVisible()
         setSnackbarText(toastMessages.dbSaveSuccess[language])
         onToggleSnackBar()
-        resetImportProgress(0)
-        resetImportSize(0)
+        
     }
 
     function dbImportSuccess(data: DBOperations){
@@ -82,8 +86,6 @@ export default function MainMenu({navigation}){
         data === "import_arsenal_gun_db" ? setDbImport(new Date()) : data === "import_arsenal_gun_csv" ? setDbImport(new Date()) : setAmmoDbImport(new Date())
         setSnackbarText(`${importSize} ${toastMessages.dbImportSuccess[language]}`)
         onToggleSnackBar()
-        resetImportProgress(0)
-        resetImportSize(0)
     }
 
     async function handleDbOperation(data: DBOperations | ""){
@@ -133,8 +135,13 @@ export default function MainMenu({navigation}){
             setDbModalText(databaseOperations.export[language])
             try{
                 await handleShareGunDb().then(async (res)=>{
-                    await Sharing.shareAsync(res).then(()=>{
+                    await Sharing.shareAsync(res).then(async ()=>{
                         dbSaveSuccess()
+                        try{
+                           await fs.unlink(res)
+                        }catch(e){
+                            alarm("shareGunDb unlinkTempFile", e)
+                        }
                     })
                 })
             }catch(e){
@@ -146,8 +153,13 @@ export default function MainMenu({navigation}){
             setDbModalText(databaseOperations.export[language])
             try{
                 await shareCSV("share_arsenal_gun_csv").then(async (res)=>{
-                    await Sharing.shareAsync(res).then(()=>{
+                    await Sharing.shareAsync(res).then(async ()=>{
                         dbSaveSuccess()
+                        try{
+                           await fs.unlink(res)
+                        }catch(e){
+                            alarm("shareGunCSV unlinkTempFile", e)
+                        }
                     })
                 })
             }catch(e){
@@ -199,8 +211,14 @@ export default function MainMenu({navigation}){
             setDbModalText(databaseOperations.export[language])
             try{
                 await handleShareAmmoDb().then(async (res)=>{
-                    await Sharing.shareAsync(res).then(()=>{
+                    console.log(res)
+                    await Sharing.shareAsync(res).then(async ()=>{
                         dbSaveSuccess()
+                        try{
+                           await fs.unlink(res)
+                        }catch(e){
+                            alarm("shareAmmoDB unlinkTempFile", e)
+                        }
                     })
                 })
             }catch(e){
@@ -212,8 +230,13 @@ export default function MainMenu({navigation}){
             setDbModalText(databaseOperations.export[language])
             try{
                 await shareCSV("share_arsenal_ammo_csv").then(async (res)=>{
-                    await Sharing.shareAsync(res).then(()=>{
+                    await Sharing.shareAsync(res).then(async ()=>{
                         dbSaveSuccess()
+                        try{
+                           await fs.unlink(res)
+                        }catch(e){
+                            alarm("shareAmmoCSV unlinkTempFile", e)
+                        }
                     })
                 })
             }catch(e){
@@ -295,56 +318,81 @@ export default function MainMenu({navigation}){
 
     async function handleShareGunDb(){
         const fileName = `gunDB_${new Date().getTime()}.json`
-        // ANDROID
-       
-            const exportableGunCollection:GunType[] = await Promise.all(gunCollection.map(async gun =>{
-                if(gun.images !== null && gun.images.length !== 0){
-                    const base64images:string[] = await Promise.all(gun.images?.map(async image =>{
-                        const base64string:string = await FileSystem.readAsStringAsync(`${FileSystem.documentDirectory}${image.split("/").pop()}`, { encoding: 'base64' });
-                        return base64string
-                    }))
-                    const exportableGun:GunType = {...gun, images: base64images}
-                    setImportProgress(importProgress+1)
-                    return exportableGun
-                } else {
-                    setImportProgress(importProgress+1)
-                    return gun
+        const collectionSize = gunCollection.length-1
+        const cache = Dirs.CacheDir
+        try{
+            await fs.writeFile(`${cache}/${fileName}`, "[")
+        }catch(e){
+            alarm("shareGunDb createTempFile", e)
+        }
+        await Promise.all(gunCollection.map(async (gun, index) =>{
+            if(gun.images !== null && gun.images.length !== 0){
+                const base64images:string[] = await Promise.all(gun.images?.map(async image =>{
+                    const base64string:string = await FileSystem.readAsStringAsync(`${FileSystem.documentDirectory}${image.split("/").pop()}`, { encoding: 'base64' });
+                    return base64string
+                }))
+                const exportableGun:GunType = {...gun, images: base64images}
+                setImportProgress(importProgress+1)
+                try{
+                    await fs.appendFile(`${cache}/${fileName}`, JSON.stringify(exportableGun) + (collectionSize !== index ? ", " : ""))
+                }catch(e){
+                    alarm("shareGunDb appendExportableGun", e)
                 }
-            }))
-            let data = JSON.stringify(exportableGunCollection)
-            const fileUri = FileSystem.cacheDirectory + fileName
-            await FileSystem.writeAsStringAsync(fileUri, data, {encoding: FileSystem.EncodingType.UTF8})
-            return fileUri
-        
-        /*
-        for iOS, use expo-share, Sharing.shareAsync(fileUri, fileNamea)
-        */
+            } else {
+                setImportProgress(importProgress+1)
+                try{
+                    await fs.appendFile(`${cache}/${fileName}`, JSON.stringify(gun) + (collectionSize !== index ? ", " : ""))
+                }catch(e){
+                    alarm("shareGunDb appendGun", e)
+                }
+            }
+        }))
+        try{
+            await fs.appendFile(`${cache}/${fileName}`, "]")
+        } catch(e){
+            alarm("shareGunDb finishTempFile", e)
+        }
+        return `${FileSystem.cacheDirectory}/${fileName}`
     }
 
     async function handleShareAmmoDb(){
         const fileName = `ammoDB_${new Date().getTime()}.json`
-        // ANDROID
-            const exportableAmmoCollection:AmmoType[] = await Promise.all(ammoCollection.map(async ammo =>{
-                if(ammo.images !== null && ammo.images.length !== 0){
-                    const base64images:string[] = await Promise.all(ammo.images?.map(async image =>{
-                        const base64string:string = await FileSystem.readAsStringAsync(`${FileSystem.documentDirectory}${image.split("/").pop()}`, { encoding: 'base64' });
-                        return base64string
-                    }))
-                    const exportableAmmo:AmmoType = {...ammo, images: base64images}
-                    setImportProgress(importProgress+1)
-                    return exportableAmmo
-                } else {
-                    setImportProgress(importProgress+1)
-                    return ammo
+        const collectionSize = ammoCollection.length-1
+        const cache = Dirs.CacheDir
+        try{
+            await fs.writeFile(`${cache}/${fileName}`, "[")
+        }catch(e){
+            alarm("shareAmmoDb createTempFile", e)
+        }
+        await Promise.all(ammoCollection.map(async (ammo, index) =>{
+            if(ammo.images !== null && ammo.images.length !== 0){
+                const base64images:string[] = await Promise.all(ammo.images?.map(async image =>{
+                    const base64string:string = await FileSystem.readAsStringAsync(`${FileSystem.documentDirectory}${image.split("/").pop()}`, { encoding: 'base64' });
+                    return base64string
+                }))
+                const exportableAmmo:AmmoType = {...ammo, images: base64images}
+                setImportProgress(importProgress+1)
+                try{
+                    await fs.appendFile(`${cache}/${fileName}`, JSON.stringify(exportableAmmo) + (collectionSize !== index ? ", " : ""))
+                }catch(e){
+                    alarm("shareAmmoDb appendExportableAmmo", e)
                 }
-            }))
-            let data = JSON.stringify(exportableAmmoCollection)
-            const fileUri = FileSystem.cacheDirectory + fileName
-            await FileSystem.writeAsStringAsync(fileUri, data, {encoding: FileSystem.EncodingType.UTF8})
-            return fileUri
-        /*
-        for iOS, use expo-share, Sharing.shareAsync(fileUri, fileNamea)
-        */
+            } else {
+                setImportProgress(importProgress+1)
+                try{
+                    await fs.appendFile(`${cache}/${fileName}`, JSON.stringify(ammo) + (collectionSize !== index ? ", " : ""))
+                }catch(e){
+                    alarm("shareAmmoDb appendAmmo", e)
+                }
+            }
+        }))
+        try{
+            await fs.appendFile(`${cache}/${fileName}`, "]")
+        } catch(e){
+            alarm("shareAmmoDb finishTempFile", e)
+        }
+        return `${FileSystem.cacheDirectory}/${fileName}`
+
     }
 
     async function shareCSV(data: DBOperations){
@@ -362,60 +410,100 @@ export default function MainMenu({navigation}){
 
     async function handleSaveGunDb(){
         const fileName = `gunDB_${new Date().getTime()}.json`
-        // ANDROID
-        const permissions = await FileSystem.StorageAccessFramework.requestDirectoryPermissionsAsync()
-        if(permissions.granted){
-            let directoryUri = permissions.directoryUri
-            const exportableGunCollection:GunType[] = await Promise.all(gunCollection.map(async gun =>{
-                if(gun.images !== null && gun.images.length !== 0){
-                    const base64images:string[] = await Promise.all(gun.images?.map(async image =>{
-                        const base64string:string = await FileSystem.readAsStringAsync(`${FileSystem.documentDirectory}${image.split("/").pop()}`, { encoding: 'base64' });
-                        return base64string
-                    }))
-                    const exportableGun:GunType = {...gun, images: base64images}
-                    setImportProgress(importProgress+1)
-                    return exportableGun
-                } else {
-                    setImportProgress(importProgress+1)
-                    return gun
-                }
-            }))
-            let data = JSON.stringify(exportableGunCollection)
-            const fileUri = await FileSystem.StorageAccessFramework.createFileAsync(directoryUri, fileName, "application/json")
-            await FileSystem.writeAsStringAsync(fileUri, data, {encoding: FileSystem.EncodingType.UTF8})
+        const collectionSize = gunCollection.length-1
+        const cache = Dirs.CacheDir
+        try{
+            await fs.writeFile(`${cache}/${fileName}`, "[")
+        }catch(e){
+            alarm("saveGunDb createTempFile", e)
         }
-        /*
-        for iOS, use expo-share, Sharing.shareAsync(fileUri, fileNamea)
-        */
+        await Promise.all(gunCollection.map(async (gun, index) =>{
+            if(gun.images !== null && gun.images.length !== 0){
+                const base64images:string[] = await Promise.all(gun.images?.map(async image =>{
+                    const base64string:string = await FileSystem.readAsStringAsync(`${FileSystem.documentDirectory}${image.split("/").pop()}`, { encoding: 'base64' });
+                    return base64string
+                }))
+                const exportableGun:GunType = {...gun, images: base64images}
+                setImportProgress(importProgress+1)
+                try{
+                    await fs.appendFile(`${cache}/${fileName}`, JSON.stringify(exportableGun) + (collectionSize !== index ? ", " : ""))
+                }catch(e){
+                    alarm("saveGunDB appendExportableGun", e)
+                }
+            } else {
+                setImportProgress(importProgress+1)
+                try{
+                    await fs.appendFile(`${cache}/${fileName}`, JSON.stringify(gun) + (collectionSize !== index ? ", " : ""))
+                }catch(e){
+                    alarm("saveGunDB appendGun", e)
+                }
+            }
+        }))
+        try{
+            await fs.appendFile(`${cache}/${fileName}`, "]")
+        } catch(e){
+            alarm("saveGunDB finishTempFile", e)
+        }
+        try{
+            await fs.cpExternal(`${cache}/${fileName}`, fileName, "downloads")
+            
+        } catch(e){
+            alarm("saveGunDb moveTempFile", e)
+        }
+        try{
+            await fs.unlink(`${cache}/${fileName}`)
+        }catch(e){
+            alarm("saveGunDb unlinkTempFile", e)
+        }
     }
 
     async function handleSaveAmmoDb(){
         const fileName = `ammoDB_${new Date().getTime()}.json`
-        // ANDROID
-        const permissions = await FileSystem.StorageAccessFramework.requestDirectoryPermissionsAsync()
-        if(permissions.granted){
-            let directoryUri = permissions.directoryUri
-            const exportableAmmoCollection:AmmoType[] = await Promise.all(ammoCollection.map(async ammo =>{
-                if(ammo.images !== null && ammo.images.length !== 0){
-                    const base64images:string[] = await Promise.all(ammo.images?.map(async image =>{
-                        const base64string:string = await FileSystem.readAsStringAsync(`${FileSystem.documentDirectory}${image.split("/").pop()}`, { encoding: 'base64' });
-                        return base64string
-                    }))
-                    const exportableAmmo:AmmoType = {...ammo, images: base64images}
-                    setImportProgress(importProgress+1)
-                    return exportableAmmo
-                } else {
-                    setImportProgress(importProgress+1)
-                    return ammo
-                }
-            }))
-            let data = JSON.stringify(exportableAmmoCollection)
-            const fileUri = await FileSystem.StorageAccessFramework.createFileAsync(directoryUri, fileName, "application/json")
-            await FileSystem.writeAsStringAsync(fileUri, data, {encoding: FileSystem.EncodingType.UTF8})
+        const collectionSize = ammoCollection.length-1
+        const cache = Dirs.CacheDir
+        try{
+            await fs.writeFile(`${cache}/${fileName}`, "[")
+        }catch(e){
+            alarm("saveAmmoDb createTempFile", e)
         }
-        /*
-        for iOS, use expo-share, Sharing.shareAsync(fileUri, fileNamea)
-        */
+        await Promise.all(ammoCollection.map(async (ammo, index) =>{
+            if(ammo.images !== null && ammo.images.length !== 0){
+                const base64images:string[] = await Promise.all(ammo.images?.map(async image =>{
+                    const base64string:string = await FileSystem.readAsStringAsync(`${FileSystem.documentDirectory}${image.split("/").pop()}`, { encoding: 'base64' });
+                    return base64string
+                }))
+                const exportableAmmo:AmmoType = {...ammo, images: base64images}
+                setImportProgress(importProgress+1)
+                try{
+                    await fs.appendFile(`${cache}/${fileName}`, JSON.stringify(exportableAmmo) + (collectionSize !== index ? ", " : ""))
+                }catch(e){
+                    alarm("saveAmmoDb appendExportableAmmo", e)
+                }
+            } else {
+                setImportProgress(importProgress+1)
+                try{
+                    await fs.appendFile(`${cache}/${fileName}`, JSON.stringify(ammo) + (collectionSize !== index ? ", " : ""))
+                }catch(e){
+                    alarm("saveAmmoDb appendAmmo", e)
+                }
+            }
+        }))
+        try{
+            await fs.appendFile(`${cache}/${fileName}`, "]")
+        } catch(e){
+            alarm("saveAmmoDb finishTempFile", e)
+        }
+        try{
+            await fs.cpExternal(`${cache}/${fileName}`, fileName, "downloads")
+            
+        } catch(e){
+            alarm("saveAmmoDb moveTempFile", e)
+        }
+        try{
+            await fs.unlink(`${cache}/${fileName}`)
+        }catch(e){
+            alarm("saveAmmoDb unlinkTempFile", e)
+        }
     }
 
     async function handleImportGunDb(){
@@ -505,7 +593,11 @@ export default function MainMenu({navigation}){
         })
     
         await AsyncStorage.setItem(KEY_DATABASE, JSON.stringify(newKeys)) // Save the key object
-       
+        try{
+            await fs.unlink(result.assets[0].uri)
+        }catch(e){
+            alarm("importAmmoDB unlinkTempFile", e)
+        }
     }
 
     async function handleImportAmmoDb(){
@@ -595,6 +687,11 @@ export default function MainMenu({navigation}){
         })
     
         await AsyncStorage.setItem(A_KEY_DATABASE, JSON.stringify(newKeys)) // Save the key object
+        try{
+            await fs.unlink(result.assets[0].uri)
+        }catch(e){
+            alarm("importAmmoDB unlinkTempFile", e)
+        }
     }
 
     async function handleSwitchesAlert(setting:string){
