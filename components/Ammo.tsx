@@ -17,6 +17,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { defaultViewPadding } from '../configs';
 import { alarm } from '../utils';
 import * as Sharing from 'expo-sharing';
+import * as FileSystem from 'expo-file-system';
 
 
 export default function Ammo({navigation}){
@@ -96,7 +97,8 @@ export default function Ammo({navigation}){
     }
 
     async function handleShareImage(img:string){
-        await Sharing.shareAsync(img)
+        console.log(img)
+        await Sharing.shareAsync(img.includes(FileSystem.documentDirectory) ? img: `${FileSystem.documentDirectory}${img}`)
     }
 
 

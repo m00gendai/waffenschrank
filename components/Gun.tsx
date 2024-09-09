@@ -20,6 +20,7 @@ import { colord } from "colord";
 import { defaultViewPadding } from '../configs';
 import { GetColorName } from 'hex-color-to-color-name';
 import * as Sharing from 'expo-sharing';
+import * as FileSystem from 'expo-file-system';
 
 export default function Gun({navigation}){
 
@@ -99,7 +100,8 @@ export default function Gun({navigation}){
     }
 
     async function handleShareImage(img:string){
-        await Sharing.shareAsync(img)
+        console.log(img)
+        await Sharing.shareAsync(img.includes(FileSystem.documentDirectory) ? img: `${FileSystem.documentDirectory}${img}`)
     }
 
     function checkColor(color:string){
