@@ -184,6 +184,12 @@ function handleInputPress(){
     }
 
     function checkColor(color:string){
+        if(color === undefined){
+            return ""
+        }
+        if(color === null){
+            return ""
+        }
         if(color.length === 9){
             return color.substring(0,7)
         }
