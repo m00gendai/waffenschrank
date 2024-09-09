@@ -102,6 +102,7 @@ interface GeneralSettingsLabels{
     resizeImages: SimpleTranslation
     loginGuard: SimpleTranslation
     emptyFields: SimpleTranslation
+    caliberDisplayName: SimpleTranslation
 }
 
 interface ModalText{
@@ -1028,6 +1029,13 @@ export const generalSettingsLabels: GeneralSettingsLabels = {
         fr: "Masquer les champs vides dans les entrées",
         it: "Nascondere i campi vuoti nelle voci",
         ch: "Tschertgar champs vids en inscripziuns"
+    },
+    caliberDisplayName: {
+        de: "Kurze Kaliberbezeichnungen verwenden in Einträgen und PDF-Listen",
+        en: "Use short calibre designations in entries and PDF lists",
+        fr: "Utiliser des désignations de calibres courtes dans les entrées et les listes PDF",
+        it: "Usa etichette di calibro brevi nelle voci e nelle liste PDF",
+        ch: "Duvrar nums da caliber curts en inscripziuns e glistas da pdf"
     }
 }
 
