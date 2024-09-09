@@ -28,7 +28,7 @@ export default function Gun({navigation}){
     const [dialogVisible, toggleDialogVisible] = useState<boolean>(false)
 
     const { setSeeGunOpen, editGunOpen, setEditGunOpen, lightBoxOpen, setLightBoxOpen } = useViewStore()
-    const { language, theme, generalSettings } = usePreferenceStore()
+    const { language, theme, generalSettings, caliberDisplayNameList } = usePreferenceStore()
     const { currentGun, setCurrentGun, gunCollection, setGunCollection} = useGunStore()
 
     const [iosWarning, toggleiosWarning] = useState<boolean>(false)
@@ -111,7 +111,15 @@ export default function Gun({navigation}){
         return color
     }
 
-    console.log(currentGun)
+    function getShortCaliberName(calibers:string[]){
+        const outputArray = calibers.map(item => {
+            // Find an object where displayName matches the item
+            const match = caliberDisplayNameList.find(obj => obj.name === item)
+            // If a match is found, return the displayName, else return the original item
+            return match ? match.displayName : item;
+        });
+        return outputArray
+    }
 
     return(
         <View style={{flex: 1}}>
@@ -162,9 +170,23 @@ export default function Gun({navigation}){
                                     <View key={`${item.name}`} style={{flex: 1, flexDirection: "column"}} >
                                         <Text style={{width: "100%", fontSize: 12,}}>{`${item[language]}:`}</Text>
                                         {Array.isArray(currentGun[item.name]) ?
-                                        <Text style={{width: "100%", fontSize: 18, marginBottom: 5, paddingBottom: 5, borderBottomColor: theme.colors.primary, borderBottomWidth: 0.2}}>{currentGun[item.name] ? currentGun[item.name].join("\n") : ""}</Text>
+                                        <Text style={{width: "100%", fontSize: 18, marginBottom: 5, paddingBottom: 5, borderBottomColor: theme.colors.primary, borderBottomWidth: 0.2}}>
+                                            {currentGun[item.name] 
+                                                ? item.name === "caliber" 
+                                                    ? generalSettings.caliberDisplayName 
+                                                        ? getShortCaliberName(currentGun.caliber).join("\n") 
+                                                        : currentGun.caliber.join("\n")
+                                                    : currentGun[item.name]
+                                                : ""}
+                                        </Text>
                                         :
-                                        <Text style={{width: "100%", fontSize: 18, marginBottom: 5, paddingBottom: 5, borderBottomColor: theme.colors.primary, borderBottomWidth: 0.2}}>{item.name === "mainColor" ?  currentGun.mainColor ? GetColorName(`${checkColor(currentGun.mainColor).split("#")[1]}`) : "" : item.name === "paidPrice" ? `CHF ${currentGun[item.name] ? currentGun[item.name] :  ""}` : item.name === "marketValue" ? `CHF ${currentGun[item.name] ? currentGun[item.name] : ""}` : item.name === "cleanInterval" && cleanIntervals[currentGun[item.name]] !== undefined ? cleanIntervals[currentGun[item.name]][language] : currentGun[item.name]}</Text>
+                                        <Text style={{width: "100%", fontSize: 18, marginBottom: 5, paddingBottom: 5, borderBottomColor: theme.colors.primary, borderBottomWidth: 0.2}}>
+                                            {item.name === "mainColor" ?  
+                                                currentGun.mainColor ? GetColorName(`${checkColor(currentGun.mainColor).split("#")[1]}`) : "" 
+                                            : item.name === "paidPrice" ? `CHF ${currentGun[item.name] ? currentGun[item.name] :  ""}` 
+                                            : item.name === "marketValue" ? `CHF ${currentGun[item.name] ? currentGun[item.name] : ""}` 
+                                            : item.name === "cleanInterval" && cleanIntervals[currentGun[item.name]] !== undefined ? cleanIntervals[currentGun[item.name]][language]
+                                            : currentGun[item.name]}</Text>
                                         }
                                         {item.name === "lastCleanedAt" && checkDate(currentGun) ? 
                                             <View style={{position:"absolute", top: 0, right: 0, bottom: 0, left: 0, display: "flex", flexDirection: "row", justifyContent: "flex-end", alignItems: "center"}}>
@@ -186,7 +208,15 @@ export default function Gun({navigation}){
                                 <View key={`${item.name}`} style={{flex: 1, flexDirection: "column"}} >
                                     <Text style={{width: "100%", fontSize: 12,}}>{`${item[language]}:`}</Text>
                                     {Array.isArray(currentGun[item.name]) ?
-                                    <Text style={{width: "100%", fontSize: 18, marginBottom: 5, paddingBottom: 5, borderBottomColor: theme.colors.primary, borderBottomWidth: 0.2}}>{currentGun[item.name] ? currentGun[item.name].join("\n") : ""}</Text>
+                                    <Text style={{width: "100%", fontSize: 18, marginBottom: 5, paddingBottom: 5, borderBottomColor: theme.colors.primary, borderBottomWidth: 0.2}}>
+                                       {currentGun[item.name] 
+                                        ? item.name === "caliber" 
+                                            ? generalSettings.caliberDisplayName 
+                                                ? getShortCaliberName(currentGun.caliber).join("\n") 
+                                                : currentGun.caliber.join("\n")
+                                            : currentGun[item.name]
+                                        : ""}
+                                    </Text>
                                     :
                                     <Text style={{width: "100%", fontSize: 18, marginBottom: 5, paddingBottom: 5, borderBottomColor: theme.colors.primary, borderBottomWidth: 0.2}}>{item.name === "mainColor" ?  currentGun.mainColor ? GetColorName(`${checkColor(currentGun.mainColor).split("#")[1]}`) : "" : item.name === "paidPrice" ? `CHF ${currentGun[item.name] ? currentGun[item.name] : ""}` : item.name === "marketValue" ? `CHF ${currentGun[item.name] ? currentGun[item.name] : ""}` : item.name === "cleanInterval" && currentGun[item.name] !== undefined ? cleanIntervals[currentGun[item.name]][language] : currentGun[item.name]}</Text>
                                     }

@@ -26,7 +26,7 @@ export default function Ammo({navigation}){
     const [dialogVisible, toggleDialogVisible] = useState<boolean>(false)
 
     const { setSeeAmmoOpen, editAmmoOpen, setEditAmmoOpen, lightBoxOpen, setLightBoxOpen } = useViewStore()
-    const { language, theme, generalSettings } = usePreferenceStore()
+    const { language, theme, generalSettings, caliberDisplayNameList } = usePreferenceStore()
     const { currentAmmo, setCurrentAmmo, ammoCollection, setAmmoCollection } = useAmmoStore()
 
     const [iosWarning, toggleiosWarning] = useState<boolean>(false)
@@ -101,6 +101,11 @@ export default function Ammo({navigation}){
         await Sharing.shareAsync(img.includes(FileSystem.documentDirectory) ? img: `${FileSystem.documentDirectory}${img}`)
     }
 
+    function getShortCaliberName(caliber:string){
+        const match = caliberDisplayNameList.find(obj => obj.name === caliber)
+        // If a match is found, return the displayName, else return the original item
+        return match ? match.displayName : caliber;
+    }
 
     return(
         <View style={{flex: 1}}>
@@ -150,14 +155,30 @@ export default function Ammo({navigation}){
                                 return(
                                     <View key={`${item.name}`} style={{flex: 1, flexDirection: "column"}} >
                                         <Text style={{width: "100%", fontSize: 12,}}>{`${item[language]}:`}</Text>
-                                        <Text style={{width: "100%", fontSize: 18, marginBottom: 5, paddingBottom: 5, borderBottomColor: theme.colors.primary, borderBottomWidth: 0.2}}>{currentAmmo[item.name]}</Text>
+                                        <Text style={{width: "100%", fontSize: 18, marginBottom: 5, paddingBottom: 5, borderBottomColor: theme.colors.primary, borderBottomWidth: 0.2}}>
+                                        {currentAmmo[item.name] 
+                                                ? item.name === "caliber" 
+                                                    ? generalSettings.caliberDisplayName 
+                                                        ? getShortCaliberName(currentAmmo.caliber)
+                                                        : currentAmmo.caliber
+                                                    : currentAmmo[item.name]
+                                                : ""}
+                                        </Text>
                                     </View>
                                 )
                             } else if(currentAmmo[item.name] !== null && currentAmmo[item.name] !== undefined && currentAmmo[item.name] !== "" && currentAmmo[item.name].length !== 0){
                             return(
                                 <View key={`${item.name}`} style={{flex: 1, flexDirection: "column"}} >
                                     <Text style={{width: "100%", fontSize: 12,}}>{`${item[language]}:`}</Text>
-                                    <Text style={{width: "100%", fontSize: 18, marginBottom: 5, paddingBottom: 5, borderBottomColor: theme.colors.primary, borderBottomWidth: 0.2}}>{currentAmmo[item.name]}</Text>
+                                    <Text style={{width: "100%", fontSize: 18, marginBottom: 5, paddingBottom: 5, borderBottomColor: theme.colors.primary, borderBottomWidth: 0.2}}>
+                                    {currentAmmo[item.name] 
+                                                ? item.name === "caliber" 
+                                                    ? generalSettings.caliberDisplayName 
+                                                        ? getShortCaliberName(currentAmmo.caliber)
+                                                        : currentAmmo.caliber
+                                                    : currentAmmo[item.name]
+                                                : ""}
+                                    </Text>
                                 </View>
                             )
                             }
