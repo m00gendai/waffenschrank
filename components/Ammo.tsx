@@ -90,7 +90,7 @@ export default function Ammo({navigation}){
     function handlePrintPress(){
         toggleiosWarning(false)
         try{
-            printSingleAmmo(currentAmmo, language)
+            printSingleAmmo(currentAmmo, language, generalSettings.caliberDisplayName, caliberDisplayNameList)
         }catch(e){
             alarm("Print Single Ammo Error", e)
         }
