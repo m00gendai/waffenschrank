@@ -2,7 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useEffect, useRef, useState } from 'react';
 import { FlatList, View } from 'react-native';
 import { Appbar, FAB, Menu, Switch, Text, Tooltip, Searchbar } from 'react-native-paper';
-import { defaultBottomBarHeight, defaultGridGap, defaultViewPadding } from '../configs';
+import { defaultBottomBarHeight, defaultGridGap, defaultSearchBarHeight, defaultViewPadding } from '../configs';
 import { PREFERENCES } from "../configs_DB"
 import { AmmoType, MenuVisibility, SortingTypes } from '../interfaces';
 import { getIcon, doSortBy } from '../utils';
@@ -21,11 +21,9 @@ export default function AmmoCollection({navigation, route}){
   // Todo: Stricter typing ("stringA" | "stringB" instead of just string)
 
   const [menuVisibility, setMenuVisibility] = useState<MenuVisibility>({sortBy: false, filterBy: false});
-  const [searchBannerVisible, toggleSearchBannerVisible] = useState<boolean>(false)
-  const [searchQuery, setSearchQuery] = useState<string>("")
 
   const { displayAmmoAsGrid, toggleDisplayAmmoAsGrid, sortAmmoBy, setSortAmmoBy, language, theme, sortAmmoIcon, setSortAmmoIcon, sortAmmoAscending, toggleSortAmmoAscending } = usePreferenceStore()
-  const { mainMenuOpen } = useViewStore()
+  const { mainMenuOpen, ammoSearchVisible, toggleAmmoSearchVisible, searchQueryAmmoCollection, setSearchQueryAmmoCollection } = useViewStore()
   const { ammoCollection, setAmmoCollection, currentAmmo, setCurrentAmmo } = useAmmoStore()
   const { ammo_tags } = useTagStore()
   const [isFilterOn, setIsFilterOn] = useState<boolean>(false);
@@ -119,25 +117,26 @@ export default function AmmoCollection({navigation, route}){
   },[boxes, isFilterOn])
 
   function handleSearch(){
-    !searchBannerVisible ? startAnimation() : endAnimation()
-    if(searchBannerVisible){
-      setSearchQuery("")
+    !ammoSearchVisible ? startAnimation() : endAnimation()
+    if(ammoSearchVisible){
+      setSearchQueryAmmoCollection("")
     }
     setTimeout(function(){
-      toggleSearchBannerVisible(!searchBannerVisible)
-    }, searchBannerVisible ? 400 : 50)
+      toggleAmmoSearchVisible()
+    }, ammoSearchVisible ? 400 : 50)
   }
 
-  const height = useSharedValue(0);
+  const height = useSharedValue(ammoSearchVisible ? defaultSearchBarHeight : 0);
 
   const animatedStyle = useAnimatedStyle(() => {
+
     return {
       height: height.value,
     };
   });
 
   const startAnimation = () => {
-    height.value = withTiming(56, { duration: 500 }); // 500 ms duration
+    height.value = withTiming(defaultSearchBarHeight, { duration: 500 }); // 500 ms duration
   };
 
   const endAnimation = () => {
@@ -197,7 +196,7 @@ export default function AmmoCollection({navigation, route}){
           <Appbar.Action icon={sortAmmoAscending ? "arrow-up" : "arrow-down"} onPress={() => handleSortOrder()} />
         </View>
       </Appbar>
-      <Animated.View style={[{paddingLeft: defaultViewPadding, paddingRight: defaultViewPadding}, animatedStyle]}>{searchBannerVisible ? <Searchbar placeholder={search[language]} onChangeText={setSearchQuery} value={searchQuery} /> : null}</Animated.View>
+      <Animated.View style={[{paddingLeft: defaultViewPadding, paddingRight: defaultViewPadding}, animatedStyle]}>{ammoSearchVisible ? <Searchbar placeholder={search[language]} onChangeText={setSearchQueryAmmoCollection} value={searchQueryAmmoCollection} /> : null}</Animated.View>
       {displayAmmoAsGrid ? 
         <FlatList 
           numColumns={2} 
@@ -206,7 +205,7 @@ export default function AmmoCollection({navigation, route}){
           columnWrapperStyle={{gap: defaultGridGap}} 
           key={`ammoCollectionGrid`} 
           style={{height: "100%", width: "100%", paddingTop: defaultViewPadding, paddingLeft: defaultViewPadding, paddingRight: defaultViewPadding, paddingBottom: 50}} 
-          data={searchQuery !== "" ? ammoList.filter(item => item.manufacturer.toLowerCase().replaceAll(".", "").replaceAll(" ", "").includes(searchQuery.toLowerCase()) || item.designation.toLowerCase().replaceAll(".", "").replaceAll(" ", "").includes(searchQuery.toLowerCase()) || item.caliber.toLowerCase().replaceAll(".", "").replaceAll(" ", "").includes(searchQuery.toLowerCase())) : ammoList} 
+          data={searchQueryAmmoCollection !== "" ? ammoList.filter(item => item.manufacturer.toLowerCase().replaceAll(".", "").replaceAll(" ", "").includes(searchQueryAmmoCollection.toLowerCase()) || item.designation.toLowerCase().replaceAll(".", "").replaceAll(" ", "").includes(searchQueryAmmoCollection.toLowerCase()) || item.caliber.toLowerCase().replaceAll(".", "").replaceAll(" ", "").includes(searchQueryAmmoCollection.toLowerCase())) : ammoList} 
           renderItem={({item, index}) => <AmmoCard ammo={item} />}                     
           keyExtractor={ammo=>ammo.id} 
           ListFooterComponent={<View style={{width: "100%", height: 100}}></View>}
@@ -219,7 +218,7 @@ export default function AmmoCollection({navigation, route}){
           contentContainerStyle={{gap: defaultGridGap}}
           key={`ammoCollectionList`} 
           style={{height: "100%", width: "100%", paddingTop: defaultViewPadding, paddingLeft: defaultViewPadding, paddingRight: defaultViewPadding, paddingBottom: 50}} 
-          data={searchQuery !== "" ? ammoList.filter(item => item.manufacturer.toLowerCase().replaceAll(".", "").replaceAll(" ", "").includes(searchQuery.toLowerCase()) || item.designation.toLowerCase().replaceAll(".", "").replaceAll(" ", "").includes(searchQuery.toLowerCase()) || item.caliber.toLowerCase().replaceAll(".", "").replaceAll(" ", "").includes(searchQuery.toLowerCase())) : ammoList} 
+          data={searchQueryAmmoCollection !== "" ? ammoList.filter(item => item.manufacturer.toLowerCase().replaceAll(".", "").replaceAll(" ", "").includes(searchQueryAmmoCollection.toLowerCase()) || item.designation.toLowerCase().replaceAll(".", "").replaceAll(" ", "").includes(searchQueryAmmoCollection.toLowerCase()) || item.caliber.toLowerCase().replaceAll(".", "").replaceAll(" ", "").includes(searchQueryAmmoCollection.toLowerCase())) : ammoList} 
           renderItem={({item, index}) => <AmmoCard ammo={item} />}      
           keyExtractor={gun=>gun.id} 
           ListFooterComponent={<View style={{width: "100%", height: 100}}></View>}
