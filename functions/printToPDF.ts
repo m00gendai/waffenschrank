@@ -63,6 +63,27 @@ const getTranslation = (key: string, language: string): string => {
     return data ? data[language] : remarks ? remarks : boxes ? boxes[language] : tags ? tags : key;
   };
 
+  function getShortCaliberNameFromArray(calibers:string[], displayNames:{name:string, displayName:string}[], shortCaliber: boolean){
+    if(!shortCaliber){
+      return calibers
+    }
+    const outputArray = calibers.map(item => {
+        // Find an object where displayName matches the item
+        const match = displayNames.find(obj => obj.name === item)
+        // If a match is found, return the displayName, else return the original item
+        return match ? match.displayName : item;
+    });
+    return outputArray
+}
+
+function getShortCaliberNameFromString(calibers:string, displayNames:{name:string, displayName:string}[], shortCaliber: boolean){
+  if(!shortCaliber){
+    return calibers
+  }
+  const match = displayNames.find(obj => obj.name === calibers)
+  return match ? match.displayName : calibers;
+}
+
   const commonStyles:CommonStyles={
     allPageMargin: "15mm",
     allPageMarginIOS: Math.ceil(15*2.83465),
@@ -84,7 +105,7 @@ const getTranslation = (key: string, language: string): string => {
   }
   
 
-export async function printSingleGun(gun:GunType, language: string){
+export async function printSingleGun(gun:GunType, language: string, shortCaliber: boolean, caliberDisplayNameList: {name:string, displayName:string}[]){
 
     let imgs: null | string[] = null
     if(gun.images && gun.images.length !== 0){
@@ -121,7 +142,7 @@ export async function printSingleGun(gun:GunType, language: string){
         <table>
             <tbody>
                 ${Object.entries(gun).map(entry =>{
-                    return excludedKeys.includes(entry[0]) ? null :`<tr><td><strong>${getTranslation(entry[0], language)}</strong></td><td>${entry[1]}</td></tr>`
+                    return excludedKeys.includes(entry[0]) ? null :`<tr><td><strong>${getTranslation(entry[0], language)}</strong></td><td class=${entry[0] === "caliber" ? "whitespace" : ""}>${entry[0] === "caliber" ? getShortCaliberNameFromArray(entry[1], caliberDisplayNameList, shortCaliber).join("\n") : entry[1]}</td></tr>`
                 }).join("")}
             </tbody>
         </table>
@@ -241,6 +262,9 @@ export async function printSingleGun(gun:GunType, language: string){
         width: 100%;
         white-space: pre-wrap;
     }
+    .whitespace{
+      white-space: pre-wrap;
+    }
     .footer{
       position: fixed;
       bottom: 0;
@@ -282,7 +306,7 @@ export async function printSingleGun(gun:GunType, language: string){
       
 }
 
-export async function printSingleAmmo(ammo:AmmoType, language: string){
+export async function printSingleAmmo(ammo:AmmoType, language: string, shortCaliber: boolean, caliberDisplayNameList: {name:string, displayName:string}[]){
 
   let imgs: null | string[] = null
   if(ammo.images && ammo.images.length !== 0){
@@ -319,7 +343,7 @@ export async function printSingleAmmo(ammo:AmmoType, language: string){
           <tbody>
               ${Object.entries(ammo).map(entry =>{
                   
-                  return excludedKeys.includes(entry[0]) ? null :`<tr><td><strong>${getTranslationAmmo(entry[0], language)}</strong></td><td>${entry[1]}</td></tr>`
+                  return excludedKeys.includes(entry[0]) ? null :`<tr><td><strong>${getTranslationAmmo(entry[0], language)}</strong></td><td>${entry[0] === "caliber" ? getShortCaliberNameFromString(entry[1], caliberDisplayNameList, shortCaliber) : entry[1]}</td></tr>`
               }).join("")}
           </tbody>
       </table>
@@ -666,7 +690,7 @@ return(
     
 }
 
-export async function printGunCollection(guns:GunType[], language: string){
+export async function printGunCollection(guns:GunType[], language: string, shortCaliber: boolean, caliberDisplayNameList: {name:string, displayName:string}[]){
 console.log("HELLO THIS IS GUN COLLECTION")
   const date:Date = new Date()
   const dateOptions:Intl.DateTimeFormatOptions = {
@@ -695,7 +719,7 @@ console.log("HELLO THIS IS GUN COLLECTION")
         </thead>
           <tbody>
               ${guns.map(gun =>{
-                return `<tr>${gunDataTemplate.map(data=>{return data.name in gun && !excludedKeys.includes(data.name) ? `<td>${gun[data.name]}</td>` : !(data.name in gun) && !excludedKeys.includes(data.name) ? `<td></td>`: null}).join("")}</tr>`}).join("")}
+                return `<tr>${gunDataTemplate.map(data=>{return data.name in gun && !excludedKeys.includes(data.name) ? `<td class=${data.name === "caliber" ? "whitespace" : ""}>${data.name === "caliber" ? getShortCaliberNameFromArray(gun[data.name], caliberDisplayNameList, shortCaliber).join(",\n") : gun[data.name]}</td>` : !(data.name in gun) && !excludedKeys.includes(data.name) ? `<td></td>`: null}).join("")}</tr>`}).join("")}
           </tbody>
       </table>
     </div>
@@ -811,7 +835,7 @@ console.log("HELLO THIS IS GUN COLLECTION")
   }    
 }
 
-export async function printGunCollectionArt5(guns:GunType[], language: string){
+export async function printGunCollectionArt5(guns:GunType[], language: string, shortCaliber: boolean, caliberDisplayNameList: {name:string, displayName:string}[]){
 console.log("HELLO THIS IS GUN COLLECTION ART 5")
   const date:Date = new Date()
   const dateOptions:Intl.DateTimeFormatOptions = {
@@ -842,7 +866,7 @@ console.log("HELLO THIS IS GUN COLLECTION ART 5")
           <tbody>
               ${guns.map(gun =>{
                 if(gun.status !== undefined && Object.entries(gun.status).some(stat => stat[1] === true)){
-                  return `<tr>${gunDataTemplate.map(data=>{return data.name in gun && !excludedKeys.includes(data.name) ? `<td class=${data.name === "caliber" ? "whitespace" : ""}>${data.name === "caliber" && data.name !== undefined && data.name !== null && gun[data.name].length !== 0 ? gun[data.name].map(dat => `${dat}`).join("\n") : gun[data.name]}</td>` : !(data.name in gun) && !excludedKeys.includes(data.name) ? `<td></td>`: null}).join("")}${checkBoxes.map(box => {return gun.status[box.name] === true ? `<td class="xcell">X</td>` : `<td class="hidden"> </td>` }).join("")}</tr>`
+                  return `<tr>${gunDataTemplate.map(data=>{return data.name in gun && !excludedKeys.includes(data.name) ? `<td class=${data.name === "caliber" ? "whitespace" : ""}>${data.name === "caliber" ? getShortCaliberNameFromArray(gun[data.name], caliberDisplayNameList, shortCaliber).join(",\n") : gun[data.name]}</td>` : !(data.name in gun) && !excludedKeys.includes(data.name) ? `<td></td>`: null}).join("")}${checkBoxes.map(box => {return gun.status[box.name] === true ? `<td class="xcell">X</td>` : `<td class="hidden"> </td>` }).join("")}</tr>`
                 }
               }).join("")
             }
@@ -1150,7 +1174,7 @@ export async function printGunGallery(guns:GunType[], language: string){
       });
 }
 
-export async function printAmmoCollection(ammunition:AmmoType[], language: string){
+export async function printAmmoCollection(ammunition:AmmoType[], language: string, shortCaliber: boolean, caliberDisplayNameList: {name:string, displayName:string}[]){
 console.log("HELLO THIS IS AMMO COLLECTION")
   const date:Date = new Date()
   const dateOptions:Intl.DateTimeFormatOptions = {
@@ -1179,7 +1203,7 @@ console.log("HELLO THIS IS AMMO COLLECTION")
         </thead>
           <tbody>
               ${ammunition.map(ammo =>{
-                return `<tr>${ammoDataTemplate.map(data=>{return data.name in ammo && !excludedKeys.includes(data.name) ? `<td>${ammo[data.name]}</td>` : !(data.name in ammo) && !excludedKeys.includes(data.name) ? `<td></td>`: null}).join("")}</tr>`}).join("")}
+                return `<tr>${ammoDataTemplate.map(data=>{return data.name in ammo && !excludedKeys.includes(data.name) ? `<td>${data.name === "caliber" ? getShortCaliberNameFromString(ammo[data.name], caliberDisplayNameList, shortCaliber) : ammo[data.name]}` : !(data.name in ammo) && !excludedKeys.includes(data.name) ? `<td></td>`: null}).join("")}</tr>`}).join("")}
           </tbody>
       </table>
     </div>
@@ -1247,9 +1271,6 @@ console.log("HELLO THIS IS AMMO COLLECTION")
  }
  .hidden{
    color: transparent;
- }
- .whitespace{
-   white-space: pre-wrap;
  }
  .footer{
      position: fixed;

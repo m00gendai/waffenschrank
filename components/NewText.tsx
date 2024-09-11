@@ -1,4 +1,4 @@
-import { IconButton, List, Surface, TextInput, Text, Badge, Portal, Modal, RadioButton, Divider, Button, Searchbar } from 'react-native-paper';
+import { IconButton, List, Surface, TextInput, Text, Badge, Portal, Modal, RadioButton, Divider, Button, Searchbar, Chip } from 'react-native-paper';
 import { useState } from 'react';
 import { GunType, AmmoType } from '../interfaces';
 import { TouchableNativeFeedback, View, ScrollView, Pressable, Platform, Keyboard } from 'react-native';
@@ -35,7 +35,7 @@ export default function NewText({data, gunData, setGunData, ammoData, setAmmoDat
     const [activeCaliber, setActiveCaliber] = useState<string[]>(gunData && data === "caliber" && gunData[data] !== undefined ? gunData[data] : ammoData && data === "caliber" && ammoData[data] !== undefined ? [ammoData[data]] : [])
     const [cleanInterval, setCleanInterval] = useState<string | null>(null)
     const [checked, setChecked] = useState<string>("-")
-    const [caliberView, setCaliberView] = useState<"search" | "list">("list")
+    const [caliberView, setCaliberView] = useState<"search" | "list">("search")
 
     const { language, theme } = usePreferenceStore()
     const { currentGun } = useGunStore()
@@ -184,6 +184,12 @@ function handleInputPress(){
     }
 
     function checkColor(color:string){
+        if(color === undefined){
+            return ""
+        }
+        if(color === null){
+            return ""
+        }
         if(color.length === 9){
             return color.substring(0,7)
         }
@@ -273,11 +279,54 @@ function handleInputPress(){
                 setVisible={setShowModalCaliber}
                 content={<List.Section style={{width: "100%", flexDirection: "column", height: "100%"}}>
                     <ScrollView style={{height: "20%", width: "100%", backgroundColor: theme.colors.background}}>
-                    <Text variant="titleMedium" style={{color: theme.colors.primary, padding: defaultViewPadding}}>{`${Array.isArray(activeCaliber) && activeCaliber.length !== 0 ? activeCaliber.join("\n") : caliberPickerStrings.caliberSelection[language]}`}</Text>
+                        {Array.isArray(activeCaliber) && activeCaliber.length !== 0 ? 
+                            activeCaliber.map((cal, index) => {return <View key={cal} style={{paddingTop: index === 0 ? defaultViewPadding : 0, paddingLeft: defaultViewPadding, paddingRight: defaultViewPadding, paddingBottom: defaultViewPadding/2}}><Chip onClose={()=>{console.log(cal);handleCaliberItemSelect(cal)}}>{cal}</Chip></View>}) 
+                            : <Text>{`${caliberPickerStrings.caliberSelection[language]}`}</Text>
+                        }
                </ScrollView>
                <View style={{height: "10%", display: "flex", flexDirection: "row", justifyContent: "space-between", padding: defaultViewPadding}}>
-                    <TouchableNativeFeedback onPress={()=>setCaliberView("list")}><View style={{borderTopLeftRadius: 15, borderBottomLeftRadius: 15, position: "relative", width: "50%", height: "100%", backgroundColor: caliberView === "list" ? theme.colors.primary : "transparent", borderWidth: 1, borderColor: caliberView === "search" ? theme.colors.primary : "transparent", display: "flex", justifyContent: "flex-start", flexDirection: "row", alignItems: "center", paddingLeft: defaultViewPadding}}><Text style={{color: caliberView === "list" ? theme.colors.onPrimary : theme.colors.onBackground}}>{caliberPickerStrings.tabList[language]}</Text></View></TouchableNativeFeedback>
-                    <TouchableNativeFeedback onPress={()=>setCaliberView("search")}><View style={{borderTopRightRadius: 15, borderBottomRightRadius: 15, position: "relative", width: "50%", height: "100%", backgroundColor: caliberView === "search" ? theme.colors.primary : "transparent", borderWidth: 1, borderColor: caliberView === "list" ? theme.colors.primary : "transparent", display: "flex", justifyContent: "flex-end", flexDirection: "row", alignItems: "center", paddingRight: defaultViewPadding}}><Text style={{color: caliberView === "search" ? theme.colors.onPrimary : theme.colors.onBackground}}>{caliberPickerStrings.tabSearch[language]}</Text></View></TouchableNativeFeedback>
+                    <TouchableNativeFeedback onPress={()=>setCaliberView("search")}>
+                        <View style={{
+                            borderTopLeftRadius: 15, 
+                            borderBottomLeftRadius: 15, 
+                            position: "relative", 
+                            width: "50%", 
+                            height: "100%", 
+                            backgroundColor: caliberView === "search" ? theme.colors.primary : "transparent", 
+                            borderWidth: 1, 
+                            borderColor: caliberView === "list" ? theme.colors.primary : "transparent", 
+                            display: "flex", 
+                            justifyContent: "flex-start", 
+                            flexDirection: "row", 
+                            alignItems: "center", 
+                            paddingLeft: defaultViewPadding
+                        }}>
+                            <Text style={{color: caliberView === "search" ? theme.colors.onPrimary : theme.colors.onBackground}}>
+                                {caliberPickerStrings.tabSearch[language]}
+                            </Text>
+                        </View>
+                    </TouchableNativeFeedback>
+                    <TouchableNativeFeedback onPress={()=>setCaliberView("list")}>
+                        <View style={{
+                            borderTopRightRadius: 15, 
+                            borderBottomRightRadius: 15, 
+                            position: "relative", 
+                            width: "50%", 
+                            height: "100%", 
+                            backgroundColor: caliberView === "list" ? theme.colors.primary : "transparent", 
+                            borderWidth: 1, 
+                            borderColor: caliberView === "search" ? theme.colors.primary : "transparent", 
+                            display: "flex", 
+                            justifyContent: "flex-end", 
+                            flexDirection: "row", 
+                            alignItems: "center", 
+                            paddingRight: defaultViewPadding
+                        }}>
+                            <Text style={{color: caliberView === "list" ? theme.colors.onPrimary : theme.colors.onBackground}}>
+                                {caliberPickerStrings.tabList[language]}
+                            </Text>
+                        </View>
+                    </TouchableNativeFeedback>
                 </View>
                 {caliberView === "list" ?
                 <ScrollView style={{height: "70%", width: "100%", backgroundColor: "yellow"}}>
@@ -314,7 +363,7 @@ function handleInputPress(){
                 <ScrollView>
                 {calibers.map((caliber, index) =>{
                         return caliber.variants.map((variant, index)=>{
-                            if(variant.name.toLowerCase().replaceAll(".", "").replaceAll(" ", "").includes(caliberQuery.toLowerCase())){
+                            if(variant.name.toLowerCase().replaceAll(".", "").replaceAll(" ", "").includes(caliberQuery.toLowerCase().replaceAll(".", "").replaceAll(" ", ""))){
                             return(
                                 <List.Item key={`${variant.name}_${index}`} title={variant.name} titleStyle={{color: activeCaliber !== undefined && activeCaliber !== null && activeCaliber.length !== 0 && activeCaliber.includes(variant.name) ? theme.colors.onTertiary : theme.colors.onTertiaryContainer}} onPress={()=>handleCaliberItemSelect(variant.name)} style={{backgroundColor: activeCaliber.includes(variant.name) ? theme.colors.tertiary : "transparent"}}/>
                             )}

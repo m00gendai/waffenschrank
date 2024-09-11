@@ -36,7 +36,7 @@ import { Dirs, Util, FileSystem as fs } from 'react-native-file-access';
 export default function MainMenu({navigation}){
 
     const { setMainMenuOpen, toastVisible, setToastVisible, dbModalVisible, setDbModalVisible, imageResizeVisible, toggleImageResizeVisible, loginGuardVisible, toggleLoginGuardVisible, importCSVVisible, toggleImportCSVVisible, importModalVisible, toggleImportModalVisible } = useViewStore()
-    const { language, switchLanguage, theme, switchTheme, setDbImport, setAmmoDbImport, generalSettings, setGeneralSettings } = usePreferenceStore()
+    const { language, switchLanguage, theme, switchTheme, setDbImport, setAmmoDbImport, generalSettings, setGeneralSettings, caliberDisplayNameList } = usePreferenceStore()
     const { gunCollection, setGunCollection } = useGunStore()
     const { ammoCollection, setAmmoCollection } = useAmmoStore()
     const { overWriteAmmoTags, overWriteTags} = useTagStore()
@@ -720,6 +720,7 @@ export default function MainMenu({navigation}){
     async function handleSwitches(setting: string){
         const newSettings = {...generalSettings, [setting]: !generalSettings[setting]}
             setGeneralSettings(newSettings)
+            console.log(newSettings)
             const preferences:string = await AsyncStorage.getItem(PREFERENCES)
             const newPreferences:{[key:string] : string} = preferences == null ? {"generalSettings": newSettings} : {...JSON.parse(preferences), "generalSettings": newSettings} 
             await AsyncStorage.setItem(PREFERENCES, JSON.stringify(newPreferences))
@@ -885,7 +886,7 @@ export default function MainMenu({navigation}){
             case "gunCollection":
                 try{
                     console.log("Im printing gun collection!")
-                await printGunCollection(gunCollection, language);
+                await printGunCollection(gunCollection, language, generalSettings.caliberDisplayName, caliberDisplayNameList);
                 return
                 } catch(e){
                     alarm("printGunCollection Error", e)
@@ -893,7 +894,7 @@ export default function MainMenu({navigation}){
             case "gunCollectionArt5":
                 try{
                     console.log("Im printing gun collection art 5!")
-                   await printGunCollectionArt5(gunCollection, language);
+                   await printGunCollectionArt5(gunCollection, language, generalSettings.caliberDisplayName, caliberDisplayNameList);
                     return
                 } catch(e){
                     alarm("printGunCollectioNArt5 Error", e)
@@ -901,7 +902,7 @@ export default function MainMenu({navigation}){
             case "ammoCollection":
                 try{
                     console.log("Im printing ammo collection!")
-                   await printAmmoCollection(ammoCollection, language);
+                   await printAmmoCollection(ammoCollection, language, generalSettings.caliberDisplayName, caliberDisplayNameList);
                     return
                 } catch(e){
                     alarm("printAmmoCollection Error", e)
@@ -1103,6 +1104,11 @@ export default function MainMenu({navigation}){
                                             <View style={{display: "flex", flexWrap: "nowrap", justifyContent: "space-between", alignItems: "center", flexDirection: "row", width: "100%"}}>
                                                 <Text style={{flex: 7}}>{generalSettingsLabels.emptyFields[language]}</Text>
                                                 <Switch style={{flex: 3}} value={generalSettings.emptyFields} onValueChange={()=>handleSwitches("emptyFields")} />
+                                            </View>
+                                            <Divider style={{width: "100%", borderWidth: 0.5, borderColor: theme.colors.onSecondary}} />
+                                            <View style={{display: "flex", flexWrap: "nowrap", justifyContent: "space-between", alignItems: "center", flexDirection: "row", width: "100%"}}>
+                                                <Text style={{flex: 7}}>{generalSettingsLabels.caliberDisplayName[language]}</Text>
+                                                <Switch style={{flex: 3}} value={generalSettings.caliberDisplayName} onValueChange={()=>handleSwitches("caliberDisplayName")} />
                                             </View>
                                             <Divider style={{width: "100%", borderWidth: 0.5, borderColor: theme.colors.onSecondary}} />
                                             <View style={{display: "flex", flexWrap: "nowrap", justifyContent: "space-between", alignItems: "center", flexDirection: "row", width: "100%"}}>

@@ -1,4 +1,12 @@
-export const calibers:{range:string, variants: {name: string}[]}[] = [
+interface Caliber{
+    range: string
+    variants: {
+        name: string
+        displayName?: string
+    }[]
+}
+
+export const calibers:Caliber[] = [
     {
         range: "2mm (.79 - .117)",
         variants: [
@@ -77,7 +85,10 @@ export const calibers:{range:string, variants: {name: string}[]}[] = [
             {"name": ".22 Spitfire"},
             {"name": ".22 TCM"},
             {"name": ".22 Winchester Centerfire"},
-            {"name": ".22 Winchester Magnum Rimfire (.22 Magnum)"},
+            {
+                "name": ".22 Winchester Magnum Rimfire (.22 Magnum)",
+                "displayName": ".22 Magnum"
+            },
             {"name": ".220 Russian"},
             {"name": ".220 Swift"},
             {"name": ".221 Remington Fireball"},
@@ -152,7 +163,10 @@ export const calibers:{range:string, variants: {name: string}[]}[] = [
             {"name": "6mm XC"},
             {"name": "6x45mm"},
             {"name": "6x45mm SAW"},
-            {"name": "6.45mm GP80 (1980) 6.45x48mm"},
+            {
+                "name": "6.45mm GP80 (1980) 6.45x48mm",
+                "displayName": "6.45mm GP80"
+            },
             {"name": "6.45x48mm XPL Swiss"},
             {"name": "6.5 Precision Rifle Cartridge"},
             {"name": "6.5 Weatherby Rebated Precision Magnum"},
@@ -216,7 +230,10 @@ export const calibers:{range:string, variants: {name: string}[]}[] = [
             {"name": ".300 Weatherby Magnum"},
             {"name": ".300 Werewolf"},
             {"name": ".300 Winchester Magnum"},
-            {"name": ".300 WSM (Winchester Short Magnum)"},
+            {
+                "name": ".300 WSM (Winchester Short Magnum)",
+                "displayName": ".300 WSM"
+            },
             {"name": "300 AAC Blackout"},
             {"name": "300 HAM'R"},
             {"name": "300 Precision Rifle Cartridge"},
@@ -266,7 +283,10 @@ export const calibers:{range:string, variants: {name: string}[]}[] = [
             {"name": "7.65mm Mannlicher"},
             {"name": "7.65mm Pist Pat 03 7.65x21mm"},
             {"name": "7.65mm Roth–Sauer"},
-            {"name": "7.65x21mm Parabellum (7.65 mm Luger)"},
+            {
+                "name": "7.65x21mm Parabellum (7.65 mm Luger)",
+                "displayName": "7.65mm Parabellum"
+            },
             {"name": "7.65x25mm Borchardt"},
             {"name": "7.65x53mm Argentine"},
             {"name": "7.7x58mm Arisaka"},
@@ -280,18 +300,27 @@ export const calibers:{range:string, variants: {name: string}[]}[] = [
             {"name": "7mm BR Remington (bench rest)"},
             {"name": "7mm Dakota"},
             {"name": "7mm Mauser Spanish Mauser .275 Rigby"},
-            {"name": "7mm PRC (Precision Rifle Cartridge)"},
+            {
+                "name": "7mm PRC (Precision Rifle Cartridge)",
+                "displayName": "7mm PRC"
+            },
             {"name": "7mm Raptor"},
             {"name": "7mm Remington Express"},
             {"name": "7mm Remington Magnum"},
             {"name": "7mm Remington SAUM"},
             {"name": "7mm Remington Ultra Magnum"},
-            {"name": "7mm STW (Shooting Times Westerner)"},
+            {
+                "name": "7mm STW (Shooting Times Westerner)",
+                "displayName": "7mm STW"
+            },
             {"name": "7mm Weatherby Magnum"},
             {"name": "7mm WSM"},
             {"name": "7mm-06 Remington"},
             {"name": "7mm-08 Remington"},
-            {"name": "7.5mm 1882 Ordnance 7.5mm Swiss Army Revolver"},
+            {
+                "name": "7.5mm 1882 Ordnance 7.5mm Swiss Army Revolver", 
+                "displayName": "7.5mm Siwss Army Revolver"
+            },
             {"name": "7.5mm Swedish Nagant"},
             {"name": "7.92x33mm Kurz"}
           ],                 
@@ -301,11 +330,17 @@ export const calibers:{range:string, variants: {name: string}[]}[] = [
         variants: [
             {"name": ".30 Super Carry"},
             {"name": ".320 Revolver"},
-            {"name": ".32 ACP (.32 Auto)"},
+            {
+                "name": ".32 ACP (.32 Auto)",
+                "displayName": ".32 ACP"
+            },
             {"name": ".32 Ballard Extra Long"},
             {"name": ".32 H&R Magnum"},
             {"name": ".32 Remington"},
-            {"name": ".32 S&W (.32 S&W Short)"},
+            {
+                "name": ".32 S&W (.32 S&W Short)",
+                "displayName": ".32 S&W"
+            },
             {"name": ".32 S&W Long"},
             {"name": ".32 Winchester Self-Loading"},
             {"name": ".32 Winchester Special"},
@@ -332,7 +367,10 @@ export const calibers:{range:string, variants: {name: string}[]}[] = [
             {"name": ".348 Winchester"},
             {"name": "8,5 x 68 Fanzoj"},
             {"name": "8.6 mm Blackout"},
-            {"name": "8mm French Ordnance 8mm Lebel Revolver 8x27mmR Règlementaire Mle 92"},
+            {
+                "name": "8mm French Ordnance 8mm Lebel Revolver 8x27mmR Règlementaire Mle 92",
+                "displayName": "8mm Lebel Revolver"
+            },
             {"name": "8mm Lebel"},
             {"name": "8mm Remington Magnum"},
             {"name": "8mm Roth–Steyr"},
@@ -361,7 +399,10 @@ export const calibers:{range:string, variants: {name: string}[]}[] = [
             {"name": ".356 TSW"},
             {"name": ".356 Winchester"},
             {"name": ".357 SIG"},
-            {"name": ".357 S&W Magnum"},
+            {
+                "name": ".357 S&W Magnum",
+                "displayName": ".357 S&W Magnum"
+            },
             {"name": ".357 SuperMag"},
             {"name": ".357/44 Bain & Davis"},
             {"name": ".357 Remington Maximum"},
@@ -371,7 +412,10 @@ export const calibers:{range:string, variants: {name: string}[]}[] = [
             {"name": ".360 Buckhammer"},
             {"name": ".375 Winchester"},
             {"name": ".375 SuperMag"},
-            {"name": ".375 Chey Tac (9.5x77mm)"},
+            {
+                "name": ".375 Chey Tac (9.5x77mm)",
+                "displayName": ".375 Chey Tac"
+            },
             {"name": ".375 H&H Magnum"},
             {"name": ".375 Remington Ultra Magnum"},
             {"name": ".375 Ruger"},
@@ -379,21 +423,39 @@ export const calibers:{range:string, variants: {name: string}[]}[] = [
             {"name": ".375 Weatherby Magnum"},
             {"name": ".376 Steyr"},
             {"name": ".378 Weatherby Magnum"},
-            {"name": ".38 ACP (.38 Auto; 9x23mmSR)"},
-            {"name": ".38 AMU (.38 Army Marksmanship Unit)"},
+            {
+                "name": ".38 ACP (.38 Auto; 9x23mmSR)",
+                "displayName": ".38 ACP"
+            },
+            {
+                "name": ".38 AMU (.38 Army Marksmanship Unit)",
+                "displayName": ".38 AMU"
+            },
             {"name": ".38 Short Colt"},
             {"name": ".38 Long Colt"},
-            {"name": ".38 S&W (.38 S&W Short)"},
+            {
+                "name": ".38 S&W (.38 S&W Short)",
+                "displayName": ".38 S&W"
+            },
             {"name": ".38 S&W Special"},
-            {"name": ".38 Super (.38 Super Auto; 9x23mmSR)"},
-            {"name": ".38/.45 Clerke (.38/45 Auto)"},
+            {
+                "name": ".38 Super (.38 Super Auto; 9x23mmSR)",
+                "displayName": ".38 Super"
+            },
+            {
+                "name": ".38/.45 Clerke (.38/45 Auto)",
+                "displayName": ".38/.45 Clerke"
+            },
             {"name": ".38-55 Winchester"},
             {"name": ".38-56 WCF"},
             {"name": ".38-72 Winchester"},
             {"name": ".375-416"},
             {"name": ".375 Snipe Tac"},
             {"name": ".375 SOE"},
-            {"name": ".380 ACP (.380 Auto; 9x17mm)"},
+            {
+                "name": ".380 ACP (.380 Auto; 9x17mm)",
+                "displayName": ".380 ACP"
+            },
             {"name": ".960 Rowland"},
             {"name": "9.3x57mm Mauser"},
             {"name": "9.3x62mm"},
@@ -412,7 +474,10 @@ export const calibers:{range:string, variants: {name: string}[]}[] = [
             {"name": "9mm Winchester Magnum"},
             {"name": "9x18mm Makarov"},
             {"name": "9x18mm Ultra"},
-            {"name": "9x19mm Parabellum (9mm Luger / Pist Pat 41 / Pist Pat 14)"},
+            {
+                "name": "9x19mm Parabellum (9mm Luger / Pist Pat 41 / Pist Pat 14)",
+                "displayName": "9x19mm Parabellum"
+            },
             {"name": "9x21mm"},
             {"name": "9x21mm Gyurza"},
             {"name": "9x23mm Largo"},
@@ -474,7 +539,10 @@ export const calibers:{range:string, variants: {name: string}[]}[] = [
     {
         range: "11mm (.433 - .471)",
         variants: [
-            {"name": ".45 ACP (.45 Auto)"},
+            {
+                "name": ".45 ACP (.45 Auto)",
+                "displayName": ".45 ACP"
+            },
             {"name": ".45 GAP"},
             {"name": ".45 Remington–Thompson"},
             {"name": ".45 Super"},
@@ -496,7 +564,10 @@ export const calibers:{range:string, variants: {name: string}[]}[] = [
             {"name": ".45 Auto Rim"},
             {"name": ".454 Magnum"},
             {"name": ".45 Schofield (.45 Smith & Wesson)"},
-            {"name": ".45 Colt (.45 Long Colt)"},
+            {
+                "name": ".45 Colt (.45 Long Colt)",
+                "displayName": ".45 Long Colt"
+            },
             {"name": ".454 Casull"},
             {"name": ".460 S&W Magnum"},
             {"name": ".455 Webley (.455 Webley Mk II)"},

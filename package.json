@@ -21,7 +21,6 @@
     "@types/papaparse": "^5.3.14",
     "@types/react": "~18.2.45",
     "colord": "^2.9.3",
-    "eas-cli": "^9.0.7",
     "expo": "~51.0.31",
     "expo-application": "~5.9.1",
     "expo-asset": "~10.0.6",

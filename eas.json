@@ -3,10 +3,14 @@
     "preview": {
       "android": {
         "buildType": "apk"
+      },
+      "env": {
+        "APP_VARIANT": "preview"
       }
     },
     "development": {
       "developmentClient": true,
+      "distribution": "internal",
       "env": {
         "APP_VARIANT": "development"
       }
