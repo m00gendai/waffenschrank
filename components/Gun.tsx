@@ -93,7 +93,7 @@ export default function Gun({navigation}){
     function handlePrintPress(){
         toggleiosWarning(false)
         try{
-            printSingleGun(currentGun, language)
+            printSingleGun(currentGun, language, generalSettings.caliberDisplayName, caliberDisplayNameList)
         }catch(e){
             alarm("Print Single Gun Error", e)
         }
