@@ -3,7 +3,7 @@ import { Button, Dialog, HelperText, IconButton, List, Text, TextInput } from "r
 import { usePreferenceStore } from "../stores/usePreferenceStore";
 import { dateLocales, defaultViewPadding } from "../configs";
 import { AMMO_DATABASE, GUN_DATABASE } from "../configs_DB"
-import { gunQuickShot } from "../lib/textTemplates";
+import { gunQuickShot, shotLabel } from "../lib/textTemplates";
 import { useGunStore } from "../stores/useGunStore";
 import { useAmmoStore } from "../stores/useAmmoStore";
 import { useState } from "react";
@@ -106,14 +106,14 @@ return(
                             const val = shotCountFromStock[key] || '';
                             return (
                               <View key={ammo.id} style={{width: "100%", marginTop: defaultViewPadding, marginBottom: defaultViewPadding}}>
-                                <Text>{ammo.caliber}</Text>
+                                <Text>{`${ammo.caliber}\n${ammo.currentStock !== null ? `${ammo.currentStock} ${shotLabel[language]}` : ""}`}</Text>
                                 <TextInput 
                                   label={`${ammo.manufacturer ? ammo.manufacturer : ""} ${ammo.designation}`}
                                   value={val}
                                   onChangeText={val => handleInputChange(ammo.currentStock, ammo.id, index, val)}
                                   returnKeyType='done'
-                        returnKeyLabel='OK'
-                        inputMode="decimal"
+                                  returnKeyLabel='OK'
+                                  inputMode="decimal"
                                 />
                                 {negativeAmmo && negativeAmmoId === ammo.id ? <HelperText type="error" visible={negativeAmmo}>
                                   {ammo.currentStock === null ? gunQuickShot.errorNoAmountDefined[language] : ammo.currentStock === undefined ? gunQuickShot.errorNoAmountDefined[language] : gunQuickShot.errorAmountTooLow[language].replace("{{AMOUNT}}", ammo.currentStock)}
