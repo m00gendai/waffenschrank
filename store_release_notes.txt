@@ -13,6 +13,49 @@ Enter or paste your release notes for fr-FR here
 Enter or paste your release notes for it-IT here
 </it-IT>
 
+V1.3.0
+
+<de-DE>
+Behoben:
+- Datum immer zweistellig
+- Bild teilen fehlerhaft
+- "Out of Memory" Fehlermeldung bei Datenbankspeicherung
+Verbessert:
+- Kalibersuche überall toleranter
+- Ausgewählte Kaliber in Auswahl direkt löschbar
+- Verkürzte Kaliberbezeichnungen möglich (via Einstellungen)
+</de-DE>
+<en-US>
+Fixed:
+- Date always in two digits
+- Split image incorrect
+- "Out of Memory" error message for database storage
+Improved:
+- Calibre search more tolerant everywhere
+- Selected calibers in selection can be erased directly
+- Abbreviated calibre designations possible (via settings)
+</en-US>
+<fr-FR>
+Corrigé:
+- date toujours à deux chiffres
+- Partage d'image défectueux
+- Message d'erreur "Out of Memory" lors du stockage de la base de données
+Amélioré:
+- Recherche de calibre plus tolérant partout
+- Calibres sélectionnés dans la sélection directement effaçables
+- Désignations de calibres abrégées possibles (via les réglages)
+</fr-FR>
+<it-IT>
+Risolto:
+- Data sempre a due cifre
+- Condivisione immagine errata
+- Messaggio di errore "Out of Memory" durante la memorizzazione di una banca dati
+Migliorato:
+- Ricerca del calibro più tollerante ovunque
+- Calibri selezionati in selezione eliminabili direttamente
+- Denominazioni di calibro abbreviate possibili (tramite impostazioni)
+</it-IT>
+
 V1.2.3
 
 iOS:
