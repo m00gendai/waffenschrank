@@ -36,7 +36,7 @@ import { Dirs, Util, FileSystem as fs } from 'react-native-file-access';
 export default function MainMenu({navigation}){
 
     const { setMainMenuOpen, toastVisible, setToastVisible, dbModalVisible, setDbModalVisible, imageResizeVisible, toggleImageResizeVisible, loginGuardVisible, toggleLoginGuardVisible, importCSVVisible, toggleImportCSVVisible, importModalVisible, toggleImportModalVisible } = useViewStore()
-    const { language, switchLanguage, theme, switchTheme, setDbImport, setAmmoDbImport, generalSettings, setGeneralSettings } = usePreferenceStore()
+    const { language, switchLanguage, theme, switchTheme, setDbImport, setAmmoDbImport, generalSettings, setGeneralSettings, caliberDisplayNameList } = usePreferenceStore()
     const { gunCollection, setGunCollection } = useGunStore()
     const { ammoCollection, setAmmoCollection } = useAmmoStore()
     const { overWriteAmmoTags, overWriteTags} = useTagStore()
@@ -886,7 +886,7 @@ export default function MainMenu({navigation}){
             case "gunCollection":
                 try{
                     console.log("Im printing gun collection!")
-                await printGunCollection(gunCollection, language);
+                await printGunCollection(gunCollection, language, generalSettings.caliberDisplayName, caliberDisplayNameList);
                 return
                 } catch(e){
                     alarm("printGunCollection Error", e)
@@ -894,7 +894,7 @@ export default function MainMenu({navigation}){
             case "gunCollectionArt5":
                 try{
                     console.log("Im printing gun collection art 5!")
-                   await printGunCollectionArt5(gunCollection, language);
+                   await printGunCollectionArt5(gunCollection, language, generalSettings.caliberDisplayName, caliberDisplayNameList);
                     return
                 } catch(e){
                     alarm("printGunCollectioNArt5 Error", e)
@@ -902,7 +902,7 @@ export default function MainMenu({navigation}){
             case "ammoCollection":
                 try{
                     console.log("Im printing ammo collection!")
-                   await printAmmoCollection(ammoCollection, language);
+                   await printAmmoCollection(ammoCollection, language, generalSettings.caliberDisplayName, caliberDisplayNameList);
                     return
                 } catch(e){
                     alarm("printAmmoCollection Error", e)
