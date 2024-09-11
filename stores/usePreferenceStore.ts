@@ -8,6 +8,7 @@ interface GeneralSettings{
   resizeImages: boolean
   loginGuard: boolean
   emptyFields: boolean
+  caliberDisplayName: boolean
 }
 
 interface PreferenceStore {
@@ -43,6 +44,8 @@ interface PreferenceStore {
     setSortAmmoAscending: (status: boolean) => void
     firstOpen: boolean
     setFirstOpen: () => void
+    caliberDisplayNameList: {name: string, displayName: string}[]
+    setCaliberDisplayNameList: (calibers: {name: string, displayName?: string}[]) => void
   }
 
   export const usePreferenceStore = create<PreferenceStore>((set) => ({
@@ -79,9 +82,12 @@ interface PreferenceStore {
       displayImagesInListViewAmmo: true,
       resizeImages: true,
       loginGuard: false,
-      emptyFields: false
+      emptyFields: false,
+      caliberDisplayName: false,
     },
     setGeneralSettings: (settings: GeneralSettings) => set((state) => ({generalSettings: settings})),
     firstOpen: true,
-    setFirstOpen: () => set((state) => ({firstOpen: !state.firstOpen}))
+    setFirstOpen: () => set((state) => ({firstOpen: !state.firstOpen})),
+    caliberDisplayNameList: [],
+    setCaliberDisplayNameList: (calibers: {name: string, displayName: string}[])  => set((state) =>({caliberDisplayNameList: calibers}))
   }))

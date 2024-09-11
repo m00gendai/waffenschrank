@@ -1,4 +1,4 @@
-import { StyleSheet, View, ScrollView, Alert} from 'react-native';
+import { StyleSheet, View, ScrollView, Alert, Platform, KeyboardAvoidingView} from 'react-native';
 import { Appbar, Button, Dialog, Portal, SegmentedButtons, Snackbar, Text } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as ImagePicker from "expo-image-picker"
@@ -134,15 +134,15 @@ export default function EditAmmo({navigation}){
 
             const newImage = selectedImage;
             if (newImage && newImage.length !== 0) {
-                newImage.splice(indx, 1, newPath);
+                newImage.splice(indx, 1, fileName);
                 setSelectedImage(newImage);
                 setAmmoData({ ...ammoData, images: newImage });
             } else {
-                setSelectedImage([newPath]);
+                setSelectedImage([fileName]);
                 if (ammoData && ammoData.images && ammoData.images.length !== 0) {
-                    setAmmoData({ ...ammoData, images: [...ammoData.images, newPath] });
+                    setAmmoData({ ...ammoData, images: [...ammoData.images, fileName] });
                 } else {
-                    setAmmoData({ ...ammoData, images: [newPath] });
+                    setAmmoData({ ...ammoData, images: [fileName] });
                 }
             }
         } catch (error) {
@@ -152,7 +152,7 @@ export default function EditAmmo({navigation}){
     }   
 
     const pickCameraAsync = async (indx:number) =>{
-        const permission: ImagePicker.MediaLibraryPermissionResponse = await ImagePicker.requestMediaLibraryPermissionsAsync()
+        const permission: ImagePicker.MediaLibraryPermissionResponse | ImagePicker.CameraPermissionResponse = Platform.OS === "android" ? await ImagePicker.requestMediaLibraryPermissionsAsync() : await ImagePicker.requestCameraPermissionsAsync()
 
         if(!permission){
             setGranted(false)
@@ -182,15 +182,15 @@ export default function EditAmmo({navigation}){
 
             const newImage = selectedImage;
             if (newImage && newImage.length !== 0) {
-                newImage.splice(indx, 1, newPath);
+                newImage.splice(indx, 1, fileName);
                 setSelectedImage(newImage);
                 setAmmoData({ ...ammoData, images: newImage });
             } else {
-                setSelectedImage([newPath]);
+                setSelectedImage([fileName]);
                 if (ammoData && ammoData.images && ammoData.images.length !== 0) {
-                    setAmmoData({ ...ammoData, images: [...ammoData.images, newPath] });
+                    setAmmoData({ ...ammoData, images: [...ammoData.images, fileName] });
                 } else {
-                    setAmmoData({ ...ammoData, images: [newPath] });
+                    setAmmoData({ ...ammoData, images: [fileName] });
                 }
             }
         } catch (error) {
@@ -311,7 +311,7 @@ export default function EditAmmo({navigation}){
             aboutToDeleteRef.current = false;
         }
     return(
-        <View style={{flex: 1}}>
+        <KeyboardAvoidingView behavior='padding' style={{flex: 1}}>
             
             <Appbar style={{width: "100%"}}>
                 <Appbar.BackAction  onPress={() => navigation.goBack()} />
@@ -450,7 +450,7 @@ export default function EditAmmo({navigation}){
                         </Dialog>
               
 
-        </View>
+        </KeyboardAvoidingView>
     )
 }
 

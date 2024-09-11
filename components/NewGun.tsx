@@ -1,5 +1,5 @@
-import { StyleSheet, View, ScrollView, Alert } from 'react-native';
-import { Appbar, FAB, Snackbar } from 'react-native-paper';
+import { StyleSheet, View, ScrollView, Alert, Platform, KeyboardAvoidingView } from 'react-native';
+import { Appbar, Button, Dialog, FAB, Snackbar, Text } from 'react-native-paper';
 import * as ImagePicker from "expo-image-picker"
 import { useEffect, useState } from 'react';
 import * as SecureStore from "expo-secure-store"
@@ -26,19 +26,20 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function NewGun({navigation}){
 
-    const [selectedImage, setSelectedImage] = useState<string[]>(null)
+    const { language, theme, generalSettings } = usePreferenceStore()
+    const { setNewGunOpen, setSeeGunOpen } = useViewStore()
+    const { setCurrentGun, gunCollection, setGunCollection, currentGun } = useGunStore()
+
+    const [selectedImage, setSelectedImage] = useState<string[]>(currentGun ? currentGun.images : null)
     const [initCheck, setInitCheck] = useState<boolean>(true)
     const [granted, setGranted] = useState<boolean>(false)
-    const [gunData, setGunData] = useState<GunType>(exampleGunEmpty)
-    const [gunDataCompare, setGunDataCompare] = useState<GunType>(exampleGunEmpty)
+    const [gunData, setGunData] = useState<GunType>(currentGun ? currentGun : exampleGunEmpty)
+    const [gunDataCompare, setGunDataCompare] = useState<GunType>(currentGun ? currentGun : exampleGunEmpty)
     const [visible, setVisible] = useState<boolean>(false);
     const [snackbarText, setSnackbarText] = useState<string>("")
     const [saveState, setSaveState] = useState<boolean>(null)
     const [unsavedVisible, toggleUnsavedDialogVisible] = useState<boolean>(false)
-
-    const { language, theme, generalSettings } = usePreferenceStore()
-    const { setNewGunOpen, setSeeGunOpen } = useViewStore()
-    const { setCurrentGun, gunCollection, setGunCollection } = useGunStore()
+    const [exitAction, setExitAction] = useState(null);
 
     useEffect(()=>{
         if(initCheck){
@@ -137,15 +138,15 @@ export default function NewGun({navigation}){
 
             const newImage = selectedImage;
             if (newImage && newImage.length !== 0) {
-                newImage.splice(indx, 1, newPath);
+                newImage.splice(indx, 1, fileName);
                 setSelectedImage(newImage);
                 setGunData({ ...gunData, images: newImage });
             } else {
-                setSelectedImage([newPath]);
+                setSelectedImage([fileName]);
                 if (gunData && gunData.images && gunData.images.length !== 0) {
-                    setGunData({ ...gunData, images: [...gunData.images, newPath] });
+                    setGunData({ ...gunData, images: [...gunData.images, fileName] });
                 } else {
-                    setGunData({ ...gunData, images: [newPath] });
+                    setGunData({ ...gunData, images: [fileName] });
                 }
             }
         } catch (error) {
@@ -155,7 +156,7 @@ export default function NewGun({navigation}){
     }  
      
     const pickCameraAsync = async (indx:number) =>{
-        const permission: ImagePicker.MediaLibraryPermissionResponse = await ImagePicker.requestMediaLibraryPermissionsAsync()
+        const permission: ImagePicker.MediaLibraryPermissionResponse | ImagePicker.CameraPermissionResponse = Platform.OS === "android" ? await ImagePicker.requestMediaLibraryPermissionsAsync() : await ImagePicker.requestCameraPermissionsAsync()
 
         if(!permission){
             setGranted(false)
@@ -185,15 +186,15 @@ export default function NewGun({navigation}){
 
             const newImage = selectedImage;
             if (newImage && newImage.length !== 0) {
-                newImage.splice(indx, 1, newPath);
+                newImage.splice(indx, 1, fileName);
                 setSelectedImage(newImage);
                 setGunData({ ...gunData, images: newImage });
             } else {
-                setSelectedImage([newPath]);
+                setSelectedImage([fileName]);
                 if (gunData && gunData.images && gunData.images.length !== 0) {
-                    setGunData({ ...gunData, images: [...gunData.images, newPath] });
+                    setGunData({ ...gunData, images: [...gunData.images, fileName] });
                 } else {
-                    setGunData({ ...gunData, images: [newPath] });
+                    setGunData({ ...gunData, images: [fileName] });
                 }
             }
         } catch (error) {
@@ -201,13 +202,44 @@ export default function NewGun({navigation}){
         }
     }  
 } 
+
+useEffect(() => {
+    const unsubscribe = navigation.addListener('beforeRemove', (e) => {
+
+      if (saveState) {
+        // If we don't have unsaved changes, then we don't need to do anything
+        return;
+      }
+      // Prevent default behavior of leaving the screen
+      e.preventDefault();
+
+      // Save the action to be triggered later
+      setExitAction(e.data.action);
+
+      // Show the dialog
+      toggleUnsavedDialogVisible(true);
+    });
+
+    return unsubscribe;
+  }, [navigation, saveState])
+
+  const handleDiscard = () => {
+      toggleUnsavedDialogVisible(false);
+      if (exitAction) {
+        navigation.dispatch(exitAction);
+      }
+    };
+  
+    const handleCancel = () => {
+      toggleUnsavedDialogVisible(false);
+    };
  
 
     return(
-        <View style={{flex: 1}}>
+        <KeyboardAvoidingView behavior='padding' style={{flex: 1}}>
             
             <Appbar style={{width: "100%"}}>
-                <Appbar.BackAction  onPress={() => {saveState == true ? navigation.goBack() : saveState === false ? toggleUnsavedDialogVisible(true) : navigation.goBack()}} />
+                <Appbar.BackAction  onPress={() => navigation.goBack()} />
                 <Appbar.Content title={newGunTitle[language]} />
                 <Appbar.Action icon="floppy" onPress={() => save({...gunData, id: uuidv4(), images:selectedImage, createdAt: `${new Date()}`, lastModifiedAt: `${new Date()}`})} color={saveState === null ? theme.colors.onBackground : saveState === false ? theme.colors.error : "green"} />
             </Appbar>
@@ -275,7 +307,22 @@ export default function NewGun({navigation}){
                 }}>
                 {snackbarText}
             </Snackbar>
-        </View> 
+
+            <Dialog visible={unsavedVisible} onDismiss={()=>toggleUnsavedDialogVisible(!unsavedVisible)}>
+                    <Dialog.Title>
+                    {`${unsavedChangesAlert.title[language]}`}
+                    </Dialog.Title>
+                    <Dialog.Content>
+                        <Text>{`${unsavedChangesAlert.subtitle[language]}`}</Text>
+                    </Dialog.Content>
+                    <Dialog.Actions>
+                        <Button onPress={handleDiscard} icon="delete" buttonColor={theme.colors.errorContainer} textColor={theme.colors.onErrorContainer}>{unsavedChangesAlert.yes[language]}</Button>
+                        <Button onPress={handleCancel} icon="cancel" buttonColor={theme.colors.secondary} textColor={theme.colors.onSecondary}>{unsavedChangesAlert.no[language]}</Button>
+                    </Dialog.Actions>
+                </Dialog>
+
+
+        </KeyboardAvoidingView> 
     )
 }
 

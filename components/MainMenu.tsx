@@ -1,8 +1,8 @@
-import { ScrollView, TouchableNativeFeedback, View, Image } from "react-native"
+import { ScrollView, TouchableNativeFeedback, View, Image, Platform, Dimensions } from "react-native"
 import Animated, { LightSpeedInLeft, LightSpeedOutLeft } from "react-native-reanimated"
 import { useViewStore } from "../stores/useViewStore"
 import { ActivityIndicator, Button, Dialog, Divider, Icon, IconButton, List, Modal, Portal, Snackbar, Switch, Text, Tooltip } from "react-native-paper"
-import { aboutText, aboutThanks, aboutThanksPersons, databaseImportAlert, databaseOperations, generalSettingsLabels, loginGuardAlert, preferenceTitles, resizeImageAlert, statisticItems, toastMessages, tooltips } from "../lib/textTemplates"
+import { aboutText, aboutThanks, aboutThanksPersons, databaseImportAlert, databaseOperations, generalSettingsLabels, iosWarningText, loginGuardAlert, preferenceTitles, resizeImageAlert, statisticItems, toastMessages, tooltips } from "../lib/textTemplates"
 import { usePreferenceStore } from "../stores/usePreferenceStore"
 import AsyncStorage from "@react-native-async-storage/async-storage"
 import { dateLocales, defaultViewPadding, languageSelection } from "../configs"
@@ -29,13 +29,14 @@ import { alarm, getImageSize, sanitizeFileName } from "../utils"
 import * as SystemUI from "expo-system-ui"
 import * as Sharing from 'expo-sharing';
 import * as LocalAuthentication from 'expo-local-authentication';
+import { Dirs, Util, FileSystem as fs } from 'react-native-file-access';
 
 
 
 export default function MainMenu({navigation}){
 
     const { setMainMenuOpen, toastVisible, setToastVisible, dbModalVisible, setDbModalVisible, imageResizeVisible, toggleImageResizeVisible, loginGuardVisible, toggleLoginGuardVisible, importCSVVisible, toggleImportCSVVisible, importModalVisible, toggleImportModalVisible } = useViewStore()
-    const { language, switchLanguage, theme, switchTheme, setDbImport, setAmmoDbImport, generalSettings, setGeneralSettings } = usePreferenceStore()
+    const { language, switchLanguage, theme, switchTheme, setDbImport, setAmmoDbImport, generalSettings, setGeneralSettings, caliberDisplayNameList } = usePreferenceStore()
     const { gunCollection, setGunCollection } = useGunStore()
     const { ammoCollection, setAmmoCollection } = useAmmoStore()
     const { overWriteAmmoTags, overWriteTags} = useTagStore()
@@ -45,14 +46,20 @@ export default function MainMenu({navigation}){
     const [dbModalText, setDbModalText] = useState<string>("")
     const [dbOperation, setDbOperation] = useState<DBOperations | "">("")
 
+    const [iosWarning, toggleiosWarning] = useState<boolean>(false)
+    const [printerSrc, setPrinterSrc] = useState<null | "gunCollection" | "gunCollectionArt5" | "ammoCollection">(null)
+
     const onToggleSnackBar = () => setToastVisible(true);
-    const onDismissSnackBar = () => setToastVisible(false);
+    const onDismissSnackBar = () => {
+        setToastVisible(false);
+        resetImportProgress(0)
+        resetImportSize(0)
+    }
 
     const date: Date = new Date()
     const currentYear:number = date.getFullYear()
 
     async function handleThemeSwitch(color:string){
-        console.log(color)
         switchTheme(color)
         SystemUI.setBackgroundColorAsync(colorThemes[color].background)
         const preferences:string = await AsyncStorage.getItem(PREFERENCES)
@@ -71,8 +78,7 @@ export default function MainMenu({navigation}){
         setDbModalVisible()
         setSnackbarText(toastMessages.dbSaveSuccess[language])
         onToggleSnackBar()
-        resetImportProgress(0)
-        resetImportSize(0)
+        
     }
 
     function dbImportSuccess(data: DBOperations){
@@ -80,8 +86,6 @@ export default function MainMenu({navigation}){
         data === "import_arsenal_gun_db" ? setDbImport(new Date()) : data === "import_arsenal_gun_csv" ? setDbImport(new Date()) : setAmmoDbImport(new Date())
         setSnackbarText(`${importSize} ${toastMessages.dbImportSuccess[language]}`)
         onToggleSnackBar()
-        resetImportProgress(0)
-        resetImportSize(0)
     }
 
     async function handleDbOperation(data: DBOperations | ""){
@@ -90,141 +94,198 @@ export default function MainMenu({navigation}){
             setImportSize(gunCollection.length)
             setDbModalText(databaseOperations.export[language])
             try{
-            await handleSaveGunDb().then(()=>{
-                dbSaveSuccess()
-            })
-        }catch(e){
-            alarm("DB ops error save_arsenal_gun_db", e)
-        }
+                if(Platform.OS === "android"){
+                    await handleSaveGunDb().then(()=>{
+                        dbSaveSuccess()
+                    })
+                }
+                if(Platform.OS === "ios"){
+                    await handleShareGunDb().then(async (res)=>{
+                        await Sharing.shareAsync(res).then(()=>{
+                            dbSaveSuccess()
+                        })
+                    })
+                }
+            }catch(e){
+                alarm("DB ops error save_arsenal_gun_db", e)
+            }
         }
         if(data === "save_arsenal_gun_csv"){
             setImportSize(gunCollection.length)
             setDbModalText(databaseOperations.export[language])
             try{
-            await exportCSV("save_arsenal_gun_csv").then(()=>{
-                dbSaveSuccess()
-            })
-        }catch(e){
-            alarm("DB ops error save_arsenal_gun_csv", e)
-        }
+                if(Platform.OS === "android"){
+                    await exportCSV("save_arsenal_gun_csv").then(()=>{
+                        dbSaveSuccess()
+                    })
+                }
+                if(Platform.OS === "ios"){
+                    await shareCSV("share_arsenal_gun_csv").then(async (res)=>{
+                        await Sharing.shareAsync(res).then(()=>{
+                            dbSaveSuccess()
+                        })
+                    })
+                }
+            }catch(e){
+                alarm("DB ops error save_arsenal_gun_csv", e)
+            }
         }
         if(data === "share_arsenal_gun_db"){
             setImportSize(gunCollection.length)
             setDbModalText(databaseOperations.export[language])
             try{
-            await handleShareGunDb().then(async (res)=>{
-                await Sharing.shareAsync(res).then(()=>{
-                    dbSaveSuccess()
+                await handleShareGunDb().then(async (res)=>{
+                    await Sharing.shareAsync(res).then(async ()=>{
+                        dbSaveSuccess()
+                        try{
+                           await fs.unlink(res)
+                        }catch(e){
+                            alarm("shareGunDb unlinkTempFile", e)
+                        }
+                    })
                 })
-            })
-        }catch(e){
-            alarm("DB ops error share_arsenal_gun_db", e)
-        }
+            }catch(e){
+                alarm("DB ops error share_arsenal_gun_db", e)
+            }
         }
         if(data === "share_arsenal_gun_csv"){
             setImportSize(gunCollection.length)
             setDbModalText(databaseOperations.export[language])
             try{
-            await shareCSV("share_arsenal_gun_csv").then(async (res)=>{
-                await Sharing.shareAsync(res).then(()=>{
-                    dbSaveSuccess()
+                await shareCSV("share_arsenal_gun_csv").then(async (res)=>{
+                    await Sharing.shareAsync(res).then(async ()=>{
+                        dbSaveSuccess()
+                        try{
+                           await fs.unlink(res)
+                        }catch(e){
+                            alarm("shareGunCSV unlinkTempFile", e)
+                        }
+                    })
                 })
-            })
-        }catch(e){
-            alarm("DB ops errorshare_arsenal_gun_csv", e)
-        }
+            }catch(e){
+                alarm("DB ops errorshare_arsenal_gun_csv", e)
+            }
         }
         if(data === "save_arsenal_ammo_db"){
             setImportSize(ammoCollection.length)
             setDbModalText(databaseOperations.export[language])
             try{
-            await handleSaveAmmoDb().then(()=>{
-                dbSaveSuccess()
-            })
-        }catch(e){
-            alarm("DB ops error save_arsenal_ammo_db", e)
-        }
+                if(Platform.OS === "android"){
+                    await handleSaveAmmoDb().then(()=>{
+                        dbSaveSuccess()
+                    })
+                }
+                if(Platform.OS === "ios"){
+                    await handleShareAmmoDb().then(async (res)=>{
+                        await Sharing.shareAsync(res).then(()=>{
+                            dbSaveSuccess()
+                        })
+                    })
+                }
+            }catch(e){
+                alarm("DB ops error save_arsenal_ammo_db", e)
+            }
         }
         if(data === "save_arsenal_ammo_csv"){
             setImportSize(ammoCollection.length)
             setDbModalText(databaseOperations.export[language])
             try{
-            await exportCSV("save_arsenal_ammo_csv").then(()=>{
-                dbSaveSuccess()
-            })
-        }catch(e){
-            alarm("DB ops error save_arsenal_ammo_csv", e)
-        }
+                if(Platform.OS === "android"){
+                    await exportCSV("save_arsenal_ammo_csv").then(()=>{
+                        dbSaveSuccess()
+                    })
+                }
+                if(Platform.OS === "ios"){
+                    await shareCSV("share_arsenal_ammo_csv").then(async (res)=>{
+                        await Sharing.shareAsync(res).then(()=>{
+                            dbSaveSuccess()
+                        })
+                    })
+                }
+            }catch(e){
+                alarm("DB ops error save_arsenal_ammo_csv", e)
+            }
         }
         if(data === "share_arsenal_ammo_db"){
             setImportSize(ammoCollection.length)
             setDbModalText(databaseOperations.export[language])
             try{
-            await handleShareAmmoDb().then(async (res)=>{
-                await Sharing.shareAsync(res).then(()=>{
-                    dbSaveSuccess()
+                await handleShareAmmoDb().then(async (res)=>{
+                    console.log(res)
+                    await Sharing.shareAsync(res).then(async ()=>{
+                        dbSaveSuccess()
+                        try{
+                           await fs.unlink(res)
+                        }catch(e){
+                            alarm("shareAmmoDB unlinkTempFile", e)
+                        }
+                    })
                 })
-            })
-        }catch(e){
-            alarm("DB ops error share_arsenal_ammo_db", e)
-        }
+            }catch(e){
+                alarm("DB ops error share_arsenal_ammo_db", e)
+            }
         }
         if(data === "share_arsenal_ammo_csv"){
             setImportSize(ammoCollection.length)
             setDbModalText(databaseOperations.export[language])
             try{
-            await shareCSV("share_arsenal_ammo_csv").then(async (res)=>{
-                await Sharing.shareAsync(res).then(()=>{
-                    dbSaveSuccess()
+                await shareCSV("share_arsenal_ammo_csv").then(async (res)=>{
+                    await Sharing.shareAsync(res).then(async ()=>{
+                        dbSaveSuccess()
+                        try{
+                           await fs.unlink(res)
+                        }catch(e){
+                            alarm("shareAmmoCSV unlinkTempFile", e)
+                        }
+                    })
                 })
-            })
-        }catch(e){
-            alarm("DB ops error share_arsenal_ammo_csv", e)
-        }
+            }catch(e){
+                alarm("DB ops error share_arsenal_ammo_csv", e)
+            }
         }
         if(data === "import_arsenal_gun_db"){
             toggleImportModalVisible()
             setDbModalText(databaseOperations.import[language])
             try{
-            await handleImportGunDb().then(()=>{
-                dbImportSuccess("import_arsenal_gun_db")
-            })
-        }catch(e){
-            alarm("DB ops error import_arsenal_gun_db", e)
-        }
+                await handleImportGunDb().then(()=>{
+                    dbImportSuccess("import_arsenal_gun_db")
+                })
+            }catch(e){
+                alarm("DB ops error import_arsenal_gun_db", e)
+            }
         }
         if(data === "import_arsenal_ammo_db"){
             toggleImportModalVisible()
             setDbModalText(databaseOperations.import[language])
             try{
-            await handleImportAmmoDb().then(()=>{
-                dbImportSuccess("import_arsenal_ammo_db")
-            })
-        }catch(e){
-            alarm("DB ops error import_arsenal_ammo_db", e)
-        }
+                await handleImportAmmoDb().then(()=>{
+                    dbImportSuccess("import_arsenal_ammo_db")
+                })
+            }catch(e){
+                alarm("DB ops error import_arsenal_ammo_db", e)
+            }
         }
         if(data === "import_arsenal_gun_csv"){
             toggleImportModalVisible()
             setDbModalText(databaseOperations.import[language])
             try{
-            await importArsenalGunCSV().then(()=>{
-                dbImportSuccess("import_arsenal_gun_csv")
-            })
-        }catch(e){
-            alarm("DB ops error import_arsenal_gun_csv", e)
-        }
+                await importArsenalGunCSV().then(()=>{
+                    dbImportSuccess("import_arsenal_gun_csv")
+                })
+            }catch(e){
+                alarm("DB ops error import_arsenal_gun_csv", e)
+            }
         }
         if(data === "import_arsenal_ammo_csv"){
             toggleImportModalVisible()
             setDbModalText(databaseOperations.import[language])
             try{
-            await importArsenalAmmoCSV().then(()=>{
-                dbImportSuccess("import_arsenal_ammo_csv")
-            })
-        }catch(e){
-            alarm("DB ops error import_arsenal_ammo_csv", e)
-        }
+                await importArsenalAmmoCSV().then(()=>{
+                    dbImportSuccess("import_arsenal_ammo_csv")
+                })
+            }catch(e){
+                alarm("DB ops error import_arsenal_ammo_csv", e)
+            }
         }
         if(data === "import_custom_gun_csv"){
             toggleImportModalVisible()
@@ -241,12 +302,12 @@ export default function MainMenu({navigation}){
             toggleImportModalVisible()
             setDbModalText(databaseOperations.import[language])
             try{
-            await importCSV(data).then(()=>{
-                dbImportSuccess("import_custom_ammo_csv")
-            })
-        }catch(e){
-            alarm("DB ops error import_custom_ammo_csv", e)
-        }
+                await importCSV(data).then(()=>{
+                    dbImportSuccess("import_custom_ammo_csv")
+                })
+            }catch(e){
+                alarm("DB ops error import_custom_ammo_csv", e)
+            }
         }
     }
 
@@ -257,56 +318,81 @@ export default function MainMenu({navigation}){
 
     async function handleShareGunDb(){
         const fileName = `gunDB_${new Date().getTime()}.json`
-        // ANDROID
-       
-            const exportableGunCollection:GunType[] = await Promise.all(gunCollection.map(async gun =>{
-                if(gun.images !== null && gun.images.length !== 0){
-                    const base64images:string[] = await Promise.all(gun.images?.map(async image =>{
-                        const base64string:string = await FileSystem.readAsStringAsync(image, { encoding: 'base64' });
-                        return base64string
-                    }))
-                    const exportableGun:GunType = {...gun, images: base64images}
-                    setImportProgress(importProgress+1)
-                    return exportableGun
-                } else {
-                    setImportProgress(importProgress+1)
-                    return gun
+        const collectionSize = gunCollection.length-1
+        const cache = Dirs.CacheDir
+        try{
+            await fs.writeFile(`${cache}/${fileName}`, "[")
+        }catch(e){
+            alarm("shareGunDb createTempFile", e)
+        }
+        await Promise.all(gunCollection.map(async (gun, index) =>{
+            if(gun.images !== null && gun.images.length !== 0){
+                const base64images:string[] = await Promise.all(gun.images?.map(async image =>{
+                    const base64string:string = await FileSystem.readAsStringAsync(`${FileSystem.documentDirectory}${image.split("/").pop()}`, { encoding: 'base64' });
+                    return base64string
+                }))
+                const exportableGun:GunType = {...gun, images: base64images}
+                setImportProgress(importProgress+1)
+                try{
+                    await fs.appendFile(`${cache}/${fileName}`, JSON.stringify(exportableGun) + (collectionSize !== index ? ", " : ""))
+                }catch(e){
+                    alarm("shareGunDb appendExportableGun", e)
                 }
-            }))
-            let data = JSON.stringify(exportableGunCollection)
-            const fileUri = FileSystem.cacheDirectory + fileName
-            await FileSystem.writeAsStringAsync(fileUri, data, {encoding: FileSystem.EncodingType.UTF8})
-            return fileUri
-        
-        /*
-        for iOS, use expo-share, Sharing.shareAsync(fileUri, fileNamea)
-        */
+            } else {
+                setImportProgress(importProgress+1)
+                try{
+                    await fs.appendFile(`${cache}/${fileName}`, JSON.stringify(gun) + (collectionSize !== index ? ", " : ""))
+                }catch(e){
+                    alarm("shareGunDb appendGun", e)
+                }
+            }
+        }))
+        try{
+            await fs.appendFile(`${cache}/${fileName}`, "]")
+        } catch(e){
+            alarm("shareGunDb finishTempFile", e)
+        }
+        return `${FileSystem.cacheDirectory}/${fileName}`
     }
 
     async function handleShareAmmoDb(){
         const fileName = `ammoDB_${new Date().getTime()}.json`
-        // ANDROID
-            const exportableAmmoCollection:AmmoType[] = await Promise.all(ammoCollection.map(async ammo =>{
-                if(ammo.images !== null && ammo.images.length !== 0){
-                    const base64images:string[] = await Promise.all(ammo.images?.map(async image =>{
-                        const base64string:string = await FileSystem.readAsStringAsync(image, { encoding: 'base64' });
-                        return base64string
-                    }))
-                    const exportableAmmo:AmmoType = {...ammo, images: base64images}
-                    setImportProgress(importProgress+1)
-                    return exportableAmmo
-                } else {
-                    setImportProgress(importProgress+1)
-                    return ammo
+        const collectionSize = ammoCollection.length-1
+        const cache = Dirs.CacheDir
+        try{
+            await fs.writeFile(`${cache}/${fileName}`, "[")
+        }catch(e){
+            alarm("shareAmmoDb createTempFile", e)
+        }
+        await Promise.all(ammoCollection.map(async (ammo, index) =>{
+            if(ammo.images !== null && ammo.images.length !== 0){
+                const base64images:string[] = await Promise.all(ammo.images?.map(async image =>{
+                    const base64string:string = await FileSystem.readAsStringAsync(`${FileSystem.documentDirectory}${image.split("/").pop()}`, { encoding: 'base64' });
+                    return base64string
+                }))
+                const exportableAmmo:AmmoType = {...ammo, images: base64images}
+                setImportProgress(importProgress+1)
+                try{
+                    await fs.appendFile(`${cache}/${fileName}`, JSON.stringify(exportableAmmo) + (collectionSize !== index ? ", " : ""))
+                }catch(e){
+                    alarm("shareAmmoDb appendExportableAmmo", e)
                 }
-            }))
-            let data = JSON.stringify(exportableAmmoCollection)
-            const fileUri = FileSystem.cacheDirectory + fileName
-            await FileSystem.writeAsStringAsync(fileUri, data, {encoding: FileSystem.EncodingType.UTF8})
-            return fileUri
-        /*
-        for iOS, use expo-share, Sharing.shareAsync(fileUri, fileNamea)
-        */
+            } else {
+                setImportProgress(importProgress+1)
+                try{
+                    await fs.appendFile(`${cache}/${fileName}`, JSON.stringify(ammo) + (collectionSize !== index ? ", " : ""))
+                }catch(e){
+                    alarm("shareAmmoDb appendAmmo", e)
+                }
+            }
+        }))
+        try{
+            await fs.appendFile(`${cache}/${fileName}`, "]")
+        } catch(e){
+            alarm("shareAmmoDb finishTempFile", e)
+        }
+        return `${FileSystem.cacheDirectory}/${fileName}`
+
     }
 
     async function shareCSV(data: DBOperations){
@@ -324,60 +410,100 @@ export default function MainMenu({navigation}){
 
     async function handleSaveGunDb(){
         const fileName = `gunDB_${new Date().getTime()}.json`
-        // ANDROID
-        const permissions = await FileSystem.StorageAccessFramework.requestDirectoryPermissionsAsync()
-        if(permissions.granted){
-            let directoryUri = permissions.directoryUri
-            const exportableGunCollection:GunType[] = await Promise.all(gunCollection.map(async gun =>{
-                if(gun.images !== null && gun.images.length !== 0){
-                    const base64images:string[] = await Promise.all(gun.images?.map(async image =>{
-                        const base64string:string = await FileSystem.readAsStringAsync(image, { encoding: 'base64' });
-                        return base64string
-                    }))
-                    const exportableGun:GunType = {...gun, images: base64images}
-                    setImportProgress(importProgress+1)
-                    return exportableGun
-                } else {
-                    setImportProgress(importProgress+1)
-                    return gun
-                }
-            }))
-            let data = JSON.stringify(exportableGunCollection)
-            const fileUri = await FileSystem.StorageAccessFramework.createFileAsync(directoryUri, fileName, "application/json")
-            await FileSystem.writeAsStringAsync(fileUri, data, {encoding: FileSystem.EncodingType.UTF8})
+        const collectionSize = gunCollection.length-1
+        const cache = Dirs.CacheDir
+        try{
+            await fs.writeFile(`${cache}/${fileName}`, "[")
+        }catch(e){
+            alarm("saveGunDb createTempFile", e)
         }
-        /*
-        for iOS, use expo-share, Sharing.shareAsync(fileUri, fileNamea)
-        */
+        await Promise.all(gunCollection.map(async (gun, index) =>{
+            if(gun.images !== null && gun.images.length !== 0){
+                const base64images:string[] = await Promise.all(gun.images?.map(async image =>{
+                    const base64string:string = await FileSystem.readAsStringAsync(`${FileSystem.documentDirectory}${image.split("/").pop()}`, { encoding: 'base64' });
+                    return base64string
+                }))
+                const exportableGun:GunType = {...gun, images: base64images}
+                setImportProgress(importProgress+1)
+                try{
+                    await fs.appendFile(`${cache}/${fileName}`, JSON.stringify(exportableGun) + (collectionSize !== index ? ", " : ""))
+                }catch(e){
+                    alarm("saveGunDB appendExportableGun", e)
+                }
+            } else {
+                setImportProgress(importProgress+1)
+                try{
+                    await fs.appendFile(`${cache}/${fileName}`, JSON.stringify(gun) + (collectionSize !== index ? ", " : ""))
+                }catch(e){
+                    alarm("saveGunDB appendGun", e)
+                }
+            }
+        }))
+        try{
+            await fs.appendFile(`${cache}/${fileName}`, "]")
+        } catch(e){
+            alarm("saveGunDB finishTempFile", e)
+        }
+        try{
+            await fs.cpExternal(`${cache}/${fileName}`, fileName, "downloads")
+            
+        } catch(e){
+            alarm("saveGunDb moveTempFile", e)
+        }
+        try{
+            await fs.unlink(`${cache}/${fileName}`)
+        }catch(e){
+            alarm("saveGunDb unlinkTempFile", e)
+        }
     }
 
     async function handleSaveAmmoDb(){
         const fileName = `ammoDB_${new Date().getTime()}.json`
-        // ANDROID
-        const permissions = await FileSystem.StorageAccessFramework.requestDirectoryPermissionsAsync()
-        if(permissions.granted){
-            let directoryUri = permissions.directoryUri
-            const exportableAmmoCollection:AmmoType[] = await Promise.all(ammoCollection.map(async ammo =>{
-                if(ammo.images !== null && ammo.images.length !== 0){
-                    const base64images:string[] = await Promise.all(ammo.images?.map(async image =>{
-                        const base64string:string = await FileSystem.readAsStringAsync(image, { encoding: 'base64' });
-                        return base64string
-                    }))
-                    const exportableAmmo:AmmoType = {...ammo, images: base64images}
-                    setImportProgress(importProgress+1)
-                    return exportableAmmo
-                } else {
-                    setImportProgress(importProgress+1)
-                    return ammo
-                }
-            }))
-            let data = JSON.stringify(exportableAmmoCollection)
-            const fileUri = await FileSystem.StorageAccessFramework.createFileAsync(directoryUri, fileName, "application/json")
-            await FileSystem.writeAsStringAsync(fileUri, data, {encoding: FileSystem.EncodingType.UTF8})
+        const collectionSize = ammoCollection.length-1
+        const cache = Dirs.CacheDir
+        try{
+            await fs.writeFile(`${cache}/${fileName}`, "[")
+        }catch(e){
+            alarm("saveAmmoDb createTempFile", e)
         }
-        /*
-        for iOS, use expo-share, Sharing.shareAsync(fileUri, fileNamea)
-        */
+        await Promise.all(ammoCollection.map(async (ammo, index) =>{
+            if(ammo.images !== null && ammo.images.length !== 0){
+                const base64images:string[] = await Promise.all(ammo.images?.map(async image =>{
+                    const base64string:string = await FileSystem.readAsStringAsync(`${FileSystem.documentDirectory}${image.split("/").pop()}`, { encoding: 'base64' });
+                    return base64string
+                }))
+                const exportableAmmo:AmmoType = {...ammo, images: base64images}
+                setImportProgress(importProgress+1)
+                try{
+                    await fs.appendFile(`${cache}/${fileName}`, JSON.stringify(exportableAmmo) + (collectionSize !== index ? ", " : ""))
+                }catch(e){
+                    alarm("saveAmmoDb appendExportableAmmo", e)
+                }
+            } else {
+                setImportProgress(importProgress+1)
+                try{
+                    await fs.appendFile(`${cache}/${fileName}`, JSON.stringify(ammo) + (collectionSize !== index ? ", " : ""))
+                }catch(e){
+                    alarm("saveAmmoDb appendAmmo", e)
+                }
+            }
+        }))
+        try{
+            await fs.appendFile(`${cache}/${fileName}`, "]")
+        } catch(e){
+            alarm("saveAmmoDb finishTempFile", e)
+        }
+        try{
+            await fs.cpExternal(`${cache}/${fileName}`, fileName, "downloads")
+            
+        } catch(e){
+            alarm("saveAmmoDb moveTempFile", e)
+        }
+        try{
+            await fs.unlink(`${cache}/${fileName}`)
+        }catch(e){
+            alarm("saveAmmoDb unlinkTempFile", e)
+        }
     }
 
     async function handleImportGunDb(){
@@ -428,7 +554,7 @@ export default function MainMenu({navigation}){
                     ) 
 
                     const base64Image = resizedImage.base64;
-                    const fileUri = FileSystem.documentDirectory + `${sanitizeFileName(gun.id)}_image_${index}`;
+                    const fileUri = FileSystem.documentDirectory + `${sanitizeFileName(gun.id)}_image_${index}.jpg`;
                     await FileSystem.writeAsStringAsync(fileUri, base64Image, {
                         encoding: FileSystem.EncodingType.Base64,
                     })
@@ -467,7 +593,11 @@ export default function MainMenu({navigation}){
         })
     
         await AsyncStorage.setItem(KEY_DATABASE, JSON.stringify(newKeys)) // Save the key object
-       
+        try{
+            await fs.unlink(result.assets[0].uri)
+        }catch(e){
+            alarm("importAmmoDB unlinkTempFile", e)
+        }
     }
 
     async function handleImportAmmoDb(){
@@ -518,7 +648,7 @@ export default function MainMenu({navigation}){
                     ) 
 
                     const base64Image = resizedImage.base64;
-                    const fileUri = FileSystem.documentDirectory + `${sanitizeFileName(ammo.id)}_image_${index}`;
+                    const fileUri = FileSystem.documentDirectory + `${sanitizeFileName(ammo.id)}_image_${index}.jpg`;
                     await FileSystem.writeAsStringAsync(fileUri, base64Image, {
                         encoding: FileSystem.EncodingType.Base64,
                     })
@@ -557,6 +687,11 @@ export default function MainMenu({navigation}){
         })
     
         await AsyncStorage.setItem(A_KEY_DATABASE, JSON.stringify(newKeys)) // Save the key object
+        try{
+            await fs.unlink(result.assets[0].uri)
+        }catch(e){
+            alarm("importAmmoDB unlinkTempFile", e)
+        }
     }
 
     async function handleSwitchesAlert(setting:string){
@@ -585,6 +720,7 @@ export default function MainMenu({navigation}){
     async function handleSwitches(setting: string){
         const newSettings = {...generalSettings, [setting]: !generalSettings[setting]}
             setGeneralSettings(newSettings)
+            console.log(newSettings)
             const preferences:string = await AsyncStorage.getItem(PREFERENCES)
             const newPreferences:{[key:string] : string} = preferences == null ? {"generalSettings": newSettings} : {...JSON.parse(preferences), "generalSettings": newSettings} 
             await AsyncStorage.setItem(PREFERENCES, JSON.stringify(newPreferences))
@@ -598,7 +734,8 @@ export default function MainMenu({navigation}){
         if(result.assets === null){
             return
         }
-        if(result.assets[0].mimeType !== "text/comma-separated-values"){
+
+        if(result.assets[0].mimeType !== "text/comma-separated-values" && result.assets[0].mimeType !== "text/csv"){
             throw("Non CSV file format detected")
         }
     }catch(e){
@@ -732,12 +869,53 @@ export default function MainMenu({navigation}){
                 }, 0)
         }
     }
+
+    async function handleIOSprints(printer: "gunCollection" | "gunCollectionArt5" | "ammoCollection"){
+        setPrinterSrc(printer)
+        toggleiosWarning(true)
+    }
+
+    async function handlePrints(printer: null | "gunCollection" | "gunCollectionArt5" | "ammoCollection"){
+        if(printer === null){
+            return
+        }
+        toggleiosWarning(false)
+        console.log(printer)
+        console.log("Im printing tables!")
+        switch(printer){
+            case "gunCollection":
+                try{
+                    console.log("Im printing gun collection!")
+                await printGunCollection(gunCollection, language, generalSettings.caliberDisplayName, caliberDisplayNameList);
+                return
+                } catch(e){
+                    alarm("printGunCollection Error", e)
+                }
+            case "gunCollectionArt5":
+                try{
+                    console.log("Im printing gun collection art 5!")
+                   await printGunCollectionArt5(gunCollection, language, generalSettings.caliberDisplayName, caliberDisplayNameList);
+                    return
+                } catch(e){
+                    alarm("printGunCollectioNArt5 Error", e)
+                }
+            case "ammoCollection":
+                try{
+                    console.log("Im printing ammo collection!")
+                   await printAmmoCollection(ammoCollection, language, generalSettings.caliberDisplayName, caliberDisplayNameList);
+                    return
+                } catch(e){
+                    alarm("printAmmoCollection Error", e)
+                }
+                
+        }
+    }
     
 
     return(
         
-           <View style={{flex: 1}}>
-                <View style={{width: "100%", height: "100%", backgroundColor: theme.colors.background}}>
+           <View style={{height: "100%", width: Dimensions.get("window").width > Dimensions.get("window").height ? "60%" : "100%"}}>
+                <View style={{width: "100%", height: "100%"}}>
                     <TouchableNativeFeedback onPress={()=>navigation.goBack()}>
                         <View style={{width: "100%", height: 50, display: "flex", flexDirection: "row", justifyContent: "flex-start", alignItems: "center", paddingLeft: 20, backgroundColor: theme.colors.primary}}>
                             <Icon source="arrow-left" size={20} color={theme.colors.onPrimary}/>
@@ -883,14 +1061,14 @@ export default function MainMenu({navigation}){
                                                 <Text style={{width: "80%"}}>{preferenceTitles.printAllGuns[language]}</Text>
                                                 {gunCollection.length === 0 ?<Tooltip title={tooltips.noGunsAddedYet[language]}><IconButton icon="table-off" mode="contained" disabled /></Tooltip>
                                                 :
-                                                <IconButton icon="table-large" onPress={()=>printGunCollection(gunCollection, language)} mode="contained" iconColor={theme.colors.onPrimary} style={{backgroundColor: theme.colors.primary}}/>}
+                                                <IconButton icon="table-large" onPress={()=>Platform.OS === "ios" ? handleIOSprints("gunCollection") : handlePrints("gunCollection")} mode="contained" iconColor={theme.colors.onPrimary} style={{backgroundColor: theme.colors.primary}}/>}
                                             </View>   
                                             <Divider style={{width: "100%", borderWidth: 0.5, borderColor: theme.colors.onSecondary}} />
                                             <View style={{display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between", width: "100%"}}>
                                                 <Text style={{width: "80%"}}>{preferenceTitles.printArt5[language]}</Text>
                                                 {gunCollection.length === 0 ?<Tooltip title={tooltips.noGunsAddedYet[language]}><IconButton icon="table-off" mode="contained" disabled /></Tooltip>
                                                 :
-                                                <IconButton icon="table-large" onPress={()=>printGunCollectionArt5(gunCollection, language)} mode="contained" iconColor={theme.colors.onPrimary} style={{backgroundColor: theme.colors.primary}}/>}
+                                                <IconButton icon="table-large" onPress={()=>Platform.OS === "ios" ? handleIOSprints("gunCollectionArt5") : handlePrints("gunCollectionArt5")} mode="contained" iconColor={theme.colors.onPrimary} style={{backgroundColor: theme.colors.primary}}/>}
                                             </View>   
                                             {/*<Button style={{width: "45%"}} icon="badge-account-outline" onPress={()=>printGunGallery(gunCollection, language)} mode="contained">{preferenceTitles.printGallery[language]}</Button>*/}
 
@@ -904,7 +1082,7 @@ export default function MainMenu({navigation}){
                                                 <Text style={{width: "80%"}}>{preferenceTitles.printAllAmmo[language]}</Text>
                                                 {ammoCollection.length === 0 ?<Tooltip title={tooltips.noAmmoAddedYet[language]}><IconButton icon="table-off" mode="contained" disabled /></Tooltip>
                                                 :
-                                                <IconButton icon="table-large" onPress={()=>printAmmoCollection(ammoCollection, language)} mode="contained" iconColor={theme.colors.onPrimary} style={{backgroundColor: theme.colors.primary}}/>}
+                                                <IconButton icon="table-large" onPress={()=>Platform.OS === "ios" ? handleIOSprints("ammoCollection") : handlePrints("ammoCollection")} mode="contained" iconColor={theme.colors.onPrimary} style={{backgroundColor: theme.colors.primary}}/>}
                                             </View>   
                                            {/* <Button style={{width: "45%"}} icon="badge-account-outline" onPress={()=>printAmmoGallery(ammoCollection, language)} mode="contained">{preferenceTitles.printGallery[language]}</Button> */}
                                         </View>
@@ -926,6 +1104,11 @@ export default function MainMenu({navigation}){
                                             <View style={{display: "flex", flexWrap: "nowrap", justifyContent: "space-between", alignItems: "center", flexDirection: "row", width: "100%"}}>
                                                 <Text style={{flex: 7}}>{generalSettingsLabels.emptyFields[language]}</Text>
                                                 <Switch style={{flex: 3}} value={generalSettings.emptyFields} onValueChange={()=>handleSwitches("emptyFields")} />
+                                            </View>
+                                            <Divider style={{width: "100%", borderWidth: 0.5, borderColor: theme.colors.onSecondary}} />
+                                            <View style={{display: "flex", flexWrap: "nowrap", justifyContent: "space-between", alignItems: "center", flexDirection: "row", width: "100%"}}>
+                                                <Text style={{flex: 7}}>{generalSettingsLabels.caliberDisplayName[language]}</Text>
+                                                <Switch style={{flex: 3}} value={generalSettings.caliberDisplayName} onValueChange={()=>handleSwitches("caliberDisplayName")} />
                                             </View>
                                             <Divider style={{width: "100%", borderWidth: 0.5, borderColor: theme.colors.onSecondary}} />
                                             <View style={{display: "flex", flexWrap: "nowrap", justifyContent: "space-between", alignItems: "center", flexDirection: "row", width: "100%"}}>
@@ -1037,6 +1220,19 @@ export default function MainMenu({navigation}){
                 <ActivityIndicator size="large" animating={true} />
                 <Text variant="bodyLarge" style={{width: "100%", textAlign: "center", color: theme.colors.onBackground, marginTop: 10, backgroundColor: theme.colors.background}}>{`${dbModalText}: ${importProgress}/${importSize}`}</Text>
             </Modal>
+
+            <Dialog visible={iosWarning} onDismiss={()=>toggleiosWarning(false)}>
+                    <Dialog.Title>
+                    {iosWarningText.title[language]}
+                    </Dialog.Title>
+                    <Dialog.Content>
+                        <Text>{iosWarningText.text[language]}</Text>
+                    </Dialog.Content>
+                    <Dialog.Actions>
+                        <Button onPress={()=>handlePrints(printerSrc)} icon="heart" buttonColor={theme.colors.errorContainer} textColor={theme.colors.onErrorContainer}>{iosWarningText.ok[language]}</Button>
+                        <Button onPress={()=>toggleiosWarning(false)} icon="heart-broken" buttonColor={theme.colors.secondary} textColor={theme.colors.onSecondary}>{iosWarningText.cancel[language]}</Button>
+                    </Dialog.Actions>
+                </Dialog>
 
             </View>
     )

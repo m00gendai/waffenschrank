@@ -183,6 +183,8 @@ export default function NewChipArea({data, gunData, setGunData, ammoData, setAmm
                     value={text}
                     onChangeText={text => setText(text)}
                     style={{flex: 8, marginRight: 10}}
+                    returnKeyType='done'
+                    returnKeyLabel='OK'
                     />
                     <IconButton mode="contained" icon={"floppy"} size={30} onPress={()=>saveNewTag(null)} style={{ margin: 0}} />
             </Surface>

@@ -18,6 +18,8 @@ export default function QuickShot({navigation}){
     const [shotCountFromStock, setShotCountFromStock] = useState<string[]>([])
     const [shotCountNonStock, setShotCountNonStock] = useState<string>("")
     const [seeInfo, toggleSeeInfo] = useState<boolean>(false)
+    const [negativeAmmo, setNegativeAmmo] = useState<boolean>(false)
+    const [negativeAmmoId, setNegativeAmmoId] = useState<string>("")
 
     async function save(value: GunType) {
         await SecureStore.setItemAsync(`${GUN_DATABASE}_${value.id}`, JSON.stringify(value)) // Save the gun
@@ -73,18 +75,18 @@ export default function QuickShot({navigation}){
         navigation.goBack()
       }
       
-      const handleInputChange = (ammoId:string, index:number, value:string) => {
+      const handleInputChange = (ammoStock: number, ammoId:string, index:number, value:string) => {
         const newValue = value.replace(/[^0-9]/g, '');
+        setNegativeAmmo((ammoStock === undefined ? 0 : ammoStock === null ? 0 : Number(ammoStock)) < Number(value))
+        setNegativeAmmoId(ammoStock === undefined ? "" : ammoStock === null ? "" : Number(ammoStock) < Number(value) ? ammoId : "")
         setShotCountFromStock(prevState => ({
           ...prevState,
           [`${ammoId}`]: newValue
         }));
       };
       
-      function handleErrorMessage(ammo:AmmoType, val:string){
-       return (ammo.currentStock === undefined ? 0 : ammo.currentStock === null ? 0 : ammo.currentStock) < Number(val)
-      }
-    
+  
+
 return(
 <View style={{width: "100%", height: "100%", display: "flex", flexDirection: "row", justifyContent: "center", alignItems: "center", flexWrap: "wrap", backgroundColor: theme.colors.backdrop}}>
                     <View style={{width: "85%", height: "100%", display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", flexWrap: "wrap"}}>
@@ -99,7 +101,7 @@ return(
                     <View style={{width: "100%", padding: defaultViewPadding, display: "flex", alignItems: "flex-start", flexDirection: "row", flexWrap: "wrap"}}>
                       {ammoCollection.map(ammo =>{
                         return currentGun.caliber.map((caliber, index) =>{
-                          if(ammo.caliber === caliber){
+                          if(ammo.caliber === caliber && ammo.currentStock !== 0){
                             const key = `${ammo.id}`;
                             const val = shotCountFromStock[key] || '';
                             return (
@@ -108,9 +110,12 @@ return(
                                 <TextInput 
                                   label={`${ammo.manufacturer ? ammo.manufacturer : ""} ${ammo.designation}`}
                                   value={val}
-                                  onChangeText={val => handleInputChange(ammo.id, index, val)}
+                                  onChangeText={val => handleInputChange(ammo.currentStock, ammo.id, index, val)}
+                                  returnKeyType='done'
+                        returnKeyLabel='OK'
+                        inputMode="decimal"
                                 />
-                                {handleErrorMessage(ammo, val) ? <HelperText type="error" visible={handleErrorMessage(ammo, val)}>
+                                {negativeAmmo && negativeAmmoId === ammo.id ? <HelperText type="error" visible={negativeAmmo}>
                                   {ammo.currentStock === null ? gunQuickShot.errorNoAmountDefined[language] : ammo.currentStock === undefined ? gunQuickShot.errorNoAmountDefined[language] : gunQuickShot.errorAmountTooLow[language].replace("{{AMOUNT}}", ammo.currentStock)}
                                 </HelperText> : null}
                               </View>
@@ -126,13 +131,16 @@ return(
                         value={shotCountNonStock}
                         onChangeText={shotCountNonStock => setShotCountNonStock(shotCountNonStock.replace(/[^0-9]/g, ''))}
                         label={gunQuickShot.updateNonStockInput[language]}
+                        inputMode="decimal"
+                        returnKeyType='done'
+                        returnKeyLabel='OK'
                       ></TextInput>
                     </View>
                     </List.Accordion>
                     </ScrollView>
                             </List.Section>
                             <View style={{width: "100%", marginTop: 10, display: "flex", flexDirection: "row", justifyContent: "space-between"}}>
-                      <IconButton mode="contained" onPress={()=>handleShotCount()} icon={"check"} style={{width: 50, backgroundColor: theme.colors.primary}} iconColor={theme.colors.onPrimary}/>
+                      <IconButton disabled={negativeAmmo} mode="contained" onPress={()=>handleShotCount()} icon={"check"} style={{width: 50, backgroundColor: theme.colors.primary}} iconColor={theme.colors.onPrimary}/>
                       <IconButton mode="contained" onPress={()=>navigation.goBack()} icon={"cancel"} style={{width: 50, backgroundColor: theme.colors.secondaryContainer}} />
                       </View>
                         </View>

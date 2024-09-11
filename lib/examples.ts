@@ -7,6 +7,7 @@ export const exampleGun:GunType = {
     "id": "c472c7e8-c177-4a42-badf-549e468ed42e", 
     "images": ["file:///data/user/0/host.exp.exponent/files/c45f8da7-a3cc-4798-8e38-ffd39165ca2d.jpeg"], 
     "lastCleanedAt": "18.6.2024",
+    "cleanInterval": "day_7",
     "lastModifiedAt": null,
     "lastShotAt": "17.6.2024", 
     "mainColor": "#000000ff", 
@@ -15,6 +16,7 @@ export const exampleGun:GunType = {
     "model": "P210-6", 
     "originCountry": "Schweiz", 
     "paidPrice": "1500", 
+    "boughtFrom": "Treehugger Supply",
     "marketValue": "2500",
     "permit": "WES SH2009-001", 
     "remarks": "Special Edition", 
@@ -24,7 +26,11 @@ export const exampleGun:GunType = {
         "exFullAuto": false, 
         "fullAuto": false, 
         "highCapacityMagazine": true, 
-        "short": false
+        "short": false,
+        "launcher": false,
+        "decepticon": false,
+        "blooptoob": false,
+        "grandfather": true
     },
     "tags": ["Pistole"]
 }
@@ -36,6 +42,7 @@ export const exampleGunEmpty:GunType = {
     "id": "", 
     "images": [], 
     "lastCleanedAt": "",
+    "cleanInterval": "",
     "lastModifiedAt": null,
     "lastShotAt": "",
     "mainColor": "",
@@ -44,6 +51,7 @@ export const exampleGunEmpty:GunType = {
     "model": "",
     "originCountry": "",
     "paidPrice": "",
+    "boughtFrom": "",
     "marketValue": "",
     "permit": "",
     "remarks": "",
@@ -53,7 +61,11 @@ export const exampleGunEmpty:GunType = {
         "exFullAuto": false, 
         "fullAuto": false, 
         "highCapacityMagazine": false, 
-        "short": false
+        "short": false,
+        "launcher": false,
+        "decepticon": false,
+        "blooptoob": false,
+        "grandfather": false
     },
     "tags": []
 }

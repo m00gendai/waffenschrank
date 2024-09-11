@@ -10,6 +10,7 @@ export interface GunType{
   serial?: string | null
   permit?: string | null
   acquisitionDate?: string | null
+  boughtFrom?: string | null
   mainColor?: string | null
   remarks? : string | null
   images: string[]
@@ -30,6 +31,10 @@ export interface GunTypeStatus{
   highCapacityMagazine: boolean
   short: boolean
   fullAuto: boolean
+  launcher: boolean
+  decepticon: boolean
+  blooptoob: boolean
+  grandfather: boolean
 }
 
 export interface AmmoType{
@@ -106,6 +111,7 @@ export interface Elevation {
 
 export interface CommonStyles {
   allPageMargin: string
+  allPageMarginIOS: number
   allTitleFontSize: string
   allSubtitleFontSize: string
   allTableFontSize: string

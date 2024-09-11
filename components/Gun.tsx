@@ -1,4 +1,4 @@
-import { StyleSheet, View, ScrollView, Alert, TouchableNativeFeedback, TouchableOpacity } from 'react-native';
+import { StyleSheet, View, ScrollView, Alert, TouchableNativeFeedback, TouchableOpacity, Pressable, Platform } from 'react-native';
 import { Button, Appbar, Icon, Checkbox, Chip, Text, Portal, Dialog, Modal, IconButton } from 'react-native-paper';
 import { checkBoxes, gunDataTemplate, gunRemarks } from "../lib/gunDataTemplate"
 import * as SecureStore from "expo-secure-store"
@@ -10,14 +10,17 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { usePreferenceStore } from '../stores/usePreferenceStore';
 import { useViewStore } from '../stores/useViewStore';
 import { useGunStore } from '../stores/useGunStore';
-import { cleanIntervals, gunDeleteAlert } from '../lib/textTemplates';
+import { cleanIntervals, gunDeleteAlert, iosWarningText } from '../lib/textTemplates';
 import { printSingleGun } from '../functions/printToPDF';
 import { GunType } from '../interfaces';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { checkDate } from '../utils';
+import { alarm, checkDate } from '../utils';
 import { LinearGradient } from 'expo-linear-gradient';
 import { colord } from "colord";
 import { defaultViewPadding } from '../configs';
+import { GetColorName } from 'hex-color-to-color-name';
+import * as Sharing from 'expo-sharing';
+import * as FileSystem from 'expo-file-system';
 
 export default function Gun({navigation}){
 
@@ -25,8 +28,10 @@ export default function Gun({navigation}){
     const [dialogVisible, toggleDialogVisible] = useState<boolean>(false)
 
     const { setSeeGunOpen, editGunOpen, setEditGunOpen, lightBoxOpen, setLightBoxOpen } = useViewStore()
-    const { language, theme, generalSettings } = usePreferenceStore()
+    const { language, theme, generalSettings, caliberDisplayNameList } = usePreferenceStore()
     const { currentGun, setCurrentGun, gunCollection, setGunCollection} = useGunStore()
+
+    const [iosWarning, toggleiosWarning] = useState<boolean>(false)
 
     const showModal = (index:number) => {
         setLightBoxOpen()
@@ -81,13 +86,48 @@ export default function Gun({navigation}){
         navigation.navigate("GunCollection")
     }
 
+    function handleIosPrint(){
+        toggleiosWarning(true)
+    }
+
+    function handlePrintPress(){
+        toggleiosWarning(false)
+        try{
+            printSingleGun(currentGun, language, generalSettings.caliberDisplayName, caliberDisplayNameList)
+        }catch(e){
+            alarm("Print Single Gun Error", e)
+        }
+    }
+
+    async function handleShareImage(img:string){
+        console.log(img)
+        await Sharing.shareAsync(img.includes(FileSystem.documentDirectory) ? img: `${FileSystem.documentDirectory}${img}`)
+    }
+
+    function checkColor(color:string){
+        if(color.length === 9){
+            return color.substring(0,8)
+        }
+        return color
+    }
+
+    function getShortCaliberName(calibers:string[]){
+        const outputArray = calibers.map(item => {
+            // Find an object where displayName matches the item
+            const match = caliberDisplayNameList.find(obj => obj.name === item)
+            // If a match is found, return the displayName, else return the original item
+            return match ? match.displayName : item;
+        });
+        return outputArray
+    }
+
     return(
         <View style={{flex: 1}}>
             
             <Appbar style={{width: "100%"}}>
                 <Appbar.BackAction  onPress={() => navigation.navigate("GunCollection")} />
                 <Appbar.Content title={`${currentGun.manufacturer !== undefined? currentGun.manufacturer : ""} ${currentGun.model}`} />
-                <Appbar.Action icon="printer" onPress={()=>printSingleGun(currentGun, language)} />
+                <Appbar.Action icon="printer" onPress={()=>Platform.OS === "ios" ? handleIosPrint() : handlePrintPress()} />
                 <Appbar.Action icon="pencil" onPress={()=>navigation.navigate("EditGun")} />
             </Appbar>
         
@@ -130,9 +170,23 @@ export default function Gun({navigation}){
                                     <View key={`${item.name}`} style={{flex: 1, flexDirection: "column"}} >
                                         <Text style={{width: "100%", fontSize: 12,}}>{`${item[language]}:`}</Text>
                                         {Array.isArray(currentGun[item.name]) ?
-                                        <Text style={{width: "100%", fontSize: 18, marginBottom: 5, paddingBottom: 5, borderBottomColor: theme.colors.primary, borderBottomWidth: 0.2}}>{currentGun[item.name] ? currentGun[item.name].join("\n") : ""}</Text>
+                                        <Text style={{width: "100%", fontSize: 18, marginBottom: 5, paddingBottom: 5, borderBottomColor: theme.colors.primary, borderBottomWidth: 0.2}}>
+                                            {currentGun[item.name] 
+                                                ? item.name === "caliber" 
+                                                    ? generalSettings.caliberDisplayName 
+                                                        ? getShortCaliberName(currentGun.caliber).join("\n") 
+                                                        : currentGun.caliber.join("\n")
+                                                    : currentGun[item.name]
+                                                : ""}
+                                        </Text>
                                         :
-                                        <Text style={{width: "100%", fontSize: 18, marginBottom: 5, paddingBottom: 5, borderBottomColor: theme.colors.primary, borderBottomWidth: 0.2}}>{item.name === "paidPrice" ? `CHF ${currentGun[item.name] ? currentGun[item.name] :  ""}` : item.name === "marketValue" ? `CHF ${currentGun[item.name] ? currentGun[item.name] : ""}` : item.name === "cleanInterval" && currentGun[item.name] !== undefined ? cleanIntervals[currentGun[item.name]][language] : currentGun[item.name]}</Text>
+                                        <Text style={{width: "100%", fontSize: 18, marginBottom: 5, paddingBottom: 5, borderBottomColor: theme.colors.primary, borderBottomWidth: 0.2}}>
+                                            {item.name === "mainColor" ?  
+                                                currentGun.mainColor ? GetColorName(`${checkColor(currentGun.mainColor).split("#")[1]}`) : "" 
+                                            : item.name === "paidPrice" ? `CHF ${currentGun[item.name] ? currentGun[item.name] :  ""}` 
+                                            : item.name === "marketValue" ? `CHF ${currentGun[item.name] ? currentGun[item.name] : ""}` 
+                                            : item.name === "cleanInterval" && cleanIntervals[currentGun[item.name]] !== undefined ? cleanIntervals[currentGun[item.name]][language]
+                                            : currentGun[item.name]}</Text>
                                         }
                                         {item.name === "lastCleanedAt" && checkDate(currentGun) ? 
                                             <View style={{position:"absolute", top: 0, right: 0, bottom: 0, left: 0, display: "flex", flexDirection: "row", justifyContent: "flex-end", alignItems: "center"}}>
@@ -142,7 +196,8 @@ export default function Gun({navigation}){
                                         null}
                                         {item.name === "mainColor" ? 
                                             <View style={{position:"absolute", top: 0, right: 0, bottom: 0, left: 0, display: "flex", flexDirection: "row", justifyContent: "flex-end", alignItems: "center"}}>
-                                                <View style={{height: "50%", aspectRatio: "5/1", borderRadius: 50, backgroundColor: `${currentGun.mainColor}`, transform:[{translateY: -5}]}}></View>
+                                                <View style={{height: "50%", aspectRatio: "5/1", borderRadius: 50, backgroundColor: `${currentGun.mainColor}`, transform:[{translateY: -5}]}}>
+                                                </View>
                                             </View> 
                                         : 
                                         null}
@@ -153,9 +208,17 @@ export default function Gun({navigation}){
                                 <View key={`${item.name}`} style={{flex: 1, flexDirection: "column"}} >
                                     <Text style={{width: "100%", fontSize: 12,}}>{`${item[language]}:`}</Text>
                                     {Array.isArray(currentGun[item.name]) ?
-                                    <Text style={{width: "100%", fontSize: 18, marginBottom: 5, paddingBottom: 5, borderBottomColor: theme.colors.primary, borderBottomWidth: 0.2}}>{currentGun[item.name] ? currentGun[item.name].join("\n") : ""}</Text>
+                                    <Text style={{width: "100%", fontSize: 18, marginBottom: 5, paddingBottom: 5, borderBottomColor: theme.colors.primary, borderBottomWidth: 0.2}}>
+                                       {currentGun[item.name] 
+                                        ? item.name === "caliber" 
+                                            ? generalSettings.caliberDisplayName 
+                                                ? getShortCaliberName(currentGun.caliber).join("\n") 
+                                                : currentGun.caliber.join("\n")
+                                            : currentGun[item.name]
+                                        : ""}
+                                    </Text>
                                     :
-                                    <Text style={{width: "100%", fontSize: 18, marginBottom: 5, paddingBottom: 5, borderBottomColor: theme.colors.primary, borderBottomWidth: 0.2}}>{item.name === "paidPrice" ? `CHF ${currentGun[item.name] ? currentGun[item.name] : ""}` : item.name === "marketValue" ? `CHF ${currentGun[item.name] ? currentGun[item.name] : ""}` : item.name === "cleanInterval" && currentGun[item.name] !== undefined ? cleanIntervals[currentGun[item.name]][language] : currentGun[item.name]}</Text>
+                                    <Text style={{width: "100%", fontSize: 18, marginBottom: 5, paddingBottom: 5, borderBottomColor: theme.colors.primary, borderBottomWidth: 0.2}}>{item.name === "mainColor" ?  currentGun.mainColor ? GetColorName(`${checkColor(currentGun.mainColor).split("#")[1]}`) : "" : item.name === "paidPrice" ? `CHF ${currentGun[item.name] ? currentGun[item.name] : ""}` : item.name === "marketValue" ? `CHF ${currentGun[item.name] ? currentGun[item.name] : ""}` : item.name === "cleanInterval" && currentGun[item.name] !== undefined ? cleanIntervals[currentGun[item.name]][language] : currentGun[item.name]}</Text>
                                     }
                                     {item.name === "lastCleanedAt" && checkDate(currentGun) ? 
                                         <View style={{position:"absolute", top: 0, right: 0, bottom: 0, left: 0, display: "flex", flexDirection: "row", justifyContent: "flex-end", alignItems: "center"}}>
@@ -176,7 +239,7 @@ export default function Gun({navigation}){
                         <View style={{flex: 1, flexDirection: "column"}} >
                         {checkBoxes.map(checkBox=>{
                             return(
-                                <Checkbox.Item key={checkBox.name} label={checkBox[language]} status={currentGun.status && currentGun.status[checkBox.name] ? "checked" : "unchecked"}/>
+                                <Checkbox.Item mode="android" key={checkBox.name} label={checkBox[language]} status={currentGun.status && currentGun.status[checkBox.name] ? "checked" : "unchecked"}/>
                             )
                         })}
                         </View>
@@ -189,9 +252,10 @@ export default function Gun({navigation}){
                     <Portal>
                         <Modal visible={lightBoxOpen} onDismiss={setLightBoxOpen}>
                             <View style={{width: "100%", height: "100%", padding: 0, display: "flex", flexDirection: "row", flexWrap: "wrap", backgroundColor: "green"}}>
-                                <TouchableOpacity onPress={setLightBoxOpen} style={{padding: 0, margin: 0, position: "absolute", top: defaultViewPadding, right: defaultViewPadding, zIndex: 999}}>
-                                    <Icon source="close-thick" size={40} color={theme.colors.inverseSurface}/>
-                                </TouchableOpacity>
+                                <View style={{padding: 0, margin: 0, position: "absolute", top: defaultViewPadding, right: defaultViewPadding, left: defaultViewPadding, zIndex: 999, display: "flex", flexDirection: "row", justifyContent: "space-between"}}>
+                                    <Pressable onPress={()=>handleShareImage(currentGun.images[lightBoxIndex])}><Icon source="share-variant" size={40} color={theme.colors.inverseSurface}/></Pressable>
+                                    <Pressable onPress={setLightBoxOpen} ><Icon source="close-thick" size={40} color={theme.colors.inverseSurface}/></Pressable>
+                                </View>
                                 {lightBoxOpen ? <ImageViewer isLightBox={true} selectedImage={currentGun.images[lightBoxIndex]}/> : null}
                             </View>
                         </Modal>    
@@ -219,6 +283,20 @@ export default function Gun({navigation}){
                     </View>
                 </ScrollView>
             </View>
+
+            <Dialog visible={iosWarning} onDismiss={()=>toggleiosWarning(false)}>
+                    <Dialog.Title>
+                    {iosWarningText.title[language]}
+                    </Dialog.Title>
+                    <Dialog.Content>
+                        <Text>{iosWarningText.text[language]}</Text>
+                    </Dialog.Content>
+                    <Dialog.Actions>
+                        <Button onPress={()=>handlePrintPress()} icon="heart" buttonColor={theme.colors.errorContainer} textColor={theme.colors.onErrorContainer}>{iosWarningText.ok[language]}</Button>
+                        <Button onPress={()=>toggleiosWarning(false)} icon="heart-broken" buttonColor={theme.colors.secondary} textColor={theme.colors.onSecondary}>{iosWarningText.cancel[language]}</Button>
+                    </Dialog.Actions>
+                </Dialog>
+
         </View>
     )
 }

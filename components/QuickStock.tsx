@@ -1,13 +1,13 @@
 import { useState } from "react";
 import { View } from "react-native";
-import { Button, Dialog, IconButton, Text, TextInput } from "react-native-paper"
+import { Button, Dialog, HelperText, IconButton, Text, TextInput } from "react-native-paper"
 import { usePreferenceStore } from "../stores/usePreferenceStore";
 import { dateLocales, defaultViewPadding } from "../configs";
 import { AMMO_DATABASE } from "../configs_DB"
 import { AmmoType } from "../interfaces";
 import * as SecureStore from "expo-secure-store"
 import { useAmmoStore } from "../stores/useAmmoStore";
-import { ammoQuickUpdate } from "../lib/textTemplates";
+import { ammoQuickUpdate, gunQuickShot } from "../lib/textTemplates";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function QuickStock({navigation}){
@@ -19,6 +19,7 @@ export default function QuickStock({navigation}){
     const { ammoDbImport, displayAmmoAsGrid, setDisplayAmmoAsGrid, toggleDisplayAmmoAsGrid, sortAmmoBy, setSortAmmoBy, language, theme, sortAmmoIcon, setSortAmmoIcon } = usePreferenceStore()
     const { ammoCollection, setAmmoCollection, currentAmmo, setCurrentAmmo } = useAmmoStore()
     const [seeInfo, toggleSeeInfo] = useState<boolean>(false)
+    const [negativeAmmo, setNegativeAmmo] = useState<boolean>(false)
 
     async function saveNewStock(ammo:AmmoType){
         const date:Date = new Date()
@@ -44,6 +45,11 @@ export default function QuickStock({navigation}){
             displayError(true)
         }
     }
+
+    function handleInput(input:string){
+      setNegativeAmmo((currentAmmo.currentStock === undefined ? 0 : currentAmmo.currentStock === null ? 0 : Number(currentAmmo.currentStock)) < Number(input))
+      setInput(input.replace(/[^0-9]/g, ''))
+    }
     
     return(
         <View style={{flex: 1}}>
@@ -54,13 +60,18 @@ export default function QuickStock({navigation}){
                             <View style={{display: "flex", flexDirection: "row"}}><Text variant="titleLarge" style={{color: theme.colors.primary, padding: defaultViewPadding, flex: 9}}>{`QuickStock`}</Text><IconButton style={{flex: 1}} icon="help-circle-outline" onPress={()=>toggleSeeInfo(true)}/></View>
                         </View>
                   <View style={{width: "100%", display: "flex", flexDirection: "row", padding: defaultViewPadding, flexWrap: "wrap"}}>
+                    <Text>{`${currentAmmo.manufacturer} ${currentAmmo.designation}\n${currentAmmo.caliber}`}</Text>
                     <View style={{width: "100%", display: "flex", flexDirection: "row", justifyContent: "center",  marginBottom: 10}}>
                       <IconButton mode="contained" icon="plus" selected={stockChange === "inc" ? true : false} onPress={()=>setStockChange("inc")}/>
                       <IconButton mode="contained" icon="minus" selected={stockChange === "dec" ? true : false} onPress={()=>setStockChange("dec")} />
                     </View>
-                    <TextInput style={{width: "100%"}} placeholder={ammoQuickUpdate.placeholder[language]} keyboardType={"number-pad"} value={input} onChangeText={input => setInput(input.replace(/[^0-9]/g, ''))} inputMode='decimal'/>
+                    <TextInput style={{width: "100%"}} placeholder={ammoQuickUpdate.placeholder[language]} keyboardType={"number-pad"} value={input} onChangeText={input => handleInput(input)} inputMode='decimal' returnKeyType='done'
+                        returnKeyLabel='OK'/>
+                        {negativeAmmo  && stockChange === "dec" ? <HelperText type="error" visible={negativeAmmo}>
+                                  {currentAmmo.currentStock === null ? gunQuickShot.errorNoAmountDefined[language] : currentAmmo.currentStock === undefined ? gunQuickShot.errorNoAmountDefined[language] : gunQuickShot.errorAmountTooLow[language].replace("{{AMOUNT}}", currentAmmo.currentStock)}
+                                </HelperText> : null}
                     <View style={{width: "100%", display: "flex", flexDirection: "row", justifyContent: "space-between", marginTop: 10}}>
-                    <IconButton mode="contained" icon="check" onPress={() => saveNewStock(currentAmmo)} style={{width: 50, backgroundColor: theme.colors.primary}} iconColor={theme.colors.onPrimary}/>
+                    <IconButton disabled={negativeAmmo && stockChange === "dec"} mode="contained" icon="check" onPress={() => saveNewStock(currentAmmo)} style={{width: 50, backgroundColor: theme.colors.primary}} iconColor={theme.colors.onPrimary}/>
                       <IconButton mode="contained" icon="cancel" onPress={()=>navigation.goBack()} style={{width: 50, backgroundColor: theme.colors.secondaryContainer}} iconColor={theme.colors.onSecondaryContainer}/>
                     </View>
                   </View>

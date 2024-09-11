@@ -30,7 +30,8 @@ import EditGun from './components/EditGun';
 import EditAmmo from './components/EditAmmo';
 import * as SplashScreen from 'expo-splash-screen';
 import * as LocalAuthentication from 'expo-local-authentication';
-import { Alert } from 'react-native';
+import { Alert, Dimensions } from 'react-native';
+import { calibers } from './lib/caliberData';
 
 
 SplashScreen.preventAutoHideAsync();
@@ -39,7 +40,24 @@ export default function App() {
 
   const [appIsReady, setAppIsReady] = useState<boolean>(false);
 
-  const { ammoDbImport, dbImport, switchLanguage, theme, switchTheme, language, generalSettings, setGeneralSettings, setDisplayAsGrid, setDisplayAmmoAsGrid, setSortBy, setSortAmmoBy, setSortAmmoIcon, setSortGunIcon, setSortGunsAscending, setSortAmmoAscending, firstOpen, setFirstOpen } = usePreferenceStore();
+  const { 
+    ammoDbImport, 
+    dbImport,
+    switchLanguage, 
+    theme, 
+    switchTheme, 
+    setGeneralSettings, 
+    setDisplayAsGrid, 
+    setDisplayAmmoAsGrid, 
+    setSortBy, 
+    setSortAmmoBy, 
+    setSortAmmoIcon, 
+    setSortGunIcon, 
+    setSortGunsAscending, 
+    setSortAmmoAscending, 
+    setCaliberDisplayNameList,
+    caliberDisplayNameList
+  } = usePreferenceStore();
   const { mainMenuOpen } = useViewStore()
   const { setAmmoCollection } = useAmmoStore()
   const { setGunCollection } = useGunStore()
@@ -121,6 +139,21 @@ export default function App() {
         displayImagesInListViewGun: true,
         resizeImages: true,
       } : isPreferences.generalSettings)
+      let shortCalibers:{name: string, displayName?: string}[] = []
+      if(isPreferences !== null){
+        if(isPreferences.generalSettings !== undefined){
+          if(isPreferences.generalSettings.caliberDisplayName !== undefined){
+            calibers.map(variant =>{
+              variant.variants.map(caliber =>{
+                if(caliber.displayName !== undefined){
+                  shortCalibers.push(caliber)
+                }
+              })
+            })
+          }
+        }
+      }
+      setCaliberDisplayNameList(shortCalibers)
     } catch(e){
       alarm("General Preferences Error", e)
     }
@@ -358,7 +391,7 @@ export default function App() {
             <Stack.Screen
               name="MainMenu"
               component={MainMenu}
-              options={{headerShown: false, cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS, gestureDirection: "horizontal-inverted"}} 
+              options={{headerShown: false, cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS, gestureDirection: "horizontal-inverted", presentation: "transparentModal", cardStyle: { backgroundColor: Dimensions.get("window").width > Dimensions.get("window").height ? "transparent" : theme.colors.background}}} 
             />
 
           </Stack.Navigator>

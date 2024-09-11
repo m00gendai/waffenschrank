@@ -102,6 +102,7 @@ interface GeneralSettingsLabels{
     resizeImages: SimpleTranslation
     loginGuard: SimpleTranslation
     emptyFields: SimpleTranslation
+    caliberDisplayName: SimpleTranslation
 }
 
 interface ModalText{
@@ -144,6 +145,18 @@ interface aboutThanksPersons{
     owg: SimpleTranslation
     waffenforum: SimpleTranslation
     others: SimpleTranslation
+}
+
+interface LongPressActions{
+    clone: SimpleTranslation
+    delete: SimpleTranslation
+}
+
+interface iosWarning{
+    title: SimpleTranslation
+    text: SimpleTranslation
+    ok: SimpleTranslation
+    cancel: SimpleTranslation
 }
 
 export const cleanIntervals:CleanIntervals = {
@@ -1016,6 +1029,13 @@ export const generalSettingsLabels: GeneralSettingsLabels = {
         fr: "Masquer les champs vides dans les entrées",
         it: "Nascondere i campi vuoti nelle voci",
         ch: "Tschertgar champs vids en inscripziuns"
+    },
+    caliberDisplayName: {
+        de: "Kurze Kaliberbezeichnungen verwenden in Einträgen und PDF-Listen",
+        en: "Use short calibre designations in entries and PDF lists",
+        fr: "Utiliser des désignations de calibres courtes dans les entrées et les listes PDF",
+        it: "Usa etichette di calibro brevi nelle voci e nelle liste PDF",
+        ch: "Duvrar nums da caliber curts en inscripziuns e glistas da pdf"
     }
 }
 
@@ -1207,5 +1227,53 @@ export const statisticItems:StatisticItems = {
         fr: "Nombre de coups total",
         it: "Numero totale di cartucce",
         ch: "Dumber da patronas total",
+    }
+}
+
+export const longPressActions:LongPressActions = {
+    clone:{
+        de: "Klonen",
+        en: "Clone",
+        fr: "Clone",
+        it: "Clone",
+        ch: "Clona",
+    },
+    delete: {
+        de: "Löschen",
+        en: "Delete",
+        fr: "Supprimer",
+        it: "Cancellare",
+        ch: "Stizzar",
+    }
+}
+
+export const iosWarningText: iosWarning = {
+    title: {
+        de: "iOS Warnung",
+        en: "iOS warning",
+        fr: "Avertissement iOS",
+        it: "Avvertimento iOS",
+        ch: "iOS avertiment",
+    },
+    text:{
+        de: "Normalerweise ist das PDF sehr schnell erstellt. Leider kann es dennoch vorkommen, dass das Erstellen der PDF-Datei sehr lange dauert (mehrere Minuten). Falls das der Fall ist, kann man entweder warten, bis das Erstellen beendet ist, oder die App neu starten und den Vorgang erneut versuchen. Das Problem ist bekannt und an einer Lösung wird gearbeitet.",
+        en: "Generally, the PDF file is created very quickly. Unfortunately, however, it may take a very long time to create the PDF file (several minutes). If this is the case, you can either wait until the creation is finished, or restart the app and try again. The problem is known and a solution is being worked on.",
+        fr: "Généralement, la création d'un fichier PDF est très rapide. Malheureusement, il arrive que la création d'un fichier PDF prenne beaucoup de temps (plusieurs minutes). Si c'est le cas, vous pouvez soit attendre que la création soit terminée, soit redémarrer l'application et réessayer. Le problème est connu et une solution est en cours.",
+        it: "Normalmente il PDF viene creato molto velocemente. Purtroppo, però, la creazione di un file PDF può richiedere molto tempo (diversi minuti). In questo caso, puoi attendere che la creazione sia terminata, oppure riavviare l'applicazione e riprovare. Il problema è noto e stiamo lavorando per risolverlo.",
+        ch: "Normalmain es il PDF construì fich svelt. Deplorablamain poi tuttavia capitar che la creaziun da la datoteca da PDF dura fich ditg (pliras minutas). Sche quai è il cas, pon ins spetgar fin che la creaziun è terminada, ubain cumenzar da nov l'applicaziun ed empruvar da far danovamain il proceder. Il problem è enconuschent ed ins lavura vi d'ina soluziun."
+    },
+    ok:{
+        de: "Versuchen",
+        en: "Try",
+        fr: "Essayez",
+        it: "Prova",
+        ch: "Pruvar",
+    },
+    cancel:{
+        de: "Abbrechen",
+        en: "Cancel",
+        fr: "Annuler",
+        it: "Annulla",
+        ch: "Rumper giu",
     }
 }
