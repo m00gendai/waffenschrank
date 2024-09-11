@@ -5,7 +5,7 @@ export default {
   "expo": {
     "name": IS_DEV ? " Arsenal DEV" : IS_PREV ? "Arsenal PRE" : "Arsenal",
     "slug": "waffenschrank",
-    "version": "1.2.3",
+    "version": "1.3.0",
     "orientation": "portrait",
     "icon": "./assets/appIconC.png",
     "userInterfaceStyle": "light",
