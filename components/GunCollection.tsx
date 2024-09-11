@@ -2,7 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useEffect, useRef, useState } from 'react';
 import { Dimensions, FlatList, TouchableOpacity, View } from 'react-native';
 import { Appbar, FAB, Menu, Switch, Text, Tooltip, Searchbar, Button, Icon } from 'react-native-paper';
-import { defaultBottomBarHeight, defaultGridGap, defaultViewPadding } from '../configs';
+import { defaultBottomBarHeight, defaultGridGap, defaultSearchBarHeight, defaultViewPadding } from '../configs';
 import { PREFERENCES } from "../configs_DB"
 import { GunType, MenuVisibility, SortingTypes } from '../interfaces';
 import { getIcon, doSortBy } from '../utils';
@@ -138,7 +138,7 @@ export default function GunCollection({navigation, route}){
   });
   
   const startAnimation = () => {
-    height.value = withTiming(56, { duration: 500 }); // 500 ms duration
+    height.value = withTiming(defaultSearchBarHeight, { duration: 500 }); // 500 ms duration
   };
   
   const endAnimation = () => {
