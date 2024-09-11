@@ -1277,3 +1277,11 @@ export const iosWarningText: iosWarning = {
         ch: "Rumper giu",
     }
 }
+
+export const shotLabel: SimpleTranslation = {
+    de: "Schuss",
+    en: "rounds",
+    fr: "coups",
+    it: "colpi",
+    ch: "culps",
+}
