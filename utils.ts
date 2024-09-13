@@ -105,6 +105,40 @@ export function doSortBy(value: SortingTypes, ascending: boolean, items: GunType
         }})
         return sorted
     }
+    if(value === "lastCleaned"){
+        const parseDate = (dateStr:string) => {
+            if (!dateStr) return new Date(0);
+            const [day, month, year]:number[] = dateStr.split('.').map(Number);
+            return new Date(year, month - 1, day);
+        };
+        const sorted = items.sort((a, b) =>{
+            const x = a.lastCleanedAt !== undefined ? Math.floor(parseDate(a.lastCleanedAt).getTime() / 1000) : 0;
+            const y = b.lastCleanedAt !== undefined ? Math.floor(parseDate(b.lastCleanedAt).getTime() / 1000) : 0;
+    
+            if(ascending){
+                return x > y ? 1 : x < y ? -1 : 0
+            } else {
+                return x < y ? 1 : x > y ? -1 : 0
+        }})
+        return sorted
+    }
+    if(value === "lastShot"){
+        const parseDate = (dateStr:string) => {
+            if (!dateStr) return new Date(0);
+            const [day, month, year]:number[] = dateStr.split('.').map(Number);
+            return new Date(year, month - 1, day);
+        };
+        const sorted = items.sort((a, b) =>{
+            const x = a.lastShotAt !== undefined ? Math.floor(parseDate(a.lastShotAt).getTime() / 1000) : 0;
+            const y = b.lastShotAt !== undefined ? Math.floor(parseDate(b.lastShotAt).getTime() / 1000) : 0;
+    
+            if(ascending){
+                return x > y ? 1 : x < y ? -1 : 0
+            } else {
+                return x < y ? 1 : x > y ? -1 : 0
+        }})
+        return sorted
+    }
 }
 
 export function getIcon(type:SortingTypes){
@@ -121,6 +155,10 @@ export function getIcon(type:SortingTypes){
             return "chart-line"
         case "acquisitionDate":
             return "credit-card-clock-outline"
+        case "lastCleaned":
+            return "toothbrush"
+        case "lastShot":
+            return "bullseye"
         default:
             return "alphabetical-variant"
     }

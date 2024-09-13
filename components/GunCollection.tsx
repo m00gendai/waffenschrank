@@ -201,6 +201,8 @@ export default function GunCollection({navigation, route}){
             <Menu.Item onPress={() => handleSortBy("acquisitionDate")} title={`${sorting.acquisitionDate[language]}`} leadingIcon={getIcon("acquisitionDate")}/>
             <Menu.Item onPress={() => handleSortBy("lastAdded")} title={`${sorting.lastAdded[language]}`} leadingIcon={getIcon("lastAdded")}/>
             <Menu.Item onPress={() => handleSortBy("lastModified")} title={`${sorting.lastModified[language]}`} leadingIcon={getIcon("lastModified")}/>
+            <Menu.Item onPress={() => handleSortBy("lastShot")} title={`${sorting.lastShot[language]}`} leadingIcon={getIcon("lastShot")}/>
+            <Menu.Item onPress={() => handleSortBy("lastCleaned")} title={`${sorting.lastCleaned[language]}`} leadingIcon={getIcon("lastCleaned")}/>
           </Menu>
           <Appbar.Action icon={sortGunsAscending ? "arrow-up" : "arrow-down"} onPress={() => handleSortOrder()} />
         </View>
