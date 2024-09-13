@@ -77,6 +77,8 @@ interface Sorting{
     paidPrice: SimpleTranslation
     marketValue: SimpleTranslation
     acquisitionDate: SimpleTranslation
+    lastCleaned: SimpleTranslation
+    lastShot: SimpleTranslation
 }
 
 interface GunQuickShot{
@@ -900,7 +902,21 @@ export const sorting:Sorting = {
         fr: "Date d'acquisition",
         it: "Data di acquisizione",
         ch: "Data d'acquist",        
-    }
+    },
+    lastCleaned:{
+        de: "Zuletzt gereinigt",     
+        en: "Last cleaned",
+        fr: "Dernier nettoyage",
+        it: "Ultima pulizia",
+        ch: "Ultima nettegiada",        
+    },
+    lastShot:{
+        de: "Zuletzt geschossen",     
+        en: "Last shot",
+        fr: "Dernier coup de feu",
+        it: "Ultimo sparo",
+        ch: "L'ultim culp",        
+    },
 }
 
 export const search:SimpleTranslation = {

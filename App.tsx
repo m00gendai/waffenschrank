@@ -88,7 +88,7 @@ export default function App() {
           if(success.success){
             setAppIsReady(true);
           } else{
-            throw new Error(`Local Authentification failed: ${success} | ${isPreferences.generalSettings.loginGuard}`);
+            throw new Error(`Local Authentification failed: ${JSON.stringify(success)} | ${isPreferences.generalSettings.loginGuard}`);
           }
         } else {
           console.log("false")
