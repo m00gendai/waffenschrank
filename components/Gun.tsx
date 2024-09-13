@@ -185,7 +185,7 @@ export default function Gun({navigation}){
                                                 currentGun.mainColor ? GetColorName(`${checkColor(currentGun.mainColor).split("#")[1]}`) : "" 
                                             : item.name === "paidPrice" ? `CHF ${currentGun[item.name] ? currentGun[item.name] :  ""}` 
                                             : item.name === "marketValue" ? `CHF ${currentGun[item.name] ? currentGun[item.name] : ""}` 
-                                            : item.name === "cleanInterval" && cleanIntervals[currentGun[item.name]] !== undefined ? cleanIntervals[currentGun[item.name]][language]
+                                            : item.name === "cleanInterval" && currentGun[item.name] !== undefined ? cleanIntervals[currentGun[item.name]] !== undefined ? cleanIntervals[currentGun[item.name]][language] : ""
                                             : currentGun[item.name]}</Text>
                                         }
                                         {item.name === "lastCleanedAt" && checkDate(currentGun) ? 
