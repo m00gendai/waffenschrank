@@ -13,6 +13,33 @@ Enter or paste your release notes for fr-FR here
 Enter or paste your release notes for it-IT here
 </it-IT>
 
+V1.4.0
+
+<de-DE>
+Behoben:
+- Suche mit Sonderzeichen in Munitionsübersicht 
+Neu:
+- Waffen filtern nach zuletzt geschossen und zuletzt gereinigt
+</de-DE>
+<en-US>
+Fixed:
+- Search with special characters in ammunition overview 
+New:
+- Filter weapons for last shot and last cleaned
+</en-US>
+<fr-FR>
+Corrigé:
+- Recherche avec des caractères spéciaux dans l'aperçu des munitions 
+Nouveau:
+- Filtrer les armes selon le dernier tir et le dernier nettoyage
+</fr-FR>
+<it-IT>
+Risolto:
+- Ricerca con caratteri speciali nella panoramica delle munizioni 
+Nuovo:
+- Le armi filtrano dopo l'ultimo sparo e l'ultimo pulito
+</it-IT>
+
 V1.3.0
 
 <de-DE>
