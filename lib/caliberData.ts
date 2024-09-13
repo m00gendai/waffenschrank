@@ -279,6 +279,7 @@ export const calibers:Caliber[] = [
             {"name": "7.62x51mm NATO"},
             {"name": "7.62x53mmR"},
             {"name": "7.62x54mmR"},
+            {"name": "7.63x25mm Mauser"},
             {"name": "7.65mm Longue"},
             {"name": "7.65mm Mannlicher"},
             {"name": "7.65mm Pist Pat 03 7.65x21mm"},
