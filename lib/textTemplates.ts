@@ -579,11 +579,11 @@ export const toastMessages:Toast = {
         ch: "modifitgà",
     },
     dbSaveSuccess: {
-        de: "Datenbank gespeichert",
-        en: "Database saved",
-        fr: "Base de données enregistrée",
-        it: "Database salvato",
-        ch: "Arcunà banca da datas",
+        de: "Datenbank im Downloads-Ordner gespeichert",
+        en: "Database stored in the Downloads folder",
+        fr: "Base de données enregistrée dans le dossier Téléchargements",
+        it: "Banca dati salvata nella cartella Download",
+        ch: "Arcunada en l'ordinatur da download",
     },
     dbImportSuccess: {
         de: "Datensätze importiert",
