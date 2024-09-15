@@ -7,6 +7,8 @@ import * as ImagePicker from "expo-image-picker"
 import { ImageResult, manipulateAsync } from 'expo-image-manipulator';
 import { Alert, Image } from "react-native"
 
+const nonSetValue: number = 999999999999999
+
 export function doSortBy(value: SortingTypes, ascending: boolean, items: GunType[] | AmmoType[]){
     if(value === "alphabetical"){
         const sorted = items.sort((a, b) =>{
@@ -32,8 +34,8 @@ export function doSortBy(value: SortingTypes, ascending: boolean, items: GunType
     if(value === "lastAdded"){
         try{
         const sorted = items.sort((a, b) =>{
-            const x = a.createdAt === undefined ? 0 : a.createdAt === null ? 0 : a.createdAt === "" ? 0 : new Date(a.createdAt).getTime()
-            const y = b.createdAt === undefined ? 0 : b.createdAt === null ? 0 : b.createdAt === "" ? 0 : new Date(b.createdAt).getTime()
+            const x = a.createdAt === undefined ? nonSetValue : a.createdAt === null ? nonSetValue : a.createdAt === "" ? nonSetValue : new Date(a.createdAt).getTime()
+            const y = b.createdAt === undefined ? nonSetValue : b.createdAt === null ? nonSetValue : b.createdAt === "" ? nonSetValue : new Date(b.createdAt).getTime()
             if(ascending){
                 return x > y ? 1 : x < y ? -1 : 0
             } else {
@@ -68,8 +70,8 @@ export function doSortBy(value: SortingTypes, ascending: boolean, items: GunType
     }
     if(value === "paidPrice"){
         const sorted = items.sort((a, b) =>{
-            const x = a.paidPrice !== undefined ? Number(a.paidPrice) : 0
-            const y = b.paidPrice !== undefined ? Number(b.paidPrice) : 0
+            const x = a.paidPrice === undefined ? nonSetValue : a.paidPrice === null ? nonSetValue : a.paidPrice === "" ? nonSetValue : Number(a.paidPrice)
+            const y = b.paidPrice === undefined ? nonSetValue : b.paidPrice === null ? nonSetValue : b.paidPrice === "" ? nonSetValue : Number(b.paidPrice)
             if(ascending){
                 return x > y ? 1 : x < y ? -1 : 0
             } else {
@@ -79,8 +81,8 @@ export function doSortBy(value: SortingTypes, ascending: boolean, items: GunType
     }
     if(value === "marketValue"){
         const sorted = items.sort((a, b) =>{
-            const x = a.marketValue !== undefined ? Number(a.marketValue) : 0
-            const y = b.marketValue !== undefined ? Number(b.marketValue) : 0
+            const x = a.marketValue === undefined ? nonSetValue : a.marketValue === null ? nonSetValue : a.marketValue === "" ? nonSetValue : Number(a.marketValue)
+            const y = b.marketValue === undefined ? nonSetValue : b.marketValue === null ? nonSetValue : b.marketValue === "" ? nonSetValue : Number(b.marketValue)
             if(ascending){
                 return x > y ? 1 : x < y ? -1 : 0
             } else {
@@ -95,8 +97,8 @@ export function doSortBy(value: SortingTypes, ascending: boolean, items: GunType
             return new Date(year, month - 1, day);
         };
         const sorted = items.sort((a, b) =>{
-            const x = a.acquisitionDate !== undefined ? Math.floor(parseDate(a.acquisitionDate).getTime() / 1000) : 0;
-            const y = b.acquisitionDate !== undefined ? Math.floor(parseDate(b.acquisitionDate).getTime() / 1000) : 0;
+            const x = a.acquisitionDate === undefined ? nonSetValue : a.acquisitionDate === null ? nonSetValue : a.acquisitionDate === "" ? nonSetValue : Math.floor(parseDate(a.acquisitionDate).getTime() / 1000) 
+            const y = b.acquisitionDate === undefined ? nonSetValue : b.acquisitionDate === null ? nonSetValue : b.acquisitionDate === "" ? nonSetValue : Math.floor(parseDate(b.acquisitionDate).getTime() / 1000)
     
             if(ascending){
                 return x > y ? 1 : x < y ? -1 : 0
@@ -112,8 +114,8 @@ export function doSortBy(value: SortingTypes, ascending: boolean, items: GunType
             return new Date(year, month - 1, day);
         };
         const sorted = items.sort((a, b) =>{
-            const x = a.lastCleanedAt !== undefined ? Math.floor(parseDate(a.lastCleanedAt).getTime() / 1000) : 0;
-            const y = b.lastCleanedAt !== undefined ? Math.floor(parseDate(b.lastCleanedAt).getTime() / 1000) : 0;
+            const x = a.lastCleanedAt === undefined ? nonSetValue : a.lastCleanedAt === null ? nonSetValue : a.lastCleanedAt === "" ? nonSetValue : Math.floor(parseDate(a.lastCleanedAt).getTime() / 1000)
+            const y = b.lastCleanedAt === undefined ? nonSetValue : b.lastCleanedAt === null ? nonSetValue : b.lastCleanedAt === "" ? nonSetValue : Math.floor(parseDate(b.lastCleanedAt).getTime() / 1000)
     
             if(ascending){
                 return x > y ? 1 : x < y ? -1 : 0
@@ -129,8 +131,8 @@ export function doSortBy(value: SortingTypes, ascending: boolean, items: GunType
             return new Date(year, month - 1, day);
         };
         const sorted = items.sort((a, b) =>{
-            const x = a.lastShotAt !== undefined ? Math.floor(parseDate(a.lastShotAt).getTime() / 1000) : 0;
-            const y = b.lastShotAt !== undefined ? Math.floor(parseDate(b.lastShotAt).getTime() / 1000) : 0;
+            const x = a.lastShotAt === undefined ? nonSetValue : a.lastShotAt === null ? nonSetValue : a.lastShotAt === "" ? nonSetValue : Math.floor(parseDate(a.lastShotAt).getTime() / 1000)
+            const y = b.lastShotAt === undefined ? nonSetValue : b.lastShotAt === null ? nonSetValue : b.lastShotAt === "" ? nonSetValue : Math.floor(parseDate(b.lastShotAt).getTime() / 1000)
     
             if(ascending){
                 return x > y ? 1 : x < y ? -1 : 0
