@@ -9,6 +9,8 @@ import { usePreferenceStore } from '../stores/usePreferenceStore';
 import { pdfFooter, pdfTitle } from '../lib/textTemplates';
 import { dateLocales } from '../configs';
 import { ammoDataTemplate, ammoRemarks } from '../lib/ammoDataTemplate';
+import { Platform } from 'react-native';
+import * as WebBrowser from 'expo-web-browser';
 
 async function getGunImages(guns:GunType[]){
   const imageArray: null | string[][] = []
@@ -17,7 +19,7 @@ async function getGunImages(guns:GunType[]){
     let imgs: null | string[] = null
     if(gun.images && gun.images.length !== 0){
         imgs = await Promise.all(gun.images.map(async image =>{
-            return await FileSystem.readAsStringAsync(image, { encoding: 'base64' });
+            return await FileSystem.readAsStringAsync(`${FileSystem.documentDirectory}${image.split("/").pop()}`, { encoding: 'base64' });
         }))
         imageArray.push(imgs)
     } else {
@@ -34,7 +36,7 @@ async function getAmmoImages(ammunition:AmmoType[]){
     let imgs: null | string[] = null
     if(ammo.images && ammo.images.length !== 0){
         imgs = await Promise.all(ammo.images.map(async image =>{
-            return await FileSystem.readAsStringAsync(image, { encoding: 'base64' });
+            return await FileSystem.readAsStringAsync(`${FileSystem.documentDirectory}${image.split("/").pop()}`, { encoding: 'base64' });
         }))
         imageArray.push(imgs)
     } else {
@@ -61,8 +63,30 @@ const getTranslation = (key: string, language: string): string => {
     return data ? data[language] : remarks ? remarks : boxes ? boxes[language] : tags ? tags : key;
   };
 
+  function getShortCaliberNameFromArray(calibers:string[], displayNames:{name:string, displayName:string}[], shortCaliber: boolean){
+    if(!shortCaliber){
+      return calibers
+    }
+    const outputArray = calibers.map(item => {
+        // Find an object where displayName matches the item
+        const match = displayNames.find(obj => obj.name === item)
+        // If a match is found, return the displayName, else return the original item
+        return match ? match.displayName : item;
+    });
+    return outputArray
+}
+
+function getShortCaliberNameFromString(calibers:string, displayNames:{name:string, displayName:string}[], shortCaliber: boolean){
+  if(!shortCaliber){
+    return calibers
+  }
+  const match = displayNames.find(obj => obj.name === calibers)
+  return match ? match.displayName : calibers;
+}
+
   const commonStyles:CommonStyles={
     allPageMargin: "15mm",
+    allPageMarginIOS: Math.ceil(15*2.83465),
     allTitleFontSize: "30px",
     allSubtitleFontSize: "12px",
     allTableFontSize: "15px",
@@ -81,12 +105,12 @@ const getTranslation = (key: string, language: string): string => {
   }
   
 
-export async function printSingleGun(gun:GunType, language: string){
+export async function printSingleGun(gun:GunType, language: string, shortCaliber: boolean, caliberDisplayNameList: {name:string, displayName:string}[]){
 
     let imgs: null | string[] = null
     if(gun.images && gun.images.length !== 0){
         imgs = await Promise.all(gun.images.map(async image =>{
-            return await FileSystem.readAsStringAsync(image, { encoding: 'base64' });
+            return await FileSystem.readAsStringAsync(`${FileSystem.documentDirectory}${image.split("/").pop()}`, { encoding: 'base64' });
         }))
     }
 
@@ -100,7 +124,7 @@ export async function printSingleGun(gun:GunType, language: string){
         minute: "2-digit"
       };
     const generatedDate:string = date.toLocaleDateString(dateLocales[language], dateOptions)
-    const excludedKeys = ["images", "createdAt", "lastModifiedAt", "status", "id", "tags", "remarks", "lastCleanedAt", "lastShotAt", "cleanInterval", ];
+    const excludedKeys = ["images", "createdAt", "lastModifiedAt", "status", "id", "tags", "remarks", "lastCleanedAt", "lastShotAt", "cleanInterval"];
     const art5Keys = checkBoxes.map(checkBox => checkBox.name)
     
     const html = `
@@ -111,14 +135,14 @@ export async function printSingleGun(gun:GunType, language: string){
       <body>
       <div class="bodyContent">
         <h1>${gun.manufacturer ? gun.manufacturer : ""} ${gun.model}</h1>
-        ${gun.images && gun.images.length !== 0 ? `<div class="imageContainer">${imgs.map(img => {return `<div class="image" style="background-image: url(data:image/jpeg;base64,${img});"></div>`}).join("")}</div>`: ""}
+        ${gun.images && gun.images.length !== 0 ? `<div class="imageContainer">${imgs.map(img => {return `<div class="imageDiv"><img class="image" src="data:image/jpeg;base64,${img}" /></div>`}).join("")}</div>`: ""}
         ${gun.tags && gun.tags.length !== 0 ? `<div class="tagContainer">${gun.tags.map(tag => {return `<div class="tag">${tag}</div>`}).join("")}</div>` : ""}
         ${gun.tags && gun.tags.length !== 0 ? `<hr />` : ""}
         ${gun.status && Object.entries(gun.status).length !== 0 ? `<div class="tagContainer">${Object.entries(gun.status).map(status => {return status[1] && art5Keys.includes(status[0]) ? `<div class="tag">${getTranslation(status[0], language)}</div>` : ""}).join("")}</div>` : ""}
         <table>
             <tbody>
                 ${Object.entries(gun).map(entry =>{
-                    return excludedKeys.includes(entry[0]) ? null :`<tr><td><strong>${getTranslation(entry[0], language)}</strong></td><td>${entry[1]}</td></tr>`
+                    return excludedKeys.includes(entry[0]) ? null :`<tr><td><strong>${getTranslation(entry[0], language)}</strong></td><td class=${entry[0] === "caliber" ? "whitespace" : ""}>${entry[0] === "caliber" ? getShortCaliberNameFromArray(entry[1], caliberDisplayNameList, shortCaliber).join("\n") : entry[1]}</td></tr>`
                 }).join("")}
             </tbody>
         </table>
@@ -139,6 +163,7 @@ export async function printSingleGun(gun:GunType, language: string){
         align-content: flex-start;
         margin: 0;
         padding: 0;
+        font-family: "Helvetica";
       }
       h1{
         position: relative;
@@ -156,28 +181,32 @@ export async function printSingleGun(gun:GunType, language: string){
         padding: 0;
         box-sizing: border-box;
       }
-      .imageContainer{
+      .imageContainer {
+        position: relative;
+            width: 100%;
+            aspect-ratio: 30/10;
+            display: flex;
+            gap: ${commonStyles.imageGap};
+            justify-content: center;
+            align-items: center;
+            flex-wrap: nowrap;
+            margin: 10px 0;
+            box-shadow: 0px 2px 5px -2px black;
+            padding: 5px;
+      }
+      .imageDiv {
         position: relative;
         width: 100%;
-        aspect-ratio: 30/10;
+        height: 100%;
         display: flex;
-        gap: ${commonStyles.imageGap};
         justify-content: center;
         align-items: center;
-        flex-wrap: nowrap;
-        margin: 10px 0;
-        box-shadow: 0px 2px 5px -2px black;
-        padding: 5px;
       }
-        .image{
-            position: relative;
-            width: 100%;
-            height: 100%;
-            
-            background-size:contain;
-            background-position: top;
-            background-repeat: no-repeat;
-        }
+      .image {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+      }
     .tagContainer{
         position: relative;
         width: 100%;
@@ -233,6 +262,9 @@ export async function printSingleGun(gun:GunType, language: string){
         width: 100%;
         white-space: pre-wrap;
     }
+    .whitespace{
+      white-space: pre-wrap;
+    }
     .footer{
       position: fixed;
       bottom: 0;
@@ -250,30 +282,36 @@ export async function printSingleGun(gun:GunType, language: string){
     </html>
     `;
 
-
-        // On iOS/android prints the given html. On web prints the HTML from the current page.
-        const { uri } = await Print.printToFileAsync({html, height:842, width:595});
-        console.log('File has been saved to:', uri);
-       
-       // await shareAsync(uri, { UTI: '.pdf', mimeType: 'application/pdf' });
-       FileSystem.getContentUriAsync(uri).then(cUri => {
-        /* if (Platform.OS === 'ios') {
-          Sharing.shareAsync(cUri); */
-        IntentLauncher.startActivityAsync('android.intent.action.VIEW', {
-            data: cUri,
-            flags: 1,
-            type: 'application/pdf'
-         });
+    if (Platform.OS === 'ios') {
+      const file = await Print.printToFileAsync({
+        html: html,
+        height:842, 
+        width:595, 
+        margins: {top: commonStyles.allPageMarginIOS, right: commonStyles.allPageMarginIOS, bottom: commonStyles.allPageMarginIOS, left: commonStyles.allPageMarginIOS},
+        base64: true
       });
+      console.log(file.uri);
+      await shareAsync(file.uri);
+    } else if(Platform.OS === "android"){
+      console.log("android")
+      const { uri } = await Print.printToFileAsync({html, height:595, width:842, margins: {top: commonStyles.allPageMarginIOS, right: commonStyles.allPageMarginIOS, bottom: commonStyles.allPageMarginIOS, left: commonStyles.allPageMarginIOS}});
+      const cUri = await FileSystem.getContentUriAsync(uri)
+      console.log('File has been saved to:', uri);
+      await IntentLauncher.startActivityAsync('android.intent.action.VIEW', {
+          data: cUri,
+          flags: 1,
+          type: 'application/pdf'
+      });
+    }   
       
 }
 
-export async function printSingleAmmo(ammo:AmmoType, language: string){
+export async function printSingleAmmo(ammo:AmmoType, language: string, shortCaliber: boolean, caliberDisplayNameList: {name:string, displayName:string}[]){
 
   let imgs: null | string[] = null
   if(ammo.images && ammo.images.length !== 0){
       imgs = await Promise.all(ammo.images.map(async image =>{
-          return await FileSystem.readAsStringAsync(image, { encoding: 'base64' });
+          return await FileSystem.readAsStringAsync(`${FileSystem.documentDirectory}${image.split("/").pop()}`, { encoding: 'base64' });
       }))
   }
 
@@ -298,14 +336,14 @@ export async function printSingleAmmo(ammo:AmmoType, language: string){
     <body>
     <div class="bodyContent">
       <h1>${ammo.manufacturer ? ammo.manufacturer : ""} ${ammo.designation}</h1>
-      ${ammo.images && ammo.images.length !== 0 ? `<div class="imageContainer">${imgs.map(img => {return `<div class="image" style="background-image: url(data:image/jpeg;base64,${img});"></div>`}).join("")}</div>`: ""}
+      ${ammo.images && ammo.images.length !== 0 ? `<div class="imageContainer">${imgs.map(img => {return `<div class="imageDiv"><img class="image" src="data:image/jpeg;base64,${img}" /></div>`}).join("")}</div>`: ""}
       ${ammo.tags && ammo.tags.length !== 0 ? `<div class="tagContainer">${ammo.tags.map(tag => {return `<div class="tag">${tag}</div>`}).join("")}</div>` : ""}
       ${ammo.tags && ammo.tags.length !== 0 ? `<hr />` : ""}
       <table>
           <tbody>
               ${Object.entries(ammo).map(entry =>{
                   
-                  return excludedKeys.includes(entry[0]) ? null :`<tr><td><strong>${getTranslationAmmo(entry[0], language)}</strong></td><td>${entry[1]}</td></tr>`
+                  return excludedKeys.includes(entry[0]) ? null :`<tr><td><strong>${getTranslationAmmo(entry[0], language)}</strong></td><td>${entry[0] === "caliber" ? getShortCaliberNameFromString(entry[1], caliberDisplayNameList, shortCaliber) : entry[1]}</td></tr>`
               }).join("")}
           </tbody>
       </table>
@@ -326,6 +364,7 @@ export async function printSingleAmmo(ammo:AmmoType, language: string){
      align-content: flex-start;
      margin: 0;
      padding: 0;
+     font-family: "Helvetica";
    }
    h1{
      position: relative;
@@ -343,28 +382,32 @@ export async function printSingleAmmo(ammo:AmmoType, language: string){
      padding: 0;
      box-sizing: border-box;
    }
-   .imageContainer{
-     position: relative;
-     width: 100%;
-     aspect-ratio: 30/10;
-     display: flex;
-     gap: ${commonStyles.imageGap};
-     justify-content: center;
-     align-items: center;
-     flex-wrap: nowrap;
-     margin: 10px 0;
-     box-shadow: 0px 2px 5px -2px black;
-     padding: 5px;
-   }
-     .image{
-         position: relative;
-         width: 100%;
-         height: 100%;
-         
-         background-size:contain;
-         background-position: top;
-         background-repeat: no-repeat;
-     }
+   .imageContainer {
+    position: relative;
+        width: 100%;
+        aspect-ratio: 30/10;
+        display: flex;
+        gap: ${commonStyles.imageGap};
+        justify-content: center;
+        align-items: center;
+        flex-wrap: nowrap;
+        margin: 10px 0;
+        box-shadow: 0px 2px 5px -2px black;
+        padding: 5px;
+  }
+  .imageDiv {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  .image {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+  }
  .tagContainer{
      position: relative;
      width: 100%;
@@ -437,21 +480,27 @@ export async function printSingleAmmo(ammo:AmmoType, language: string){
   </html>
   `;
 
-
-      // On iOS/android prints the given html. On web prints the HTML from the current page.
-      const { uri } = await Print.printToFileAsync({html, height:842, width:595});
-      console.log('File has been saved to:', uri);
-     
-     // await shareAsync(uri, { UTI: '.pdf', mimeType: 'application/pdf' });
-     FileSystem.getContentUriAsync(uri).then(cUri => {
-      /* if (Platform.OS === 'ios') {
-        Sharing.shareAsync(cUri); */
-      IntentLauncher.startActivityAsync('android.intent.action.VIEW', {
-          data: cUri,
-          flags: 1,
-          type: 'application/pdf'
-       });
+  if (Platform.OS === 'ios') {
+    const file = await Print.printToFileAsync({
+      html: html,
+      height:842, 
+      width:595, 
+      margins: {top: commonStyles.allPageMarginIOS, right: commonStyles.allPageMarginIOS, bottom: commonStyles.allPageMarginIOS, left: commonStyles.allPageMarginIOS},
+      base64: true
     });
+    console.log(file.uri);
+    await shareAsync(file.uri);
+  } else if(Platform.OS === "android"){
+    console.log("android")
+    const { uri } = await Print.printToFileAsync({html, height:595, width:842, margins: {top: commonStyles.allPageMarginIOS, right: commonStyles.allPageMarginIOS, bottom: commonStyles.allPageMarginIOS, left: commonStyles.allPageMarginIOS}});
+    const cUri = await FileSystem.getContentUriAsync(uri)
+    console.log('File has been saved to:', uri);
+    await IntentLauncher.startActivityAsync('android.intent.action.VIEW', {
+        data: cUri,
+        flags: 1,
+        type: 'application/pdf'
+    });
+  }   
     
 }
 
@@ -641,8 +690,8 @@ return(
     
 }
 
-export async function printGunCollection(guns:GunType[], language: string){
-
+export async function printGunCollection(guns:GunType[], language: string, shortCaliber: boolean, caliberDisplayNameList: {name:string, displayName:string}[]){
+console.log("HELLO THIS IS GUN COLLECTION")
   const date:Date = new Date()
   const dateOptions:Intl.DateTimeFormatOptions = {
       weekday: 'long',
@@ -653,7 +702,7 @@ export async function printGunCollection(guns:GunType[], language: string){
       minute: "2-digit"
     };
   const generatedDate:string = date.toLocaleDateString(dateLocales[language], dateOptions)
-  const excludedKeys = ["images", "createdAt", "lastModifiedAt", "status", "id", "tags", "remarks", "manufacturingDate", "originCountry", "paidPrice", "shotCount", "mainColor", "lastCleanedAt", "cleanInterval", "lastShotAt"];
+  const excludedKeys = ["images", "createdAt", "lastModifiedAt", "status", "id", "tags", "remarks", "manufacturingDate", "originCountry", "paidPrice", "shotCount", "mainColor", "lastCleanedAt", "cleanInterval", "lastShotAt", "marketValue", "boughtFrom"];
   const html = `
   <html>
     <head>
@@ -670,7 +719,7 @@ export async function printGunCollection(guns:GunType[], language: string){
         </thead>
           <tbody>
               ${guns.map(gun =>{
-                return `<tr>${gunDataTemplate.map(data=>{return data.name in gun && !excludedKeys.includes(data.name) ? `<td>${gun[data.name]}</td>` : !(data.name in gun) && !excludedKeys.includes(data.name) ? `<td></td>`: null}).join("")}</tr>`}).join("")}
+                return `<tr>${gunDataTemplate.map(data=>{return data.name in gun && !excludedKeys.includes(data.name) ? `<td class=${data.name === "caliber" ? "whitespace" : ""}>${data.name === "caliber" ? getShortCaliberNameFromArray(gun[data.name], caliberDisplayNameList, shortCaliber).join(",\n") : gun[data.name]}</td>` : !(data.name in gun) && !excludedKeys.includes(data.name) ? `<td></td>`: null}).join("")}</tr>`}).join("")}
           </tbody>
       </table>
     </div>
@@ -689,6 +738,7 @@ export async function printGunCollection(guns:GunType[], language: string){
      align-content: flex-start;
      margin: 0;
      padding: 0;
+     font-family: "Helvetica";
    }
    h1{
      position: relative;
@@ -758,26 +808,35 @@ export async function printGunCollection(guns:GunType[], language: string){
   </html>
   `;
 
-
-      // On iOS/android prints the given html. On web prints the HTML from the current page.
-      const { uri } = await Print.printToFileAsync({html, height:595, width:842});
-      console.log('File has been saved to:', uri);
-     
-     // await shareAsync(uri, { UTI: '.pdf', mimeType: 'application/pdf' });
-     FileSystem.getContentUriAsync(uri).then(cUri => {
-      /* if (Platform.OS === 'ios') {
-        Sharing.shareAsync(cUri); */
-      IntentLauncher.startActivityAsync('android.intent.action.VIEW', {
-          data: cUri,
-          flags: 1,
-          type: 'application/pdf'
-       });
+  console.log("finished HTML")
+  console.log("begin printing gun collection")
+       
+  if (Platform.OS === 'ios') {
+    console.log("ios")
+    const file = await Print.printToFileAsync({
+      html: html,
+      height:595, 
+      width:842, 
+      margins: {top: commonStyles.allPageMarginIOS, right: commonStyles.allPageMarginIOS, bottom: commonStyles.allPageMarginIOS, left: commonStyles.allPageMarginIOS},
+      base64: true
     });
-    
+    console.log(file.uri);
+    await shareAsync(file.uri);
+  } else if(Platform.OS === "android"){
+    console.log("android")
+    const { uri } = await Print.printToFileAsync({html, height:595, width:842, margins: {top: commonStyles.allPageMarginIOS, right: commonStyles.allPageMarginIOS, bottom: commonStyles.allPageMarginIOS, left: commonStyles.allPageMarginIOS}});
+    const cUri = await FileSystem.getContentUriAsync(uri)
+    console.log('File has been saved to:', uri);
+    await IntentLauncher.startActivityAsync('android.intent.action.VIEW', {
+        data: cUri,
+        flags: 1,
+        type: 'application/pdf'
+    });
+  }    
 }
 
-export async function printGunCollectionArt5(guns:GunType[], language: string){
-
+export async function printGunCollectionArt5(guns:GunType[], language: string, shortCaliber: boolean, caliberDisplayNameList: {name:string, displayName:string}[]){
+console.log("HELLO THIS IS GUN COLLECTION ART 5")
   const date:Date = new Date()
   const dateOptions:Intl.DateTimeFormatOptions = {
       weekday: 'long',
@@ -788,7 +847,7 @@ export async function printGunCollectionArt5(guns:GunType[], language: string){
       minute: "2-digit"
     };
   const generatedDate:string = date.toLocaleDateString(dateLocales[language], dateOptions)
-  const excludedKeys = ["images", "createdAt", "lastModifiedAt", "status", "id", "tags", "remarks", "manufacturingDate", "originCountry", "paidPrice", "shotCount", "mainColor", "lastCleanedAt", "cleanInterval", "lastShotAt"];
+  const excludedKeys = ["images", "createdAt", "lastModifiedAt", "status", "id", "tags", "remarks", "manufacturingDate", "originCountry", "paidPrice", "shotCount", "mainColor", "lastCleanedAt", "cleanInterval", "lastShotAt", "marketValue", "boughtFrom"];
   const html = `
   <html>
     <head>
@@ -807,7 +866,7 @@ export async function printGunCollectionArt5(guns:GunType[], language: string){
           <tbody>
               ${guns.map(gun =>{
                 if(gun.status !== undefined && Object.entries(gun.status).some(stat => stat[1] === true)){
-                  return `<tr>${gunDataTemplate.map(data=>{return data.name in gun && !excludedKeys.includes(data.name) ? `<td class=${data.name === "caliber" ? "whitespace" : ""}>${data.name === "caliber" && data.name !== undefined && data.name !== null && gun[data.name].length !== 0 ? gun[data.name].map(dat => `${dat}`).join("\n") : gun[data.name]}</td>` : !(data.name in gun) && !excludedKeys.includes(data.name) ? `<td></td>`: null}).join("")}${Object.entries(gun.status).map(stat => {return stat[1] === true ? "<td>X</td>" : `<td class="hidden">X</td>` }).join("")}</tr>`
+                  return `<tr>${gunDataTemplate.map(data=>{return data.name in gun && !excludedKeys.includes(data.name) ? `<td class=${data.name === "caliber" ? "whitespace" : ""}>${data.name === "caliber" ? getShortCaliberNameFromArray(gun[data.name], caliberDisplayNameList, shortCaliber).join(",\n") : gun[data.name]}</td>` : !(data.name in gun) && !excludedKeys.includes(data.name) ? `<td></td>`: null}).join("")}${checkBoxes.map(box => {return gun.status[box.name] === true ? `<td class="xcell">X</td>` : `<td class="hidden"> </td>` }).join("")}</tr>`
                 }
               }).join("")
             }
@@ -829,6 +888,7 @@ export async function printGunCollectionArt5(guns:GunType[], language: string){
      align-content: flex-start;
      margin: 0;
      padding: 0;
+     font-family: "Helvetica";
    }
    h1{
      position: relative;
@@ -875,6 +935,9 @@ export async function printGunCollectionArt5(guns:GunType[], language: string){
  th, td{
    border: 1px solid #ddd;
  }
+ .xcell{
+  align: center;
+ }
  .hidden{
    color: transparent;
  }
@@ -897,23 +960,29 @@ export async function printGunCollectionArt5(guns:GunType[], language: string){
    </style>
   </html>
   `;
-
-
-      // On iOS/android prints the given html. On web prints the HTML from the current page.
-      const { uri } = await Print.printToFileAsync({html, height:595, width:842});
-      console.log('File has been saved to:', uri);
-     
-     // await shareAsync(uri, { UTI: '.pdf', mimeType: 'application/pdf' });
-     FileSystem.getContentUriAsync(uri).then(cUri => {
-      /* if (Platform.OS === 'ios') {
-        Sharing.shareAsync(cUri); */
-      IntentLauncher.startActivityAsync('android.intent.action.VIEW', {
-          data: cUri,
-          flags: 1,
-          type: 'application/pdf'
-       });
+  console.log("finished HTML")
+  console.log("begin printing gun collection")
+  if (Platform.OS === 'ios') {
+    const file = await Print.printToFileAsync({
+      html: html,
+      height:595, 
+      width:842, 
+      margins: {top: commonStyles.allPageMarginIOS, right: commonStyles.allPageMarginIOS, bottom: commonStyles.allPageMarginIOS, left: commonStyles.allPageMarginIOS},
+      base64: true
     });
-    
+    console.log(file.uri);
+    await shareAsync(file.uri);
+  } else if(Platform.OS === "android"){
+    console.log("android")
+    const { uri } = await Print.printToFileAsync({html, height:595, width:842, margins: {top: commonStyles.allPageMarginIOS, right: commonStyles.allPageMarginIOS, bottom: commonStyles.allPageMarginIOS, left: commonStyles.allPageMarginIOS}});
+    const cUri = await FileSystem.getContentUriAsync(uri)
+    console.log('File has been saved to:', uri);
+    await IntentLauncher.startActivityAsync('android.intent.action.VIEW', {
+        data: cUri,
+        flags: 1,
+        type: 'application/pdf'
+    });
+  }   
 }
 
 export async function printGunGallery(guns:GunType[], language: string){
@@ -1105,8 +1174,8 @@ export async function printGunGallery(guns:GunType[], language: string){
       });
 }
 
-export async function printAmmoCollection(ammunition:AmmoType[], language: string){
-
+export async function printAmmoCollection(ammunition:AmmoType[], language: string, shortCaliber: boolean, caliberDisplayNameList: {name:string, displayName:string}[]){
+console.log("HELLO THIS IS AMMO COLLECTION")
   const date:Date = new Date()
   const dateOptions:Intl.DateTimeFormatOptions = {
       weekday: 'long',
@@ -1134,7 +1203,7 @@ export async function printAmmoCollection(ammunition:AmmoType[], language: strin
         </thead>
           <tbody>
               ${ammunition.map(ammo =>{
-                return `<tr>${ammoDataTemplate.map(data=>{return data.name in ammo && !excludedKeys.includes(data.name) ? `<td>${ammo[data.name]}</td>` : !(data.name in ammo) && !excludedKeys.includes(data.name) ? `<td></td>`: null}).join("")}</tr>`}).join("")}
+                return `<tr>${ammoDataTemplate.map(data=>{return data.name in ammo && !excludedKeys.includes(data.name) ? `<td>${data.name === "caliber" ? getShortCaliberNameFromString(ammo[data.name], caliberDisplayNameList, shortCaliber) : ammo[data.name]}` : !(data.name in ammo) && !excludedKeys.includes(data.name) ? `<td></td>`: null}).join("")}</tr>`}).join("")}
           </tbody>
       </table>
     </div>
@@ -1153,6 +1222,7 @@ export async function printAmmoCollection(ammunition:AmmoType[], language: strin
      align-content: flex-start;
      margin: 0;
      padding: 0;
+     font-family: "Helvetica";
    }
    h1{
      position: relative;
@@ -1202,9 +1272,6 @@ export async function printAmmoCollection(ammunition:AmmoType[], language: strin
  .hidden{
    color: transparent;
  }
- .whitespace{
-   white-space: pre-wrap;
- }
  .footer{
      position: fixed;
      bottom: 0;
@@ -1222,20 +1289,28 @@ export async function printAmmoCollection(ammunition:AmmoType[], language: strin
   </html>
   `;
 
-
-      // On iOS/android prints the given html. On web prints the HTML from the current page.
-      const { uri } = await Print.printToFileAsync({html, height:595, width:842});
-      console.log('File has been saved to:', uri);
-     
-     // await shareAsync(uri, { UTI: '.pdf', mimeType: 'application/pdf' });
-     FileSystem.getContentUriAsync(uri).then(cUri => {
-      /* if (Platform.OS === 'ios') {
-        Sharing.shareAsync(cUri); */
-      IntentLauncher.startActivityAsync('android.intent.action.VIEW', {
+  console.log("finished HTML")
+      
+      if (Platform.OS === 'ios') {
+        const file = await Print.printToFileAsync({
+          html: html,
+          height:595, 
+          width:842, 
+          margins: {top: commonStyles.allPageMarginIOS, right: commonStyles.allPageMarginIOS, bottom: commonStyles.allPageMarginIOS, left: commonStyles.allPageMarginIOS},
+          base64: true
+        });
+        console.log(file.uri);
+        await shareAsync(file.uri);
+      } else if(Platform.OS === "android"){
+        console.log("android")
+        const { uri } = await Print.printToFileAsync({html, height:595, width:842, margins: {top: commonStyles.allPageMarginIOS, right: commonStyles.allPageMarginIOS, bottom: commonStyles.allPageMarginIOS, left: commonStyles.allPageMarginIOS}});
+        console.log('File has been saved to:', uri);
+        const cUri = await FileSystem.getContentUriAsync(uri)
+        await IntentLauncher.startActivityAsync('android.intent.action.VIEW', {
           data: cUri,
           flags: 1,
           type: 'application/pdf'
-       });
-    });
+        });
+      };
     
 }

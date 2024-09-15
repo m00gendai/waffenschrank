@@ -75,6 +75,22 @@ export const gunDataTemplate:{name:string, de:string, en:string, fr:string, it: 
     
     },
     {
+        name: "boughtFrom",
+        de: "Gekauft bei/von",     
+        en: "Acquired from",
+        fr: "Acquis auprès de/par",
+        it: "Acquistati presso/da",
+        ch: "Acquistà tar/da",
+    },
+    {
+        name: "marketValue",
+        de: "Aktueller Marktwert",
+        en: "Current market value",
+        fr: "Valeur de marché actuelle",
+        it: "Valore di mercato attuale",
+        ch: "Valur actuala dal martgà"
+    },
+    {
         name: "shotCount",
         de: "Schussbelastung",
         en: "Shot count",
@@ -157,6 +173,30 @@ export const checkBoxes:{name: string, de:string, en:string, fr:string, it: stri
         fr: "Peut être raccourci à moins de 60cm",
         it: "Può essere accorciato a meno di 60cm",
         ch: "Per pauc sin main che 60cm",
+    },
+    {
+        name: "launcher",
+        de: "Militärisches Abschussgerät mit Sprengwirkung",
+        en: "Military launching device with explosive effect",
+        fr: "Lanceur militaire à effet explosif",
+        it: "Ordigni militari con effetto dirompente",
+        ch: "Apparats militars cun effect explosiv",
+    },
+    {
+        name: "decepticon",
+        de: "Gebrauchsgegenstand vortäuschend",
+        en: "Resembling article of everyday use",
+        fr: "Imitant un objet d’usage courant",
+        it: "Simulano oggetti d’uso corrente",
+        ch: "Imitaziun d’in object da diever",
+    },
+    {
+        name: "blooptoob",
+        de: "Granatwerfer als Zusatz zu einer Feuerwaffe",
+        en: "Grenade launcher as additional device for a firearm",
+        fr: "Lance-grenades d’appoint à une arme à feu",
+        it: "Lanciagranate supplementare di un’arma da fuoco",
+        ch: "Bittagranatas supplementaras d’ina arma da fieu",
     },
     {
         name: "grandfather",

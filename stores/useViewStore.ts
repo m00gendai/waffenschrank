@@ -29,6 +29,11 @@ interface ViewStore {
     toggleImportCSVVisible: () => void
     importModalVisible: boolean
     toggleImportModalVisible: () => void
+    ammoSearchVisible: boolean
+    toggleAmmoSearchVisible: () => void
+    searchQueryAmmoCollection: string
+    setSearchQueryAmmoCollection: (data: string) => void
+
   }
 
   export const useViewStore = create<ViewStore>((set) => ({
@@ -59,5 +64,9 @@ interface ViewStore {
     importCSVVisible: false,
     toggleImportCSVVisible: () => set((state) => ({importCSVVisible: !state.importCSVVisible})),
     importModalVisible: false,
-    toggleImportModalVisible: () => set((state) => ({importModalVisible: !state.importModalVisible}))
+    toggleImportModalVisible: () => set((state) => ({importModalVisible: !state.importModalVisible})),
+    ammoSearchVisible: false,
+    toggleAmmoSearchVisible: () => set((state) => ({ammoSearchVisible: !state.ammoSearchVisible})),
+    searchQueryAmmoCollection: "",
+    setSearchQueryAmmoCollection: (data: string) => set((state) => ({searchQueryAmmoCollection: data}))
   }))

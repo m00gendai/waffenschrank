@@ -1,8 +1,8 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useEffect, useState } from 'react';
-import { FlatList, TouchableOpacity, View } from 'react-native';
+import { useEffect, useRef, useState } from 'react';
+import { Dimensions, FlatList, TouchableOpacity, View } from 'react-native';
 import { Appbar, FAB, Menu, Switch, Text, Tooltip, Searchbar, Button, Icon } from 'react-native-paper';
-import { defaultBottomBarHeight, defaultGridGap, defaultViewPadding } from '../configs';
+import { defaultBottomBarHeight, defaultGridGap, defaultSearchBarHeight, defaultViewPadding } from '../configs';
 import { PREFERENCES } from "../configs_DB"
 import { GunType, MenuVisibility, SortingTypes } from '../interfaces';
 import { getIcon, doSortBy } from '../utils';
@@ -27,7 +27,7 @@ export default function GunCollection({navigation, route}){
 
   const { displayAsGrid, toggleDisplayAsGrid, sortBy, setSortBy, language, setSortGunIcon, sortGunIcon, sortGunsAscending, toggleSortGunsAscending, theme } = usePreferenceStore()
   const { mainMenuOpen } = useViewStore()
-  const { gunCollection, setGunCollection } = useGunStore()
+  const { gunCollection, setGunCollection, currentGun, setCurrentGun } = useGunStore()
   const { tags } = useTagStore()
   const [isFilterOn, setIsFilterOn] = useState<boolean>(false);
   const [gunList, setGunList] = useState<GunType[]>(gunCollection)
@@ -37,6 +37,11 @@ export default function GunCollection({navigation, route}){
     setGunList(isFilterOn ? gunList : gunCollection)
   ,[]})
 
+  useEffect(()=>{
+    const sortedGuns = doSortBy(sortBy, sortGunsAscending, gunCollection) as GunType[]
+    setGunCollection(sortedGuns)
+  
+  },[gunCollection])
   
   async function handleSortBy(type: SortingTypes){
     setSortGunIcon(getIcon(type))
@@ -133,7 +138,7 @@ export default function GunCollection({navigation, route}){
   });
   
   const startAnimation = () => {
-    height.value = withTiming(56, { duration: 500 }); // 500 ms duration
+    height.value = withTiming(defaultSearchBarHeight, { duration: 500 }); // 500 ms duration
   };
   
   const endAnimation = () => {
@@ -150,29 +155,37 @@ export default function GunCollection({navigation, route}){
     };
   });
 
+  function handleFAB(){
+    setCurrentGun(null)
+    navigation.navigate("NewGun")
+  }
 
   return(
-    <View style={{flex: 1}}>
+    <View style={{flex: 1, backgroundColor: "transparent"}}>
       <Appbar style={{width: "100%", display: "flex", flexDirection: "row", justifyContent: "space-between"}}>
         <View  style={{display: "flex", flexDirection: "row", justifyContent: "flex-start"}}>
           <Appbar.Action icon={"menu"} onPress={()=>navigation.navigate("MainMenu")} />
         </View>
         <View  style={{display: "flex", flexDirection: "row", justifyContent: "flex-end"}}>
           <Appbar.Action icon="magnify" onPress={()=>handleSearch()}/>
+          <Appbar.Action icon="filter" disabled={tags.length === 0 ? true : false} onPress={() =>{handleMenu("filterBy", true)}} />
           <Menu
             visible={menuVisibility.filterBy}
             onDismiss={()=>handleMenu("filterBy", false)}
-            anchor={tags.length === 0 ? <Tooltip title={tooltips.tagFilter[language]}><Appbar.Action icon="filter" disabled={tags.length === 0 ? true : false} onPress={() =>{handleMenu("filterBy", true)}} /></Tooltip> : <Appbar.Action icon="filter" disabled={tags.length === 0 ? true : false} onPress={() =>{handleMenu("filterBy", true)}} />}
+            anchor={{x:Dimensions.get("window").width/6, y: 75}}
             anchorPosition='bottom'
+            style={{width: Dimensions.get("window").width/1.5}}
           >
-            <View style={{padding: defaultViewPadding}}>
+            <View style={{flex: 1, padding: defaultViewPadding}}>
               <View style={{display: "flex", flexDirection: "row", justifyContent: "flex-start", alignItems: "center"}}>
                 <Text>Filter:</Text>
                 <Switch value={isFilterOn} onValueChange={()=>handleFilterSwitch()} />
               </View>
+              <View>
               {tags.map((tag, index)=>{
-                return <Checkbox.Item key={`filter_${tag}_${index}`} label={tag.label} status={boxes.includes(tag.label) ? "checked" : "unchecked"} onPress={()=>handleFilterPress(tag)}/>
+                return <Checkbox.Item mode="android" key={`filter_${tag}_${index}`} label={tag.label} status={boxes.includes(tag.label) ? "checked" : "unchecked"} onPress={()=>handleFilterPress(tag)} />
               })}
+              </View>
             </View>
           </Menu>
           <Appbar.Action icon={displayAsGrid ? "view-grid" : "format-list-bulleted-type"} onPress={handleDisplaySwitch} />
@@ -183,22 +196,42 @@ export default function GunCollection({navigation, route}){
             anchorPosition='bottom'
           >
             <Menu.Item onPress={() => handleSortBy("alphabetical")} title={`${sorting.alphabetic[language]}`} leadingIcon={getIcon("alphabetical")}/>
+            <Menu.Item onPress={() => handleSortBy("paidPrice")} title={`${sorting.paidPrice[language]}`} leadingIcon={getIcon("paidPrice")}/>
+            <Menu.Item onPress={() => handleSortBy("marketValue")} title={`${sorting.marketValue[language]}`} leadingIcon={getIcon("marketValue")}/>
+            <Menu.Item onPress={() => handleSortBy("acquisitionDate")} title={`${sorting.acquisitionDate[language]}`} leadingIcon={getIcon("acquisitionDate")}/>
             <Menu.Item onPress={() => handleSortBy("lastAdded")} title={`${sorting.lastAdded[language]}`} leadingIcon={getIcon("lastAdded")}/>
             <Menu.Item onPress={() => handleSortBy("lastModified")} title={`${sorting.lastModified[language]}`} leadingIcon={getIcon("lastModified")}/>
+            <Menu.Item onPress={() => handleSortBy("lastShot")} title={`${sorting.lastShot[language]}`} leadingIcon={getIcon("lastShot")}/>
+            <Menu.Item onPress={() => handleSortBy("lastCleaned")} title={`${sorting.lastCleaned[language]}`} leadingIcon={getIcon("lastCleaned")}/>
           </Menu>
           <Appbar.Action icon={sortGunsAscending ? "arrow-up" : "arrow-down"} onPress={() => handleSortOrder()} />
         </View>
       </Appbar>
       <Animated.View style={[{paddingLeft: defaultViewPadding, paddingRight: defaultViewPadding}, animatedStyle]}>{searchBannerVisible ? <Searchbar placeholder={search[language]} onChangeText={setSearchQuery} value={searchQuery} /> : null}</Animated.View>
       {displayAsGrid ? 
+        Dimensions.get("window").width > Dimensions.get("window").height ?
+        <FlatList 
+          numColumns={4} 
+          initialNumToRender={10} 
+          contentContainerStyle={{gap: defaultGridGap}}
+          columnWrapperStyle={{gap: defaultGridGap}} 
+          key={`gunCollectionGrid4`} 
+          style={{height: "100%", width: "100%", paddingTop: defaultViewPadding, paddingLeft: defaultViewPadding, paddingRight: defaultViewPadding, paddingBottom: 50}} 
+          data={searchQuery !== "" ? gunList.filter(item => item.manufacturer && item.manufacturer.toLowerCase().replaceAll(".", "").replaceAll(" ", "").includes(searchQuery.toLowerCase().replaceAll(".", "").replaceAll(" ", "")) || item.model && item.model.toLowerCase().replaceAll(".", "").replaceAll(" ", "").includes(searchQuery.toLowerCase().replaceAll(".", "").replaceAll(" ", "")) || (Array.isArray(item.caliber) ? item.caliber.join(", ").toLowerCase().replaceAll(".", "").replaceAll(" ", "").includes(searchQuery.toLowerCase().replaceAll(".", "").replaceAll(" ", "")) : "")) : gunList}
+          renderItem={({item, index}) => <GunCard gun={item} />}                     
+          keyExtractor={gun=>gun.id} 
+          ListFooterComponent={<View style={{width: "100%", height: 100}}></View>}
+          ListEmptyComponent={null}
+        />
+        :
         <FlatList 
           numColumns={2} 
           initialNumToRender={10} 
           contentContainerStyle={{gap: defaultGridGap}}
           columnWrapperStyle={{gap: defaultGridGap}} 
-          key={`gunCollectionGrid`} 
+          key={`gunCollectionGrid2`} 
           style={{height: "100%", width: "100%", paddingTop: defaultViewPadding, paddingLeft: defaultViewPadding, paddingRight: defaultViewPadding, paddingBottom: 50}} 
-          data={searchQuery !== "" ? gunList.filter(item => item.manufacturer.toLowerCase().includes(searchQuery.toLowerCase()) || item.model.toLowerCase().includes(searchQuery.toLowerCase())) : gunList}
+          data={searchQuery !== "" ? gunList.filter(item => item.manufacturer && item.manufacturer.toLowerCase().replaceAll(".", "").replaceAll(" ", "").includes(searchQuery.toLowerCase().replaceAll(".", "").replaceAll(" ", "")) || item.model && item.model.toLowerCase().replaceAll(".", "").replaceAll(" ", "").includes(searchQuery.toLowerCase().replaceAll(".", "").replaceAll(" ", "")) || (Array.isArray(item.caliber) ? item.caliber.join(", ").toLowerCase().replaceAll(".", "").replaceAll(" ", "").includes(searchQuery.toLowerCase().replaceAll(".", "").replaceAll(" ", "")) : "")) : gunList}
           renderItem={({item, index}) => <GunCard gun={item} />}                     
           keyExtractor={gun=>gun.id} 
           ListFooterComponent={<View style={{width: "100%", height: 100}}></View>}
@@ -211,7 +244,7 @@ export default function GunCollection({navigation, route}){
           contentContainerStyle={{gap: defaultGridGap}}
           key={`gunCollectionList`} 
           style={{height: "100%", width: "100%", paddingTop: defaultViewPadding, paddingLeft: defaultViewPadding, paddingRight: defaultViewPadding, paddingBottom: 50}} 
-          data={searchQuery !== "" ? gunList.filter(item => item.manufacturer.toLowerCase().includes(searchQuery.toLowerCase()) || item.model.toLowerCase().includes(searchQuery.toLowerCase())) : gunList} 
+          data={searchQuery !== "" ? gunList.filter(item => item.manufacturer && item.manufacturer.toLowerCase().replaceAll(".", "").replaceAll(" ", "").includes(searchQuery.toLowerCase().replaceAll(".", "").replaceAll(" ", "")) || item.model && item.model.toLowerCase().replaceAll(".", "").replaceAll(" ", "").includes(searchQuery.toLowerCase().replaceAll(".", "").replaceAll(" ", "")) || (Array.isArray(item.caliber) ? item.caliber.join(", ").toLowerCase().replaceAll(".", "").replaceAll(" ", "").includes(searchQuery.toLowerCase().replaceAll(".", "").replaceAll(" ", "")) : "")) : gunList} 
           renderItem={({item, index}) => <GunCard gun={item} />}      
           keyExtractor={gun=>gun.id} 
           ListFooterComponent={<View style={{width: "100%", height: 100}}></View>}
@@ -222,7 +255,7 @@ export default function GunCollection({navigation, route}){
       <Animated.View style={[{position: "absolute", bottom: defaultBottomBarHeight+defaultViewPadding, right: 0, margin: 16, width: 56, height: 56, backgroundColor: "transparent", display: "flex", justifyContent: "center", alignItems: "center"}, gunCollection.length === 0 ? pulsate : null]}>
         <FAB
           icon="plus"
-          onPress={()=>navigation.navigate("NewGun")}
+          onPress={()=>handleFAB()}
           disabled={mainMenuOpen ? true : false}
           style={{width: 56, height: 56}}
         />

@@ -10,6 +10,7 @@ export interface GunType{
   serial?: string | null
   permit?: string | null
   acquisitionDate?: string | null
+  boughtFrom?: string | null
   mainColor?: string | null
   remarks? : string | null
   images: string[]
@@ -21,6 +22,7 @@ export interface GunType{
   lastShotAt?: string
   lastCleanedAt?: string
   paidPrice?: string
+  marketValue?: string
   cleanInterval?: string | null
 }
 
@@ -29,6 +31,10 @@ export interface GunTypeStatus{
   highCapacityMagazine: boolean
   short: boolean
   fullAuto: boolean
+  launcher: boolean
+  decepticon: boolean
+  blooptoob: boolean
+  grandfather: boolean
 }
 
 export interface AmmoType{
@@ -105,6 +111,7 @@ export interface Elevation {
 
 export interface CommonStyles {
   allPageMargin: string
+  allPageMarginIOS: number
   allTitleFontSize: string
   allSubtitleFontSize: string
   allTableFontSize: string
@@ -122,7 +129,16 @@ export interface CommonStyles {
   tagContainerGap: string
 }
 
-export type SortingTypes = "alphabetical" | "lastAdded" | "lastModified" | "caliber"
+export type SortingTypes =  "alphabetical" | 
+                            "lastAdded" | 
+                            "lastModified" | 
+                            "caliber" | 
+                            "paidPrice" | 
+                            "marketValue" | 
+                            "acquisitionDate" | 
+                            "lastCleaned" |
+                            "lastShot"
+                            
 export type Languages = "de" | "en" | "fr" | "it" | "ch"
 export type CaliberArray = {id: string, amount: string }
 export type DBOperations = "save_arsenal_gun_db" | 

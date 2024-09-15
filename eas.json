@@ -3,13 +3,29 @@
     "preview": {
       "android": {
         "buildType": "apk"
+      },
+      "env": {
+        "APP_VARIANT": "preview"
+      }
+    },
+    "development": {
+      "developmentClient": true,
+      "distribution": "internal",
+      "env": {
+        "APP_VARIANT": "development"
       }
     },
     "production": {
       "android": {
         "buildType": "app-bundle",
         "autoIncrement": true
+      },
+      "ios": {
+        "autoIncrement": true
       }
     }
+  },
+  "cli": {
+    "appVersionSource": "remote"
   }
 }

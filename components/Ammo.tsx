@@ -1,4 +1,4 @@
-import { StyleSheet, View, ScrollView, Alert, TouchableNativeFeedback, TouchableOpacity } from 'react-native';
+import { StyleSheet, View, ScrollView, Alert, TouchableNativeFeedback, TouchableOpacity, Pressable, Platform } from 'react-native';
 import { Button, Appbar, Icon, Chip, Text, Dialog, Portal, Modal} from 'react-native-paper';
 import { ammoDataTemplate, ammoRemarks } from "../lib/ammoDataTemplate"
 import * as SecureStore from "expo-secure-store"
@@ -10,11 +10,14 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { usePreferenceStore } from '../stores/usePreferenceStore';
 import { useViewStore } from '../stores/useViewStore';
 import { useAmmoStore } from '../stores/useAmmoStore';
-import { ammoDeleteAlert } from '../lib/textTemplates';
+import { ammoDeleteAlert, iosWarningText } from '../lib/textTemplates';
 import { printSingleAmmo, printSingleGun } from '../functions/printToPDF';
 import { AmmoType } from '../interfaces';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { defaultViewPadding } from '../configs';
+import { alarm } from '../utils';
+import * as Sharing from 'expo-sharing';
+import * as FileSystem from 'expo-file-system';
 
 
 export default function Ammo({navigation}){
@@ -23,8 +26,10 @@ export default function Ammo({navigation}){
     const [dialogVisible, toggleDialogVisible] = useState<boolean>(false)
 
     const { setSeeAmmoOpen, editAmmoOpen, setEditAmmoOpen, lightBoxOpen, setLightBoxOpen } = useViewStore()
-    const { language, theme, generalSettings } = usePreferenceStore()
+    const { language, theme, generalSettings, caliberDisplayNameList } = usePreferenceStore()
     const { currentAmmo, setCurrentAmmo, ammoCollection, setAmmoCollection } = useAmmoStore()
+
+    const [iosWarning, toggleiosWarning] = useState<boolean>(false)
 
     const showModal = (index:number) => {
         setLightBoxOpen()
@@ -78,13 +83,37 @@ export default function Ammo({navigation}){
         navigation.navigate("AmmoCollection")
     }
 
+    function handleIosPrint(){
+        toggleiosWarning(true)
+    }
+
+    function handlePrintPress(){
+        toggleiosWarning(false)
+        try{
+            printSingleAmmo(currentAmmo, language, generalSettings.caliberDisplayName, caliberDisplayNameList)
+        }catch(e){
+            alarm("Print Single Ammo Error", e)
+        }
+    }
+
+    async function handleShareImage(img:string){
+        console.log(img)
+        await Sharing.shareAsync(img.includes(FileSystem.documentDirectory) ? img: `${FileSystem.documentDirectory}${img}`)
+    }
+
+    function getShortCaliberName(caliber:string){
+        const match = caliberDisplayNameList.find(obj => obj.name === caliber)
+        // If a match is found, return the displayName, else return the original item
+        return match ? match.displayName : caliber;
+    }
+
     return(
         <View style={{flex: 1}}>
             
             <Appbar style={{width: "100%"}}>
                 <Appbar.BackAction  onPress={() => navigation.navigate("AmmoCollection")} />
                 <Appbar.Content title={`${currentAmmo.designation} ${currentAmmo.manufacturer !== undefined? currentAmmo.manufacturer : ""}`} />
-                <Appbar.Action icon="printer" onPress={()=>printSingleAmmo(currentAmmo, language)} />
+                <Appbar.Action icon="printer" onPress={()=>Platform.OS === "ios" ? handleIosPrint() : handlePrintPress()} />
                 <Appbar.Action icon="pencil" onPress={()=>navigation.navigate("EditAmmo")} />
             </Appbar>
         
@@ -126,14 +155,30 @@ export default function Ammo({navigation}){
                                 return(
                                     <View key={`${item.name}`} style={{flex: 1, flexDirection: "column"}} >
                                         <Text style={{width: "100%", fontSize: 12,}}>{`${item[language]}:`}</Text>
-                                        <Text style={{width: "100%", fontSize: 18, marginBottom: 5, paddingBottom: 5, borderBottomColor: theme.colors.primary, borderBottomWidth: 0.2}}>{currentAmmo[item.name]}</Text>
+                                        <Text style={{width: "100%", fontSize: 18, marginBottom: 5, paddingBottom: 5, borderBottomColor: theme.colors.primary, borderBottomWidth: 0.2}}>
+                                        {currentAmmo[item.name] 
+                                                ? item.name === "caliber" 
+                                                    ? generalSettings.caliberDisplayName 
+                                                        ? getShortCaliberName(currentAmmo.caliber)
+                                                        : currentAmmo.caliber
+                                                    : currentAmmo[item.name]
+                                                : ""}
+                                        </Text>
                                     </View>
                                 )
                             } else if(currentAmmo[item.name] !== null && currentAmmo[item.name] !== undefined && currentAmmo[item.name] !== "" && currentAmmo[item.name].length !== 0){
                             return(
                                 <View key={`${item.name}`} style={{flex: 1, flexDirection: "column"}} >
                                     <Text style={{width: "100%", fontSize: 12,}}>{`${item[language]}:`}</Text>
-                                    <Text style={{width: "100%", fontSize: 18, marginBottom: 5, paddingBottom: 5, borderBottomColor: theme.colors.primary, borderBottomWidth: 0.2}}>{currentAmmo[item.name]}</Text>
+                                    <Text style={{width: "100%", fontSize: 18, marginBottom: 5, paddingBottom: 5, borderBottomColor: theme.colors.primary, borderBottomWidth: 0.2}}>
+                                    {currentAmmo[item.name] 
+                                                ? item.name === "caliber" 
+                                                    ? generalSettings.caliberDisplayName 
+                                                        ? getShortCaliberName(currentAmmo.caliber)
+                                                        : currentAmmo.caliber
+                                                    : currentAmmo[item.name]
+                                                : ""}
+                                    </Text>
                                 </View>
                             )
                             }
@@ -147,9 +192,10 @@ export default function Ammo({navigation}){
                     <Portal>
                         <Modal visible={lightBoxOpen} onDismiss={setLightBoxOpen}>
                             <View style={{width: "100%", height: "100%", padding: 0, display: "flex", flexDirection: "row", flexWrap: "wrap", backgroundColor: "green"}}>
-                                <TouchableOpacity onPress={setLightBoxOpen} style={{padding: 0, margin: 0, position: "absolute", top: defaultViewPadding, right: defaultViewPadding, zIndex: 999}}>
-                                    <Icon source="close-thick" size={40} color={theme.colors.inverseSurface}/>
-                                </TouchableOpacity>
+                            <View style={{padding: 0, margin: 0, position: "absolute", top: defaultViewPadding, right: defaultViewPadding, left: defaultViewPadding, zIndex: 999, display: "flex", flexDirection: "row", justifyContent: "space-between"}}>
+                                    <Pressable onPress={()=>handleShareImage(currentAmmo.images[lightBoxIndex])}><Icon source="share-variant" size={40} color={theme.colors.inverseSurface}/></Pressable>
+                                    <Pressable onPress={setLightBoxOpen} ><Icon source="close-thick" size={40} color={theme.colors.inverseSurface}/></Pressable>
+                                </View>
                                 {lightBoxOpen ? <ImageViewer isLightBox={true} selectedImage={currentAmmo.images[lightBoxIndex]}/> : null}
                             </View>
                         </Modal>    
@@ -177,6 +223,20 @@ export default function Ammo({navigation}){
                     </View>
                 </ScrollView>
             </View>
+            
+            <Dialog visible={iosWarning} onDismiss={()=>toggleiosWarning(false)}>
+                    <Dialog.Title>
+                    {iosWarningText.title[language]}
+                    </Dialog.Title>
+                    <Dialog.Content>
+                        <Text>{iosWarningText.text[language]}</Text>
+                    </Dialog.Content>
+                    <Dialog.Actions>
+                        <Button onPress={()=>handlePrintPress()} icon="heart" buttonColor={theme.colors.errorContainer} textColor={theme.colors.onErrorContainer}>{iosWarningText.ok[language]}</Button>
+                        <Button onPress={()=>toggleiosWarning(false)} icon="heart-broken" buttonColor={theme.colors.secondary} textColor={theme.colors.onSecondary}>{iosWarningText.cancel[language]}</Button>
+                    </Dialog.Actions>
+                </Dialog>
+
         </View>
     )
 }

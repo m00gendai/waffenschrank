@@ -13,6 +13,273 @@ Enter or paste your release notes for fr-FR here
 Enter or paste your release notes for it-IT here
 </it-IT>
 
+V1.4.1
+
+<de-DE>
+Kleinere Fehlerbehebungen
+</de-DE>
+<en-US>
+Minor bugfixes
+</en-US>
+<fr-FR>
+Corrections mineures de bogues
+</fr-FR>
+<it-IT>
+Correzioni di bug minori
+</it-IT>
+
+V1.4.0
+
+<de-DE>
+Behoben:
+- Suche mit Sonderzeichen in Munitionsübersicht 
+Neu:
+- Waffen filtern nach zuletzt geschossen und zuletzt gereinigt
+</de-DE>
+<en-US>
+Fixed:
+- Search with special characters in ammunition overview 
+New:
+- Filter weapons for last shot and last cleaned
+</en-US>
+<fr-FR>
+Corrigé:
+- Recherche avec des caractères spéciaux dans l'aperçu des munitions 
+Nouveau:
+- Filtrer les armes selon le dernier tir et le dernier nettoyage
+</fr-FR>
+<it-IT>
+Risolto:
+- Ricerca con caratteri speciali nella panoramica delle munizioni 
+Nuovo:
+- Le armi filtrano dopo l'ultimo sparo e l'ultimo pulito
+</it-IT>
+
+V1.3.0
+
+<de-DE>
+Behoben:
+- Datum immer zweistellig
+- Bild teilen fehlerhaft
+- "Out of Memory" Fehlermeldung bei Datenbankspeicherung
+Verbessert:
+- Kalibersuche überall toleranter
+- Ausgewählte Kaliber in Auswahl direkt löschbar
+- Verkürzte Kaliberbezeichnungen möglich (via Einstellungen)
+</de-DE>
+<en-US>
+Fixed:
+- Date always in two digits
+- Split image incorrect
+- "Out of Memory" error message for database storage
+Improved:
+- Calibre search more tolerant everywhere
+- Selected calibers in selection can be erased directly
+- Abbreviated calibre designations possible (via settings)
+</en-US>
+<fr-FR>
+Corrigé:
+- date toujours à deux chiffres
+- Partage d'image défectueux
+- Message d'erreur "Out of Memory" lors du stockage de la base de données
+Amélioré:
+- Recherche de calibre plus tolérant partout
+- Calibres sélectionnés dans la sélection directement effaçables
+- Désignations de calibres abrégées possibles (via les réglages)
+</fr-FR>
+<it-IT>
+Risolto:
+- Data sempre a due cifre
+- Condivisione immagine errata
+- Messaggio di errore "Out of Memory" durante la memorizzazione di una banca dati
+Migliorato:
+- Ricerca del calibro più tollerante ovunque
+- Calibri selezionati in selezione eliminabili direttamente
+- Denominazioni di calibro abbreviate possibili (tramite impostazioni)
+</it-IT>
+
+V1.2.3
+
+iOS:
+Behoben:
+- Bilder nach Update nicht mehr sichtbar
+- Warnung-Popup für die PDF Funktionen
+
+<de-DE>
+Code-Änderungen, keine sichtbaren Auswirkungen
+</de-DE>
+<en-US>
+Code changes, no visible impact
+</en-US>
+<fr-FR>
+Changements de code, aucune incidence visible
+</fr-FR>
+<it-IT>
+Cambiamenti di codice, nessun impatto visibile
+</it-IT>
+
+V1.2.2
+Removed Herobrine
+
+V1.2.1
+
+<de-DE>
+Behoben:
+- Neues Objekt mit alten Daten
+- Fehlerhafter Farbtext
+- Farbauswahl: Texte teils nicht an Hintergrundfarbe angepasst
+- Unnötige Leerzeichen in Exporten
+- Sortieren nach zuletzt hinzugefügt/zuletzt bearbeitet fehlerhafte Reihenfolge
+- Datumauswahl: Knopf für schnelle Monats- und Jahresauswahl zu wenig sichtbar
+</de-DE>
+<en-US>
+Fixed:
+- New object with old data
+- Incorrect colour text
+- Colour selection: texts not adapted to background colour
+- Unnecessary spaces in exports
+- Sort by last added/last edited incorrect order
+- Date selection: Button for quick month and year selection not visible enough
+</en-US>
+<fr-FR>
+Corrigé:
+- Nouvel objet avec d'anciennes données
+- Texte de couleur erroné
+- Choix des couleurs: Textes partiellement non adaptés à la couleur d'arrière-plan
+- Espaces inutiles dans les exportations
+- Tri par dernier ajout/dernier édité ordre erroné
+- Sélection de date: le bouton pour sélection rapide du mois et de l'année est trop peu visible
+</fr-FR>
+<it-IT>
+Risolto:
+- Nuovo oggetto con dati vecchi
+- Testo a colori errato
+- Selezione colore: testi non adattati al colore di sfondo
+- Spazi inutili nelle esportazioni
+- Ordina per ultimo aggiunto/ultimo modificato ordine errato
+- Selezione data: pulsante per la selezione rapida del mese e dell' anno troppo poco visibile
+</it-IT>
+
+V1.2.0
+
+Detailed Fixes:
+Both platforms
+- Cancel of new object not possible
+- Long keywords display error filter menu
+- Calendar week starts Sunday
+- Weapon: main colour not deletable
+- Ammunition: Current quantity cannot be edited
+- Potential freezing on spreadsheet printing
+- QuickShot negative quantities possible
+iOS
+- Scrolling opens Dialog Windows
+- Keyboard overlap
+
+<de-DE>
+Behoben:
+- Diverse Fehler
+Verbessert:
+- Farbnamen statt Hex-Code (Englisch)
+- Eingabefeld für Farben
+- Mehr Artikel 5
+- Kalibersuche toleranter
+Neu:
+- Luftgewehr/Airsoft Munition
+- Feld für Kaufort
+- Bilder teilen
+- Objekt Klonen (langer Druck in Listenansicht)
+</de-DE>
+<en-US>
+Fixed:
+- Miscellaneous bugs
+Improved:
+- Colour names instead of hex code (English)
+- Input field for colours
+- more Article 5
+- Calibre search more tolerant
+New:
+- Air rifle/Airsoft ammunition
+- field for place of purchase
+- Share pictures
+- Object Clone (long press in list view)
+</en-US>
+<fr-FR>
+Corrigé:
+- Diverses erreurs
+Amélioré:
+- Nom de couleur au lieu du code hexagonal (anglais)
+- Zone de saisie des couleurs
+- Voir article 5
+- recherche de calibre plus tolérant
+Nouveau:
+- Fusil à air comprimé/Munitions Airsoft
+- Champ pour le lieu d'achat
+- Partager des images
+- Clonage d'objets (longue impression en vue liste)
+</fr-FR>
+<it-IT>
+Risolto:
+- Errori vari
+Migliorato:
+- Nome del colore invece del codice esagonale (Inglese)
+- Campo di inserimento dei colori
+- Più articolo 5
+- Ricerca del calibro più tollerante
+Nuovo:
+- Fucili ad aria compressa/Munizioni Airsoft
+- Campo per il luogo di acquisto
+- Condividi immagini
+- Oggetto Clonazione (premere a lungo nella vista a lista)
+</it-IT>
+
+
+V1.1.0
+
+<de-DE>
+Behoben:
+- Darstellungsfehler bei Munition ohne Kaliberangabe
+- Neues Sammlungsobjekt wird nicht an richtiger Position eingefügt
+Verbessert:
+- Suche schliesst Kaliber mit ein
+Neu:
+- Neue Sortieroptionen für Waffen
+- Neues Feld "Aktueller Marktwert"
+- Rudimentäre Statistiken
+</de-DE>
+<en-US>
+Fixed:
+- Display error for ammunition without calibre indication
+- New collection object is not inserted in correct position
+Improved:
+- Search includes calibre
+New:
+- New sorting options for weapons
+- New field "Current Market Value"
+- Rudimentary statistics
+</en-US>
+<fr-FR>
+Corrigé:
+- erreur de présentation pour les munitions sans indication de calibre
+- Le nouvel objet de collection n'est pas inséré au bon endroit
+Amélioré:
+- La recherche inclut le calibre
+Nouveau:
+- Nouvelles options de tri des armes
+- Nouveau champ "Valeur de marché actuelle"
+- Statistiques rudimentaires
+</fr-FR>
+<it-IT>
+Risolto:
+- Errore di rappresentazione delle munizioni senza calibro
+- Impossibilità di inserire il nuovo oggetto nella posizione corretta
+Migliorato:
+- La ricerca include i calibri
+Nuovo:
+- Nuove opzioni di smistamento per le armi
+- Nuova casella "Valore di mercato attuale"
+- Statistiche rudimentali
+</it-IT>
+
 BETA 1.2.0-rc
 
 <de-DE>

@@ -7,6 +7,8 @@ import * as ImagePicker from "expo-image-picker"
 import { ImageResult, manipulateAsync } from 'expo-image-manipulator';
 import { Alert, Image } from "react-native"
 
+const nonSetValue: number = 999999999999999
+
 export function doSortBy(value: SortingTypes, ascending: boolean, items: GunType[] | AmmoType[]){
     if(value === "alphabetical"){
         const sorted = items.sort((a, b) =>{
@@ -30,20 +32,24 @@ export function doSortBy(value: SortingTypes, ascending: boolean, items: GunType
         return sorted
     }
     if(value === "lastAdded"){
+        try{
         const sorted = items.sort((a, b) =>{
-            const x = a.createdAt
-            const y = b.createdAt
+            const x = a.createdAt === undefined ? nonSetValue : a.createdAt === null ? nonSetValue : a.createdAt === "" ? nonSetValue : new Date(a.createdAt).getTime()
+            const y = b.createdAt === undefined ? nonSetValue : b.createdAt === null ? nonSetValue : b.createdAt === "" ? nonSetValue : new Date(b.createdAt).getTime()
             if(ascending){
                 return x > y ? 1 : x < y ? -1 : 0
             } else {
                 return x < y ? 1 : x > y ? -1 : 0
         }})
         return sorted
+    }catch(e){
+        console.log(e)
+    }
     }
     if(value === "lastModified"){
         const sorted = items.sort((a, b) =>{
-            const x = a.lastModifiedAt !== undefined ? a.lastModifiedAt : a.createdAt
-            const y = b.lastModifiedAt !== undefined ? b.lastModifiedAt : b.createdAt
+            const x = a.lastModifiedAt !== undefined ? new Date(a.lastModifiedAt).getTime() : new Date(a.createdAt).getTime()
+            const y = b.lastModifiedAt !== undefined ? new Date(b.lastModifiedAt).getTime() : new Date(b.createdAt).getTime()
             if(ascending){
                 return x > y ? 1 : x < y ? -1 : 0
             } else {
@@ -62,6 +68,79 @@ export function doSortBy(value: SortingTypes, ascending: boolean, items: GunType
         }})
         return sorted
     }
+    if(value === "paidPrice"){
+        const sorted = items.sort((a, b) =>{
+            const x = a.paidPrice === undefined ? nonSetValue : a.paidPrice === null ? nonSetValue : a.paidPrice === "" ? nonSetValue : Number(a.paidPrice)
+            const y = b.paidPrice === undefined ? nonSetValue : b.paidPrice === null ? nonSetValue : b.paidPrice === "" ? nonSetValue : Number(b.paidPrice)
+            if(ascending){
+                return x > y ? 1 : x < y ? -1 : 0
+            } else {
+                return x < y ? 1 : x > y ? -1 : 0
+        }})
+        return sorted
+    }
+    if(value === "marketValue"){
+        const sorted = items.sort((a, b) =>{
+            const x = a.marketValue === undefined ? nonSetValue : a.marketValue === null ? nonSetValue : a.marketValue === "" ? nonSetValue : Number(a.marketValue)
+            const y = b.marketValue === undefined ? nonSetValue : b.marketValue === null ? nonSetValue : b.marketValue === "" ? nonSetValue : Number(b.marketValue)
+            if(ascending){
+                return x > y ? 1 : x < y ? -1 : 0
+            } else {
+                return x < y ? 1 : x > y ? -1 : 0
+        }})
+        return sorted
+    }
+    if(value === "acquisitionDate"){
+        const parseDate = (dateStr:string) => {
+            if (!dateStr) return new Date(0);
+            const [day, month, year]:number[] = dateStr.split('.').map(Number);
+            return new Date(year, month - 1, day);
+        };
+        const sorted = items.sort((a, b) =>{
+            const x = a.acquisitionDate === undefined ? nonSetValue : a.acquisitionDate === null ? nonSetValue : a.acquisitionDate === "" ? nonSetValue : Math.floor(parseDate(a.acquisitionDate).getTime() / 1000) 
+            const y = b.acquisitionDate === undefined ? nonSetValue : b.acquisitionDate === null ? nonSetValue : b.acquisitionDate === "" ? nonSetValue : Math.floor(parseDate(b.acquisitionDate).getTime() / 1000)
+    
+            if(ascending){
+                return x > y ? 1 : x < y ? -1 : 0
+            } else {
+                return x < y ? 1 : x > y ? -1 : 0
+        }})
+        return sorted
+    }
+    if(value === "lastCleaned"){
+        const parseDate = (dateStr:string) => {
+            if (!dateStr) return new Date(0);
+            const [day, month, year]:number[] = dateStr.split('.').map(Number);
+            return new Date(year, month - 1, day);
+        };
+        const sorted = items.sort((a, b) =>{
+            const x = a.lastCleanedAt === undefined ? nonSetValue : a.lastCleanedAt === null ? nonSetValue : a.lastCleanedAt === "" ? nonSetValue : Math.floor(parseDate(a.lastCleanedAt).getTime() / 1000)
+            const y = b.lastCleanedAt === undefined ? nonSetValue : b.lastCleanedAt === null ? nonSetValue : b.lastCleanedAt === "" ? nonSetValue : Math.floor(parseDate(b.lastCleanedAt).getTime() / 1000)
+    
+            if(ascending){
+                return x > y ? 1 : x < y ? -1 : 0
+            } else {
+                return x < y ? 1 : x > y ? -1 : 0
+        }})
+        return sorted
+    }
+    if(value === "lastShot"){
+        const parseDate = (dateStr:string) => {
+            if (!dateStr) return new Date(0);
+            const [day, month, year]:number[] = dateStr.split('.').map(Number);
+            return new Date(year, month - 1, day);
+        };
+        const sorted = items.sort((a, b) =>{
+            const x = a.lastShotAt === undefined ? nonSetValue : a.lastShotAt === null ? nonSetValue : a.lastShotAt === "" ? nonSetValue : Math.floor(parseDate(a.lastShotAt).getTime() / 1000)
+            const y = b.lastShotAt === undefined ? nonSetValue : b.lastShotAt === null ? nonSetValue : b.lastShotAt === "" ? nonSetValue : Math.floor(parseDate(b.lastShotAt).getTime() / 1000)
+    
+            if(ascending){
+                return x > y ? 1 : x < y ? -1 : 0
+            } else {
+                return x < y ? 1 : x > y ? -1 : 0
+        }})
+        return sorted
+    }
 }
 
 export function getIcon(type:SortingTypes){
@@ -72,6 +151,16 @@ export function getIcon(type:SortingTypes){
             return "clock-plus-outline"
         case "lastModified":
             return "clock-edit-outline"
+        case "paidPrice":
+            return "cash-register"
+        case "marketValue":
+            return "chart-line"
+        case "acquisitionDate":
+            return "credit-card-clock-outline"
+        case "lastCleaned":
+            return "toothbrush"
+        case "lastShot":
+            return "bullseye"
         default:
             return "alphabetical-variant"
     }
