@@ -13,6 +13,21 @@ Enter or paste your release notes for fr-FR here
 Enter or paste your release notes for it-IT here
 </it-IT>
 
+V1.4.1
+
+<de-DE>
+Kleinere Fehlerbehebungen
+</de-DE>
+<en-US>
+Minor bugfixes
+</en-US>
+<fr-FR>
+Corrections mineures de bogues
+</fr-FR>
+<it-IT>
+Correzioni di bug minori
+</it-IT>
+
 V1.4.0
 
 <de-DE>
