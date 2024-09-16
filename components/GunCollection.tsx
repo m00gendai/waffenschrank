@@ -15,39 +15,43 @@ import GunCard from './GunCard';
 import { search, sorting, tooltips } from '../lib/textTemplates';
 import Animated, { useAnimatedStyle, useSharedValue, withRepeat, withTiming } from 'react-native-reanimated';
 import BottomBar from './BottomBar';
+import * as schema from "../db/schema"
+import { drizzle, useLiveQuery } from "drizzle-orm/expo-sqlite"
+import { openDatabaseSync } from "expo-sqlite/next"
+import { exampleGunEmpty } from '../lib/examples';
+import migrations from '../drizzle/migrations';
+
+
+const expo = openDatabaseSync("test_db5.db", {enableChangeListener: true})
+const db = drizzle(expo)
 
 export default function GunCollection({navigation, route}){
 
-  // Todo: Stricter typing ("stringA" | "stringB" instead of just string)
+
+const { data } = useLiveQuery(db.select().from(schema.gunCollection))
+db.insert(schema.gunCollection).values(exampleGunEmpty)
+
 
   const [menuVisibility, setMenuVisibility] = useState<MenuVisibility>({sortBy: false, filterBy: false});
 
   const [searchBannerVisible, toggleSearchBannerVisible] = useState<boolean>(false)
   const [searchQuery, setSearchQuery] = useState<string>("")
-
   const { displayAsGrid, toggleDisplayAsGrid, sortBy, setSortBy, language, setSortGunIcon, sortGunIcon, sortGunsAscending, toggleSortGunsAscending, theme } = usePreferenceStore()
   const { mainMenuOpen } = useViewStore()
-  const { gunCollection, setGunCollection, currentGun, setCurrentGun } = useGunStore()
+  const { currentGun, setCurrentGun } = useGunStore()
   const { tags } = useTagStore()
   const [isFilterOn, setIsFilterOn] = useState<boolean>(false);
-  const [gunList, setGunList] = useState<GunType[]>(gunCollection)
   const [boxes, setBoxes] = useState<string[]>([])
 
-  useEffect(()=>{
-    setGunList(isFilterOn ? gunList : gunCollection)
-  ,[]})
 
-  useEffect(()=>{
-    const sortedGuns = doSortBy(sortBy, sortGunsAscending, gunCollection) as GunType[]
-    setGunCollection(sortedGuns)
-  
-  },[gunCollection])
+
+
   
   async function handleSortBy(type: SortingTypes){
     setSortGunIcon(getIcon(type))
     setSortBy(type)
-    const sortedGuns = doSortBy(type, sortGunsAscending, gunCollection) as GunType[]
-    setGunCollection(sortedGuns)
+  //  const sortedGuns = doSortBy(type, sortGunsAscending, gunCollection) as GunType[]
+  //  setGunCollection(sortedGuns)
     const preferences:string = await AsyncStorage.getItem(PREFERENCES)
     const newPreferences:{[key:string] : string} = preferences == null ? {"sortBy": type} : {...JSON.parse(preferences), "sortBy":type} 
     await AsyncStorage.setItem(PREFERENCES, JSON.stringify(newPreferences))
@@ -59,8 +63,8 @@ export default function GunCollection({navigation, route}){
 
   async function handleSortOrder(){
     toggleSortGunsAscending()
-    const sortedGuns = doSortBy(sortBy, !sortGunsAscending, gunCollection) as GunType[]
-    setGunCollection(sortedGuns)
+  //  const sortedGuns = doSortBy(sortBy, !sortGunsAscending, gunCollection) as GunType[]
+  //  setGunCollection(sortedGuns)
     const preferences:string = await AsyncStorage.getItem(PREFERENCES)
     const newPreferences:{[key:string] : string} = preferences == null ? {"sortOrderGuns": !sortGunsAscending} : {...JSON.parse(preferences), "sortOrderGuns": !sortGunsAscending} 
     await AsyncStorage.setItem(PREFERENCES, JSON.stringify(newPreferences))
@@ -95,23 +99,23 @@ export default function GunCollection({navigation, route}){
 
   function handleFiltering(){
     if(!isFilterOn){
-      setGunList(gunCollection)
+  //    setGunList(gunCollection)
       return
     }
 
     if(boxes.length !== 0){
-      const gunsWithTags = gunCollection.filter(gun => {
-        if(gun.tags !== undefined) {
+      const gunsWithTags = data.filter(gun => {
+       /* if(gun.tags !== undefined) {
           return gun.tags.some(tag => boxes.includes(tag));
-        }
+        }*/
         
         return false;
       })
-     setGunList(gunsWithTags)
+    // setGunList(gunsWithTags)
     }
 
     if(boxes.length === 0){
-      setGunList(gunCollection)
+ //     setGunList(gunCollection)
     }
   }
 
@@ -217,7 +221,7 @@ export default function GunCollection({navigation, route}){
           columnWrapperStyle={{gap: defaultGridGap}} 
           key={`gunCollectionGrid4`} 
           style={{height: "100%", width: "100%", paddingTop: defaultViewPadding, paddingLeft: defaultViewPadding, paddingRight: defaultViewPadding, paddingBottom: 50}} 
-          data={searchQuery !== "" ? gunList.filter(item => item.manufacturer && item.manufacturer.toLowerCase().replaceAll(".", "").replaceAll(" ", "").includes(searchQuery.toLowerCase().replaceAll(".", "").replaceAll(" ", "")) || item.model && item.model.toLowerCase().replaceAll(".", "").replaceAll(" ", "").includes(searchQuery.toLowerCase().replaceAll(".", "").replaceAll(" ", "")) || (Array.isArray(item.caliber) ? item.caliber.join(", ").toLowerCase().replaceAll(".", "").replaceAll(" ", "").includes(searchQuery.toLowerCase().replaceAll(".", "").replaceAll(" ", "")) : "")) : gunList}
+          data={searchQuery !== "" ? data.filter(item => item.manufacturer && item.manufacturer.toLowerCase().replaceAll(".", "").replaceAll(" ", "").includes(searchQuery.toLowerCase().replaceAll(".", "").replaceAll(" ", "")) || item.model && item.model.toLowerCase().replaceAll(".", "").replaceAll(" ", "").includes(searchQuery.toLowerCase().replaceAll(".", "").replaceAll(" ", "")) || (Array.isArray(item.caliber) ? item.caliber.join(", ").toLowerCase().replaceAll(".", "").replaceAll(" ", "").includes(searchQuery.toLowerCase().replaceAll(".", "").replaceAll(" ", "")) : "")) : data}
           renderItem={({item, index}) => <GunCard gun={item} />}                     
           keyExtractor={gun=>gun.id} 
           ListFooterComponent={<View style={{width: "100%", height: 100}}></View>}
@@ -231,7 +235,7 @@ export default function GunCollection({navigation, route}){
           columnWrapperStyle={{gap: defaultGridGap}} 
           key={`gunCollectionGrid2`} 
           style={{height: "100%", width: "100%", paddingTop: defaultViewPadding, paddingLeft: defaultViewPadding, paddingRight: defaultViewPadding, paddingBottom: 50}} 
-          data={searchQuery !== "" ? gunList.filter(item => item.manufacturer && item.manufacturer.toLowerCase().replaceAll(".", "").replaceAll(" ", "").includes(searchQuery.toLowerCase().replaceAll(".", "").replaceAll(" ", "")) || item.model && item.model.toLowerCase().replaceAll(".", "").replaceAll(" ", "").includes(searchQuery.toLowerCase().replaceAll(".", "").replaceAll(" ", "")) || (Array.isArray(item.caliber) ? item.caliber.join(", ").toLowerCase().replaceAll(".", "").replaceAll(" ", "").includes(searchQuery.toLowerCase().replaceAll(".", "").replaceAll(" ", "")) : "")) : gunList}
+          data={searchQuery !== "" ? data.filter(item => item.manufacturer && item.manufacturer.toLowerCase().replaceAll(".", "").replaceAll(" ", "").includes(searchQuery.toLowerCase().replaceAll(".", "").replaceAll(" ", "")) || item.model && item.model.toLowerCase().replaceAll(".", "").replaceAll(" ", "").includes(searchQuery.toLowerCase().replaceAll(".", "").replaceAll(" ", "")) || (Array.isArray(item.caliber) ? item.caliber.join(", ").toLowerCase().replaceAll(".", "").replaceAll(" ", "").includes(searchQuery.toLowerCase().replaceAll(".", "").replaceAll(" ", "")) : "")) : data}
           renderItem={({item, index}) => <GunCard gun={item} />}                     
           keyExtractor={gun=>gun.id} 
           ListFooterComponent={<View style={{width: "100%", height: 100}}></View>}
@@ -244,7 +248,7 @@ export default function GunCollection({navigation, route}){
           contentContainerStyle={{gap: defaultGridGap}}
           key={`gunCollectionList`} 
           style={{height: "100%", width: "100%", paddingTop: defaultViewPadding, paddingLeft: defaultViewPadding, paddingRight: defaultViewPadding, paddingBottom: 50}} 
-          data={searchQuery !== "" ? gunList.filter(item => item.manufacturer && item.manufacturer.toLowerCase().replaceAll(".", "").replaceAll(" ", "").includes(searchQuery.toLowerCase().replaceAll(".", "").replaceAll(" ", "")) || item.model && item.model.toLowerCase().replaceAll(".", "").replaceAll(" ", "").includes(searchQuery.toLowerCase().replaceAll(".", "").replaceAll(" ", "")) || (Array.isArray(item.caliber) ? item.caliber.join(", ").toLowerCase().replaceAll(".", "").replaceAll(" ", "").includes(searchQuery.toLowerCase().replaceAll(".", "").replaceAll(" ", "")) : "")) : gunList} 
+          data={searchQuery !== "" ? data.filter(item => item.manufacturer && item.manufacturer.toLowerCase().replaceAll(".", "").replaceAll(" ", "").includes(searchQuery.toLowerCase().replaceAll(".", "").replaceAll(" ", "")) || item.model && item.model.toLowerCase().replaceAll(".", "").replaceAll(" ", "").includes(searchQuery.toLowerCase().replaceAll(".", "").replaceAll(" ", "")) || (Array.isArray(item.caliber) ? item.caliber.join(", ").toLowerCase().replaceAll(".", "").replaceAll(" ", "").includes(searchQuery.toLowerCase().replaceAll(".", "").replaceAll(" ", "")) : "")) : data} 
           renderItem={({item, index}) => <GunCard gun={item} />}      
           keyExtractor={gun=>gun.id} 
           ListFooterComponent={<View style={{width: "100%", height: 100}}></View>}
@@ -252,7 +256,7 @@ export default function GunCollection({navigation, route}){
         />
       }
       <BottomBar screen={route.name}/>
-      <Animated.View style={[{position: "absolute", bottom: defaultBottomBarHeight+defaultViewPadding, right: 0, margin: 16, width: 56, height: 56, backgroundColor: "transparent", display: "flex", justifyContent: "center", alignItems: "center"}, gunCollection.length === 0 ? pulsate : null]}>
+      <Animated.View style={[{position: "absolute", bottom: defaultBottomBarHeight+defaultViewPadding, right: 0, margin: 16, width: 56, height: 56, backgroundColor: "transparent", display: "flex", justifyContent: "center", alignItems: "center"}, data.length === 0 ? pulsate : null]}>
         <FAB
           icon="plus"
           onPress={()=>handleFAB()}
