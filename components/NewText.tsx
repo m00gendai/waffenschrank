@@ -32,7 +32,7 @@ export default function NewText({data, gunData, setGunData, ammoData, setAmmoDat
     const [showModalCaliber, setShowModalCaliber] = useState<boolean>(false)
     const [showCleanModal, setShowCleanModal] = useState<boolean>(false)
     const [color, setColor] = useState<string>(gunData ? gunData[data] : "#000")
-    const [activeCaliber, setActiveCaliber] = useState<string[]>(gunData && data === "caliber" && gunData[data] !== undefined ? gunData[data] : ammoData && data === "caliber" && ammoData[data] !== undefined ? [ammoData[data]] : [])
+    const [activeCaliber, setActiveCaliber] = useState<string[] | string>(gunData && data === "caliber" && gunData[data] !== undefined ? gunData[data] : ammoData && data === "caliber" && ammoData[data] !== undefined ? [ammoData[data]] : [])
     const [cleanInterval, setCleanInterval] = useState<string | null>(null)
     const [checked, setChecked] = useState<string>("-")
     const [caliberView, setCaliberView] = useState<"search" | "list">("search")
@@ -207,7 +207,7 @@ function handleInputPress(){
                         }}
                         onFocus={()=>handleFocus()}
                         onBlur={()=>setFocus(false)}
-                        value={input === undefined ? "" : input === null ? "" : data === "cleanInterval" && gunData[data] !== undefined && gunData[data] ? cleanIntervals[input] !== undefined ? cleanIntervals[input][language] : "" : input.toString()}
+                        value={input === undefined ? "" : input === null ? "" : data === "cleanInterval" && gunData !== null && gunData[data] !== undefined && gunData[data] !== null ? cleanIntervals[input] !== undefined ? cleanIntervals[input][language] : "" : input.toString()}
                         editable={data === "acquisitionDate" ? false : data === "mainColor" ? false : data === "caliber" ? false : data === "lastCleanedAt" ? false : data === "lastShotAt" ? false : data === "lastTopUpAt" ? false : data === "cleanInterval" ? false : true}
                         showSoftInputOnFocus={data === "acquisitionDate" ? false : true}
                         onChangeText={input => gunData !== undefined ? updateGunData(input) : updateAmmoData(input)}
