@@ -13,7 +13,8 @@ interface Props{
 }
 
 export default function ImageViewer({selectedImage, isLightBox, placeholder}:Props){
-
+  console.log("selectedImage")
+console.log(selectedImage)
     const scale = useSharedValue<number>(1);
     const savedScale = useSharedValue<number>(1);
     const positionX = useSharedValue<number>(0)
@@ -21,7 +22,7 @@ export default function ImageViewer({selectedImage, isLightBox, placeholder}:Pro
     const barrierX = useSharedValue<number>(0)
     const barrierY = useSharedValue<number>(0)
 
-  const imageName = selectedImage ? `${FileSystem.documentDirectory}${selectedImage.split("/").pop()}` : placeholder // Legacy support for full file paths
+  const imageName = selectedImage ? `${FileSystem.documentDirectory}${selectedImage}` : placeholder // Legacy support for full file paths
 
     const { language, theme, generalSettings } = usePreferenceStore()
   
