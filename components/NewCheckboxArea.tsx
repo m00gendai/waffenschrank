@@ -24,7 +24,7 @@ export default function NewCheckboxArea({data, gunData, setGunData}: Props){
     };
 
     const { language } = usePreferenceStore()
-    const [checked, setChecked] = useState<{key:boolean} | "">(gunData.id !== undefined && gunData.id !== "" && gunData[data] !== undefined ? gunData[data] : convertArrayToObject(checkBoxes));
+    const [checked, setChecked] = useState<{key:boolean} | "">(gunData !== null && gunData.id !== undefined && gunData.id !== "" && gunData[data] !== undefined ? gunData[data] : convertArrayToObject(checkBoxes));
 
     
 
