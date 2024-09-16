@@ -22,6 +22,12 @@ import { useGunStore } from '../stores/useGunStore';
 import * as FileSystem from 'expo-file-system';
 import { exampleGun, exampleGunEmpty } from '../lib/examples';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { openDatabaseSync } from 'expo-sqlite/next';
+import { drizzle } from 'drizzle-orm/expo-sqlite';
+import * as schema from "../db/schema"
+
+const expo = openDatabaseSync("test_db5.db", {enableChangeListener: true})
+const db = drizzle(expo)
 
 
 export default function NewGun({navigation}){
@@ -30,10 +36,10 @@ export default function NewGun({navigation}){
     const { setNewGunOpen, setSeeGunOpen } = useViewStore()
     const { setCurrentGun, gunCollection, setGunCollection, currentGun } = useGunStore()
 
-    const [selectedImage, setSelectedImage] = useState<string[]>(currentGun ? currentGun.images : null)
+    const [selectedImage, setSelectedImage] = useState<string>(currentGun ? currentGun.images : null)
     const [initCheck, setInitCheck] = useState<boolean>(true)
     const [granted, setGranted] = useState<boolean>(false)
-    const [gunData, setGunData] = useState<GunType>(currentGun ? currentGun : exampleGunEmpty)
+    const [gunData, setGunData] = useState<GunType>(currentGun ? currentGun : null)
     const [gunDataCompare, setGunDataCompare] = useState<GunType>(currentGun ? currentGun : exampleGunEmpty)
     const [visible, setVisible] = useState<boolean>(false);
     const [snackbarText, setSnackbarText] = useState<string>("")
@@ -91,10 +97,12 @@ export default function NewGun({navigation}){
         
             
 
-        const allKeys:string = await AsyncStorage.getItem(KEY_DATABASE) // gets the object that holds all key values
-        const newKeys:string[] = allKeys == null ? [value.id] : [...JSON.parse(allKeys), value.id] // if its the first gun to be saved, create an array with the id of the gun. Otherwise, merge the key into the existing array
-        await AsyncStorage.setItem(KEY_DATABASE, JSON.stringify(newKeys)) // Save the key object
-        SecureStore.setItem(`${GUN_DATABASE}_${value.id}`, JSON.stringify(value)) // Save the gun
+     //   const allKeys:string = await AsyncStorage.getItem(KEY_DATABASE) // gets the object that holds all key values
+    //    const newKeys:string[] = allKeys == null ? [value.id] : [...JSON.parse(allKeys), value.id] // if its the first gun to be saved, create an array with the id of the gun. Otherwise, merge the key into the existing array
+    //    await AsyncStorage.setItem(KEY_DATABASE, JSON.stringify(newKeys)) // Save the key object
+    //    SecureStore.setItem(`${GUN_DATABASE}_${value.id}`, JSON.stringify(value)) // Save the gun
+    console.log(value)
+        await db.insert(schema.gunCollection).values(value)
         console.log(`Saved item ${JSON.stringify(value)} with key ${GUN_DATABASE}_${value.id}`)
         setSaveState(true)
         setSnackbarText(`${value.manufacturer ? value.manufacturer : ""} ${value.model} ${toastMessages.saved[language]}`)
@@ -105,6 +113,24 @@ export default function NewGun({navigation}){
         setGunCollection(newCollection)
         setSeeGunOpen()
         navigation.navigate("Gun")
+    }
+
+    function saveImages(fileName:string, indx: number){
+        const newImage = selectedImage;
+            console.log(newImage)
+            if (newImage && newImage.split(",").length !== 0) {
+                const newArr = newImage.split(",").toSpliced(indx, 1, fileName);
+                setSelectedImage(newArr.join(","));
+                console.log(newArr.join(","))
+                setGunData({ ...gunData, images: newArr.join(",")});
+            } else {
+                setSelectedImage(fileName);
+                if (gunData && gunData.images && gunData.images.split(",").length !== 0) {
+                    setGunData({ ...gunData, images: [...gunData.images.split(","), fileName].join(",")});
+                } else {
+                    setGunData({ ...gunData, images: JSON.stringify(fileName) });
+                }
+            }
     }
     
     const pickImageAsync = async (indx:number) =>{
@@ -136,24 +162,14 @@ export default function NewGun({navigation}){
                     to: newPath,
                 });
 
-            const newImage = selectedImage;
-            if (newImage && newImage.length !== 0) {
-                newImage.splice(indx, 1, fileName);
-                setSelectedImage(newImage);
-                setGunData({ ...gunData, images: newImage });
-            } else {
-                setSelectedImage([fileName]);
-                if (gunData && gunData.images && gunData.images.length !== 0) {
-                    setGunData({ ...gunData, images: [...gunData.images, fileName] });
-                } else {
-                    setGunData({ ...gunData, images: [fileName] });
-                }
-            }
+            saveImages(fileName, indx)
         } catch (error) {
             console.error('Error saving image:', error);
         }
     }  
     }  
+
+    
      
     const pickCameraAsync = async (indx:number) =>{
         const permission: ImagePicker.MediaLibraryPermissionResponse | ImagePicker.CameraPermissionResponse = Platform.OS === "android" ? await ImagePicker.requestMediaLibraryPermissionsAsync() : await ImagePicker.requestCameraPermissionsAsync()
@@ -184,19 +200,7 @@ export default function NewGun({navigation}){
                 to: newPath,
             });
 
-            const newImage = selectedImage;
-            if (newImage && newImage.length !== 0) {
-                newImage.splice(indx, 1, fileName);
-                setSelectedImage(newImage);
-                setGunData({ ...gunData, images: newImage });
-            } else {
-                setSelectedImage([fileName]);
-                if (gunData && gunData.images && gunData.images.length !== 0) {
-                    setGunData({ ...gunData, images: [...gunData.images, fileName] });
-                } else {
-                    setGunData({ ...gunData, images: [fileName] });
-                }
-            }
+            saveImages(fileName, indx)
         } catch (error) {
             console.error('Error saving image:', error);
         }
@@ -241,7 +245,7 @@ useEffect(() => {
             <Appbar style={{width: "100%"}}>
                 <Appbar.BackAction  onPress={() => navigation.goBack()} />
                 <Appbar.Content title={newGunTitle[language]} />
-                <Appbar.Action icon="floppy" onPress={() => save({...gunData, id: uuidv4(), images:selectedImage, createdAt: `${new Date()}`, lastModifiedAt: `${new Date()}`})} color={saveState === null ? theme.colors.onBackground : saveState === false ? theme.colors.error : "green"} />
+                <Appbar.Action icon="floppy" onPress={() => save({...gunData, id: uuidv4(), images:selectedImage, createdAt: new Date().getTime(), lastModifiedAt: new Date().getTime()})} color={saveState === null ? theme.colors.onBackground : saveState === false ? theme.colors.error : "green"} />
             </Appbar>
 
             <View style={styles.container}>
