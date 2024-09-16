@@ -98,7 +98,7 @@ export default function GunCard({gun}:Props){
             {displayAsGrid ? 
             <>
                 <Card.Cover 
-                    source={gun.images && gun.images.length != 0 ? { uri: `${FileSystem.documentDirectory}${gun.images[0].split("/").pop()}`} : require(`../assets//775788_several different realistic rifles and pistols on _xl-1024-v1-0.png`)} 
+                    source={gun.images && gun.images.length != 0 ? { uri: `${FileSystem.documentDirectory}${gun.images.split(",")[0]}`} : require(`../assets//775788_several different realistic rifles and pistols on _xl-1024-v1-0.png`)} 
                     style={{
                         height: 100
                     }}
@@ -135,7 +135,7 @@ export default function GunCard({gun}:Props){
                 }}
             >
                 {generalSettings.displayImagesInListViewGun ? <Card.Cover 
-                    source={gun.images && gun.images.length != 0 ? { uri: `${FileSystem.documentDirectory}${gun.images[0].split("/").pop()}` } : require(`../assets//775788_several different realistic rifles and pistols on _xl-1024-v1-0.png`)} 
+                    source={gun.images && gun.images.length != 0 ? { uri: `${FileSystem.documentDirectory}${gun.images.split(",")[0]}` } : require(`../assets//775788_several different realistic rifles and pistols on _xl-1024-v1-0.png`)} 
                     style={{
                         height: "75%",
                         aspectRatio: "4/3"
