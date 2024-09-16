@@ -32,11 +32,22 @@ import * as SplashScreen from 'expo-splash-screen';
 import * as LocalAuthentication from 'expo-local-authentication';
 import { Alert, Dimensions } from 'react-native';
 import { calibers } from './lib/caliberData';
+import { useMigrations } from "drizzle-orm/expo-sqlite/migrator"
+import migrations from './drizzle/migrations';
+import { openDatabaseSync } from 'expo-sqlite/next';
+import { drizzle } from 'drizzle-orm/expo-sqlite';
+import * as FileSystem from 'expo-file-system';
+import * as schema from "./db/schema"
 
+
+const expo = openDatabaseSync("test_db5.db")
+const db = drizzle(expo)
 
 SplashScreen.preventAutoHideAsync();
 
 export default function App() {
+  const { success, error } = useMigrations(db, migrations)
+
 
   const [appIsReady, setAppIsReady] = useState<boolean>(false);
 
@@ -60,9 +71,8 @@ export default function App() {
   } = usePreferenceStore();
   const { mainMenuOpen } = useViewStore()
   const { setAmmoCollection } = useAmmoStore()
-  const { setGunCollection } = useGunStore()
+
   const { setAmmoTags, setTags } = useTagStore()
-  const [gunsLoaded, setGunsLoaded] = useState(false)
 
   
   useEffect(() => {
@@ -248,51 +258,6 @@ export default function App() {
     getAmmo()
   },[ammoDbImport])
 
-  useEffect(()=>{
-    async function getGuns(){
-      let keys: string[]
-      try{
-      keys = await getKeys("guns")
-    }  catch(e){
-      alarm("Gun Key Error", e)
-    }
-
-
-    let guns:GunType[]
-    try{
-      guns = await Promise.all(keys.map(async key =>{
-        const item:string = await SecureStore.getItemAsync(`${GUN_DATABASE}_${key}`)
-        return JSON.parse(item)
-      }))
-      if(guns.length !== keys.length){
-        throw(`Key/Gun DB Discrepancy: Found ${keys.length} keys and ${guns.length} guns`)
-      }
-    } catch(e){
-      alarm("Gun DB Error", e)
-    }
-
-    try{
-      const preferences:string = await AsyncStorage.getItem(PREFERENCES)
-      const isPreferences = preferences === null ? null : JSON.parse(preferences)
-      const filteredGuns = guns.filter(item => item !== null) // null check if there are key corpses
-      if(guns.length !== 0 && guns.every(item => item ===null)){
-        throw(`Gun DB Null Exception: Found ${keys.length} keys and ${guns.length} null items`)
-      }
-
-      if(filteredGuns.length === 0){
-        setGunCollection([])
-      } 
-      if(filteredGuns.length !== 0) {
-        const sortedGuns = doSortBy(isPreferences === null ? "alphabetical" : isPreferences.sortBy === undefined ? "alphabetical" : isPreferences.sortBy, isPreferences == null? true : isPreferences.sortOrderGuns === null ? true : isPreferences.sortOrderGuns, filteredGuns) as GunType[]
-        setGunCollection(sortedGuns)
-      }
-    } catch(e){
-      alarm("Gun Preference Error", e)
-    }
-   }
-    getGuns()
-    setGunsLoaded(true)
-  },[dbImport])
 
   const currentTheme = {...theme, roundness : 5}
 
