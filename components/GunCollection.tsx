@@ -17,19 +17,15 @@ import Animated, { useAnimatedStyle, useSharedValue, withRepeat, withTiming } fr
 import BottomBar from './BottomBar';
 import * as schema from "../db/schema"
 import { drizzle, useLiveQuery } from "drizzle-orm/expo-sqlite"
-import { openDatabaseSync } from "expo-sqlite/next"
-import { exampleGunEmpty } from '../lib/examples';
-import migrations from '../drizzle/migrations';
+import {db} from "../db/client"
+import { eq, lt, gte, ne, and, or, like } from 'drizzle-orm';
 
 
-const expo = openDatabaseSync("test_db5.db", {enableChangeListener: true})
-const db = drizzle(expo)
 
 export default function GunCollection({navigation, route}){
 
 
-const { data } = useLiveQuery(db.select().from(schema.gunCollection))
-db.insert(schema.gunCollection).values(exampleGunEmpty)
+
 
 
   const [menuVisibility, setMenuVisibility] = useState<MenuVisibility>({sortBy: false, filterBy: false});
@@ -42,11 +38,22 @@ db.insert(schema.gunCollection).values(exampleGunEmpty)
   const { tags } = useTagStore()
   const [isFilterOn, setIsFilterOn] = useState<boolean>(false);
   const [boxes, setBoxes] = useState<string[]>([])
+  /*
 
+  TODO: Take care of caliber search query also
+  TODO: Handle sorting
 
-
-
-  
+  */
+  const { data } = useLiveQuery(
+    db.select()
+    .from(schema.gunCollection)
+    .where(
+      or(
+        like(schema.gunCollection.model, `%${searchQuery}%`),
+        like(schema.gunCollection.manufacturer, `%${searchQuery}%`)
+      ),
+  ),[searchQuery])
+    
   async function handleSortBy(type: SortingTypes){
     setSortGunIcon(getIcon(type))
     setSortBy(type)
@@ -97,6 +104,7 @@ db.insert(schema.gunCollection).values(exampleGunEmpty)
     handleFiltering()
   }
 
+  //TODO: Filter directly on db
   function handleFiltering(){
     if(!isFilterOn){
   //    setGunList(gunCollection)
@@ -221,7 +229,7 @@ db.insert(schema.gunCollection).values(exampleGunEmpty)
           columnWrapperStyle={{gap: defaultGridGap}} 
           key={`gunCollectionGrid4`} 
           style={{height: "100%", width: "100%", paddingTop: defaultViewPadding, paddingLeft: defaultViewPadding, paddingRight: defaultViewPadding, paddingBottom: 50}} 
-          data={searchQuery !== "" ? data.filter(item => item.manufacturer && item.manufacturer.toLowerCase().replaceAll(".", "").replaceAll(" ", "").includes(searchQuery.toLowerCase().replaceAll(".", "").replaceAll(" ", "")) || item.model && item.model.toLowerCase().replaceAll(".", "").replaceAll(" ", "").includes(searchQuery.toLowerCase().replaceAll(".", "").replaceAll(" ", "")) || (Array.isArray(item.caliber) ? item.caliber.join(", ").toLowerCase().replaceAll(".", "").replaceAll(" ", "").includes(searchQuery.toLowerCase().replaceAll(".", "").replaceAll(" ", "")) : "")) : data}
+          data={data}
           renderItem={({item, index}) => <GunCard gun={item} />}                     
           keyExtractor={gun=>gun.id} 
           ListFooterComponent={<View style={{width: "100%", height: 100}}></View>}
@@ -235,7 +243,7 @@ db.insert(schema.gunCollection).values(exampleGunEmpty)
           columnWrapperStyle={{gap: defaultGridGap}} 
           key={`gunCollectionGrid2`} 
           style={{height: "100%", width: "100%", paddingTop: defaultViewPadding, paddingLeft: defaultViewPadding, paddingRight: defaultViewPadding, paddingBottom: 50}} 
-          data={searchQuery !== "" ? data.filter(item => item.manufacturer && item.manufacturer.toLowerCase().replaceAll(".", "").replaceAll(" ", "").includes(searchQuery.toLowerCase().replaceAll(".", "").replaceAll(" ", "")) || item.model && item.model.toLowerCase().replaceAll(".", "").replaceAll(" ", "").includes(searchQuery.toLowerCase().replaceAll(".", "").replaceAll(" ", "")) || (Array.isArray(item.caliber) ? item.caliber.join(", ").toLowerCase().replaceAll(".", "").replaceAll(" ", "").includes(searchQuery.toLowerCase().replaceAll(".", "").replaceAll(" ", "")) : "")) : data}
+          data={data}
           renderItem={({item, index}) => <GunCard gun={item} />}                     
           keyExtractor={gun=>gun.id} 
           ListFooterComponent={<View style={{width: "100%", height: 100}}></View>}
@@ -248,7 +256,7 @@ db.insert(schema.gunCollection).values(exampleGunEmpty)
           contentContainerStyle={{gap: defaultGridGap}}
           key={`gunCollectionList`} 
           style={{height: "100%", width: "100%", paddingTop: defaultViewPadding, paddingLeft: defaultViewPadding, paddingRight: defaultViewPadding, paddingBottom: 50}} 
-          data={searchQuery !== "" ? data.filter(item => item.manufacturer && item.manufacturer.toLowerCase().replaceAll(".", "").replaceAll(" ", "").includes(searchQuery.toLowerCase().replaceAll(".", "").replaceAll(" ", "")) || item.model && item.model.toLowerCase().replaceAll(".", "").replaceAll(" ", "").includes(searchQuery.toLowerCase().replaceAll(".", "").replaceAll(" ", "")) || (Array.isArray(item.caliber) ? item.caliber.join(", ").toLowerCase().replaceAll(".", "").replaceAll(" ", "").includes(searchQuery.toLowerCase().replaceAll(".", "").replaceAll(" ", "")) : "")) : data} 
+          data={data} 
           renderItem={({item, index}) => <GunCard gun={item} />}      
           keyExtractor={gun=>gun.id} 
           ListFooterComponent={<View style={{width: "100%", height: 100}}></View>}
