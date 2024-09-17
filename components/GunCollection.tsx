@@ -18,7 +18,7 @@ import BottomBar from './BottomBar';
 import * as schema from "../db/schema"
 import { drizzle, useLiveQuery } from "drizzle-orm/expo-sqlite"
 import {db} from "../db/client"
-import { eq, lt, gte, ne, and, or, like } from 'drizzle-orm';
+import { eq, lt, gte, ne, and, or, like, asc, desc, exists, isNull } from 'drizzle-orm';
 
 
 
@@ -52,7 +52,14 @@ export default function GunCollection({navigation, route}){
         like(schema.gunCollection.model, `%${searchQuery}%`),
         like(schema.gunCollection.manufacturer, `%${searchQuery}%`)
       ),
-  ),[searchQuery])
+    )
+    .orderBy(
+      asc(isNull(schema.gunCollection.manufacturer) ? schema.gunCollection.model : schema.gunCollection.manufacturer),
+      asc(schema.gunCollection.model),
+      
+    ),
+    [searchQuery]
+  )
     
   async function handleSortBy(type: SortingTypes){
     setSortGunIcon(getIcon(type))
