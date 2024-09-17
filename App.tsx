@@ -32,21 +32,11 @@ import * as SplashScreen from 'expo-splash-screen';
 import * as LocalAuthentication from 'expo-local-authentication';
 import { Alert, Dimensions } from 'react-native';
 import { calibers } from './lib/caliberData';
-import { useMigrations } from "drizzle-orm/expo-sqlite/migrator"
-import migrations from './drizzle/migrations';
-import { openDatabaseSync } from 'expo-sqlite/next';
-import { drizzle } from 'drizzle-orm/expo-sqlite';
-import * as FileSystem from 'expo-file-system';
-import * as schema from "./db/schema"
 
-
-const expo = openDatabaseSync("test_db5.db")
-const db = drizzle(expo)
 
 SplashScreen.preventAutoHideAsync();
 
 export default function App() {
-  const { success, error } = useMigrations(db, migrations)
 
 
   const [appIsReady, setAppIsReady] = useState<boolean>(false);
