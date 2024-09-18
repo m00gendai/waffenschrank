@@ -237,56 +237,38 @@ export default function App() {
         await AsyncStorage.removeItem(KEY_DATABASE)
       }
     }
-    checkLegacyGunData()
-  },[])
-
-
-  useEffect(()=>{
-    async function getAmmo(){
+    async function checkLegacyAmmoData(){
       let keys:string[]
       try{
-      keys = await getKeys("ammo")
+        keys = await getKeys("ammo")
       } catch(e){
-        alarm("Ammo Key Error", e)
+        alarm("Legacy Ammo Key Error", e)
       }
-
-
-      let ammunitions:AmmoType[]
+      if(keys.length === 0){
+        return
+      }
+      let ammunition:AmmoType[]
       try{
-        ammunitions = await Promise.all(keys.map(async key =>{
-        const item:string = await SecureStore.getItemAsync(`${AMMO_DATABASE}_${key}`)
-        return JSON.parse(item)
-      }))
-
-      if(ammunitions.length !== keys.length){
-        throw(`Key/Ammo DB Discrepancy: Found ${keys.length} keys and ${ammunitions.length} ammunitions`)
+        ammunition = await Promise.all(keys.map(async key =>{
+          const item:string = await SecureStore.getItemAsync(`${AMMO_DATABASE}_${key}`)
+          return JSON.parse(item)
+        }))
+      } catch(e){
+        alarm("Legacy Ammo DB Error", e)
       }
-    } catch(e){
-      alarm("Ammo DB Error", e)
+      if(ammunition.length !== 0){
+        await Promise.all(ammunition.map(async ammo =>{
+          await db.insert(schema.ammoCollection).values(ammo)
+        }))
+        await Promise.all(keys.map(async key =>{
+          await SecureStore.deleteItemAsync(`${AMMO_DATABASE}_${key}`)
+        }))
+        await AsyncStorage.removeItem(A_KEY_DATABASE)
+      }
     }
-
-      try{
-      const preferences:string = await AsyncStorage.getItem(PREFERENCES)
-      const isPreferences = preferences === null ? null : JSON.parse(preferences)
-      const filteredAmmunition = ammunitions.filter(item => item !== null) // null check if there are key corpses
-      if(ammunitions.length !== 0 && ammunitions.every(item => item ===null)){
-        throw(`Ammo DB Null Exception: Found ${keys.length} keys and ${ammunitions.length} null items`)
-      }
-
-      if(filteredAmmunition.length === 0){
-        setAmmoCollection([])
-      }
-      if(filteredAmmunition.length !== 0){
-        const sortedAmmo = doSortBy(isPreferences === null ? "alphabetical" : isPreferences.sortAmmoBy === undefined ? "alphabetical" : isPreferences.sortAmmoBy, isPreferences == null? true : isPreferences.sortOrderAmmo === null ? true : isPreferences.sortOrderAmmo, filteredAmmunition) as AmmoType[]
-        setAmmoCollection(sortedAmmo)
-      }
-    } catch(e){
-      alarm("Ammo Preference Error", e)
-    }
-    }
-    getAmmo()
-  },[ammoDbImport])
-
+    checkLegacyGunData()
+    checkLegacyAmmoData()
+  },[])
 
   const currentTheme = {...theme, roundness : 5}
 
