@@ -32,12 +32,17 @@ import * as SplashScreen from 'expo-splash-screen';
 import * as LocalAuthentication from 'expo-local-authentication';
 import { Alert, Dimensions } from 'react-native';
 import { calibers } from './lib/caliberData';
-
+import { expo, db } from "./db/client"
+import * as schema from "./db/schema"
+import { useDrizzleStudio } from 'expo-drizzle-studio-plugin';
+import { useMigrations } from 'drizzle-orm/expo-sqlite/migrator';
+import migrations from './drizzle/migrations';
 
 SplashScreen.preventAutoHideAsync();
 
 export default function App() {
-
+  const { success, error } = useMigrations(db, migrations);
+  useDrizzleStudio(expo)
 
   const [appIsReady, setAppIsReady] = useState<boolean>(false);
 
@@ -201,6 +206,40 @@ export default function App() {
     }
     return JSON.parse(keys)
   }
+
+  useEffect(()=>{
+    async function checkLegacyGunData(){
+      let keys:string[]
+      try{
+        keys = await getKeys("guns")
+      } catch(e){
+        alarm("Legacy Gun Key Error", e)
+      }
+      if(keys.length === 0){
+        return
+      }
+      let guns:GunType[]
+      try{
+        guns = await Promise.all(keys.map(async key =>{
+          const item:string = await SecureStore.getItemAsync(`${GUN_DATABASE}_${key}`)
+          return JSON.parse(item)
+        }))
+      } catch(e){
+        alarm("Legacy Gun DB Error", e)
+      }
+      if(guns.length !== 0){
+        await Promise.all(guns.map(async gun =>{
+          await db.insert(schema.gunCollection).values(gun)
+        }))
+        await Promise.all(keys.map(async key =>{
+          await SecureStore.deleteItemAsync(`${GUN_DATABASE}_${key}`)
+        }))
+        await AsyncStorage.removeItem(KEY_DATABASE)
+      }
+    }
+    checkLegacyGunData()
+  },[])
+
 
   useEffect(()=>{
     async function getAmmo(){
