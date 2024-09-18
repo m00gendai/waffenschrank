@@ -18,7 +18,7 @@ import BottomBar from './BottomBar';
 import * as schema from "../db/schema"
 import { drizzle, useLiveQuery } from "drizzle-orm/expo-sqlite"
 import {db} from "../db/client"
-import { eq, lt, gte, ne, and, or, like, asc, desc, exists, isNull } from 'drizzle-orm';
+import { eq, lt, gte, ne, and, or, like, asc, desc, exists, isNull, sql } from 'drizzle-orm';
 
 
 
@@ -54,11 +54,12 @@ export default function GunCollection({navigation, route}){
       ),
     )
     .orderBy(
-      asc(isNull(schema.gunCollection.manufacturer) ? schema.gunCollection.model : schema.gunCollection.manufacturer),
-      asc(schema.gunCollection.model),
-      
+      sortGunsAscending ?
+        asc((sql`COALESCE(NULLIF(${schema.gunCollection.manufacturer}, ""), ${schema.gunCollection.model})`))
+        :
+        desc((sql`COALESCE(NULLIF(${schema.gunCollection.manufacturer}, ""), ${schema.gunCollection.model})`))
     ),
-    [searchQuery]
+    [searchQuery, sortGunsAscending]
   )
     
   async function handleSortBy(type: SortingTypes){
