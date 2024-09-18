@@ -21,13 +21,8 @@ import NewChipArea from './NewChipArea';
 import { useGunStore } from '../stores/useGunStore';
 import * as FileSystem from 'expo-file-system';
 import { exampleGun, exampleGunEmpty } from '../lib/examples';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { openDatabaseSync } from 'expo-sqlite/next';
-import { drizzle } from 'drizzle-orm/expo-sqlite';
 import * as schema from "../db/schema"
-
-const expo = openDatabaseSync("test_db5.db", {enableChangeListener: true})
-const db = drizzle(expo)
+import { db } from "../db/client"
 
 
 export default function NewGun({navigation}){
