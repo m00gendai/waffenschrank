@@ -37,6 +37,10 @@ export const gunCollection = sqliteTable('guns', {
 export const ammoCollection = sqliteTable("ammo", {
     db_id: integer('id').primaryKey().notNull(),
     id: text("uuid").notNull(),
+    createdAt: integer("createdAt").notNull(),
+    lastModifiedAt: integer("lastModifiedAt"),
+    images: text("images"),
+    tags: text("tags"),
     manufacturer: text("manufacturer"),
     designation: text("designation").notNull(),
     originCountry: text("originCountry"),
@@ -46,4 +50,16 @@ export const ammoCollection = sqliteTable("ammo", {
     lastTopUpAt: text("lastTopUpAt"),
     criticalStock: text("criticalStock"),
     remarks: text("remarks"),
+})
+
+export const gunTags = sqliteTable("gunTags", {
+    db_id: integer('id').primaryKey().notNull(),
+    label: text("label").notNull(),
+    color: text("color"),
+})
+
+export const ammoTags = sqliteTable("ammoTags", {
+    db_id: integer('id').primaryKey().notNull(),
+    label: text("label").notNull(),
+    color: text("color"),
 })

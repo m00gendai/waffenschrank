@@ -18,7 +18,7 @@ export interface GunType{
   lastModifiedAt: number
   status?: GunTypeStatus
   shotCount?: string
-  tags: string[] | string
+  tags: string
   lastShotAt?: string
   lastCleanedAt?: string
   paidPrice?: string
@@ -43,15 +43,15 @@ export interface AmmoType{
   caliber: string | null
   designation: string
   originCountry?: string | null
-  createdAt: string,
-  lastModifiedAt: string,
+  createdAt: number,
+  lastModifiedAt: number,
   headstamp?: string | null
   currentStock?: number
   previousStock?: number
   lastTopUpAt?: string
   criticalStock?: string
-  tags: string[]
-  images: string[]
+  tags: string
+  images: string
   remarks?: string
 }
 
