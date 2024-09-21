@@ -63,3 +63,10 @@ export const ammoTags = sqliteTable("ammoTags", {
     label: text("label").notNull(),
     color: text("color"),
 })
+
+export const gunReminders = sqliteTable("gunReminder",{
+    db_id: integer('id').primaryKey().notNull(),
+    id: text("uuid").notNull(),
+    label: text("label").notNull(),
+    gun_id: text('gun_id').references(() => gunCollection.id),
+})
