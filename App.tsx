@@ -37,6 +37,7 @@ import * as schema from "./db/schema"
 import { useDrizzleStudio } from 'expo-drizzle-studio-plugin';
 import { useMigrations } from 'drizzle-orm/expo-sqlite/migrator';
 import migrations from './drizzle/migrations';
+import { checkBoxes } from './lib/gunDataTemplate';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -215,6 +216,7 @@ export default function App() {
       } catch(e){
         alarm("Legacy Gun Key Error", e)
       }
+      console.log(keys)
       if(keys.length === 0){
         return
       }
@@ -229,6 +231,9 @@ export default function App() {
       }
       if(guns.length !== 0){
         await Promise.all(guns.map(async gun =>{
+          await Promise.all(checkBoxes.map(checkbox =>{
+            gun[checkbox.name] = gun !== undefined && gun !== null && gun.status !== undefined && gun.status !== null ? gun.status[checkbox.name] : false
+          }))
           await db.insert(schema.gunCollection).values(gun)
         }))
         await Promise.all(keys.map(async key =>{
