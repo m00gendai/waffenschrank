@@ -20,7 +20,9 @@ import NewChipArea from './NewChipArea';
 import * as FileSystem from 'expo-file-system';
 import { gunDataValidation, imageHandling } from '../utils';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
+import { db } from "../db/client"
+import * as schema from "../db/schema"
+import { eq, lt, gte, ne, and, or, like, asc, desc, exists, isNull, sql } from 'drizzle-orm';
 
 export default function EditGun({navigation}){
 
@@ -84,16 +86,12 @@ export default function EditGun({navigation}){
             ])
             return
         }
-        await SecureStore.setItemAsync(`${GUN_DATABASE}_${value.id}`, JSON.stringify(value)) // Save the gun
+        await db.update(schema.gunCollection).set(value).where((eq(schema.gunCollection.id, value.id)))
         console.log(`Saved item ${JSON.stringify(value)} with key ${GUN_DATABASE}_${value.id}`)
         setCurrentGun({...value, images:selectedImage})
         setSaveState(true)
         setSnackbarText(`${value.manufacturer ? value.manufacturer : ""} ${value.model} ${toastMessages.changed[language]}`)
         onToggleSnackBar()
-        const currentObj:GunType = gunCollection.find(({id}) => id === value.id)
-        const index:number = gunCollection.indexOf(currentObj)
-        const newCollection:GunType[] = gunCollection.toSpliced(index, 1, value)
-        setGunCollection(newCollection)
       }
 
     function deleteImage(indx:number){
@@ -317,7 +315,7 @@ export default function EditGun({navigation}){
                 <Appbar.BackAction  onPress={() => navigation.goBack()} />
                 <Appbar.Content title={editGunTitle[language]} />
                 <Appbar.Action icon="delete" onPress={()=>toggleDialogVisible(!dialogVisible)} color='red'/>
-                <Appbar.Action icon="floppy" onPress={() => save({...gunData, lastModifiedAt: `${new Date()}`})} color={saveState === null ? theme.colors.onBackground : saveState === false ? theme.colors.error : "green"}/>
+                <Appbar.Action icon="floppy" onPress={() => save({...gunData, lastModifiedAt: new Date().getTime()})} color={saveState === null ? theme.colors.onBackground : saveState === false ? theme.colors.error : "green"}/>
             </Appbar>
         
             <View style={styles.container}>
@@ -393,7 +391,7 @@ export default function EditGun({navigation}){
                                 </View>
                             )
                         })}
-                         <NewCheckboxArea data={"status"} gunData={gunData} setGunData={setGunData}/>
+                         <NewCheckboxArea gunData={gunData} setGunData={setGunData}/>
                         <NewTextArea data={gunRemarks.name} gunData={gunData} setGunData={setGunData}/>
                         
                     </View>
