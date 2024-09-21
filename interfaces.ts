@@ -6,19 +6,19 @@ export interface GunType{
   originCountry?: string | null
   gunType?: string | null
   functionType?: string | null
-  caliber?: string[] | string | null
+  caliber?: string[] | null
   serial?: string | null
   permit?: string | null
   acquisitionDate?: string | null
   boughtFrom?: string | null
   mainColor?: string | null
   remarks? : string | null
-  images: string
+  images: string[]
   createdAt: number
   lastModifiedAt: number
   status?: GunTypeStatus
   shotCount?: string
-  tags: string
+  tags: string[]
   lastShotAt?: string
   lastCleanedAt?: string
   paidPrice?: string
