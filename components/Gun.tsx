@@ -144,7 +144,7 @@ export default function Gun({navigation}){
                                     return(
                                         <TouchableNativeFeedback key={`slides_${index}`} onPress={()=>showModal(index)}>
                                             <View style={styles.imageContainer} >
-                                            <ImageViewer isLightBox={false} selectedImage={currentGun.images.split(",")[index]} /> 
+                                            <ImageViewer isLightBox={false} selectedImage={currentGun.images[index]} /> 
                                             </View>
                                         </TouchableNativeFeedback>
                                     )
@@ -247,7 +247,7 @@ export default function Gun({navigation}){
                         <View style={{flex: 1, flexDirection: "column"}} >
                         {checkBoxes.map(checkBox=>{
                             return(
-                                <Checkbox.Item mode="android" key={checkBox.name} label={checkBox[language]} status={currentGun.status && currentGun.status[checkBox.name] ? "checked" : "unchecked"}/>
+                                <Checkbox.Item mode="android" key={checkBox.name} label={checkBox[language]} status={currentGun[checkBox.name] ? "checked" : "unchecked"}/>
                             )
                         })}
                         </View>
@@ -264,7 +264,7 @@ export default function Gun({navigation}){
                                     <Pressable onPress={()=>handleShareImage(currentGun.images[lightBoxIndex])}><Icon source="share-variant" size={40} color={theme.colors.inverseSurface}/></Pressable>
                                     <Pressable onPress={setLightBoxOpen} ><Icon source="close-thick" size={40} color={theme.colors.inverseSurface}/></Pressable>
                                 </View>
-                                {lightBoxOpen ? <ImageViewer isLightBox={true} selectedImage={JSON.parse(currentGun.images).split(",")[lightBoxIndex]}/> : null}
+                                {lightBoxOpen ? <ImageViewer isLightBox={true} selectedImage={currentGun.images[lightBoxIndex]}/> : null}
                             </View>
                         </Modal>    
                     </Portal>   
