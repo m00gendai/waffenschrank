@@ -101,6 +101,24 @@ export default function EditGun({navigation}){
         setGunData({...gunData, images: currentImages})
         toggleImageDialogVisible(false)
     }
+
+    function saveImages(fileName:string, indx: number){
+        const newImage = selectedImage;
+            if (newImage.length !== 0) {
+                const newArr = newImage.toSpliced(indx, 1, fileName);
+                setSelectedImage(newArr);
+                console.log(newArr.join(","))
+                setGunData({ ...gunData, images: newArr});
+            } else {
+                setSelectedImage([fileName]);
+                if (gunData && gunData.images.length !== 0) {
+                    setGunData({ ...gunData, images: [...gunData.images, fileName]});
+                } else {
+                    console.log(fileName)
+                    setGunData({ ...gunData, images: [fileName]});
+                }
+            }
+    }
   
     const pickImageAsync = async (indx:number) =>{
         const permission: ImagePicker.MediaLibraryPermissionResponse = await ImagePicker.requestMediaLibraryPermissionsAsync()
@@ -131,19 +149,7 @@ export default function EditGun({navigation}){
                     to: newPath,
                 });
                 
-            const newImage = selectedImage;
-            if (newImage && newImage.length !== 0) {
-                newImage.splice(indx, 1, fileName);
-                setSelectedImage(newImage);
-                setGunData({ ...gunData, images: newImage });
-            } else {
-                setSelectedImage([fileName]);
-                if (gunData && gunData.images && gunData.images.length !== 0) {
-                    setGunData({ ...gunData, images: [...gunData.images, fileName] });
-                } else {
-                    setGunData({ ...gunData, images: [fileName] });
-                }
-            }
+            saveImages(fileName, indx)
         } catch (error) {
             console.error('Error saving image:', error);
         }
@@ -179,19 +185,7 @@ export default function EditGun({navigation}){
                     to: newPath,
                 });
 
-            const newImage = selectedImage;
-            if (newImage && newImage.length !== 0) {
-                newImage.splice(indx, 1, fileName);
-                setSelectedImage(newImage);
-                setGunData({ ...gunData, images: newImage });
-            } else {
-                setSelectedImage([newPath]);
-                if (gunData && gunData.images && gunData.images.length !== 0) {
-                    setGunData({ ...gunData, images: [...gunData.images, fileName] });
-                } else {
-                    setGunData({ ...gunData, images: [fileName] });
-                }
-            }
+                saveImages(fileName, indx)
         } catch (error) {
             console.error('Error saving image:', error);
         }
@@ -293,16 +287,7 @@ export default function EditGun({navigation}){
 
 
     async function deleteItem(gun:GunType){
-        // Deletes gun in gun database
-        await SecureStore.deleteItemAsync(`${GUN_DATABASE}_${gun.id}`)
-        // retrieves gun ids from key database and removes the to be deleted id
-        const keys:string = await AsyncStorage.getItem(KEY_DATABASE)
-        const keyArray: string[] = JSON.parse(keys)
-        const newKeys: string[] = keyArray.filter(key => key != gun.id)
-        AsyncStorage.setItem(KEY_DATABASE, JSON.stringify(newKeys))
-        const index:number = gunCollection.indexOf(gun)
-        const newCollection:GunType[] = gunCollection.toSpliced(index, 1)
-        setGunCollection(newCollection)
+        await db.delete(schema.gunCollection).where(eq(schema.gunCollection.id, currentGun.id));
         toggleDialogVisible(false)
         navigation.navigate("GunCollection")
         aboutToDeleteRef.current = false
