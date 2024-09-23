@@ -26,7 +26,7 @@ export default function NewCheckboxArea({gunData, setGunData}: Props){
         <View>
             {checkBoxes.map(checkBox=>{
                 return(
-                    <Checkbox.Item mode={"android"} key={checkBox.name} label={checkBox[language]} status={gunData[checkBox.name] ? "checked" : "unchecked"} onPress={()=>{handleCheckBoxCheck(checkBox.name)}}/>
+                    <Checkbox.Item mode={"android"} key={checkBox.name} label={checkBox[language]} status={gunData !== null && gunData[checkBox.name] ? "checked" : "unchecked"} onPress={()=>{handleCheckBoxCheck(checkBox.name)}}/>
                 )
             })}
             
