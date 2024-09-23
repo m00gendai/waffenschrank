@@ -26,6 +26,12 @@ export interface GunType{
   cleanInterval?: string | null
 }
 
+interface DbId{
+  db_id: number
+}
+
+export type GunTypeWithDbId = GunType & DbId
+
 export interface GunTypeStatus{
   exFullAuto: boolean
   highCapacityMagazine: boolean
