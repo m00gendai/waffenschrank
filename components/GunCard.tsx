@@ -14,6 +14,9 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as SecureStore from "expo-secure-store"
 import { gunDeleteAlert, longPressActions } from '../lib/textTemplates';
 import * as FileSystem from 'expo-file-system';
+import { db } from "../db/client"
+import * as schema from "../db/schema"
+import { eq, lt, gte, ne, and, or, like, asc, desc, exists, isNull, sql } from 'drizzle-orm';
 
 interface Props{
     gun: GunType
@@ -52,17 +55,7 @@ export default function GunCard({gun}:Props){
       }
 
       async function deleteItem(gun:GunType){
-        // Deletes gun in gun database
-        await SecureStore.deleteItemAsync(`${GUN_DATABASE}_${gun.id}`)
-
-        // retrieves gun ids from key database and removes the to be deleted id
-        const keys:string = await AsyncStorage.getItem(KEY_DATABASE)
-        const keyArray: string[] = JSON.parse(keys)
-        const newKeys: string[] = keyArray.filter(key => key != gun.id)
-        AsyncStorage.setItem(KEY_DATABASE, JSON.stringify(newKeys))
-        const index:number = gunCollection.indexOf(gun)
-        const newCollection:GunType[] = gunCollection.toSpliced(index, 1)
-        setGunCollection(newCollection)
+        await db.delete(schema.gunCollection).where(eq(schema.gunCollection.id, currentGun.id));
         toggleDialogVisible(false)
         setLongVisible(false)
     }
