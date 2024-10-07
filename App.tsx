@@ -13,7 +13,7 @@ import AmmoCollection from './components/AmmoCollection';
 import { StatusBar } from 'expo-status-bar';
 import { AmmoType, GunType, StackParamList } from './interfaces';
 import * as SecureStore from "expo-secure-store"
-import { alarm, doSortBy, getIcon } from './utils';
+import { alarm, getIcon } from './utils';
 import { useAmmoStore } from './stores/useAmmoStore';
 import { useTagStore } from './stores/useTagStore';
 import { useGunStore } from './stores/useGunStore';
@@ -98,12 +98,22 @@ export default function App() {
     } catch(e){
       alarm("Legacy Gun DB Error", e)
     }
+    console.log(guns)
     if(guns.length !== 0){
       await Promise.all(guns.map(async gun =>{
-        await Promise.all(checkBoxes.map(checkbox =>{
-          gun[checkbox.name] = gun !== undefined && gun !== null && gun.status !== undefined && gun.status !== null ? gun.status[checkbox.name] : false
-        }))
-        await db.insert(schema.gunCollection).values(gun)
+        if(gun !== null){
+          await Promise.all(checkBoxes.map(checkbox =>{
+            gun[checkbox.name] = gun !== undefined && gun !== null && gun.status !== undefined && gun.status !== null ? gun.status[checkbox.name] : false
+          }))
+          gun.createdAt = gun !== undefined && gun !== null && isNaN(gun.createdAt) ? new Date(gun.createdAt).getTime() : gun.createdAt
+          gun.lastModifiedAt = gun !== undefined && gun !== null && isNaN(gun.lastModifiedAt) ? new Date(gun.lastModifiedAt).getTime() : gun.lastModifiedAt
+          await db.insert(schema.gunCollection).values(gun)
+          if(gun.tags !== undefined && gun.tags !== null && gun.tags.length !== 0){
+            await Promise.all(gun.tags.map(async tag =>{
+              await db.insert(schema.gunTags).values({label: tag}).onConflictDoNothing()
+            }))
+          }
+        }
       }))
       await Promise.all(keys.map(async key =>{
         await SecureStore.deleteItemAsync(`${GUN_DATABASE}_${key}`)
@@ -160,6 +170,8 @@ export default function App() {
         console.log("isPreferences.generalSettings null")
         if(isPreferences.generalSettings === null || isPreferences.generalSettings === undefined){ 
           if(success){
+            await checkLegacyGunData()
+          await checkLegacyAmmoData()
             setAppIsReady(true)
           }
           return
