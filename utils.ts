@@ -6,9 +6,34 @@ import { requiredFieldsAmmo, requiredFieldsGun } from "./configs";
 import * as ImagePicker from "expo-image-picker"
 import { ImageResult, manipulateAsync } from 'expo-image-manipulator';
 import { Alert, Image } from "react-native"
+import * as schema from "./db/schema"
 
 const nonSetValue: number = 999999999999999
 
+export function getSortAlternateValue(sortBy:SortingTypes){
+    switch(sortBy){
+        case "alphabetical":
+            return ""
+        case "caliber":
+            return ""
+        case "acquisitionDate":
+            return nonSetValue
+        case "createdAt":
+            return schema.gunCollection.createdAt
+        case "lastCleanedAt":
+            return nonSetValue
+        case "lastModifiedAt":
+            return schema.gunCollection.createdAt
+        case "lastShotAt":
+            return nonSetValue
+        case "marketValue":
+            return nonSetValue
+        case "paidPrice":
+            return nonSetValue
+    }
+}
+
+/*
 export function doSortBy(value: SortingTypes, ascending: boolean, items: GunType[] | AmmoType[]){
     if(value === "alphabetical"){
         const sorted = items.sort((a, b) =>{
@@ -31,7 +56,7 @@ export function doSortBy(value: SortingTypes, ascending: boolean, items: GunType
         }})
         return sorted
     }
-    if(value === "lastAdded"){
+    if(value === "lastAddedAt"){
         try{
         const sorted = items.sort((a, b) =>{
             const x = a.createdAt === undefined ? nonSetValue : a.createdAt === null ? nonSetValue : a.createdAt === "" ? nonSetValue : new Date(a.createdAt).getTime()
@@ -46,7 +71,7 @@ export function doSortBy(value: SortingTypes, ascending: boolean, items: GunType
         console.log(e)
     }
     }
-    if(value === "lastModified"){
+    if(value === "lastModifiedAt"){
         const sorted = items.sort((a, b) =>{
             const x = a.lastModifiedAt !== undefined ? new Date(a.lastModifiedAt).getTime() : new Date(a.createdAt).getTime()
             const y = b.lastModifiedAt !== undefined ? new Date(b.lastModifiedAt).getTime() : new Date(b.createdAt).getTime()
@@ -107,7 +132,7 @@ export function doSortBy(value: SortingTypes, ascending: boolean, items: GunType
         }})
         return sorted
     }
-    if(value === "lastCleaned"){
+    if(value === "lastCleanedAt"){
         const parseDate = (dateStr:string) => {
             if (!dateStr) return new Date(0);
             const [day, month, year]:number[] = dateStr.split('.').map(Number);
@@ -124,7 +149,7 @@ export function doSortBy(value: SortingTypes, ascending: boolean, items: GunType
         }})
         return sorted
     }
-    if(value === "lastShot"){
+    if(value === "lastShotAt"){
         const parseDate = (dateStr:string) => {
             if (!dateStr) return new Date(0);
             const [day, month, year]:number[] = dateStr.split('.').map(Number);
@@ -142,14 +167,15 @@ export function doSortBy(value: SortingTypes, ascending: boolean, items: GunType
         return sorted
     }
 }
+*/
 
 export function getIcon(type:SortingTypes){
     switch(type){
         case "alphabetical":
             return "alphabetical-variant"
-        case "lastAdded":
+        case "createdAt":
             return "clock-plus-outline"
-        case "lastModified":
+        case "lastModifiedAt":
             return "clock-edit-outline"
         case "paidPrice":
             return "cash-register"
@@ -157,9 +183,9 @@ export function getIcon(type:SortingTypes){
             return "chart-line"
         case "acquisitionDate":
             return "credit-card-clock-outline"
-        case "lastCleaned":
+        case "lastCleanedAt":
             return "toothbrush"
-        case "lastShot":
+        case "lastShotAt":
             return "bullseye"
         default:
             return "alphabetical-variant"
@@ -263,6 +289,9 @@ function mapIntervals(interval){
 }
 
 export function checkDate(gun:GunType){
+    if(gun === undefined){
+        return
+    }
     if(gun.lastCleanedAt === undefined){
         return
     }
