@@ -46,6 +46,9 @@ interface PreferenceStore {
     setFirstOpen: () => void
     caliberDisplayNameList: {name: string, displayName: string}[]
     setCaliberDisplayNameList: (calibers: {name: string, displayName?: string}[]) => void
+    gunFilterOn: boolean
+    toggleGunFilterOn: () => void
+
   }
 
   export const usePreferenceStore = create<PreferenceStore>((set) => ({
@@ -89,5 +92,7 @@ interface PreferenceStore {
     firstOpen: true,
     setFirstOpen: () => set((state) => ({firstOpen: !state.firstOpen})),
     caliberDisplayNameList: [],
-    setCaliberDisplayNameList: (calibers: {name: string, displayName: string}[])  => set((state) =>({caliberDisplayNameList: calibers}))
+    setCaliberDisplayNameList: (calibers: {name: string, displayName: string}[])  => set((state) =>({caliberDisplayNameList: calibers})),
+    gunFilterOn: false,
+    toggleGunFilterOn: () => set((state) => ({gunFilterOn: !state.gunFilterOn}))
   }))
