@@ -34,7 +34,7 @@ export default function NewGun({navigation}){
     const [selectedImage, setSelectedImage] = useState<string[]>(currentGun ? currentGun.images : [])
     const [initCheck, setInitCheck] = useState<boolean>(true)
     const [granted, setGranted] = useState<boolean>(false)
-    const [gunData, setGunData] = useState<GunType>(currentGun ? currentGun : exampleGunEmpty)
+    const [gunData, setGunData] = useState<GunType>(currentGun ? currentGun : null)
     const [gunDataCompare, setGunDataCompare] = useState<GunType>(currentGun ? currentGun : exampleGunEmpty)
     const [visible, setVisible] = useState<boolean>(false);
     const [snackbarText, setSnackbarText] = useState<string>("")
