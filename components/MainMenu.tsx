@@ -30,7 +30,8 @@ import * as SystemUI from "expo-system-ui"
 import * as Sharing from 'expo-sharing';
 import * as LocalAuthentication from 'expo-local-authentication';
 import { Dirs, Util, FileSystem as fs } from 'react-native-file-access';
-
+import { expo, db } from "../db/client"
+import * as schema from "../db/schema"
 
 
 export default function MainMenu({navigation}){
