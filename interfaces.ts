@@ -136,14 +136,14 @@ export interface CommonStyles {
 }
 
 export type SortingTypes =  "alphabetical" | 
-                            "lastAdded" | 
-                            "lastModified" | 
+                            "createdAt" | 
+                            "lastModifiedAt" | 
                             "caliber" | 
                             "paidPrice" | 
                             "marketValue" | 
                             "acquisitionDate" | 
-                            "lastCleaned" |
-                            "lastShot"
+                            "lastCleanedAt" |
+                            "lastShotAt"
                             
 export type Languages = "de" | "en" | "fr" | "it" | "ch"
 export type CaliberArray = {id: string, amount: string }
