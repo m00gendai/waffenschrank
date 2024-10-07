@@ -54,14 +54,16 @@ export const ammoCollection = sqliteTable("ammo", {
 
 export const gunTags = sqliteTable("gunTags", {
     db_id: integer('id').primaryKey().notNull(),
-    label: text("label").notNull(),
+    label: text("label").notNull().unique("gunTag_label"),
     color: text("color"),
+    active: integer("active", {mode: "boolean"}).default(true),
 })
 
 export const ammoTags = sqliteTable("ammoTags", {
     db_id: integer('id').primaryKey().notNull(),
-    label: text("label").notNull(),
+    label: text("label").notNull().unique("ammoTag_label"),
     color: text("color"),
+    active: integer("active", {mode: "boolean"}).default(true),
 })
 
 export const gunReminders = sqliteTable("gunReminder",{
