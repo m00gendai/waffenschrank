@@ -9,8 +9,14 @@ import { useAmmoStore } from "../stores/useAmmoStore";
 import { useState } from "react";
 import { AmmoType, GunType } from "../interfaces";
 import * as SecureStore from "expo-secure-store"
+import { drizzle, useLiveQuery } from "drizzle-orm/expo-sqlite"
+import { db } from "../db/client"
+import * as schema from "../db/schema"
+import { eq, lt, gte, ne, and, or, like, asc, desc, exists, isNull, sql, inArray } from 'drizzle-orm';
 
 export default function QuickShot({navigation}){
+
+ 
 
     const { ammoDbImport, displayAmmoAsGrid, setDisplayAmmoAsGrid, toggleDisplayAmmoAsGrid, sortAmmoBy, setSortAmmoBy, language, theme, sortAmmoIcon, setSortAmmoIcon } = usePreferenceStore()
     const { gunCollection, setGunCollection, currentGun, setCurrentGun } = useGunStore()
@@ -20,6 +26,12 @@ export default function QuickShot({navigation}){
     const [seeInfo, toggleSeeInfo] = useState<boolean>(false)
     const [negativeAmmo, setNegativeAmmo] = useState<boolean>(false)
     const [negativeAmmoId, setNegativeAmmoId] = useState<string>("")
+
+    const { data } = useLiveQuery(
+      db.select()
+      .from(schema.ammoCollection)
+      .where(inArray(schema.ammoCollection.caliber, currentGun.caliber))
+    )
 
     async function save(value: GunType) {
         await SecureStore.setItemAsync(`${GUN_DATABASE}_${value.id}`, JSON.stringify(value)) // Save the gun
@@ -31,11 +43,10 @@ export default function QuickShot({navigation}){
         setGunCollection(newCollection)
       }
 
-      async function saveNewStock(ammo:AmmoType){
+      async function saveNewStock(stock: number, id: string){
         const date:Date = new Date()
-
-        await SecureStore.setItemAsync(`${AMMO_DATABASE}_${ammo.id}`, JSON.stringify({...ammo, lastTopUpAt: ammo.currentStock === ammo.previousStock ? ammo.lastTopUpAt : date.toLocaleDateString(dateLocales.de)})) // Save the ammo
-            console.log(`Updated item ${JSON.stringify(ammo)} with key ${AMMO_DATABASE}_${ammo.id}`)
+        await db.update(schema.ammoCollection).set({currentStock: stock, lastTopUpAt: date.getTime()}).where(eq(schema.ammoCollection.id, id))
+        
             
     
 
@@ -46,29 +57,23 @@ export default function QuickShot({navigation}){
         const mapped:number[] = Object.entries(shotCountFromStock).map(item => item[1] === "" ? 0 : Number(item[1]))
         const currentShotCount:number = currentGun.shotCount === undefined ? 0 : currentGun.shotCount === null ? 0 : Number(currentGun.shotCount)
         const total: number = Number(shotCountNonStock) + mapped.reduce((acc, curr) => acc+Number(curr),0) + currentShotCount
-        const newGun:GunType = {...currentGun, shotCount: `${total}`, lastShotAt: date.toLocaleDateString(dateLocales.de)}
+        const newGun:GunType = {...currentGun, shotCount: `${total}`, lastShotAt: `${date.getTime()}`}
         save(newGun)
         if (shotCountFromStock.length !== 0) {
-          const updatedAmmoCollection = [...ammoCollection];
-        
-          ammoCollection.forEach(ammo => {
+          data.forEach(ammo => {
             currentGun.caliber.forEach((caliber, index) => {
               if (ammo.caliber === caliber) {
                 const stock:number[] = Object.entries(shotCountFromStock)
                 .filter(([key]) => key === ammo.id)
                 .map(([key, value]) => Number(value));
-                const newStock = ammo.currentStock - Number(stock.length === 0 ? 0 : stock[0]);
-                const newAmmo = { ...ammo, currentStock: newStock, previousStock: ammo.currentStock };
-                saveNewStock(newAmmo)
-                const itemIndex = updatedAmmoCollection.findIndex(({ id }) => id === ammo.id);
-                if (itemIndex !== -1) {
-                  updatedAmmoCollection[itemIndex] = newAmmo;
-                }
+                const newStock = parseInt(ammo.currentStock) - Number(stock.length === 0 ? 0 : stock[0]);
+                saveNewStock(newStock, ammo.id)
+                // TODO: Update Gun
               }
             });
           });
         
-          setAmmoCollection(updatedAmmoCollection);
+
         }
         setShotCountNonStock("")
         setShotCountFromStock([])
@@ -99,9 +104,9 @@ return(
                   {currentGun !== null && currentGun.caliber !== undefined && currentGun.caliber !== null && currentGun.caliber.length !== 0 ? 
                     <List.Accordion title={gunQuickShot.updateFromStock[language]} titleStyle={{color: theme.colors.onBackground}}>
                     <View style={{width: "100%", padding: defaultViewPadding, display: "flex", alignItems: "flex-start", flexDirection: "row", flexWrap: "wrap"}}>
-                      {ammoCollection.map(ammo =>{
+                      {data.map(ammo =>{
                         return currentGun.caliber.map((caliber, index) =>{
-                          if(ammo.caliber === caliber && ammo.currentStock !== 0){
+                          if(ammo.caliber === caliber && parseInt(ammo.currentStock) !== 0){
                             const key = `${ammo.id}`;
                             const val = shotCountFromStock[key] || '';
                             return (
@@ -110,7 +115,7 @@ return(
                                 <TextInput 
                                   label={`${ammo.manufacturer ? ammo.manufacturer : ""} ${ammo.designation}`}
                                   value={val}
-                                  onChangeText={val => handleInputChange(ammo.currentStock, ammo.id, index, val)}
+                                  onChangeText={val => handleInputChange(parseInt(ammo.currentStock), ammo.id, index, val)}
                                   returnKeyType='done'
                                   returnKeyLabel='OK'
                                   inputMode="decimal"
