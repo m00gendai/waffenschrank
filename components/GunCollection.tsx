@@ -32,18 +32,7 @@ export default function GunCollection({navigation, route}){
   const [searchQuery, setSearchQuery] = useState<string>("")
   const { displayAsGrid, toggleDisplayAsGrid, sortBy, setSortBy, language, setSortGunIcon, sortGunIcon, sortGunsAscending, toggleSortGunsAscending, theme, gunFilterOn } = usePreferenceStore()
   const { mainMenuOpen } = useViewStore()
-  const { currentGun, setCurrentGun } = useGunStore()
-  const { tags } = useTagStore()
-  const [isFilterOn, setIsFilterOn] = useState<boolean>(false);
-  const [boxes, setBoxes] = useState<string[]>([])
-
-  const nonSetValue: number = 999999999999999
-  /*
-
-  TODO: Take care of caliber search query also
-  TODO: Handle sorting
-
-  */
+  const { setCurrentGun } = useGunStore()
 
   const { data: gunData } = useLiveQuery(
     db.select()
@@ -87,8 +76,6 @@ export default function GunCollection({navigation, route}){
   async function handleSortBy(type: SortingTypes){
     setSortGunIcon(getIcon(type))
     setSortBy(type)
-  //  const sortedGuns = doSortBy(type, sortGunsAscending, gunCollection) as GunType[]
-  //  setGunCollection(sortedGuns)
     const preferences:string = await AsyncStorage.getItem(PREFERENCES)
     const newPreferences:{[key:string] : string} = preferences == null ? {"sortBy": type} : {...JSON.parse(preferences), "sortBy":type} 
     await AsyncStorage.setItem(PREFERENCES, JSON.stringify(newPreferences))
@@ -100,8 +87,6 @@ export default function GunCollection({navigation, route}){
 
   async function handleSortOrder(){
     toggleSortGunsAscending()
-  //  const sortedGuns = doSortBy(sortBy, !sortGunsAscending, gunCollection) as GunType[]
-  //  setGunCollection(sortedGuns)
     const preferences:string = await AsyncStorage.getItem(PREFERENCES)
     const newPreferences:{[key:string] : string} = preferences == null ? {"sortOrderGuns": !sortGunsAscending} : {...JSON.parse(preferences), "sortOrderGuns": !sortGunsAscending} 
     await AsyncStorage.setItem(PREFERENCES, JSON.stringify(newPreferences))
@@ -113,53 +98,6 @@ export default function GunCollection({navigation, route}){
     const newPreferences:{[key:string] : string} = preferences == null ? {"displayAsGrid": !displayAsGrid} : {...JSON.parse(preferences), "displayAsGrid": !displayAsGrid} 
     await AsyncStorage.setItem(PREFERENCES, JSON.stringify(newPreferences))
   } 
-
-  function handleFilterSwitch(){
-    setIsFilterOn(!isFilterOn)
-    handleFiltering()
-  }
-
-  function handleFilterPress(tag:{label:string, status:boolean}){
-    const indx = boxes.findIndex(item => item === tag.label)
-    let newBoxes:string[] = []
-
-    if(!boxes.includes(tag.label)){
-      newBoxes = [...boxes, tag.label]
-    }
-    if(boxes.includes(tag.label)){
-      newBoxes = boxes.toSpliced(indx, 1)
-    }
-
-    setBoxes(newBoxes)
-    handleFiltering()
-  }
-
-  //TODO: Filter directly on db
-  function handleFiltering(){
-    if(!isFilterOn){
-  //    setGunList(gunCollection)
-      return
-    }
-
-    if(boxes.length !== 0){
-      const gunsWithTags = gunData.filter(gun => {
-       /* if(gun.tags !== undefined) {
-          return gun.tags.some(tag => boxes.includes(tag));
-        }*/
-        
-        return false;
-      })
-    // setGunList(gunsWithTags)
-    }
-
-    if(boxes.length === 0){
- //     setGunList(gunCollection)
-    }
-  }
-
-  useEffect(()=>{
-    handleFiltering()
-  },[boxes, isFilterOn])
 
   function handleSearch(){
     !searchBannerVisible ? startAnimation() : endAnimation()
@@ -210,7 +148,7 @@ export default function GunCollection({navigation, route}){
         </View>
         <View  style={{display: "flex", flexDirection: "row", justifyContent: "flex-end"}}>
           <Appbar.Action icon="magnify" onPress={()=>handleSearch()}/>
-          <Appbar.Action icon="filter" disabled={tags.length === 0 ? true : false} onPress={() =>{handleMenu("filterBy", true)}} />
+          <Appbar.Action icon="filter" disabled={tagData.length === 0 ? true : false} onPress={() =>{handleMenu("filterBy", true)}} />
           <Menu
             visible={menuVisibility.filterBy}
             onDismiss={()=>handleMenu("filterBy", false)}
@@ -250,7 +188,7 @@ export default function GunCollection({navigation, route}){
           key={`gunCollectionGrid4`} 
           style={{height: "100%", width: "100%", paddingTop: defaultViewPadding, paddingLeft: defaultViewPadding, paddingRight: defaultViewPadding, paddingBottom: 50}} 
            /*@ts-expect-error*/
-           data={gunData.filter(gun => gunFilterOn ? tagData.some(tag => tag.active && gun.tags?.includes(tag.label)) : gun)} 
+           data={gunData.filter(gun => gunFilterOn ? tagData.filter(tag => tag.active).every(tag => gun.tags?.includes(tag.label)) : gun)} 
           /*@ts-expect-error*/
           renderItem={({item, index}) => <GunCard gun={item} />}                     
           keyExtractor={gun=>gun.id} 
@@ -266,7 +204,7 @@ export default function GunCollection({navigation, route}){
           key={`gunCollectionGrid2`} 
           style={{height: "100%", width: "100%", paddingTop: defaultViewPadding, paddingLeft: defaultViewPadding, paddingRight: defaultViewPadding, paddingBottom: 50}} 
            /*@ts-expect-error*/
-           data={gunData.filter(gun => gunFilterOn ? tagData.some(tag => tag.active && gun.tags?.includes(tag.label)) : gun)} 
+           data={gunData.filter(gun => gunFilterOn ? tagData.filter(tag => tag.active).every(tag => gun.tags?.includes(tag.label)) : gun)} 
           /*@ts-expect-error*/
           renderItem={({item, index}) => <GunCard gun={item} />}                     
           keyExtractor={gun=>gun.id} 
@@ -281,7 +219,7 @@ export default function GunCollection({navigation, route}){
           key={`gunCollectionList`} 
           style={{height: "100%", width: "100%", paddingTop: defaultViewPadding, paddingLeft: defaultViewPadding, paddingRight: defaultViewPadding, paddingBottom: 50}} 
           /*@ts-expect-error*/
-          data={gunData.filter(gun => gunFilterOn ? tagData.some(tag => tag.active && gun.tags?.includes(tag.label)) : gun)} 
+          data={gunData.filter(gun => gunFilterOn ? tagData.filter(tag => tag.active).every(tag => gun.tags?.includes(tag.label)) : gun)} 
           /*@ts-expect-error*/
           renderItem={({item, index}) => <GunCard gun={item} />}      
           keyExtractor={gun=>gun.id} 
