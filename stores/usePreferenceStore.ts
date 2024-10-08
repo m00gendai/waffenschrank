@@ -48,7 +48,8 @@ interface PreferenceStore {
     setCaliberDisplayNameList: (calibers: {name: string, displayName?: string}[]) => void
     gunFilterOn: boolean
     toggleGunFilterOn: () => void
-
+    ammoFilterOn: boolean
+    toggleAmmoFilterOn: () => void
   }
 
   export const usePreferenceStore = create<PreferenceStore>((set) => ({
@@ -94,5 +95,7 @@ interface PreferenceStore {
     caliberDisplayNameList: [],
     setCaliberDisplayNameList: (calibers: {name: string, displayName: string}[])  => set((state) =>({caliberDisplayNameList: calibers})),
     gunFilterOn: false,
-    toggleGunFilterOn: () => set((state) => ({gunFilterOn: !state.gunFilterOn}))
+    toggleGunFilterOn: () => set((state) => ({gunFilterOn: !state.gunFilterOn})),
+    ammoFilterOn: false,
+    toggleAmmoFilterOn: () => set((state) => ({ammoFilterOn: !state.ammoFilterOn}))
   }))
