@@ -11,7 +11,7 @@ import "react-native-get-random-values"
 import { v4 as uuidv4 } from 'uuid';
 import ImageViewer from "./ImageViewer"
 import { AMMO_DATABASE, A_KEY_DATABASE } from '../configs_DB';
-import { AmmoType } from '../interfaces';
+import { AmmoType, AmmoTypeWithDbId } from '../interfaces';
 import { ammoDataValidation, imageHandling } from '../utils';
 import NewTextArea from './NewTextArea';
 import NewCheckboxArea from './NewCheckboxArea';
@@ -23,6 +23,8 @@ import { useAmmoStore } from '../stores/useAmmoStore';
 import * as FileSystem from 'expo-file-system';
 import { exampleAmmoEmpty } from '../lib/examples';
 import Animated, { Easing, SlideInDown, SlideOutDown } from 'react-native-reanimated';
+import * as schema from "../db/schema"
+import { db } from "../db/client"
 
 
 export default function NewAmmo({navigation}){
@@ -34,7 +36,7 @@ export default function NewAmmo({navigation}){
     const [selectedImage, setSelectedImage] = useState<string[]>(currentAmmo ? currentAmmo.images : null)
     const [initCheck, setInitCheck] = useState<boolean>(true)
     const [granted, setGranted] = useState<boolean>(false)
-    const [ammoData, setAmmoData] = useState<AmmoType>(currentAmmo ? currentAmmo : exampleAmmoEmpty)
+    const [ammoData, setAmmoData] = useState<AmmoType>(currentAmmo !== undefined && currentAmmo !== null ? currentAmmo : exampleAmmoEmpty)
     const [ammoDataCompare, setAmmoDataCompare] = useState<AmmoType>(currentAmmo ? currentAmmo : exampleAmmoEmpty)
     const [visible, setVisible] = useState<boolean>(false);
     const [snackbarText, setSnackbarText] = useState<string>("")
@@ -42,7 +44,7 @@ export default function NewAmmo({navigation}){
     const [unsavedVisible, toggleUnsavedDialogVisible] = useState<boolean>(false)
     const [exitAction, setExitAction] = useState(null);
 
-    
+    console.log(ammoData)
 
     useEffect(()=>{
         if(initCheck){
@@ -74,7 +76,7 @@ export default function NewAmmo({navigation}){
 
   const onDismissSnackBar = () => setVisible(false);
 
-    async function save(value:AmmoType) {
+    async function save(value:AmmoTypeWithDbId) {
         const validationResult:{field: string, error: string}[] = ammoDataValidation(value, language)
         if(validationResult.length != 0){
             Alert.alert(validationFailedAlert.title[language], `${validationResult.map(result => `${result.field}: ${result.error}`)}`, [
@@ -85,22 +87,13 @@ export default function NewAmmo({navigation}){
             ])
             return
         }
-        /* 
-            Saving ammo is a two-step process:
-            1. Save the key of the ammo to the key database
-            2. Save the ammo object as a separate key/value pair in the ammo database
-        */
 
-        
-            
-
-        const allKeys:string = await AsyncStorage.getItem(A_KEY_DATABASE) // gets the object that holds all key values
-        const newKeys:string[] = allKeys == null ? [value.id] : [...JSON.parse(allKeys), value.id] // if its the first ammo to be saved, create an array with the id of the ammo. Otherwise, merge the key into the existing array
-        await AsyncStorage.setItem(A_KEY_DATABASE, JSON.stringify(newKeys)) // Save the key object
-        SecureStore.setItem(`${AMMO_DATABASE}_${value.id}`, JSON.stringify(value)) // Save the ammo
-        console.log(`Saved item ${JSON.stringify(value)} with key ${AMMO_DATABASE}_${value.id}`)
+        console.log(value)
+    const {db_id, ...idless} = value
+        await db.insert(schema.ammoCollection).values(idless)
+        console.log(`Saved item ${JSON.stringify(idless)} with key ${AMMO_DATABASE}_${value.id}`)
         setSaveState(true)
-        setSnackbarText(`${value.designation} ${value.manufacturer ? value.manufacturer : ""} ${toastMessages.saved[language]}`)
+        setSnackbarText(`${value.manufacturer ? value.manufacturer : ""} ${value.designation} ${toastMessages.saved[language]}`)
         onToggleSnackBar()
         setNewAmmoOpen()
         setCurrentAmmo({...ammoData, id: value.id})
@@ -108,6 +101,24 @@ export default function NewAmmo({navigation}){
         setAmmoCollection(newCollection)
         setSeeAmmoOpen()
         navigation.navigate("Ammo")
+    }
+
+    function saveImages(fileName:string, indx: number){
+        const newImage = selectedImage;
+            if (newImage.length !== 0) {
+                const newArr = newImage.toSpliced(indx, 1, fileName);
+                setSelectedImage(newArr);
+                console.log(newArr.join(","))
+                setAmmoData({ ...ammoData, images: newArr});
+            } else {
+                setSelectedImage([fileName]);
+                if (ammoData && ammoData.images.length !== 0) {
+                    setAmmoData({ ...ammoData, images: [...ammoData.images, fileName]});
+                } else {
+                    console.log(fileName)
+                    setAmmoData({ ...ammoData, images: [fileName]});
+                }
+            }
     }
     
     const pickImageAsync = async (indx:number) =>{
@@ -139,19 +150,7 @@ export default function NewAmmo({navigation}){
                     to: newPath,
                 });
 
-            const newImage = selectedImage;
-            if (newImage && newImage.length !== 0) {
-                newImage.splice(indx, 1, fileName);
-                setSelectedImage(newImage);
-                setAmmoData({ ...ammoData, images: newImage });
-            } else {
-                setSelectedImage([fileName]);
-                if (ammoData && ammoData.images && ammoData.images.length !== 0) {
-                    setAmmoData({ ...ammoData, images: [...ammoData.images, fileName] });
-                } else {
-                    setAmmoData({ ...ammoData, images: [fileName] });
-                }
-            }
+            saveImages(fileName, indx)
         } catch (error) {
             console.error('Error saving image:', error);
         }
@@ -187,19 +186,7 @@ export default function NewAmmo({navigation}){
                     to: newPath,
                 });
 
-            const newImage = selectedImage;
-            if (newImage && newImage.length !== 0) {
-                newImage.splice(indx, 1, fileName);
-                setSelectedImage(newImage);
-                setAmmoData({ ...ammoData, images: newImage });
-            } else {
-                setSelectedImage([fileName]);
-                if (ammoData && ammoData.images && ammoData.images.length !== 0) {
-                    setAmmoData({ ...ammoData, images: [...ammoData.images, fileName] });
-                } else {
-                    setAmmoData({ ...ammoData, images: [fileName] });
-                }
-            }
+            saveImages(fileName, indx)
         } catch (error) {
             console.error('Error saving image:', error);
         }
@@ -287,7 +274,7 @@ export default function NewAmmo({navigation}){
             <Appbar style={{width: "100%"}}>
                 <Appbar.BackAction  onPress={() => navigation.goBack()} />
                 <Appbar.Content title={newAmmoTitle[language]} />
-                <Appbar.Action icon="floppy" onPress={() => save({...ammoData, id: uuidv4(), images:selectedImage, createdAt: `${new Date()}`, lastModifiedAt: `${new Date()}`})} color={saveState === null ? theme.colors.onBackground : saveState === false ? theme.colors.error : "green"} />
+                <Appbar.Action icon="floppy" onPress={() => save({...ammoData, db_id: null, id: uuidv4(), images:selectedImage, createdAt: new Date().getTime(), lastModifiedAt: new Date().getTime()})} color={saveState === null ? theme.colors.onBackground : saveState === false ? theme.colors.error : "green"} />
             </Appbar>
 
             <View style={styles.container}>
