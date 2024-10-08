@@ -9,6 +9,9 @@ import * as SecureStore from "expo-secure-store"
 import { useAmmoStore } from "../stores/useAmmoStore";
 import { ammoQuickUpdate, gunQuickShot } from "../lib/textTemplates";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { db } from "../db/client"
+import * as schema from "../db/schema"
+import { eq, lt, gte, ne, and, or, like, asc, desc, exists, isNull, sql } from 'drizzle-orm';
 
 export default function QuickStock({navigation}){
 
@@ -24,22 +27,20 @@ export default function QuickStock({navigation}){
     async function saveNewStock(ammo:AmmoType){
         const date:Date = new Date()
         if(stockChange !== ""){
-        const currentValue:number = ammo.currentStock ? ammo.currentStock : 0
-        const increase:number = Number(input)
-        const total:number = stockChange === "inc" ? Number(currentValue) + Number(increase) : Number(currentValue) - Number(increase)
-        await SecureStore.setItemAsync(`${AMMO_DATABASE}_${ammo.id}`, JSON.stringify({...ammo, previousStock: currentValue, currentStock:total, lastTopUpAt: date.toLocaleDateString(dateLocales.de)})) // Save the ammo
-            console.log(`Updated item ${JSON.stringify(ammo)} with key ${AMMO_DATABASE}_${ammo.id}`)
-            setCurrentAmmo({...ammo, currentStock:parseInt(input)})
-            setStockValue(parseInt(input))
-            setInput("")
-            setStockChange("")
-            const currentObj:AmmoType = ammoCollection.find(({id}) => id === ammo.id)
-            const index:number = ammoCollection.indexOf(currentObj)
-            const newCollection:AmmoType[] = ammoCollection.toSpliced(index, 1, {...ammo, currentStock:total})
-            setAmmoCollection(newCollection)
-            navigation.goBack()
-            displayError(false)
-    
+          const currentValue:number = ammo.currentStock ? ammo.currentStock : 0
+          const increase:number = Number(input)
+          const total:number = stockChange === "inc" ? Number(currentValue) + Number(increase) : Number(currentValue) - Number(increase)
+          /*@ts-expect-error*/
+          await db.update(schema.ammoCollection).set({currentStock: total, lastTopUpAt: date.getTime()}).where(eq(schema.ammoCollection.id, currentAmmo.id))
+         
+              console.log(`Updated item ${JSON.stringify(ammo)} with key ${AMMO_DATABASE}_${ammo.id}`)
+              setCurrentAmmo({...ammo, currentStock:parseInt(input)})
+              setStockValue(parseInt(input))
+              setInput("")
+              setStockChange("")
+              navigation.goBack()
+              displayError(false)
+      
         }
         else {
             displayError(true)
