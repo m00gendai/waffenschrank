@@ -43,6 +43,7 @@ SplashScreen.preventAutoHideAsync();
 
 export default function App() {
   const { success, error } = useMigrations(db, migrations);
+  console.log(error)
   useDrizzleStudio(expo)
 
   const [appIsReady, setAppIsReady] = useState<boolean>(false);
@@ -128,6 +129,7 @@ export default function App() {
     } catch(e){
       alarm("Legacy Ammo Key Error", e)
     }
+    console.log(keys)
     if(keys.length === 0){
       return
     }
@@ -160,8 +162,11 @@ export default function App() {
         const isPreferences = preferences === null ? null : JSON.parse(preferences)
         console.log("isPreferences null")
         if(isPreferences === null){
+          console.log("checking legacy gun data")
           await checkLegacyGunData()
+          console.log("checking legacy ammo data")
           await checkLegacyAmmoData()
+          console.log(success)
           if(success){
             setAppIsReady(true)
           }
