@@ -12,6 +12,10 @@ import { defaultViewPadding } from "../configs"
 import { TAGS, A_TAGS } from "../configs_DB"
 import { BlurView } from "expo-blur"
 import ModalContainer from "./ModalContainer"
+import * as schema from "../db/schema"
+import { drizzle, useLiveQuery } from "drizzle-orm/expo-sqlite"
+import {db} from "../db/client"
+import { eq, lt, gte, ne, and, or, like, asc, desc, exists, isNull, sql, inArray } from 'drizzle-orm';
 
 interface Props{
     data: string
@@ -23,10 +27,21 @@ interface Props{
 
 export default function NewChipArea({data, gunData, setGunData, ammoData, setAmmoData}:Props){
 
+    const { data: gunTags } = useLiveQuery(
+        db.select()
+        .from(schema.gunTags)
+    )
+
+    const { data: ammoTags } = useLiveQuery(
+        db.select()
+        .from(schema.ammoTags)
+    )
+
+
     const { language, theme } = usePreferenceStore()
     const { currentGun } = useGunStore()
     const { currentAmmo } = useAmmoStore()
-    const {tags, setTags, ammo_tags, setAmmoTags, overWriteAmmoTags, overWriteTags} = useTagStore()
+
 
     const [viewTagModal, setViewTagModal] = useState<boolean>(false)
     const [text, setText] = useState<string>("")
@@ -34,18 +49,26 @@ export default function NewChipArea({data, gunData, setGunData, ammoData, setAmm
     const [tagDeleteDialogVisible, toggleTagDeleteDialogVisible] = useState<boolean>(false)
 
     async function saveNewTag(tag: string | null){
+        console.log("new tag")
+        console.log(tag)
         const tagText:string = tag !== null ? tag : text
+        console.log("new tag text")
+        console.log(tagText)
         if(tag === null && text === ""){
             return
         }
-        if(gunData !== undefined && gunData.tags !== null && gunData.tags !== undefined && gunData.tags.length !== 0){
-            if(gunData.tags.includes(tagText)){
-                return
+        if(gunData !== undefined && gunData !== null && gunData.tags !== null && gunData.tags !== undefined && gunData.tags.length !== 0){
+            if(currentGun !== null){
+                if(gunData.tags.includes(tagText)){
+                    return
+                }
             }
         }
-        if(ammoData !== undefined && ammoData.tags !== null && ammoData.tags !== undefined && ammoData.tags.length !== 0){
-            if(ammoData.tags.includes(tagText)){
-                return
+        if(ammoData !== undefined && ammoData !== null && ammoData.tags !== null && ammoData.tags !== undefined && ammoData.tags.length !== 0){
+            if(currentAmmo !== null){
+                if(ammoData.tags.includes(tagText)){
+                    return
+                }
             }
         }
         gunData !== undefined && gunData && gunData.tags ? 
@@ -56,26 +79,10 @@ export default function NewChipArea({data, gunData, setGunData, ammoData, setAmm
         : setAmmoData({...ammoData, tags: [tagText]})
 
         if(gunData !== undefined){
-            const allTags:string = await AsyncStorage.getItem(TAGS) // gets the object that holds all key values
-            const allTagsArray = allTags === null ? [] : JSON.parse(allTags)
-            if(!allTagsArray.some(element => element.label === tagText)){
-                setTags({label: tagText, status: true})
-
-
-                const newTags:{label:string, status:boolean}[] = allTagsArray.length === 0 ? [{label:tagText,status:true}] : [...allTagsArray, {label:tagText,status:true}] // if its the first gun to be saved, create an array with the id of the gun. Otherwise, merge the key into the existing array
-                await AsyncStorage.setItem(TAGS, JSON.stringify(newTags)) // Save the key object
-            }
+           await db.insert(schema.gunTags).values({label: tagText}).onConflictDoNothing()
         }
         if(ammoData !== undefined){
-            const allTags:string = await AsyncStorage.getItem(A_TAGS) // gets the object that holds all key values
-            const allTagsArray = allTags === null ? [] : JSON.parse(allTags)
-            if(!allTagsArray.some(element => element.label === tagText)){
-                setAmmoTags({label: tagText, status: true})
-    
-            
-                const newTags:{label:string, status:boolean}[] = allTagsArray.length === 0 ? [{label:tagText,status:true}] : [...allTagsArray, {label:tagText,status:true}] // if its the first gun to be saved, create an array with the id of the gun. Otherwise, merge the key into the existing array
-                await AsyncStorage.setItem(A_TAGS, JSON.stringify(newTags)) // Save the key object
-            }
+            await db.insert(schema.ammoTags).values({label: tagText}).onConflictDoNothing()
         }
 
         
@@ -96,18 +103,23 @@ export default function NewChipArea({data, gunData, setGunData, ammoData, setAmm
     }
 
     function addTagFromList(tag:string){
+        console.log(tag)
         if(ammoData !== undefined){
-            if(currentAmmo.tags !== null && currentAmmo.tags !== undefined && currentAmmo.tags.length !== 0){
-                if(currentAmmo.tags.includes(tag)){
-                    return
+            if(currentAmmo !== null){
+                if(currentAmmo.tags !== null && currentAmmo.tags !== undefined && currentAmmo.tags.length !== 0){
+                    if(currentAmmo.tags.includes(tag)){
+                        return
+                    }
                 }
             }
             saveNewTag(tag)
         }
         if(gunData !== undefined){
-            if(currentGun.tags !== null && currentGun.tags !== undefined && currentGun.tags.length !== 0){
-                if(currentGun.tags.includes(tag)){
-                    return
+            if(currentGun !== null){
+                if(currentGun.tags !== null && currentGun.tags !== undefined && currentGun.tags.length !== 0){
+                    if(currentGun.tags.includes(tag)){
+                        return
+                    }
                 }
             }
             saveNewTag(tag)
@@ -121,25 +133,14 @@ export default function NewChipArea({data, gunData, setGunData, ammoData, setAmm
 
     async function deleteTagFromList(){
         if(gunData !== undefined){
-            const allTags:string = await AsyncStorage.getItem(TAGS) // gets the object that holds all key values
-            const allTagsArray:{label:string, status:boolean}[] = allTags === null ? [] : JSON.parse(allTags)
-
-            const index = allTagsArray.findIndex(element => element.label === currentTag)
-            const newTags:{label:string, status:boolean}[] = allTagsArray.toSpliced(index, 1)
-            overWriteTags(newTags)
-            await AsyncStorage.setItem(TAGS, JSON.stringify(newTags)) // Save the key object
-            }
-        if(ammoData !== undefined){
-            const allTags:string = await AsyncStorage.getItem(A_TAGS) // gets the object that holds all key values
-            const allTagsArray:{label:string, status:boolean}[] = allTags === null ? [] : JSON.parse(allTags)
-            const index = allTagsArray.findIndex(element => element.label === currentTag)
-            const newTags:{label:string, status:boolean}[] = allTagsArray.toSpliced(index, 1)
-            overWriteAmmoTags(newTags)
-            await AsyncStorage.setItem(A_TAGS, JSON.stringify(newTags)) // Save the key object
-            }
-            deleteTag(currentTag)
+            await db.delete(schema.gunTags).where(eq(schema.gunTags.label, currentTag))
             toggleTagDeleteDialogVisible(false)
         }
+        if(ammoData !== undefined){
+            await db.delete(schema.ammoTags).where(eq(schema.ammoTags.label, currentTag))
+            toggleTagDeleteDialogVisible(false)
+        }
+    }
 
     return(
         <View >
@@ -164,12 +165,12 @@ export default function NewChipArea({data, gunData, setGunData, ammoData, setAmm
             <View style={{height: 100, width: "100%"}}>
                 <ScrollView contentContainerStyle={{width: "100%", display: "flex", flexDirection: "row", flexWrap: "wrap", justifyContent: "flex-start"}}>
                 {Array.from(new Set(gunData !== undefined ? 
-                    tags.map((tag, index) => 
+                    gunTags.map((tag, index) => 
                         <View key={`${tag.label}_${index}`} style={{padding: 5}}>
                             <Chip onPress={()=>addTagFromList(tag.label)} onClose={()=>handleDeleteTagFromList(tag.label)}>{tag.label}</Chip>
                         </View>) 
                     : 
-                    ammo_tags.map((tag, index) => 
+                    ammoTags.map((tag, index) => 
                         <View key={`${tag.label}_${index}`} style={{padding: 5}}>
                             <Chip onPress={()=>addTagFromList(tag.label)} onClose={()=>handleDeleteTagFromList(tag.label)}>{tag.label}</Chip>
                         </View>)
