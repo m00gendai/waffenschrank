@@ -31,6 +31,7 @@ interface DbId{
 }
 
 export type GunTypeWithDbId = GunType & DbId
+export type AmmoTypeWithDbId = AmmoType & DbId
 
 export interface GunTypeStatus{
   exFullAuto: boolean
@@ -56,8 +57,8 @@ export interface AmmoType{
   previousStock?: number
   lastTopUpAt?: string
   criticalStock?: string
-  tags: string
-  images: string
+  tags: string[]
+  images: string[]
   remarks?: string
 }
 
