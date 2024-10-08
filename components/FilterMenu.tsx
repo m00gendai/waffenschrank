@@ -13,28 +13,44 @@ interface Props{
 
 export default function FilterMenu({collection}:Props){
 
-    const { gunFilterOn, toggleGunFilterOn } = usePreferenceStore()
+    const { gunFilterOn, toggleGunFilterOn, ammoFilterOn, toggleAmmoFilterOn } = usePreferenceStore()
 
-    const { data } = useLiveQuery(
+    const { data: gunTags } = useLiveQuery(
         db.select()
         .from(schema.gunTags)
     )
 
+    const { data: ammoTags } = useLiveQuery(
+      db.select()
+      .from(schema.ammoTags)
+  ) 
+
     async function handleFilterPressGuns(tag){
+        
+        collection === "gunCollection" ? 
         /*@ts-expect-error*/
-        await db.update(schema.gunTags).set({active: not(schema.gunTags.active)}).where((eq(schema.gunTags.label, tag.label)))
+          await db.update(schema.gunTags).set({active: not(schema.gunTags.active)}).where((eq(schema.gunTags.label, tag.label)))
+          :
+          /*@ts-expect-error*/
+          await db.update(schema.ammoTags).set({active: not(schema.ammoTags.active)}).where((eq(schema.ammoTags.label, tag.label)))
     }
 
     return(
         <View style={{flex: 1, padding: defaultViewPadding}}>
               <View style={{display: "flex", flexDirection: "row", justifyContent: "flex-start", alignItems: "center"}}>
                 <Text>Filter:</Text>
-                <Switch value={gunFilterOn} onValueChange={()=>toggleGunFilterOn()} />
+                <Switch value={collection==="gunCollection" ? gunFilterOn : ammoFilterOn} onValueChange={()=>collection==="gunCollection" ? toggleGunFilterOn() : toggleAmmoFilterOn()} />
               </View>
               <View>
-              {data.map((tag, index)=>{
+              {collection === "gunCollection" ? 
+                gunTags.map((tag, index)=>{
                 return <Checkbox.Item mode="android" key={`filter_${tag.label}_${index}`} label={tag.label} status={tag.active ? "checked" : "unchecked"} onPress={()=>handleFilterPressGuns(tag)} />
-              })}
+              })
+            :
+            ammoTags.map((tag, index)=>{
+              return <Checkbox.Item mode="android" key={`filter_${tag.label}_${index}`} label={tag.label} status={tag.active ? "checked" : "unchecked"} onPress={()=>handleFilterPressGuns(tag)} />
+            })
+            }
               </View>
             </View>
     )
