@@ -71,7 +71,7 @@ export default function GunCollection({navigation, route}){
     .from(schema.gunTags)
   )
 
-  console.log(tagData)
+
 
   async function handleSortBy(type: SortingTypes){
     setSortGunIcon(getIcon(type))
