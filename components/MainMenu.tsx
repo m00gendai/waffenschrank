@@ -32,14 +32,22 @@ import * as LocalAuthentication from 'expo-local-authentication';
 import { Dirs, Util, FileSystem as fs } from 'react-native-file-access';
 import { expo, db } from "../db/client"
 import * as schema from "../db/schema"
+import { useLiveQuery } from "drizzle-orm/expo-sqlite"
 
 
 export default function MainMenu({navigation}){
 
+    const { data: gunCollection } = useLiveQuery(
+        db.select().from(schema.gunCollection)
+    )
+
+    const { data: ammoCollection } = useLiveQuery(
+        db.select().from(schema.ammoCollection)
+    )
+
     const { setMainMenuOpen, toastVisible, setToastVisible, dbModalVisible, setDbModalVisible, imageResizeVisible, toggleImageResizeVisible, loginGuardVisible, toggleLoginGuardVisible, importCSVVisible, toggleImportCSVVisible, importModalVisible, toggleImportModalVisible } = useViewStore()
     const { language, switchLanguage, theme, switchTheme, setDbImport, setAmmoDbImport, generalSettings, setGeneralSettings, caliberDisplayNameList } = usePreferenceStore()
-    const { gunCollection, setGunCollection } = useGunStore()
-    const { ammoCollection, setAmmoCollection } = useAmmoStore()
+
     const { overWriteAmmoTags, overWriteTags} = useTagStore()
     const { setCSVHeader, setCSVBody, importProgress, setImportProgress, resetImportProgress, importSize, setImportSize, resetImportSize, setDbCollectionType } = useImportExportStore()
 
@@ -851,6 +859,7 @@ export default function MainMenu({navigation}){
     },[navigation])
 
     function getStatistics(type){
+
         switch(type){
             case "guns":
                 return gunCollection.length
