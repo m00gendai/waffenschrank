@@ -56,7 +56,7 @@ export default function QuickShot({navigation}){
           console.log(count)
           const ammo = await db.selectDistinct().from(schema.ammoCollection).where(eq(schema.ammoCollection.id, count[0]))
           console.log(ammo)
-          const newStock = parseInt(ammo[0].currentStock) - parseInt(count[1])
+          const newStock = parseInt(ammo[0].currentStock) - (count[1] === "" ? 0 : parseInt(count[1]))
           await saveNewStock(ammo[0].id, newStock)
          }
            
