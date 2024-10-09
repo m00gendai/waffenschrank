@@ -20,7 +20,6 @@ export default function QuickShot({navigation}){
 
     const { ammoDbImport, displayAmmoAsGrid, setDisplayAmmoAsGrid, toggleDisplayAmmoAsGrid, sortAmmoBy, setSortAmmoBy, language, theme, sortAmmoIcon, setSortAmmoIcon } = usePreferenceStore()
     const { gunCollection, setGunCollection, currentGun, setCurrentGun } = useGunStore()
-    const { ammoCollection, setAmmoCollection, currentAmmo, setCurrentAmmo } = useAmmoStore()
     const [shotCountFromStock, setShotCountFromStock] = useState<string[]>([])
     const [shotCountNonStock, setShotCountNonStock] = useState<string>("")
     const [seeInfo, toggleSeeInfo] = useState<boolean>(false)
@@ -33,54 +32,44 @@ export default function QuickShot({navigation}){
       .where(inArray(schema.ammoCollection.caliber, currentGun.caliber))
     )
 
-    async function save(value: GunType) {
-        await SecureStore.setItemAsync(`${GUN_DATABASE}_${value.id}`, JSON.stringify(value)) // Save the gun
-        console.log(`Saved item ${JSON.stringify(value)} with key ${GUN_DATABASE}_${value.id}`)
-        setCurrentGun(value)
-        const currentObj:GunType = gunCollection.find(({id}) => id === value.id)
-        const index:number = gunCollection.indexOf(currentObj)
-        const newCollection:GunType[] = gunCollection.toSpliced(index, 1, value)
-        setGunCollection(newCollection)
-      }
-
-      async function saveNewStock(stock: number, id: string){
+      async function saveNewStock(id: string, count:number){
         const date:Date = new Date()
-        await db.update(schema.ammoCollection).set({currentStock: stock, lastTopUpAt: date.getTime()}).where(eq(schema.ammoCollection.id, id))
+        /*@ts-expect-error*/
+        await db.update(schema.ammoCollection).set({currentStock: `${count}`, lastTopUpAt: date.getTime()}).where(eq(schema.ammoCollection.id, id))
         
             
     
 
     }
 
-    function handleShotCount(){
+    async function handleShotCount(){
         const date:Date = new Date()
         const mapped:number[] = Object.entries(shotCountFromStock).map(item => item[1] === "" ? 0 : Number(item[1]))
         const currentShotCount:number = currentGun.shotCount === undefined ? 0 : currentGun.shotCount === null ? 0 : Number(currentGun.shotCount)
         const total: number = Number(shotCountNonStock) + mapped.reduce((acc, curr) => acc+Number(curr),0) + currentShotCount
         const newGun:GunType = {...currentGun, shotCount: `${total}`, lastShotAt: `${date.getTime()}`}
-        save(newGun)
+        /*@ts-expect-error*/
+        await db.update(schema.gunCollection).set({shotCount: `${total}`, lastShotAt: date.getTime()}).where(eq(schema.gunCollection.id, currentGun.id))
+
         if (shotCountFromStock.length !== 0) {
-          data.forEach(ammo => {
-            currentGun.caliber.forEach((caliber, index) => {
-              if (ammo.caliber === caliber) {
-                const stock:number[] = Object.entries(shotCountFromStock)
-                .filter(([key]) => key === ammo.id)
-                .map(([key, value]) => Number(value));
-                const newStock = parseInt(ammo.currentStock) - Number(stock.length === 0 ? 0 : stock[0]);
-                saveNewStock(newStock, ammo.id)
-                // TODO: Update Gun
-              }
-            });
-          });
+         for (const count of Object.entries(shotCountFromStock)){
+          console.log(count)
+          const ammo = await db.selectDistinct().from(schema.ammoCollection).where(eq(schema.ammoCollection.id, count[0]))
+          console.log(ammo)
+          const newStock = parseInt(ammo[0].currentStock) - parseInt(count[1])
+          await saveNewStock(ammo[0].id, newStock)
+         }
+           
+          }
         
 
-        }
+        
         setShotCountNonStock("")
         setShotCountFromStock([])
         navigation.goBack()
       }
-      
-      const handleInputChange = (ammoStock: number, ammoId:string, index:number, value:string) => {
+
+      const handleInputChange = (ammoStock: number, ammoId:string, value:string) => {
         const newValue = value.replace(/[^0-9]/g, '');
         setNegativeAmmo((ammoStock === undefined ? 0 : ammoStock === null ? 0 : Number(ammoStock)) < Number(value))
         setNegativeAmmoId(ammoStock === undefined ? "" : ammoStock === null ? "" : Number(ammoStock) < Number(value) ? ammoId : "")
@@ -102,11 +91,10 @@ return(
                         </View>
                   <ScrollView>
                   {currentGun !== null && currentGun.caliber !== undefined && currentGun.caliber !== null && currentGun.caliber.length !== 0 ? 
-                    <List.Accordion title={gunQuickShot.updateFromStock[language]} titleStyle={{color: theme.colors.onBackground}}>
+                    data.length === 0 ? null : <List.Accordion title={gunQuickShot.updateFromStock[language]} titleStyle={{color: theme.colors.onBackground}}>
                     <View style={{width: "100%", padding: defaultViewPadding, display: "flex", alignItems: "flex-start", flexDirection: "row", flexWrap: "wrap"}}>
                       {data.map(ammo =>{
-                        return currentGun.caliber.map((caliber, index) =>{
-                          if(ammo.caliber === caliber && parseInt(ammo.currentStock) !== 0){
+                        if(parseInt(ammo.currentStock) !== 0 && ammo.currentStock !== null && ammo.currentStock !== ""){
                             const key = `${ammo.id}`;
                             const val = shotCountFromStock[key] || '';
                             return (
@@ -115,7 +103,7 @@ return(
                                 <TextInput 
                                   label={`${ammo.manufacturer ? ammo.manufacturer : ""} ${ammo.designation}`}
                                   value={val}
-                                  onChangeText={val => handleInputChange(parseInt(ammo.currentStock), ammo.id, index, val)}
+                                  onChangeText={val => handleInputChange(parseInt(ammo.currentStock), ammo.id, val)}
                                   returnKeyType='done'
                                   returnKeyLabel='OK'
                                   inputMode="decimal"
@@ -127,7 +115,7 @@ return(
                             )
                           }
                         })
-                      })}
+                      }
                     </View>
                     </List.Accordion> : null}
                   <List.Accordion title={gunQuickShot.updateNonStock[language]} titleStyle={{color: theme.colors.onBackground}}>
