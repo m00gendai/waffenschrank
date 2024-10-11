@@ -11,6 +11,10 @@ import { dateLocales } from '../configs';
 import { ammoDataTemplate, ammoRemarks } from '../lib/ammoDataTemplate';
 import { Platform } from 'react-native';
 import * as WebBrowser from 'expo-web-browser';
+import { expo, db } from "../db/client"
+import * as schema from "../db/schema"
+
+const art5Keys = checkBoxes.map(checkBox => checkBox.name)
 
 async function getGunImages(guns:GunType[]){
   const imageArray: null | string[][] = []
@@ -124,8 +128,7 @@ export async function printSingleGun(gun:GunType, language: string, shortCaliber
         minute: "2-digit"
       };
     const generatedDate:string = date.toLocaleDateString(dateLocales[language], dateOptions)
-    const excludedKeys = ["images", "createdAt", "lastModifiedAt", "status", "id", "tags", "remarks", "lastCleanedAt", "lastShotAt", "cleanInterval"];
-    const art5Keys = checkBoxes.map(checkBox => checkBox.name)
+    const excludedKeys = ["db_id", "images", "createdAt", "lastModifiedAt", "id", "tags", "remarks", "lastCleanedAt", "lastShotAt", "cleanInterval"];
     
     const html = `
     <html>
@@ -138,11 +141,13 @@ export async function printSingleGun(gun:GunType, language: string, shortCaliber
         ${gun.images && gun.images.length !== 0 ? `<div class="imageContainer">${imgs.map(img => {return `<div class="imageDiv"><img class="image" src="data:image/jpeg;base64,${img}" /></div>`}).join("")}</div>`: ""}
         ${gun.tags && gun.tags.length !== 0 ? `<div class="tagContainer">${gun.tags.map(tag => {return `<div class="tag">${tag}</div>`}).join("")}</div>` : ""}
         ${gun.tags && gun.tags.length !== 0 ? `<hr />` : ""}
-        ${gun.status && Object.entries(gun.status).length !== 0 ? `<div class="tagContainer">${Object.entries(gun.status).map(status => {return status[1] && art5Keys.includes(status[0]) ? `<div class="tag">${getTranslation(status[0], language)}</div>` : ""}).join("")}</div>` : ""}
+        ${Object.entries(gun).some(status => art5Keys.includes(status[0])) ? `<div class="tagContainer">${Object.entries(gun).map(status => {return art5Keys.includes(status[0]) && gun[status[0]] ? `<div class="tag">${getTranslation(status[0], language)}</div>` : ""}).join("")}</div>` : ""}
         <table>
             <tbody>
-                ${Object.entries(gun).map(entry =>{
-                    return excludedKeys.includes(entry[0]) ? null :`<tr><td><strong>${getTranslation(entry[0], language)}</strong></td><td class=${entry[0] === "caliber" ? "whitespace" : ""}>${entry[0] === "caliber" ? getShortCaliberNameFromArray(entry[1], caliberDisplayNameList, shortCaliber).join("\n") : entry[1]}</td></tr>`
+                ${Object.entries(gun)
+                  .filter(entry => ![...excludedKeys, ...art5Keys].includes(entry[0]) && entry[1] !== null && entry[1] !== "")
+                  .map(entry =>{
+                    return `<tr><td><strong>${getTranslation(entry[0], language)}</strong></td><td class=${entry[0] === "caliber" ? "whitespace" : ""}>${entry[0] === "caliber" ? getShortCaliberNameFromArray(entry[1], caliberDisplayNameList, shortCaliber).join("\n") : entry[1]}</td></tr>`
                 }).join("")}
             </tbody>
         </table>
@@ -325,7 +330,7 @@ export async function printSingleAmmo(ammo:AmmoType, language: string, shortCali
       minute: "2-digit"
     };
   const generatedDate:string = date.toLocaleDateString(dateLocales[language], dateOptions)
-  const excludedKeys = ["images", "createdAt", "lastModifiedAt", "lastTopUpAt", "id", "tags", "remarks", "previousStock", "currentStock", "criticalStock"];
+  const excludedKeys = ["db_id", "images", "createdAt", "lastModifiedAt", "lastTopUpAt", "id", "tags", "remarks", "previousStock", "currentStock", "criticalStock"];
   const art5Keys = checkBoxes.map(checkBox => checkBox.name)
 
   const html = `
@@ -341,8 +346,9 @@ export async function printSingleAmmo(ammo:AmmoType, language: string, shortCali
       ${ammo.tags && ammo.tags.length !== 0 ? `<hr />` : ""}
       <table>
           <tbody>
-              ${Object.entries(ammo).map(entry =>{
-                  
+              ${Object.entries(ammo)
+                .filter(entry => !excludedKeys.includes(entry[0]) && entry[1] !== null && entry[1] !== "")
+                .map(entry =>{
                   return excludedKeys.includes(entry[0]) ? null :`<tr><td><strong>${getTranslationAmmo(entry[0], language)}</strong></td><td>${entry[0] === "caliber" ? getShortCaliberNameFromString(entry[1], caliberDisplayNameList, shortCaliber) : entry[1]}</td></tr>`
               }).join("")}
           </tbody>
@@ -690,8 +696,9 @@ return(
     
 }
 
-export async function printGunCollection(guns:GunType[], language: string, shortCaliber: boolean, caliberDisplayNameList: {name:string, displayName:string}[]){
+export async function printGunCollection(language: string, shortCaliber: boolean, caliberDisplayNameList: {name:string, displayName:string}[]){
 console.log("HELLO THIS IS GUN COLLECTION")
+const guns = await db.select().from(schema.gunCollection)
   const date:Date = new Date()
   const dateOptions:Intl.DateTimeFormatOptions = {
       weekday: 'long',
@@ -719,7 +726,8 @@ console.log("HELLO THIS IS GUN COLLECTION")
         </thead>
           <tbody>
               ${guns.map(gun =>{
-                return `<tr>${gunDataTemplate.map(data=>{return data.name in gun && !excludedKeys.includes(data.name) ? `<td class=${data.name === "caliber" ? "whitespace" : ""}>${data.name === "caliber" ? getShortCaliberNameFromArray(gun[data.name], caliberDisplayNameList, shortCaliber).join(",\n") : gun[data.name]}</td>` : !(data.name in gun) && !excludedKeys.includes(data.name) ? `<td></td>`: null}).join("")}</tr>`}).join("")}
+                /*@ts-expect-error*/
+                return `<tr>${gunDataTemplate.map(data=>{return data.name in gun && !excludedKeys.includes(data.name) ? `<td class=${data.name === "caliber" ? "whitespace" : ""}>${data.name === "caliber" ? getShortCaliberNameFromArray(gun[data.name], caliberDisplayNameList, shortCaliber).join(",\n") : gun[data.name] !== null ? gun[data.name] : ""}</td>` : !(data.name in gun) && !excludedKeys.includes(data.name) ? `<td></td>`: null}).join("")}</tr>`}).join("")}
           </tbody>
       </table>
     </div>
@@ -835,8 +843,9 @@ console.log("HELLO THIS IS GUN COLLECTION")
   }    
 }
 
-export async function printGunCollectionArt5(guns:GunType[], language: string, shortCaliber: boolean, caliberDisplayNameList: {name:string, displayName:string}[]){
+export async function printGunCollectionArt5(language: string, shortCaliber: boolean, caliberDisplayNameList: {name:string, displayName:string}[]){
 console.log("HELLO THIS IS GUN COLLECTION ART 5")
+const guns = await db.select().from(schema.gunCollection)
   const date:Date = new Date()
   const dateOptions:Intl.DateTimeFormatOptions = {
       weekday: 'long',
@@ -865,8 +874,9 @@ console.log("HELLO THIS IS GUN COLLECTION ART 5")
         </thead>
           <tbody>
               ${guns.map(gun =>{
-                if(gun.status !== undefined && Object.entries(gun.status).some(stat => stat[1] === true)){
-                  return `<tr>${gunDataTemplate.map(data=>{return data.name in gun && !excludedKeys.includes(data.name) ? `<td class=${data.name === "caliber" ? "whitespace" : ""}>${data.name === "caliber" ? getShortCaliberNameFromArray(gun[data.name], caliberDisplayNameList, shortCaliber).join(",\n") : gun[data.name]}</td>` : !(data.name in gun) && !excludedKeys.includes(data.name) ? `<td></td>`: null}).join("")}${checkBoxes.map(box => {return gun.status[box.name] === true ? `<td class="xcell">X</td>` : `<td class="hidden"> </td>` }).join("")}</tr>`
+                if(Object.entries(gun).some(stat => art5Keys.includes(stat[0]))){
+                  /*@ts-expect-error*/
+                  return `<tr>${gunDataTemplate.map(data=>{return data.name in gun && !excludedKeys.includes(data.name) ? `<td class=${data.name === "caliber" ? "whitespace" : ""}>${data.name === "caliber" ? getShortCaliberNameFromArray(gun[data.name], caliberDisplayNameList, shortCaliber).join(",\n") : gun[data.name] === null ? "" : gun[data.name]}</td>` : !(data.name in gun) && !excludedKeys.includes(data.name) ? `<td></td>`: null}).join("")}${checkBoxes.map(box => {return gun[box.name] === true ? `<td class="xcell">X</td>` : `<td class="hidden"> </td>` }).join("")}</tr>`
                 }
               }).join("")
             }
@@ -1174,9 +1184,10 @@ export async function printGunGallery(guns:GunType[], language: string){
       });
 }
 
-export async function printAmmoCollection(ammunition:AmmoType[], language: string, shortCaliber: boolean, caliberDisplayNameList: {name:string, displayName:string}[]){
+export async function printAmmoCollection(language: string, shortCaliber: boolean, caliberDisplayNameList: {name:string, displayName:string}[]){
 console.log("HELLO THIS IS AMMO COLLECTION")
   const date:Date = new Date()
+  const ammunition = await db.select().from(schema.ammoCollection)
   const dateOptions:Intl.DateTimeFormatOptions = {
       weekday: 'long',
       year: 'numeric',
