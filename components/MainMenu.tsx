@@ -896,7 +896,7 @@ export default function MainMenu({navigation}){
             case "gunCollection":
                 try{
                     console.log("Im printing gun collection!")
-                await printGunCollection(gunCollection, language, generalSettings.caliberDisplayName, caliberDisplayNameList);
+                await printGunCollection(language, generalSettings.caliberDisplayName, caliberDisplayNameList);
                 return
                 } catch(e){
                     alarm("printGunCollection Error", e)
@@ -904,7 +904,7 @@ export default function MainMenu({navigation}){
             case "gunCollectionArt5":
                 try{
                     console.log("Im printing gun collection art 5!")
-                   await printGunCollectionArt5(gunCollection, language, generalSettings.caliberDisplayName, caliberDisplayNameList);
+                   await printGunCollectionArt5(language, generalSettings.caliberDisplayName, caliberDisplayNameList);
                     return
                 } catch(e){
                     alarm("printGunCollectioNArt5 Error", e)
@@ -912,7 +912,7 @@ export default function MainMenu({navigation}){
             case "ammoCollection":
                 try{
                     console.log("Im printing ammo collection!")
-                   await printAmmoCollection(ammoCollection, language, generalSettings.caliberDisplayName, caliberDisplayNameList);
+                   await printAmmoCollection(language, generalSettings.caliberDisplayName, caliberDisplayNameList);
                     return
                 } catch(e){
                     alarm("printAmmoCollection Error", e)
