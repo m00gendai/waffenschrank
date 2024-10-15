@@ -90,10 +90,10 @@ export default function MainMenu({navigation}){
         
     }
 
-    function dbImportSuccess(data: DBOperations){
+    function dbImportSuccess(size: number, data: DBOperations){
         setDbModalVisible()
         data === "import_arsenal_gun_db" ? setDbImport(new Date()) : data === "import_arsenal_gun_csv" ? setDbImport(new Date()) : setAmmoDbImport(new Date())
-        setSnackbarText(`${importSize} ${toastMessages.dbImportSuccess[language]}`)
+        setSnackbarText(`${size} ${toastMessages.dbImportSuccess[language]}`)
         onToggleSnackBar()
     }
 
@@ -256,8 +256,8 @@ export default function MainMenu({navigation}){
             toggleImportModalVisible()
             setDbModalText(databaseOperations.import[language])
             try{
-                await handleImportGunDb().then(()=>{
-                    dbImportSuccess("import_arsenal_gun_db")
+                await handleImportGunDb().then((size)=>{
+                    dbImportSuccess(size, "import_arsenal_gun_db")
                 })
             }catch(e){
                 alarm("DB ops error import_arsenal_gun_db", e)
@@ -267,8 +267,8 @@ export default function MainMenu({navigation}){
             toggleImportModalVisible()
             setDbModalText(databaseOperations.import[language])
             try{
-                await handleImportAmmoDb().then(()=>{
-                    dbImportSuccess("import_arsenal_ammo_db")
+                await handleImportAmmoDb().then((size)=>{
+                    dbImportSuccess(size, "import_arsenal_ammo_db")
                 })
             }catch(e){
                 alarm("DB ops error import_arsenal_ammo_db", e)
@@ -278,8 +278,8 @@ export default function MainMenu({navigation}){
             toggleImportModalVisible()
             setDbModalText(databaseOperations.import[language])
             try{
-                await importArsenalGunCSV().then(()=>{
-                    dbImportSuccess("import_arsenal_gun_csv")
+                await importArsenalGunCSV().then((size)=>{
+                    dbImportSuccess(size, "import_arsenal_gun_csv")
                 })
             }catch(e){
                 alarm("DB ops error import_arsenal_gun_csv", e)
@@ -289,8 +289,8 @@ export default function MainMenu({navigation}){
             toggleImportModalVisible()
             setDbModalText(databaseOperations.import[language])
             try{
-                await importArsenalAmmoCSV().then(()=>{
-                    dbImportSuccess("import_arsenal_ammo_csv")
+                await importArsenalAmmoCSV().then((size)=>{
+                    dbImportSuccess(size, "import_arsenal_ammo_csv")
                 })
             }catch(e){
                 alarm("DB ops error import_arsenal_ammo_csv", e)
@@ -300,8 +300,8 @@ export default function MainMenu({navigation}){
             toggleImportModalVisible()
             setDbModalText(databaseOperations.import[language])
             try{
-                await importCSV(data).then(()=>{
-                    dbImportSuccess("import_custom_gun_csv")
+                await importCSV(data).then((size)=>{
+                    dbImportSuccess(size, "import_custom_gun_csv")
                 })
             }catch(e){
                 alarm("DB ops error import_custom_gun_csv", e)
@@ -311,8 +311,8 @@ export default function MainMenu({navigation}){
             toggleImportModalVisible()
             setDbModalText(databaseOperations.import[language])
             try{
-                await importCSV(data).then(()=>{
-                    dbImportSuccess("import_custom_ammo_csv")
+                await importCSV(data).then((size)=>{
+                    dbImportSuccess(size, "import_custom_ammo_csv")
                 })
             }catch(e){
                 alarm("DB ops error import_custom_ammo_csv", e)
@@ -530,7 +530,7 @@ export default function MainMenu({navigation}){
         const content = await FileSystem.readAsStringAsync(result.assets[0].uri)
         const guns:GunType[] = JSON.parse(content)
         setImportSize(guns.length)
-        const importTags:{label:string, status:boolean}[] = []
+        const importTags:{label:string}[] = []
         const importableGunCollection:GunType[] = await Promise.all(guns.map(async gun=>{
             if(gun.images !== null && gun.images.length !== 0){
                 const base64images:string[] = await Promise.all(gun.images.map(async (image, index) =>{
@@ -570,43 +570,41 @@ export default function MainMenu({navigation}){
                     return fileUri
                 }))
                 const importableGun:GunType = {...gun, images: base64images}
-                if(gun.tags !== undefined && gun.tags.length !== 0){
+                if(gun.tags !== undefined && gun.tags !== null && gun.tags.length !== 0){
                     for(const tag of gun.tags){
                         if(!importTags.some(importTag => importTag.label === tag)){
-                            importTags.push({label: tag, status: true})
+                            importTags.push({label: tag})
                         }
                     }
                 }
-                setImportProgress(importProgress + 1)
                 return importableGun
             } else {
-                if(gun.tags !== undefined && gun.tags.length !== 0){
+                if(gun.tags !== undefined && gun.tags !== null && gun.tags.length !== 0){
                     for(const tag in gun.tags){
                         if(!importTags.some(importTag => importTag.label === tag)){
-                            importTags.push({label: tag, status: true})
+                            importTags.push({label: tag})
                         }
                     }
                 }
-                setImportProgress(importProgress+1)
+
                 return gun
             }
         }))
-        overWriteTags(importTags)
-        await AsyncStorage.setItem(TAGS, JSON.stringify(importTags)) // Save the key object
-        const allKeys:string = await AsyncStorage.getItem(KEY_DATABASE) // gets the object that holds all key values
-        let newKeys:string[] = []
+        await db.delete(schema.gunTags)
+        await db.delete(schema.gunCollection)
+        await db.insert(schema.gunTags).values(importTags)
+        for(const item of importableGunCollection){
+            await db.insert(schema.gunCollection).values(item)
+            setImportProgress(importProgress + 1)
+            await new Promise(resolve => setTimeout(resolve, 0));
+        }
         
-        importableGunCollection.map(value =>{
-            newKeys.push(value.id) // if its the first gun to be saved, create an array with the id of the gun. Otherwise, merge the key into the existing array
-            SecureStore.setItem(`${GUN_DATABASE}_${value.id}`, JSON.stringify(value)) // Save the gun
-        })
-    
-        await AsyncStorage.setItem(KEY_DATABASE, JSON.stringify(newKeys)) // Save the key object
         try{
             await fs.unlink(result.assets[0].uri)
         }catch(e){
             alarm("importAmmoDB unlinkTempFile", e)
         }
+        return guns.length
     }
 
     async function handleImportAmmoDb(){
@@ -664,43 +662,41 @@ export default function MainMenu({navigation}){
                     return fileUri
                 }))
                 const importableAmmo:AmmoType = {...ammo, images: base64images}
-                if(ammo.tags !== undefined && ammo.tags.length !== 0){
+                if(ammo.tags !== undefined && ammo.tags !== null && ammo.tags.length !== 0){
                     for(const tag of ammo.tags){
                         if(!importTags.some(importTag => importTag.label === tag)){
                             importTags.push({label: tag, status: true})
                         }
                     }
                 }
-                setImportProgress(importProgress+1)
                 return importableAmmo
             } else {
-                if(ammo.tags !== undefined && ammo.tags.length !== 0){
+                if(ammo.tags !== undefined && ammo.tags !== null && ammo.tags.length !== 0){
                     for(const tag of ammo.tags){
                         if(!importTags.some(importTag => importTag.label === tag)){
                             importTags.push({label: tag, status: true})
                         }
                     }
                 }
-                setImportProgress(importProgress+1)
                 return ammo
             }
+            
         }))
-        overWriteAmmoTags(importTags)
-        await AsyncStorage.setItem(A_TAGS, JSON.stringify(importTags)) // Save the key object
-        const allKeys:string = await AsyncStorage.getItem(A_KEY_DATABASE) // gets the object that holds all key values
-        let newKeys:string[] = []
-        
-        importableAmmoCollection.map(value =>{
-            newKeys.push(value.id) // if its the first gun to be saved, create an array with the id of the gun. Otherwise, merge the key into the existing array
-            SecureStore.setItem(`${AMMO_DATABASE}_${value.id}`, JSON.stringify(value)) // Save the gun
-        })
-    
-        await AsyncStorage.setItem(A_KEY_DATABASE, JSON.stringify(newKeys)) // Save the key object
+        await db.delete(schema.ammoTags)
+        await db.delete(schema.ammoCollection)
+        await db.insert(schema.ammoTags).values(importTags)
+        for(const item of importableAmmoCollection){
+            await db.insert(schema.ammoCollection).values(item)
+            setImportProgress(importProgress + 1)
+            await new Promise(resolve => setTimeout(resolve, 0));
+        }
+
         try{
             await fs.unlink(result.assets[0].uri)
         }catch(e){
             alarm("importAmmoDB unlinkTempFile", e)
         }
+        return ammunitions.length
     }
 
     async function handleSwitchesAlert(setting:string){
@@ -788,32 +784,34 @@ export default function MainMenu({navigation}){
         }
         const content:string = await FileSystem.readAsStringAsync(result.assets[0].uri)
         const parsed = Papa.parse(content, {header: true})
+        setImportProgress(0)
+        setImportSize(parsed.data.length)
         // The errors are due to GunType expecting string[], but the parsed content is only a string. Maybe a type ImportableGunType[] should be created.
         const unflat:GunType[] = parsed.data.map(item => {
             const unitem:GunType = unflatten(item)
+            console.log(unitem)
             /*@ts-expect-error*/
-            const filterEmptyImages:string[] = unitem.images.split(",")
+            const filterEmptyImages:string[] = unitem.images === undefined ? [] : unitem.images === null ? [] : unitem.images === "" ? [] : unitem.images.split(",")
+            console.log(filterEmptyImages)
             /*@ts-expect-error*/
-            const filterEmptyTags:string[] = unitem.tags === undefined ? [] : unitem.tags === "" ? [] : unitem.tags.split(",")
+            const filterEmptyTags:string[] = unitem.tags === undefined ? [] : unitem.tags === null ? [] : unitem.tags === "" ? [] : unitem.tags.split(",")
+            console.log(filterEmptyTags)
             /*@ts-expect-error*/
-            const multiCal:string = unitem.caliber.split(",").join("\n")
-            let filterStatus = {exFullAuto: false, fullAuto: false, highCapacityMagazine: false, short: false}
-            Object.entries(unitem.status).map(item => {
-                filterStatus = {...filterStatus, [item[0]]: item[1] === "" ? false : item[1] === "false" ? false : true}
-            })            
-            /*@ts-expect-error*/
-            const readyItem:GunType = {...unitem, images: filterEmptyImages, tags: filterEmptyTags, status:filterStatus, caliber: multiCal}
+            const multiCal:string[] = unitem.caliber === undefined ? [] : unitem.caliber === null ? [] : unitem.caliber === "" ? [] : unitem.caliber.split(",")
+            console.log(multiCal)
+
+            const readyItem:GunType = {...unitem, images: filterEmptyImages, tags: filterEmptyTags, caliber: multiCal}
             return readyItem
         })
-        setGunCollection(unflat)
-        let newKeys:string[] = []
         
-        unflat.map(value =>{
-            newKeys.push(value.id) // if its the first gun to be saved, create an array with the id of the gun. Otherwise, merge the key into the existing array
-            SecureStore.setItem(`${GUN_DATABASE}_${value.id}`, JSON.stringify(value)) // Save the gun
-        })
-    
-        await AsyncStorage.setItem(KEY_DATABASE, JSON.stringify(newKeys)) // Save the key object
+        await db.delete(schema.gunCollection)
+        for(const item of unflat){
+            await db.insert(schema.gunCollection).values(item)
+            setImportProgress(importProgress + 1)
+            await new Promise(resolve => setTimeout(resolve, 0));
+        }
+        return parsed.data.length
+
     }
 
     async function importArsenalAmmoCSV(){
