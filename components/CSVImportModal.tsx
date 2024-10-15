@@ -18,7 +18,9 @@ import AsyncStorage from "@react-native-async-storage/async-storage"
 import { gunDataTemplate } from "../lib/gunDataTemplate"
 import ModalContainer from "./ModalContainer"
 import { useState } from "react"
-
+import { expo, db } from "../db/client"
+import * as schema from "../db/schema"
+import { useLiveQuery } from "drizzle-orm/expo-sqlite"
 
 export default function CSVImportModal(){
 
@@ -58,11 +60,13 @@ export default function CSVImportModal(){
                 } else if(entry[0] === "tags"){
                     mapped[entry[0]] = []
                 } else if(entry[0] === "createdAt"){
-                    mapped[entry[0]] = entry[1] === -1 ? `${new Date().toISOString()}` : items[entry[1]]
+                    mapped[entry[0]] = entry[1] === -1 ? new Date().toISOString() : items[entry[1]]
                 } else if(entry[0] === "caliber"){
                     mapped[entry[0]] = entry[1] === -1 ? "" : items[entry[1]] !== undefined ? items[entry[1]].split(", ") : items[entry[1]]
                 } else if(entry[0] === "status"){
                     mapped[entry[0]] = entry[1] === -1 ? exampleGunEmpty.status : items[entry[1]]
+                } else if(entry[0] === "model"){
+                    mapped[entry[0]] = entry[1] === -1 ? "-" : items[entry[1]] === "" ? "-" : items[entry[1]] === null ? "-" : items[entry[1]]
                 } else {
                     mapped[entry[0]] = entry[1] === -1 ? "" : items[entry[1]]
                 }
@@ -75,23 +79,25 @@ export default function CSVImportModal(){
                 }
             })
             mapped.remarks = rmk.join("\n")
-            setImportProgress(importProgress+1)
+            console.log(mapped)
             return mapped
         })
+        console.log(objects)
 
-        let newKeys:string[] = []
+        await db.delete(schema.gunTags)
+        await db.delete(schema.gunCollection)
+        for(const item of objects){
+            await db.insert(schema.gunCollection).values(item)
+            setImportProgress(importProgress + 1)
+            await new Promise(resolve => setTimeout(resolve, 0));
+        }
         
-        objects.map(value =>{
-            newKeys.push(value.id) // if its the first gun to be saved, create an array with the id of the gun. Otherwise, merge the key into the existing array
-            SecureStore.setItem(`${dbCollectionType === "import_custom_gun_csv" ? GUN_DATABASE : AMMO_DATABASE}_${value.id}`, JSON.stringify(value)) // Save the gun
-        })
-    
-        await AsyncStorage.setItem(dbCollectionType === "import_custom_gun_csv" ? KEY_DATABASE : A_KEY_DATABASE, JSON.stringify(newKeys)) // Save the key object
-        dbCollectionType === "import_custom_gun_csv" ? setGunCollection(objects as GunType[]) : setAmmoCollection(objects as AmmoType[])
+        setImportProgress(importProgress+1)
         setDbCollectionType("")
         setMapCSVAmmo(null)
         setMapCSVGun(null)
     }
+    console.log(mapCSVGun)
 
     return(
         <ModalContainer visible={importCSVVisible} setVisible={toggleImportCSVVisible}
