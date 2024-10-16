@@ -54,7 +54,7 @@ export default function BottomBar(){
 
         </View>
         
-        <View style={{width: "100%", height: defaultBottomBarTextHeight, flexDirection: "row", justifyContent: "center", alignItems: "center"}}>
+       {/*} <View style={{width: "100%", height: defaultBottomBarTextHeight, flexDirection: "row", justifyContent: "center", alignItems: "center"}}>
           <Divider style={{width: "100%"}}/>
           <Text style={{position: "absolute", backgroundColor: theme.colors.background, paddingLeft: defaultViewPadding, paddingRight: defaultViewPadding}}>Zubehör</Text>
         </View>
@@ -75,7 +75,7 @@ export default function BottomBar(){
           </TouchableOpacity>
 
         </View>
-      {/*  <View style={{width: "100%", height: defaultBottomBarHeight, flexDirection: "row", justifyContent: "flex-start", alignItems: "center", flexWrap: "wrap", marginTop: defaultViewPadding, marginBottom: defaultViewPadding}}>
+      <View style={{width: "100%", height: defaultBottomBarHeight, flexDirection: "row", justifyContent: "flex-start", alignItems: "center", flexWrap: "wrap", marginTop: defaultViewPadding, marginBottom: defaultViewPadding}}>
 
           <TouchableOpacity onPress={()=>handleNavigation("AmmoCollection")} style={{width: "33%", alignItems: 'center' }}>
             <Icon source="volume-off" size={24} color={screen === "AmmoCollection" ? theme.colors.primary : theme.colors.secondary} />
