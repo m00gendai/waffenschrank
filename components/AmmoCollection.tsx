@@ -9,12 +9,9 @@ import { getIcon } from '../utils';
 import { useViewStore } from '../stores/useViewStore';
 import { useAmmoStore } from '../stores/useAmmoStore';
 import { usePreferenceStore } from '../stores/usePreferenceStore';
-import { useTagStore } from '../stores/useTagStore';
-import { Checkbox } from 'react-native-paper';
 import { search, sorting, tooltips } from '../lib/textTemplates';
 import AmmoCard from './AmmoCard';
 import Animated, { useAnimatedStyle, useSharedValue, withRepeat, withTiming } from 'react-native-reanimated';
-import BottomBar from './BottomBar';
 import * as schema from "../db/schema"
 import { drizzle, useLiveQuery } from "drizzle-orm/expo-sqlite"
 import {db} from "../db/client"
@@ -206,7 +203,7 @@ console.log(ammoData)
           ListEmptyComponent={null}
         />
       }
-      <BottomBar screen={route.name}/>
+     
       <Animated.View style={[{position: "absolute", bottom: defaultBottomBarHeight+defaultViewPadding, right: 0, margin: 16, width: 56, height: 56, backgroundColor: "transparent", display: "flex", justifyContent: "center", alignItems: "center"}, ammoData.length === 0 ? pulsate : null]}>
         <FAB
           icon="plus"

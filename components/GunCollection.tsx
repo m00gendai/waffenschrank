@@ -9,19 +9,14 @@ import { getIcon, getSortAlternateValue } from '../utils';
 import { useViewStore } from '../stores/useViewStore';
 import { useGunStore } from '../stores/useGunStore';
 import { usePreferenceStore } from '../stores/usePreferenceStore';
-import { useTagStore } from '../stores/useTagStore';
-import { Checkbox } from 'react-native-paper';
 import GunCard from './GunCard';
 import { search, sorting, tooltips } from '../lib/textTemplates';
 import Animated, { useAnimatedStyle, useSharedValue, withRepeat, withTiming } from 'react-native-reanimated';
-import BottomBar from './BottomBar';
 import * as schema from "../db/schema"
 import { drizzle, useLiveQuery } from "drizzle-orm/expo-sqlite"
 import {db} from "../db/client"
 import { eq, lt, gte, ne, and, or, like, asc, desc, exists, isNull, sql, inArray } from 'drizzle-orm';
 import FilterMenu from './FilterMenu';
-
-
 
 export default function GunCollection({navigation, route}){
 
@@ -227,7 +222,7 @@ export default function GunCollection({navigation, route}){
           ListEmptyComponent={null}
         />
       }
-      <BottomBar screen={route.name}/>
+     
       <Animated.View style={[{position: "absolute", bottom: defaultBottomBarHeight+defaultViewPadding, right: 0, margin: 16, width: 56, height: 56, backgroundColor: "transparent", display: "flex", justifyContent: "center", alignItems: "center"}, gunData.length === 0 ? pulsate : null]}>
         <FAB
           icon="plus"
