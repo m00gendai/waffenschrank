@@ -35,3 +35,5 @@ export const languageSelection:{flag:string, code:Languages}[] = [
 
 export const requiredFieldsGun:string[] = ["model"]
 export const requiredFieldsAmmo:string[] = ["designation"]
+
+export const statusEntries: string[] = ["fullAuto", "exFullAuto", "highCapacityMagazine", "short", "laucnher", "decepticon", "blooptoob", "grandfather"]
