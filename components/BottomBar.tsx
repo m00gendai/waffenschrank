@@ -1,10 +1,11 @@
 import { TouchableOpacity, View } from "react-native";
-import { Icon, Text } from "react-native-paper";
+import { Divider, Icon, Text } from "react-native-paper";
 import { usePreferenceStore } from "../stores/usePreferenceStore";
 import { useNavigation } from "@react-navigation/native";
 import { StackNavigationProp } from '@react-navigation/stack';
 import { tabBarLabels } from "../lib/textTemplates";
-import { defaultBottomBarHeight } from "../configs";
+import { defaultBottomBarHeight, defaultBottomBarTextHeight, defaultViewPadding } from "../configs";
+import { useState } from "react";
 
 type RootStackParamList = {
   GunCollection: undefined;
@@ -14,33 +15,79 @@ type RootStackParamList = {
 
 type BottomBarNavigationProp = StackNavigationProp<RootStackParamList>;
 
-interface Props{
-  screen?: string
-}
 
 
-export default function BottomBar({screen}){
-
-    type RootStackParamList = {
-        GunCollection: undefined;
-        AmmoCollection: undefined;
-        // Add other routes here if needed
-      };
+export default function BottomBar(){
       
 
     const { displayAsGrid, toggleDisplayAsGrid, sortBy, setSortBy, language, setSortGunIcon, sortGunIcon, sortGunsAscending, toggleSortGunsAscending, theme } = usePreferenceStore()
     const navigation = useNavigation<BottomBarNavigationProp>()
+    const [screen, setScreen] = useState("GunCollection")
+
+    function handleNavigation(target){
+      setScreen(target)
+      navigation.navigate(target)
+    }
     
     return(
-        <View style={{width: "100%", height: defaultBottomBarHeight, backgroundColor: theme.colors.surface, flexDirection: "row", justifyContent: "space-around", alignItems: "center"}}>
-      <TouchableOpacity onPress={()=>navigation.navigate("GunCollection")} style={{ alignItems: 'center' }}>
-        <Icon source="pistol" size={24} color={screen === "GunCollection" ? theme.colors.primary : theme.colors.secondary} />
-        <Text style={{ color: screen === "GunCollection" ? theme.colors.primary : theme.colors.secondary, marginTop: 4 }}>{tabBarLabels.gunCollection[language]}</Text>
-       </TouchableOpacity>
-       <TouchableOpacity onPress={()=>navigation.navigate("AmmoCollection")} style={{ alignItems: 'center' }}>
-        <Icon source="bullet" size={24} color={screen === "AmmoCollection" ? theme.colors.primary : theme.colors.secondary} />
-        <Text style={{ color: screen === "AmmoCollection" ? theme.colors.primary : theme.colors.secondary, marginTop: 4 }}>{tabBarLabels.ammoCollection[language]}</Text>
-       </TouchableOpacity>
+      <View style={{width: "100%", backgroundColor: theme.colors.surface, flexDirection: "column", justifyContent: "center", alignItems: "flex-start"}}>
+
+        <View style={{width: "100%", height: defaultBottomBarHeight, flexDirection: "row", justifyContent: "space-around", alignItems: "center"}}>
+          <View style={{width: "100%", position: "absolute", left: 0, top: 0}}>
+            <View style={{alignSelf: "center"}}>
+                <Icon
+                  source="chevron-up"
+                  color={theme.colors.secondary}
+                  size={30}
+                />
+            </View>
           </View>
+          
+          <TouchableOpacity onPress={()=>handleNavigation("GunCollection")} style={{ alignItems: 'center' }}>
+            <Icon source="pistol" size={24} color={screen === "GunCollection" ? theme.colors.primary : theme.colors.secondary} />
+            <Text style={{ color: screen === "GunCollection" ? theme.colors.primary : theme.colors.secondary, marginTop: 4 }}>{tabBarLabels.gunCollection[language]}</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={()=>handleNavigation("AmmoCollection")} style={{ alignItems: 'center' }}>
+            <Icon source="bullet" size={24} color={screen === "AmmoCollection" ? theme.colors.primary : theme.colors.secondary} />
+            <Text style={{ color: screen === "AmmoCollection" ? theme.colors.primary : theme.colors.secondary, marginTop: 4 }}>{tabBarLabels.ammoCollection[language]}</Text>
+          </TouchableOpacity>
+
+        </View>
+        
+        <View style={{width: "100%", height: defaultBottomBarTextHeight, flexDirection: "row", justifyContent: "center", alignItems: "center"}}>
+          <Divider style={{width: "100%"}}/>
+          <Text style={{position: "absolute", backgroundColor: theme.colors.background, paddingLeft: defaultViewPadding, paddingRight: defaultViewPadding}}>Zubehör</Text>
+        </View>
+
+        <View style={{width: "100%", height: defaultBottomBarHeight, flexDirection: "row", justifyContent: "flex-start", alignItems: "center", flexWrap: "wrap", marginTop: defaultViewPadding, marginBottom: defaultViewPadding}}>
+        
+          <TouchableOpacity onPress={()=>handleNavigation("GunCollection")} style={{width: "33%", alignItems: 'center'}}>
+            <Icon source="toslink" size={24} color={screen === "GunCollection" ? theme.colors.primary : theme.colors.secondary} />
+            <Text style={{ color: screen === "GunCollection" ? theme.colors.primary : theme.colors.secondary, marginTop: 4 }}>{tabBarLabels.opticsCollection[language]}</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={()=>handleNavigation("AmmoCollection")} style={{width: "33%", alignItems: 'center' }}>
+            <Icon source="crosshairs" size={24} color={screen === "AmmoCollection" ? theme.colors.primary : theme.colors.secondary} />
+            <Text style={{ color: screen === "AmmoCollection" ? theme.colors.primary : theme.colors.secondary, marginTop: 4 }}>{tabBarLabels.scopesCollection[language]}</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={()=>handleNavigation("GunCollection")} style={{width: "33%", alignItems: 'center' }}>
+            <Icon source="magazine-rifle" size={24} color={screen === "GunCollection" ? theme.colors.primary : theme.colors.secondary} />
+            <Text style={{ color: screen === "GunCollection" ? theme.colors.primary : theme.colors.secondary, marginTop: 4 }}>{tabBarLabels.magazineCollection[language]}</Text>
+          </TouchableOpacity>
+
+        </View>
+      {/*  <View style={{width: "100%", height: defaultBottomBarHeight, flexDirection: "row", justifyContent: "flex-start", alignItems: "center", flexWrap: "wrap", marginTop: defaultViewPadding, marginBottom: defaultViewPadding}}>
+
+          <TouchableOpacity onPress={()=>handleNavigation("AmmoCollection")} style={{width: "33%", alignItems: 'center' }}>
+            <Icon source="volume-off" size={24} color={screen === "AmmoCollection" ? theme.colors.primary : theme.colors.secondary} />
+            <Text style={{ color: screen === "AmmoCollection" ? theme.colors.primary : theme.colors.secondary, marginTop: 4 }}>{tabBarLabels.silencerCollection[language]}</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={()=>handleNavigation("AmmoCollection")} style={{width: "33%", alignItems: 'center' }}>
+            <Icon source="volume-off" size={24} color={screen === "AmmoCollection" ? theme.colors.primary : theme.colors.secondary} />
+            <Text style={{ color: screen === "AmmoCollection" ? theme.colors.primary : theme.colors.secondary, marginTop: 4 }}>{tabBarLabels.miscCollection[language]}</Text>
+          </TouchableOpacity>
+
+    </View> */}
+
+      </View>
     )
 }

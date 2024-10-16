@@ -11,6 +11,8 @@ export const defaultBottomBarHeight:number = 60
 
 export const defaultSearchBarHeight:number = 56
 
+export const defaultBottomBarTextHeight: number = 30
+
 export const dateLocales:SimpleTranslation = {
     de: "de-CH",
     en: "en-US",

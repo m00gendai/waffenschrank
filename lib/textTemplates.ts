@@ -56,6 +56,11 @@ interface DatabaseOperation{
 interface TabBarLabels{
     gunCollection: SimpleTranslation
     ammoCollection: SimpleTranslation
+    opticsCollection: SimpleTranslation
+    scopesCollection: SimpleTranslation
+    magazineCollection: SimpleTranslation
+    silencerCollection: SimpleTranslation
+    miscCollection: SimpleTranslation
 }
 
 interface AmmoQuickUpdate{
@@ -796,6 +801,41 @@ export const tabBarLabels: TabBarLabels = {
     },
     ammoCollection: {
         de: "Munition",
+        en: "Ammunition",
+        fr: "Munitions",
+        it: "Munizioni",
+        ch: "Muniziun",
+    },
+    opticsCollection: {
+        de: "Optiken",
+        en: "Ammunition",
+        fr: "Munitions",
+        it: "Munizioni",
+        ch: "Muniziun",
+    },
+    scopesCollection: {
+        de: "Zielfernrohre",
+        en: "Ammunition",
+        fr: "Munitions",
+        it: "Munizioni",
+        ch: "Muniziun",
+    },
+    magazineCollection: {
+        de: "Magazine",
+        en: "Ammunition",
+        fr: "Munitions",
+        it: "Munizioni",
+        ch: "Muniziun",
+    },
+    silencerCollection: {
+        de: "Schalldämpfer",
+        en: "Ammunition",
+        fr: "Munitions",
+        it: "Munizioni",
+        ch: "Muniziun",
+    },
+    miscCollection: {
+        de: "Diverses",
         en: "Ammunition",
         fr: "Munitions",
         it: "Munizioni",

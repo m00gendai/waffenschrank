@@ -1,6 +1,6 @@
-import { PaperProvider } from 'react-native-paper';
+import { PaperProvider, Text } from 'react-native-paper';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useCallback, useEffect, useState } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 import { AMMO_DATABASE, A_KEY_DATABASE, A_TAGS, GUN_DATABASE, KEY_DATABASE, PREFERENCES, TAGS } from "./configs_DB"
 import 'react-native-gesture-handler';
 import React from 'react';
@@ -38,6 +38,10 @@ import { useDrizzleStudio } from 'expo-drizzle-studio-plugin';
 import { useMigrations } from 'drizzle-orm/expo-sqlite/migrator';
 import migrations from './drizzle/migrations';
 import { checkBoxes } from './lib/gunDataTemplate';
+import BottomSheet, { BottomSheetHandleProps, BottomSheetView } from '@gorhom/bottom-sheet';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import BottomBar from './components/BottomBar';
+import { defaultBottomBarHeight, defaultBottomBarTextHeight, defaultViewPadding } from './configs';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -45,6 +49,14 @@ export default function App() {
   const { success, error } = useMigrations(db, migrations);
   console.log(error)
   useDrizzleStudio(expo)
+
+  // ref
+  const bottomSheetRef = useRef<BottomSheet>(null);
+
+  // callbacks
+  const handleSheetChanges = useCallback((index: number) => {
+    console.log('handleSheetChanges', index);
+  }, []);
 
   const [appIsReady, setAppIsReady] = useState<boolean>(false);
 
@@ -322,8 +334,8 @@ export default function App() {
   }
 
 
-
   return (
+    <GestureHandlerRootView>
     <NavigationContainer theme={navTheme}>
       <PaperProvider theme={currentTheme}>
         <StatusBar backgroundColor={mainMenuOpen ? theme.colors.primary : theme.colors.background} style={theme.name.includes("dark") ? "light" : "dark"} />
@@ -405,9 +417,25 @@ export default function App() {
             />
 
           </Stack.Navigator>
+          {mainMenuOpen ? null : <BottomSheet
+        ref={bottomSheetRef}
+        onChange={handleSheetChanges}
+            snapPoints={[
+              defaultBottomBarHeight, 
+              (defaultBottomBarHeight*3)+(defaultBottomBarTextHeight*2) + (defaultViewPadding*1)
+            ]}
+            handleComponent={null}
+      >
+        <BottomSheetView 
+       
+        >
+          <BottomBar />
+        </BottomSheetView>
+      </BottomSheet>}
         </SafeAreaView>
       </PaperProvider>
     </NavigationContainer>
+    </GestureHandlerRootView>
   )
 }
 
