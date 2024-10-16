@@ -36,6 +36,7 @@ export default function NewText({data, gunData, setGunData, ammoData, setAmmoDat
     const [cleanInterval, setCleanInterval] = useState<string | null>(null)
     const [checked, setChecked] = useState<string>("-")
     const [caliberView, setCaliberView] = useState<"search" | "list">("search")
+    const [selection, setSelection] = useState({ start: 0, end: 0 });
 
     const { language, theme } = usePreferenceStore()
     const { currentGun } = useGunStore()
@@ -196,6 +197,10 @@ function handleInputPress(){
         return color
     }
 
+    const handleSelectionChange = ({ nativeEvent: { selection } }) => {
+        setSelection(selection); // Track the cursor position
+      };
+
     return(
 
           <View style={{flex: 1}}>
@@ -207,6 +212,8 @@ function handleInputPress(){
                         }}
                         onFocus={()=>handleFocus()}
                         onBlur={()=>setFocus(false)}
+                        onSelectionChange={handleSelectionChange}
+                        selection={selection}
                         value={input === undefined ? "" : input === null ? "" : data === "cleanInterval" && gunData !== null && gunData[data] !== undefined && gunData[data] !== null ? cleanIntervals[input] !== undefined ? cleanIntervals[input][language] : "" : input.toString()}
                         editable={data === "acquisitionDate" ? false : data === "mainColor" ? false : data === "caliber" ? false : data === "lastCleanedAt" ? false : data === "lastShotAt" ? false : data === "lastTopUpAt" ? false : data === "cleanInterval" ? false : true}
                         showSoftInputOnFocus={data === "acquisitionDate" ? false : true}
