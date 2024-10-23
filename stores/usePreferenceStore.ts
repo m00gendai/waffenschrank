@@ -50,6 +50,10 @@ interface PreferenceStore {
     toggleGunFilterOn: () => void
     ammoFilterOn: boolean
     toggleAmmoFilterOn: () => void
+    opticsFilterOn: boolean
+    toggleOpticsFilterOn: () => void
+    magazinesFilterOn: boolean
+    toggleMagazinesFilterOn: () => void
   }
 
   export const usePreferenceStore = create<PreferenceStore>((set) => ({
@@ -97,5 +101,9 @@ interface PreferenceStore {
     gunFilterOn: false,
     toggleGunFilterOn: () => set((state) => ({gunFilterOn: !state.gunFilterOn})),
     ammoFilterOn: false,
-    toggleAmmoFilterOn: () => set((state) => ({ammoFilterOn: !state.ammoFilterOn}))
+    toggleAmmoFilterOn: () => set((state) => ({ammoFilterOn: !state.ammoFilterOn})),
+    opticsFilterOn: false,
+    toggleOpticsFilterOn: () => set((state) => ({opticsFilterOn: !state.opticsFilterOn})),
+    magazinesFilterOn: false,
+    toggleMagazinesFilterOn: () => set((state) => ({magazinesFilterOn: !state.magazinesFilterOn}))
   }))
