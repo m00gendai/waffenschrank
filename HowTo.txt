@@ -59,7 +59,7 @@
 2. Update Switch
 3. Update Component
 
-## Bottom tabBarLabels
+## Bottom Bar
 
 1. Update ``RootStackParamList`` in ``./components/BottomBar.tsx``
 2. Add Bottom Sheet Link Item
