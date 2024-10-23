@@ -421,10 +421,11 @@ export default function App() {
         onChange={handleSheetChanges}
             snapPoints={[
               defaultBottomBarHeight, 
-              (defaultBottomBarHeight*3)+(defaultBottomBarTextHeight*2) + (defaultViewPadding*1)
+              (defaultBottomBarHeight*3)+(defaultBottomBarTextHeight*2) + (defaultViewPadding*3)
             ]}
             handleComponent={null}
             backgroundStyle={{backgroundColor: theme.colors.background}}
+            maxDynamicContentSize={(defaultBottomBarHeight*3)+(defaultBottomBarTextHeight*2) + (defaultViewPadding*3)}
       >
         <BottomSheetView 
        
