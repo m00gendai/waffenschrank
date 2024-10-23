@@ -1,12 +1,14 @@
-import { AmmoType, GunType, SortingTypes } from "./interfaces";
-import { gunDataTemplate } from "./lib/gunDataTemplate";
-import { validationErros } from "./lib//textTemplates";
-import { ammoDataTemplate } from "./lib/ammoDataTemplate";
+import { AccessoryType_Magazine, AccessoryType_Optic, AmmoType, CollectionItems, GunType, ItemTypes, SortingTypes } from "./interfaces";
+import { gunDataTemplate, gunRemarks } from "./lib/gunDataTemplate";
+import { ammoDeleteAlert, gunDeleteAlert, newAccessory_magazinesTitle, newAccessory_opticsTitle, newAmmoTitle, newGunTitle, toastMessages, validationErros } from "./lib//textTemplates";
+import { ammoDataTemplate, ammoRemarks } from "./lib/ammoDataTemplate";
 import { requiredFieldsAmmo, requiredFieldsGun } from "./configs";
 import * as ImagePicker from "expo-image-picker"
 import { ImageResult, manipulateAsync } from 'expo-image-manipulator';
 import { Alert, Image } from "react-native"
 import * as schema from "./db/schema"
+import { exampleAccessoryEmpty_Optic, exampleAmmoEmpty, exampleGunEmpty, exampleAccessoryEmpty_Magazine } from "./lib/examples";
+import { accessoryDataTemplate_optics, accessoryRemarks_optics, accessoryRemarks_magazines, accessoryDataTemplate_magazines } from "./lib/accessoryDataTemplate";
 
 const nonSetValue: number = 999999999999999
 
@@ -33,142 +35,6 @@ export function getSortAlternateValue(sortBy:SortingTypes){
     }
 }
 
-/*
-export function doSortBy(value: SortingTypes, ascending: boolean, items: GunType[] | AmmoType[]){
-    if(value === "alphabetical"){
-        const sorted = items.sort((a, b) =>{
-
-            let x:string
-            let y:string
-            if(a.model !== undefined){
-                x = a.manufacturer === null ? a.model : a.manufacturer === undefined ? a.model : a.manufacturer === "" ? a.model : `${a.manufacturer} ${a.model}`
-                y = b.manufacturer === null ? b.model : b.manufacturer === undefined ? b.model : b.manufacturer === "" ? b.model : `${b.manufacturer} ${b.model}`
-            }
-            if(a.designation !== undefined){
-                x = a.manufacturer === null ? a.designation : a.manufacturer === undefined ? a.designation : a.manufacturer === "" ? a.designation : `${a.designation} ${a.manufacturer}`
-                y = b.manufacturer === null ? b.designation : b.manufacturer === undefined ? b.designation : b.manufacturer === "" ? b.designation : `${b.designation} ${b.manufacturer}`
-            }
-            
-            if(ascending){
-                return x > y ? 1 : x < y ? -1 : 0
-            } else {
-                return x < y ? 1 : x > y ? -1 : 0
-        }})
-        return sorted
-    }
-    if(value === "lastAddedAt"){
-        try{
-        const sorted = items.sort((a, b) =>{
-            const x = a.createdAt === undefined ? nonSetValue : a.createdAt === null ? nonSetValue : a.createdAt === "" ? nonSetValue : new Date(a.createdAt).getTime()
-            const y = b.createdAt === undefined ? nonSetValue : b.createdAt === null ? nonSetValue : b.createdAt === "" ? nonSetValue : new Date(b.createdAt).getTime()
-            if(ascending){
-                return x > y ? 1 : x < y ? -1 : 0
-            } else {
-                return x < y ? 1 : x > y ? -1 : 0
-        }})
-        return sorted
-    }catch(e){
-        console.log(e)
-    }
-    }
-    if(value === "lastModifiedAt"){
-        const sorted = items.sort((a, b) =>{
-            const x = a.lastModifiedAt !== undefined ? new Date(a.lastModifiedAt).getTime() : new Date(a.createdAt).getTime()
-            const y = b.lastModifiedAt !== undefined ? new Date(b.lastModifiedAt).getTime() : new Date(b.createdAt).getTime()
-            if(ascending){
-                return x > y ? 1 : x < y ? -1 : 0
-            } else {
-                return x < y ? 1 : x > y ? -1 : 0
-        }})
-        return sorted
-    }
-    if(value === "caliber"){
-        const sorted = items.sort((a, b) =>{
-            const x = a.caliber !== undefined ? a.caliber : a.designation
-            const y = b.caliber !== undefined ? b.caliber : b.designation
-            if(ascending){
-                return x > y ? 1 : x < y ? -1 : 0
-            } else {
-                return x < y ? 1 : x > y ? -1 : 0
-        }})
-        return sorted
-    }
-    if(value === "paidPrice"){
-        const sorted = items.sort((a, b) =>{
-            const x = a.paidPrice === undefined ? nonSetValue : a.paidPrice === null ? nonSetValue : a.paidPrice === "" ? nonSetValue : Number(a.paidPrice)
-            const y = b.paidPrice === undefined ? nonSetValue : b.paidPrice === null ? nonSetValue : b.paidPrice === "" ? nonSetValue : Number(b.paidPrice)
-            if(ascending){
-                return x > y ? 1 : x < y ? -1 : 0
-            } else {
-                return x < y ? 1 : x > y ? -1 : 0
-        }})
-        return sorted
-    }
-    if(value === "marketValue"){
-        const sorted = items.sort((a, b) =>{
-            const x = a.marketValue === undefined ? nonSetValue : a.marketValue === null ? nonSetValue : a.marketValue === "" ? nonSetValue : Number(a.marketValue)
-            const y = b.marketValue === undefined ? nonSetValue : b.marketValue === null ? nonSetValue : b.marketValue === "" ? nonSetValue : Number(b.marketValue)
-            if(ascending){
-                return x > y ? 1 : x < y ? -1 : 0
-            } else {
-                return x < y ? 1 : x > y ? -1 : 0
-        }})
-        return sorted
-    }
-    if(value === "acquisitionDate"){
-        const parseDate = (dateStr:string) => {
-            if (!dateStr) return new Date(0);
-            const [day, month, year]:number[] = dateStr.split('.').map(Number);
-            return new Date(year, month - 1, day);
-        };
-        const sorted = items.sort((a, b) =>{
-            const x = a.acquisitionDate === undefined ? nonSetValue : a.acquisitionDate === null ? nonSetValue : a.acquisitionDate === "" ? nonSetValue : Math.floor(parseDate(a.acquisitionDate).getTime() / 1000) 
-            const y = b.acquisitionDate === undefined ? nonSetValue : b.acquisitionDate === null ? nonSetValue : b.acquisitionDate === "" ? nonSetValue : Math.floor(parseDate(b.acquisitionDate).getTime() / 1000)
-    
-            if(ascending){
-                return x > y ? 1 : x < y ? -1 : 0
-            } else {
-                return x < y ? 1 : x > y ? -1 : 0
-        }})
-        return sorted
-    }
-    if(value === "lastCleanedAt"){
-        const parseDate = (dateStr:string) => {
-            if (!dateStr) return new Date(0);
-            const [day, month, year]:number[] = dateStr.split('.').map(Number);
-            return new Date(year, month - 1, day);
-        };
-        const sorted = items.sort((a, b) =>{
-            const x = a.lastCleanedAt === undefined ? nonSetValue : a.lastCleanedAt === null ? nonSetValue : a.lastCleanedAt === "" ? nonSetValue : Math.floor(parseDate(a.lastCleanedAt).getTime() / 1000)
-            const y = b.lastCleanedAt === undefined ? nonSetValue : b.lastCleanedAt === null ? nonSetValue : b.lastCleanedAt === "" ? nonSetValue : Math.floor(parseDate(b.lastCleanedAt).getTime() / 1000)
-    
-            if(ascending){
-                return x > y ? 1 : x < y ? -1 : 0
-            } else {
-                return x < y ? 1 : x > y ? -1 : 0
-        }})
-        return sorted
-    }
-    if(value === "lastShotAt"){
-        const parseDate = (dateStr:string) => {
-            if (!dateStr) return new Date(0);
-            const [day, month, year]:number[] = dateStr.split('.').map(Number);
-            return new Date(year, month - 1, day);
-        };
-        const sorted = items.sort((a, b) =>{
-            const x = a.lastShotAt === undefined ? nonSetValue : a.lastShotAt === null ? nonSetValue : a.lastShotAt === "" ? nonSetValue : Math.floor(parseDate(a.lastShotAt).getTime() / 1000)
-            const y = b.lastShotAt === undefined ? nonSetValue : b.lastShotAt === null ? nonSetValue : b.lastShotAt === "" ? nonSetValue : Math.floor(parseDate(b.lastShotAt).getTime() / 1000)
-    
-            if(ascending){
-                return x > y ? 1 : x < y ? -1 : 0
-            } else {
-                return x < y ? 1 : x > y ? -1 : 0
-        }})
-        return sorted
-    }
-}
-*/
-
 export function getIcon(type:SortingTypes){
     switch(type){
         case "alphabetical":
@@ -189,6 +55,189 @@ export function getIcon(type:SortingTypes){
             return "bullseye"
         default:
             return "alphabetical-variant"
+    }
+}
+
+export function getSchema(schemaQuery: ItemTypes){
+    switch(schemaQuery){
+        case "Gun":
+            return schema.gunCollection
+        case "Ammo":
+            return schema.ammoCollection
+        case "Accessory_Optic":
+            return schema.opticsCollection
+        case "Accessory_Magazine":
+            return schema.magazineCollection
+    }
+}
+
+export function setCardTitle(item: CollectionItems, itemType: ItemTypes){
+    if(itemType === "Gun"){
+        const definition = item as GunType
+        return `${definition.manufacturer && definition.manufacturer.length != 0 ? `${definition.manufacturer}` : ""}${definition.manufacturer && definition.manufacturer.length != 0 ? ` ` : ""}${definition.model}`
+    }
+    if(itemType === "Ammo"){
+        const definition = item as AmmoType
+        return `${definition.manufacturer && definition.manufacturer.length !== 0 ? `${definition.manufacturer}` : ""}${definition.manufacturer && definition.manufacturer.length !== 0 ? ` ` : ""}${definition.designation}`
+    }
+    if(itemType === "Accessory_Optic"){
+        const definition = item as AccessoryType_Optic
+        return `${definition.manufacturer && definition.manufacturer.length !== 0 ? `${definition.manufacturer}` : ""}${definition.manufacturer && definition.manufacturer.length !== 0 ? ` ` : ""}${definition.designation}`
+    }
+    if(itemType === "Accessory_Magazine"){
+        const definition = item as AccessoryType_Magazine
+        return `${definition.manufacturer && definition.manufacturer.length !== 0 ? `${definition.manufacturer}` : ""}${definition.manufacturer && definition.manufacturer.length !== 0 ? ` ` : ""}${definition.designation}`
+    }
+}
+
+export function setCardSubtitle(item: CollectionItems, itemType: ItemTypes, shortCaliber?: string){
+    if(itemType === "Gun"){
+        const definition = item as GunType
+        return definition.serial && definition.serial.length != 0 ? definition.serial : " "
+    }
+    if(itemType === "Ammo"){
+        const definition = item as AmmoType
+        return definition.caliber && definition.caliber.length !== 0 ? shortCaliber : " "
+    }
+    if(itemType === "Accessory_Optic"){
+        const definition = item as AccessoryType_Optic
+        return definition.currentlyMountedOn && definition.currentlyMountedOn.length !== 0 ? " " : " "
+    }
+    if(itemType === "Accessory_Magazine"){
+        const definition = item as AccessoryType_Magazine
+        return definition.stock ? definition.stock : " "
+    }
+}
+
+export function getDeleteDialogTitle(item: CollectionItems, itemType: ItemTypes, language: string){
+    if(itemType === "Gun"){
+        const definition = item as GunType
+        `${definition.model === null ? "" : definition.model === undefined ? "" : definition.model} ${gunDeleteAlert.title[language]}`
+    }
+    if(itemType === "Ammo"){
+        const definition = item as AmmoType
+        `${definition.designation === null ? "" : definition.designation === undefined ? "" : definition.designation} ${ammoDeleteAlert.title[language]}`
+    }
+    if(itemType === "Accessory_Optic"){
+        const definition = item as AccessoryType_Optic
+        `${definition.designation === null ? "" : definition.designation === undefined ? "" : definition.designation} ${ammoDeleteAlert.title[language]}`
+    }
+    if(itemType === "Accessory_Magazine"){
+        const definition = item as AccessoryType_Magazine
+        `${definition.designation === null ? "" : definition.designation === undefined ? "" : definition.designation} ${ammoDeleteAlert.title[language]}`
+    }
+}
+
+export function getNewItemTitle(itemType: ItemTypes, language: string){
+    if(itemType === "Gun"){
+        return newGunTitle[language]
+    }
+    if(itemType === "Ammo"){
+        return newAmmoTitle[language]
+    }
+    if(itemType === "Accessory_Optic"){
+        return newAccessory_opticsTitle[language]
+    }
+    if(itemType === "Accessory_Magazine"){
+        return newAccessory_magazinesTitle[language]
+    }
+}
+
+export function setSnackbarTextSave(itemType: ItemTypes, value: CollectionItems, language: string){
+   if(itemType === "Gun"){
+        const definition = value as GunType
+        return `${definition.manufacturer ? definition.manufacturer : ""} ${definition.model} ${toastMessages.saved[language]}`
+   } 
+   if(itemType === "Ammo"){
+        const definition = value as AmmoType
+        return `${definition.manufacturer ? definition.manufacturer : ""} ${definition.designation} ${toastMessages.saved[language]}`
+   }
+   if(itemType === "Accessory_Optic"){
+        const definition = value as AccessoryType_Optic
+        return `${definition.manufacturer ? definition.manufacturer : ""} ${definition.designation} ${toastMessages.saved[language]}`
+    }
+    if(itemType === "Accessory_Magazine"){
+        const definition = value as AccessoryType_Magazine
+        return `${definition.manufacturer ? definition.manufacturer : ""} ${definition.designation} ${toastMessages.saved[language]}`
+    }
+}
+
+export function setTextAreaLabel(itemType: ItemTypes, language: string){
+    if(itemType === "Gun"){
+        return gunRemarks[language]
+    }
+    if(itemType === "Ammo"){
+        return ammoRemarks[language]
+    }
+    if(itemType === "Accessory_Optic"){
+        return accessoryRemarks_optics[language]
+    }
+    if(itemType === "Accessory_Magazine"){
+        return accessoryRemarks_magazines[language]
+    }
+}
+
+export function returnCompareObject(itemType: ItemTypes){
+    if(itemType === "Gun"){
+        return exampleGunEmpty
+    }
+    if(itemType === "Ammo"){
+        return exampleAmmoEmpty
+    }
+    if(itemType === "Accessory_Optic"){
+        return exampleAccessoryEmpty_Optic
+    }
+    if(itemType === "Accessory_Magazine"){
+        return exampleAccessoryEmpty_Magazine
+    }
+}
+
+export function getItemTemplate(itemType: ItemTypes){
+    if(itemType === "Gun"){
+        return gunDataTemplate
+    }
+    if(itemType === "Ammo"){
+        return ammoDataTemplate
+    }
+    if(itemType === "Accessory_Optic"){
+        return accessoryDataTemplate_optics
+    }
+    if(itemType === "Accessory_Magazine"){
+        return accessoryDataTemplate_magazines
+    }
+}
+
+export function getItemTemplateRemarks(itemType: ItemTypes){
+    if(itemType === "Gun"){
+        return gunRemarks
+    }
+    if(itemType === "Ammo"){
+        return ammoRemarks
+    }
+    if(itemType === "Accessory_Optic"){
+        return accessoryRemarks_optics
+    }
+    if(itemType === "Accessory_Magazine"){
+        return accessoryRemarks_magazines
+    }
+}
+
+export function getEntryTitle(itemType: ItemTypes, item: CollectionItems){
+    if(itemType === "Gun"){
+        const definition = item as GunType
+        return `${definition.manufacturer !== undefined? definition.manufacturer : ""} ${definition.model}`
+    }
+    if(itemType === "Ammo"){
+        const definition = item as AmmoType
+        return `${definition.manufacturer !== undefined? definition.manufacturer : ""} ${definition.designation}`
+    }
+    if(itemType === "Accessory_Optic"){
+        const definition = item as AccessoryType_Optic
+        return `${definition.manufacturer !== undefined? definition.manufacturer : ""} ${definition.designation}`
+    }
+    if(itemType === "Accessory_Magazine"){
+        const definition = item as AccessoryType_Magazine
+        return `${definition.manufacturer !== undefined? definition.manufacturer : ""} ${definition.designation}`
     }
 }
 
@@ -288,31 +337,31 @@ function mapIntervals(interval){
     }
 }
 
-export function checkDate(gun:GunType){
-    if(gun === undefined){
+export function checkDate(item:CollectionItems){
+    if(item === undefined){
         return
     }
-    if(gun.lastCleanedAt === undefined){
+    if(item.lastCleanedAt === undefined){
         return
     }
-    if(gun.lastCleanedAt === null){
+    if(item.lastCleanedAt === null){
         return
     }
-    if(gun.cleanInterval === undefined){
+    if(item.cleanInterval === undefined){
         return
     }
-    if(gun.cleanInterval === "none"){
+    if(item.cleanInterval === "none"){
         return
     }
     const oneDay = 24 * 60 * 60 * 1000; // hours*minutes*seconds*milliseconds
-    let [day, month, year] = gun.lastCleanedAt.split('.')
+    let [day, month, year] = item.lastCleanedAt.split('.')
     const firstDate = new Date(Number(year), Number(month) - 1, Number(day)).getTime()
     const todayYear = new Date().getFullYear()
     const todayMonth = new Date().getMonth()
     const todayDay = new Date().getDate()
     const secondDate = new Date(todayYear, todayMonth, todayDay).getTime()
     const diffDays = Math.round(Math.abs((Number(firstDate) - Number(secondDate)) / oneDay));
-    if(diffDays > mapIntervals(gun.cleanInterval)){
+    if(diffDays > mapIntervals(item.cleanInterval)){
         return true
     }
     return false
