@@ -166,6 +166,10 @@ interface iosWarning{
     cancel: SimpleTranslation
 }
 
+interface BottomSheetDividerLabels{
+    accessories: SimpleTranslation
+}
+
 export const cleanIntervals:CleanIntervals = {
     none: {
         de: "-",
@@ -278,6 +282,39 @@ export const newAmmoTitle:SimpleTranslation = {
     ch: "Nova muniziun",
 }
 
+export const editAccessory_opticsTitle:SimpleTranslation = {
+    de: "Optik bearbeiten",
+    en: "Edit Optic",
+    fr: "Modifier l'optique",
+    it: "MModifica ottica",
+    ch: "Elavurar l'optica",
+}
+
+export const newAccessory_opticsTitle:SimpleTranslation = {
+    de: "Neue Optik",
+    en: "New Optic",
+    fr: "Nouvelle optique",
+    it: "Nuova ottica",
+    ch: "Nova optica",
+}
+
+export const editAccessory_magazinesTitle:SimpleTranslation = {
+    de: "Magazin bearbeiten",
+    en: "Edit magazine",
+    fr: "Éditer le magazine",
+    it: "Modifica rivista",
+    ch: "Elavurar il magasin",
+}
+
+export const newAccessory_magazinesTitle:SimpleTranslation = {
+    de: "Neues Magazin",
+    en: "New Magazine",
+    fr: "Nouveau magazine",
+    it: "Nuova rivista",
+    ch: "Nov magazin",
+}
+
+
 export const unsavedChangesAlert:Alert = {
     title: {
         de: "Es hat nicht gespeicherte Änderungen",
@@ -385,6 +422,68 @@ export const ammoDeleteAlert:Alert = {
         fr: "Les munitions sera effacée de manière irréversible. Vraiment continuer?",
         it: "Le munizioni saranno eliminate in modo irreversibile. Continuare davvero?",
         ch: "La muniziun vegn stizzada irrevocablamain. Propi cuntinuar?",
+    },
+    yes: {
+        de: "Ja",
+        en: "Yes",
+        fr: "Oui",
+        it: "Sì",
+        ch: "Gea",
+    },
+    no: {
+        de: "Nein",
+        en: "No",
+        fr: "Non",
+        it: "No",
+        ch: "Na",
+    }
+}
+
+export const accessory_opticsDeleteAlert:Alert = {
+    title: {
+        de: "wirklich löschen?",
+        en: "will be deleted",
+        fr: "vraiment supprimer?",
+        it: "davvero eliminare?",
+        ch: "propi stizzar?",
+    },
+    subtitle: {
+        de: "Die Optik wird unwiderruflich gelöscht. Wirklich fortfahren?",
+        en: "The optic will be irrevocably deleted. Really continue?",
+        fr: "L'optique est définitivement effacée. Voulez-vous vraiment continuer?",
+        it: "L'ottica viene cancellata in modo irreversibile. Continuare davvero?",
+        ch: "L'optica vegn stizzada irrevocablamain. Propi cuntinuar?",
+    },
+    yes: {
+        de: "Ja",
+        en: "Yes",
+        fr: "Oui",
+        it: "Sì",
+        ch: "Gea",
+    },
+    no: {
+        de: "Nein",
+        en: "No",
+        fr: "Non",
+        it: "No",
+        ch: "Na",
+    }
+}
+
+export const accessory_magazinesDeleteAlert:Alert = {
+    title: {
+        de: "wirklich löschen?",
+        en: "will be deleted",
+        fr: "vraiment supprimer?",
+        it: "davvero eliminare?",
+        ch: "propi stizzar?",
+    },
+    subtitle: {
+        de: "Das Magazin wird unwiderruflich gelöscht. Wirklich fortfahren?",
+        en: "The magazine will be irrevocably deleted. Really continue?",
+        fr: "Le chargeur est définitivement effacé. Voulez-vous vraiment continuer?",
+        it: "La rivista verrà cancellata in modo irrevocabile. Continuiamo davvero?",
+        ch: "Il magazin vegn stizzà irrevocablamain. Propi cuntinuar?",
     },
     yes: {
         de: "Ja",
@@ -808,38 +907,38 @@ export const tabBarLabels: TabBarLabels = {
     },
     opticsCollection: {
         de: "Optiken",
-        en: "Ammunition",
-        fr: "Munitions",
-        it: "Munizioni",
-        ch: "Muniziun",
+        en: "Optics",
+        fr: "Optiques",
+        it: "Ottici",
+        ch: "Opticas",
     },
     scopesCollection: {
         de: "Zielfernrohre",
-        en: "Ammunition",
-        fr: "Munitions",
-        it: "Munizioni",
-        ch: "Muniziun",
+        en: "Riflescopes",
+        fr: "Cannocchiali di mira",
+        it: "Cannocchiali di mira",
+        ch: "Bischen d'arriv",
     },
     magazineCollection: {
         de: "Magazine",
-        en: "Ammunition",
-        fr: "Munitions",
-        it: "Munizioni",
-        ch: "Muniziun",
+        en: "Magazines",
+        fr: "Magazines",
+        it: "Riviste",
+        ch: "mMgasins",
     },
     silencerCollection: {
         de: "Schalldämpfer",
-        en: "Ammunition",
-        fr: "Munitions",
-        it: "Munizioni",
-        ch: "Muniziun",
+        en: "Silencers",
+        fr: "Silencieux",
+        it: "Silenziatore",
+        ch: "Surdina dal tun",
     },
     miscCollection: {
-        de: "Diverses",
+        de: "Miscellaneous",
         en: "Ammunition",
-        fr: "Munitions",
-        it: "Munizioni",
-        ch: "Muniziun",
+        fr: "Divers",
+        it: "Varie",
+        ch: "Diverses",
     }
 }
 
@@ -1340,4 +1439,14 @@ export const shotLabel: SimpleTranslation = {
     fr: "coups",
     it: "colpi",
     ch: "culps",
+}
+
+export const bottomSheetDividerLabels:BottomSheetDividerLabels = {
+    accessories: {
+        de: "Zubehör",
+        en: "Accessories",
+        fr: "coups",
+        it: "colpi",
+        ch: "culps"
+    }
 }

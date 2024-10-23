@@ -1,9 +1,9 @@
-import { AmmoType, GunType } from "../interfaces";
+import { AccessoryType_Optic, AmmoType, GunType, AccessoryType_Magazine } from "../interfaces";
 
 export const exampleGun:GunType = {
     "acquisitionDate": "11.6.2024", 
     "caliber": ["9×19mm Parabellum (9mm Luger)"], 
-    "createdAt": "2024-06-10T08:17:55.026Z", 
+    "createdAt": 0, 
     "id": "c472c7e8-c177-4a42-badf-549e468ed42e", 
     "images": ["file:///data/user/0/host.exp.exponent/files/c45f8da7-a3cc-4798-8e38-ffd39165ca2d.jpeg"], 
     "lastCleanedAt": "18.6.2024",
@@ -38,7 +38,7 @@ export const exampleGun:GunType = {
 export const exampleGunEmpty:GunType = {
     "acquisitionDate": "", 
     "caliber": [], 
-    "createdAt": "", 
+    "createdAt": 0, 
     "id": "", 
     "images": [], 
     "lastCleanedAt": "",
@@ -72,7 +72,7 @@ export const exampleGunEmpty:GunType = {
 
 export const exampleAmmo:AmmoType = {
     "caliber": "9×19mm Parabellum (9mm Luger)", 
-    "createdAt": "2024-06-18T07:20:38.312Z", 
+    "createdAt": 0,
     "criticalStock": "50",
     "currentStock": 19, 
     "designation": "Pist Pat 14", 
@@ -90,7 +90,7 @@ export const exampleAmmo:AmmoType = {
 
 export const exampleAmmoEmpty:AmmoType = {
     "caliber": "",
-    "createdAt": "",
+    "createdAt": 0,
     "criticalStock": "",
     "currentStock": null,
     "designation": "", 
@@ -104,4 +104,43 @@ export const exampleAmmoEmpty:AmmoType = {
     "previousStock": null,
     "remarks": "",
     "tags": []
+}
+
+export const exampleAccessoryEmpty_Optic:AccessoryType_Optic = {
+    "id": "",
+    "createdAt": 0,
+    "lastModifiedAt":0,
+    "images": [],
+    "tags": [],
+    "manufacturer": "",
+    "designation": "",
+    "type": "",
+    "lastBatteryChange": 0,
+    "reticle": "",
+    "clicksVert": 0,
+    "clicksHor": 0,
+    "acquisitionDate": "",
+    "paidPrice": "",
+    "boughtFrom": "",
+    "marketValue": "",
+    "currentlyMountedOn": "",
+    "remarks": ""
+}
+
+export const exampleAccessoryEmpty_Magazine:AccessoryType_Magazine = {
+    "id": "",
+    "createdAt": 0,
+    "lastModifiedAt":0,
+    "images": [],
+    "tags": [],
+    "manufacturer": "",
+    "designation": "",
+    "platform": "",
+    "capacity": 0,
+    "acquisitionDate": "",
+    "paidPrice": "",
+    "boughtFrom": "",
+    "marketValue": "",
+    "stock": 0,
+    "remarks": ""
 }
