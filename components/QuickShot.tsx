@@ -2,34 +2,32 @@ import { ScrollView, View } from "react-native";
 import { Button, Dialog, HelperText, IconButton, List, Text, TextInput } from "react-native-paper";
 import { usePreferenceStore } from "../stores/usePreferenceStore";
 import { dateLocales, defaultViewPadding } from "../configs";
-import { AMMO_DATABASE, GUN_DATABASE } from "../configs_DB"
 import { gunQuickShot, shotLabel } from "../lib/textTemplates";
-import { useGunStore } from "../stores/useGunStore";
-import { useAmmoStore } from "../stores/useAmmoStore";
+
 import { useState } from "react";
-import { AmmoType, GunType } from "../interfaces";
-import * as SecureStore from "expo-secure-store"
+import { GunType } from "../interfaces";
 import { drizzle, useLiveQuery } from "drizzle-orm/expo-sqlite"
 import { db } from "../db/client"
 import * as schema from "../db/schema"
 import { eq, lt, gte, ne, and, or, like, asc, desc, exists, isNull, sql, inArray } from 'drizzle-orm';
+import { useItemStore } from "../stores/useItemStore";
 
 export default function QuickShot({navigation}){
 
- 
-
-    const { ammoDbImport, displayAmmoAsGrid, setDisplayAmmoAsGrid, toggleDisplayAmmoAsGrid, sortAmmoBy, setSortAmmoBy, language, theme, sortAmmoIcon, setSortAmmoIcon } = usePreferenceStore()
-    const { gunCollection, setGunCollection, currentGun, setCurrentGun } = useGunStore()
+    const { language, theme } = usePreferenceStore()
+    const { currentItem } = useItemStore()
     const [shotCountFromStock, setShotCountFromStock] = useState<string[]>([])
     const [shotCountNonStock, setShotCountNonStock] = useState<string>("")
     const [seeInfo, toggleSeeInfo] = useState<boolean>(false)
     const [negativeAmmo, setNegativeAmmo] = useState<boolean>(false)
     const [negativeAmmoId, setNegativeAmmoId] = useState<string>("")
 
+    const matchingGun = currentItem as GunType
+
     const { data } = useLiveQuery(
       db.select()
       .from(schema.ammoCollection)
-      .where(inArray(schema.ammoCollection.caliber, currentGun.caliber))
+      .where(inArray(schema.ammoCollection.caliber, matchingGun.caliber))
     )
 
       async function saveNewStock(id: string, count:number){
@@ -45,11 +43,10 @@ export default function QuickShot({navigation}){
     async function handleShotCount(){
         const date:Date = new Date()
         const mapped:number[] = Object.entries(shotCountFromStock).map(item => item[1] === "" ? 0 : Number(item[1]))
-        const currentShotCount:number = currentGun.shotCount === undefined ? 0 : currentGun.shotCount === null ? 0 : Number(currentGun.shotCount)
+        const currentShotCount:number = matchingGun.shotCount === undefined ? 0 : matchingGun.shotCount === null ? 0 : Number(matchingGun.shotCount)
         const total: number = Number(shotCountNonStock) + mapped.reduce((acc, curr) => acc+Number(curr),0) + currentShotCount
-        const newGun:GunType = {...currentGun, shotCount: `${total}`, lastShotAt: `${date.getTime()}`}
         /*@ts-expect-error*/
-        await db.update(schema.gunCollection).set({shotCount: `${total}`, lastShotAt: date.getTime()}).where(eq(schema.gunCollection.id, currentGun.id))
+        await db.update(schema.gunCollection).set({shotCount: `${total}`, lastShotAt: date.getTime()}).where(eq(schema.gunCollection.id, matchingGun.id))
 
         if (shotCountFromStock.length !== 0) {
          for (const count of Object.entries(shotCountFromStock)){
@@ -90,7 +87,7 @@ return(
                             <View style={{display: "flex", flexDirection: "row"}}><Text variant="titleLarge" style={{color: theme.colors.primary, padding: defaultViewPadding, flex: 9}}>{`QuickShot`}</Text><IconButton style={{flex: 1}} icon="help-circle-outline" onPress={()=>toggleSeeInfo(true)}/></View>
                         </View>
                   <ScrollView>
-                  {currentGun !== null && currentGun.caliber !== undefined && currentGun.caliber !== null && currentGun.caliber.length !== 0 ? 
+                  {currentItem !== null && currentItem.caliber !== undefined && currentItem.caliber !== null && currentItem.caliber.length !== 0 ? 
                     data.length === 0 ? null : <List.Accordion title={gunQuickShot.updateFromStock[language]} titleStyle={{color: theme.colors.onBackground}}>
                     <View style={{width: "100%", padding: defaultViewPadding, display: "flex", alignItems: "flex-start", flexDirection: "row", flexWrap: "wrap"}}>
                       {data.map(ammo =>{

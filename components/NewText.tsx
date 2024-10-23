@@ -1,6 +1,6 @@
 import { IconButton, List, Surface, TextInput, Text, Badge, Portal, Modal, RadioButton, Divider, Button, Searchbar, Chip } from 'react-native-paper';
 import { useState } from 'react';
-import { GunType, AmmoType } from '../interfaces';
+import { GunType, AmmoType, ItemTypes, CollectionItems } from '../interfaces';
 import { TouchableNativeFeedback, View, ScrollView, Pressable, Platform, Keyboard } from 'react-native';
 import DateTimePicker from 'react-native-ui-datepicker';
 import dayjs from 'dayjs';
@@ -11,35 +11,43 @@ import { dateTimeOptions, defaultModalBackdrop, defaultViewPadding, requiredFiel
 import ModalContainer from './ModalContainer';
 import { caliberPickerStrings, cleanIntervals, modalTexts } from '../lib/textTemplates';
 import { GetColorName } from 'hex-color-to-color-name';
-import { useGunStore } from '../stores/useGunStore';
+import { useItemStore } from '../stores/useItemStore';
+import * as schema from "../db/schema"
+import { drizzle, useLiveQuery } from "drizzle-orm/expo-sqlite"
+import {db} from "../db/client"
+import { eq, lt, gte, ne, and, or, like, asc, desc, exists, isNull, sql, inArray } from 'drizzle-orm';
 
 interface Props{
+    itemType: ItemTypes
     data: string
-    gunData?: GunType
-    setGunData?: React.Dispatch<React.SetStateAction<GunType>>
-    ammoData?: AmmoType
-    setAmmoData?: React.Dispatch<React.SetStateAction<AmmoType>>
+    itemData?: CollectionItems
+    setItemData?: React.Dispatch<React.SetStateAction<CollectionItems>>
     label: string
 }
 
-export default function NewText({data, gunData, setGunData, ammoData, setAmmoData, label}: Props){
+export default function NewText({itemType, data, itemData, setItemData, label}: Props){
 
-    const [input, setInput] = useState<string>(gunData ? Array.isArray(gunData[data]) ? gunData[data].join("\n") : gunData[data] : ammoData ? ammoData[data] : "")
+console.log(itemData)
+
+    const [input, setInput] = useState<string>(itemData ? Array.isArray(itemData[data]) ? itemData[data].join("\n") : itemData[data] : "")
     const [showDateTime, setShowDateTime] = useState<boolean>(false)
     const [date, setDate] = useState<(string | number | Date | dayjs.Dayjs)>(dayjs());
-    const [initialDate, setInitialDate] = useState<string>(gunData ? gunData[data] : ammoData ? ammoData[data] : "")
+    const [initialDate, setInitialDate] = useState<string>(itemData ? itemData[data] : "")
     const [showModal, setShowModal] = useState(false);
     const [showModalCaliber, setShowModalCaliber] = useState<boolean>(false)
     const [showCleanModal, setShowCleanModal] = useState<boolean>(false)
-    const [color, setColor] = useState<string>(gunData ? gunData[data] : "#000")
-    const [activeCaliber, setActiveCaliber] = useState<string[] | string>(gunData && data === "caliber" && gunData[data] !== undefined ? gunData[data] : ammoData && data === "caliber" && ammoData[data] !== undefined ? [ammoData[data]] : [])
+    const [showMountedModal, setShowMountedModal] = useState<boolean>(false)
+    const [mountedOn, setMountedOn] = useState<string>(null)
+    const [mountedOnName, setMountedOnName] = useState<string>(null)
+    const [color, setColor] = useState<string>(itemData ? itemData[data] : "#000")
+    const [activeCaliber, setActiveCaliber] = useState<string[] | string>(itemData && data === "caliber" && itemData[data] !== undefined ? itemData[data] : [])
     const [cleanInterval, setCleanInterval] = useState<string | null>(null)
     const [checked, setChecked] = useState<string>("-")
     const [caliberView, setCaliberView] = useState<"search" | "list">("search")
     const [selection, setSelection] = useState({ start: 0, end: 0 });
 
     const { language, theme } = usePreferenceStore()
-    const { currentGun } = useGunStore()
+    const { currentItem } = useItemStore()
 
     const [charCount, setCharCount] = useState(0)
     const [isBackspace, setIsBackspace] = useState<boolean>(false)
@@ -49,29 +57,29 @@ export default function NewText({data, gunData, setGunData, ammoData, setAmmoDat
     const MAX_CHAR_COUNT: number = 100
     const cleanIntervalOptions:string[] = ["none", "day_1", "day_7", "day_14", "month_1", "month_3", "month_6", "month_9", "year_1", "year_5", "year_10"]    
 
-    function updateGunData(input:string | string[]){
-        if(charCount < MAX_CHAR_COUNT){
-            setCharCount(input !== undefined ? input.length : 0)
-            setInput(Array.isArray(input) ? input.join("\n") : input)
-            setGunData({...gunData, [data]: Array.isArray(input) ? input : input.trim()})
-        }
-        if(charCount >= MAX_CHAR_COUNT && isBackspace){
-            setCharCount(input !== undefined ? input.length : 0)
-            setInput(Array.isArray(input) ? input.join("\n") : input)
-            setGunData({...gunData, [data]: Array.isArray(input) ? input : input.trim()})
-        }
-    }
+    const { data: gunData } = useLiveQuery(
+        db.select()
+        .from(schema.gunCollection)
+        .orderBy(
+            asc(
+                (sql`COALESCE(NULLIF(${schema.gunCollection.manufacturer}, ""), ${schema.gunCollection.model})`)
+            )
+        )
+    )
 
-    function updateAmmoData(input:string){
+    const { data: baseGun } = useLiveQuery(db.select().from(schema.gunCollection).where(eq(schema.gunCollection.id, mountedOn)),
+    [mountedOn])
+
+    function updateItemData(input:string | string[]){
         if(charCount < MAX_CHAR_COUNT){
             setCharCount(input !== undefined ? input.length : 0)
-            setInput(input)
-            setAmmoData({...ammoData, [data]: Array.isArray(input) ? input : input.trim()})
+            setInput(Array.isArray(input) ? input.join("\n") : input)
+            setItemData({...itemData, [data]: Array.isArray(input) ? input : input.trim()})
         }
         if(charCount >= MAX_CHAR_COUNT && isBackspace){
             setCharCount(input !== undefined ? input.length : 0)
-            setInput(input)
-            setAmmoData({...ammoData, [data]: Array.isArray(input) ? input : input.trim()})
+            setInput(Array.isArray(input) ? input.join("\n") : input)
+            setItemData({...itemData, [data]: Array.isArray(input) ? input : input.trim()})
         }
     }
 
@@ -82,18 +90,18 @@ export default function NewText({data, gunData, setGunData, ammoData, setAmmoDat
     }
 
     function confirmDate(){
-        gunData !== undefined ? updateGunData(input) : updateAmmoData(input)
+        updateItemData(input)
         setShowDateTime(false)
         setInitialDate(input)
     }
 
     function cancelDate(){
-        gunData !== undefined ? updateGunData(initialDate) : updateAmmoData(initialDate)
+        updateItemData(initialDate)
         setShowDateTime(false)
     }
 
     function deleteDate(){
-        gunData !== undefined ? updateGunData("") : updateAmmoData("")
+        updateItemData("")
         setShowDateTime(false)
     }
 
@@ -107,58 +115,76 @@ export default function NewText({data, gunData, setGunData, ammoData, setAmmoDat
     };
 
     function handleColorConfirm(){
-        updateGunData(color)
+        updateItemData(color)
         setShowModal(false)
     }
 
     function handleColorCancel(){
-        setColor(gunData ? gunData[data] : "#000")
+        setColor(itemData ? itemData[data] : "#000")
         setShowModal(false)
     }
 
     function handleColorDelete(){
-        updateGunData("")
+        updateItemData("")
         setShowModal(false)
     }
 
     function handleCaliberItemSelect(name:string){
-        if(gunData !== undefined){
-        if(activeCaliber.includes(name)){
-            const index: number = activeCaliber.indexOf(name)
-            const newActiveCaliber: string[] = Array.isArray(activeCaliber) ? activeCaliber.toSpliced(index, 1) : []
-            setActiveCaliber(newActiveCaliber)
+        if(itemType === "Gun"){
+            if(activeCaliber.includes(name)){
+                const index: number = activeCaliber.indexOf(name)
+                const newActiveCaliber: string[] = Array.isArray(activeCaliber) ? activeCaliber.toSpliced(index, 1) : []
+                setActiveCaliber(newActiveCaliber)
+            }
+            if(!activeCaliber.includes(name)){
+                activeCaliber.length !== 0 ? Array.isArray(activeCaliber) ? setActiveCaliber([...activeCaliber, name]) : setActiveCaliber([activeCaliber, name]) : setActiveCaliber([name])
+            }
         }
-        if(!activeCaliber.includes(name)){
-            activeCaliber.length !== 0 ? Array.isArray(activeCaliber) ? setActiveCaliber([...activeCaliber, name]) : setActiveCaliber([activeCaliber, name]) : setActiveCaliber([name])
+        if(itemType === "Ammo"){
+            if(activeCaliber.includes(name)){
+                setActiveCaliber([])
+            }
+            if(!activeCaliber.includes(name)){
+                setActiveCaliber([name])
+            }
         }
-    }
-    if(ammoData !== undefined){
-        if(activeCaliber.includes(name)){
-            setActiveCaliber([])
-        }
-        if(!activeCaliber.includes(name)){
-            setActiveCaliber([name])
-        }
-    }
     }
 
     function handleCaliberSelectConfirm(){
-        gunData !== undefined && gunData ? updateGunData(activeCaliber) : updateAmmoData(activeCaliber.toString())
+        if(itemType === "Gun"){
+            updateItemData(activeCaliber)
+        }
+        if(itemType === "Ammo"){
+            updateItemData(activeCaliber.toString())
+        }
         setShowModalCaliber(false)
     }
 
     function handleCaliberSelectCancel(){
-        setActiveCaliber(gunData !== undefined && gunData ? gunData[data] : ammoData !== undefined && ammoData ? ammoData[data] : "")
+        setActiveCaliber(itemData ? itemData[data] : "")
         setShowModalCaliber(false)
     }
 
     function handleCleanIntervalConfirm(){
-        updateGunData(checked)
+        updateItemData(checked)
         setShowCleanModal(false)
     }
 
     function handleCleanIntervalCancel(){
         setShowCleanModal(false)
+    }
+
+    function handleMountedOnConfirm(){
+        updateItemData(mountedOn)
+        setShowMountedModal(false)
+    }
+
+    function handleMountedOnCancel(){
+        setShowMountedModal(false)
+    }
+
+    function handleSetMountedOn(value){
+        setMountedOn(value)
     }
 
 function handleFocus(){
@@ -181,6 +207,8 @@ function handleInputPress(){
         data === "caliber" ? setShowModalCaliber(true) : 
         data === "lastTopUpAt" ? setShowDateTime(true) : 
         data === "cleanInterval" ? setShowCleanModal(true) :
+        data === "lastBatteryChangeAt" ? setShowDateTime(true) :
+        data === "currentlyMountedOn" ? setShowMountedModal(true) :
         null
     }
 
@@ -201,12 +229,68 @@ function handleInputPress(){
         setSelection(selection); // Track the cursor position
       };
 
+    const nonEditableFields = [
+        "acquisitionDate",
+        "mainColor",
+        "caliber",
+        "lastCleandedAt",
+        "lastShotAt",
+        "lastTopUpAt",
+        "cleanInterval",
+        "lastBatteryChangeAt",
+        "currentlyMountedOn"
+    ]
+
+    const decimalInputFields = [
+        "paidPrice", 
+        "marketValue",
+        "shotCount",
+        "currentStock",
+        "criticalStock"
+    ]
+
+    function getTextfieldValue(input:string){
+        console.log(input)
+        if(input === undefined){
+            console.log("return undefined")
+            return ""
+        }
+        if(input === null){
+            console.log("return null")
+            return ""
+        }
+        if(input === ""){
+            console.log("return empty")
+            return ""
+        }
+        if(data === "cleanInterval" && itemData !== undefined && itemData !== null && itemData[data] !== undefined && itemData[data] !== null){
+            if(cleanIntervals[input] !== undefined){
+                console.log("return cleaninterval")
+                return cleanIntervals[input][language]
+            } else {
+                console.log("return cleaninterval empty")
+                return ""
+            }
+        } 
+        if(data === "currentlyMountedOn" && itemData !== undefined && itemData !== null && itemData[data] !== undefined && itemData[data] !== null){
+            if(baseGun[0] === undefined){
+                console.log("return currentlymountedon empty")
+                return ""
+            }
+            console.log("return currentlymountedon")
+            return `${baseGun[0].manufacturer} ${baseGun[0].model}`
+            
+        } 
+        console.log("return input")
+        return input.toString()
+    }
+
     return(
 
           <View style={{flex: 1}}>
                 <Pressable style={{flex: 1}} onPress={()=>{Platform.OS === "android" ? handleInputPress() : null}}>
                     <TextInput
-                        label={`${label}${gunData !== undefined ? requiredFieldsGun.includes(data) ? "*" : "" : requiredFieldsAmmo.includes(data) ? "*" : ""} ${isFocus ? `${charCount}/${MAX_CHAR_COUNT}` : ``}`} 
+                        label={`${label}${itemType === "Gun" ? requiredFieldsGun.includes(data) ? "*" : "" : requiredFieldsAmmo.includes(data) ? "*" : ""} ${isFocus ? `${charCount}/${MAX_CHAR_COUNT}` : ``}`} 
                         style={{
                             flex: 1,
                         }}
@@ -214,14 +298,13 @@ function handleInputPress(){
                         onBlur={()=>setFocus(false)}
                         onSelectionChange={handleSelectionChange}
                         selection={selection}
-                        value={input === undefined ? "" : input === null ? "" : data === "cleanInterval" && gunData !== null && gunData[data] !== undefined && gunData[data] !== null ? cleanIntervals[input] !== undefined ? cleanIntervals[input][language] : "" : input.toString()}
-                        editable={data === "acquisitionDate" ? false : data === "mainColor" ? false : data === "caliber" ? false : data === "lastCleanedAt" ? false : data === "lastShotAt" ? false : data === "lastTopUpAt" ? false : data === "cleanInterval" ? false : true}
-                        showSoftInputOnFocus={data === "acquisitionDate" ? false : true}
-                        onChangeText={input => gunData !== undefined ? updateGunData(input) : updateAmmoData(input)}
+                        value={getTextfieldValue(input)}
+                        editable={nonEditableFields.includes(data) ? false: true}
+                        onChangeText={input => updateItemData(input)}
                         onKeyPress={({nativeEvent}) => setIsBackspace(nativeEvent.key === "Backspace" ? true : false)}
                         left={data === "paidPrice" ? <TextInput.Affix text="CHF " /> : data === "marketValue" ? <TextInput.Affix text="CHF " />  : null}
-                        inputMode={`${data === "paidPrice" ? "decimal" : data === "marketValue" ? "decimal" : data === "shotCount" ? "decimal" : data === "currentStock" ? "decimal" : data === "criticalStock" ? "decimal" : "text"}`}
-                        multiline={gunData && Array.isArray(gunData[data])}
+                        inputMode={`${decimalInputFields.includes(data) ? "decimal" : "text"}`}
+                        multiline={itemData && Array.isArray(itemData[data])}
                         onPress={()=>{Platform.OS === "ios" ? handleInputPress() : null}}
                         returnKeyType='done'
                         returnKeyLabel='OK'
@@ -262,8 +345,8 @@ function handleInputPress(){
                 subtitle={modalTexts.colorPicker.text[language]}
                 visible={showModal}
                 setVisible={setShowModal}
-                content={<ColorPicker style={{ width: '100%', padding: 10 }} value={gunData ? gunData[data] : "#000"} onComplete={onSelectColor}>
-                <View style={{width: "100%", display: "flex", flexDirection: "row", justifyContent: "space-between"}}><Text>{currentGun ? GetColorName(checkColor(currentGun.mainColor)) : ""}</Text><Text>{currentGun ? GetColorName(checkColor(currentGun.mainColor)) : ""}</Text></View>
+                content={<ColorPicker style={{ width: '100%', padding: 10 }} value={itemData ? itemData[data] : "#000"} onComplete={onSelectColor}>
+                <View style={{width: "100%", display: "flex", flexDirection: "row", justifyContent: "space-between"}}><Text>{currentItem ? GetColorName(checkColor(currentItem.mainColor)) : ""}</Text><Text>{currentItem ? GetColorName(checkColor(currentItem.mainColor)) : ""}</Text></View>
                 <Preview style={{marginBottom: 10}} />
                 <ScrollView >
                 <Panel1 style={{marginBottom: 10}} />
@@ -414,6 +497,30 @@ function handleInputPress(){
                 buttonCNL={<IconButton icon="cancel" onPress={() => handleCleanIntervalCancel()} style={{width: 50, backgroundColor: theme.colors.secondaryContainer}} iconColor={theme.colors.onSecondaryContainer} />}
                 buttonDEL={null}
             />
+
+            {/* MOUNTED ON */}
+            <ModalContainer
+                title={"Currently Mounted on"}
+                subtitle={"Select base"}
+                visible={showMountedModal}
+                setVisible={setShowMountedModal}
+                content={<View style={{width: "100%", display: "flex", padding: defaultViewPadding}}>
+                    <ScrollView>
+                        <RadioButton.Group onValueChange={value => handleSetMountedOn(value)} value={mountedOn}>
+                            <RadioButton.Item key={`mountedOn_none}`} label={`-`} value={"-"} />
+                            {gunData.map((gun, index)=>{
+                                return (
+                                    <RadioButton.Item key={`mountedOn_${index}`} label={`${gun.manufacturer}${gun.model}`} value={gun.id} />
+                                )
+                            })}
+                        </RadioButton.Group>
+                    </ScrollView>
+                </View>}
+                buttonACK={<IconButton icon="check" onPress={() => handleMountedOnConfirm()} style={{width: 50, backgroundColor: theme.colors.primary}} iconColor={theme.colors.onPrimary}/>}
+                buttonCNL={<IconButton icon="cancel" onPress={() => handleMountedOnCancel()} style={{width: 50, backgroundColor: theme.colors.secondaryContainer}} iconColor={theme.colors.onSecondaryContainer} />}
+                buttonDEL={null}
+            />
+
            </View>
     )
 }

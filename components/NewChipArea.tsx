@@ -1,31 +1,25 @@
 import { View, TouchableNativeFeedback, ScrollView } from "react-native"
 import { deleteTagFromListAlert, newTags, tagModal } from "../lib/textTemplates"
 import { usePreferenceStore } from "../stores/usePreferenceStore"
-import { useGunStore } from "../stores/useGunStore"
-import { useAmmoStore } from "../stores/useAmmoStore"
+import { useItemStore } from "../stores/useItemStore"
 import { Button, Chip, IconButton, TextInput, Text, Dialog, Surface, Modal, Portal } from "react-native-paper"
-import { GunType, AmmoType } from "../interfaces"
+import { GunType, AmmoType, ItemTypes, CollectionItems } from "../interfaces"
 import { useState } from "react"
-import { useTagStore } from "../stores/useTagStore"
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { defaultViewPadding } from "../configs"
-import { TAGS, A_TAGS } from "../configs_DB"
-import { BlurView } from "expo-blur"
 import ModalContainer from "./ModalContainer"
 import * as schema from "../db/schema"
 import { drizzle, useLiveQuery } from "drizzle-orm/expo-sqlite"
 import {db} from "../db/client"
 import { eq, lt, gte, ne, and, or, like, asc, desc, exists, isNull, sql, inArray } from 'drizzle-orm';
+import { defaultViewPadding } from "../configs"
 
 interface Props{
+    itemType: ItemTypes
     data: string
-    gunData?: GunType
-    setGunData?: React.Dispatch<React.SetStateAction<GunType>>
-    ammoData?: AmmoType
-    setAmmoData?: React.Dispatch<React.SetStateAction<AmmoType>>
+    itemData?: CollectionItems
+    setItemData?: React.Dispatch<React.SetStateAction<CollectionItems>>
 }
 
-export default function NewChipArea({data, gunData, setGunData, ammoData, setAmmoData}:Props){
+export default function NewChipArea({itemType, data, itemData, setItemData}:Props){
 
     const { data: gunTags } = useLiveQuery(
         db.select()
@@ -37,11 +31,13 @@ export default function NewChipArea({data, gunData, setGunData, ammoData, setAmm
         .from(schema.ammoTags)
     )
 
+    const { data: opticsTags } = useLiveQuery(
+        db.select()
+        .from(schema.opticsCollection)
+    )
 
     const { language, theme } = usePreferenceStore()
-    const { currentGun } = useGunStore()
-    const { currentAmmo } = useAmmoStore()
-
+    const { currentItem } = useItemStore()
 
     const [viewTagModal, setViewTagModal] = useState<boolean>(false)
     const [text, setText] = useState<string>("")
@@ -57,67 +53,55 @@ export default function NewChipArea({data, gunData, setGunData, ammoData, setAmm
         if(tag === null && text === ""){
             return
         }
-        if(gunData !== undefined && gunData !== null && gunData.tags !== null && gunData.tags !== undefined && gunData.tags.length !== 0){
-            if(currentGun !== null){
-                if(gunData.tags.includes(tagText)){
+        if(itemType === "Gun" && itemData !== null && itemData.tags !== null && itemData.tags !== undefined && itemData.tags.length !== 0){
+            if(currentItem !== null){
+                if(itemData.tags.includes(tagText)){
                     return
                 }
             }
         }
-        if(ammoData !== undefined && ammoData !== null && ammoData.tags !== null && ammoData.tags !== undefined && ammoData.tags.length !== 0){
-            if(currentAmmo !== null){
-                if(ammoData.tags.includes(tagText)){
+        if(itemType === "Ammo" && itemData !== null && itemData.tags !== null && itemData.tags !== undefined && itemData.tags.length !== 0){
+            if(currentItem !== null){
+                if(itemData.tags.includes(tagText)){
                     return
                 }
             }
         }
-        gunData !== undefined && gunData && gunData.tags ? 
-        setGunData({...gunData, tags: [...gunData.tags, tagText]})
-        : gunData !== undefined && gunData && !gunData.tags ? setGunData({...gunData, tags: [tagText]})
-        : ammoData !== undefined && ammoData && ammoData.tags ?
-        setAmmoData({...ammoData, tags: [...ammoData.tags, tagText]})
-        : setAmmoData({...ammoData, tags: [tagText]})
+        if(itemType === "Accessory_Optic" && itemData !== null && itemData.tags !== null && itemData.tags !== undefined && itemData.tags.length !== 0){
+            if(currentItem !== null){
+                if(itemData.tags.includes(tagText)){
+                    return
+                }
+            }
+        }
 
-        if(gunData !== undefined){
+        itemData && itemData.tags ? setItemData({...itemData, tags: [...itemData.tags, tagText]}) : itemData && !itemData.tags ? setItemData({...itemData, tags: [tagText]}) : null
+
+        if(itemType === "Gun"){
            await db.insert(schema.gunTags).values({label: tagText}).onConflictDoNothing()
         }
-        if(ammoData !== undefined){
+        if(itemType === "Ammo"){
             await db.insert(schema.ammoTags).values({label: tagText}).onConflictDoNothing()
         }
-
+        if(itemType === "Accessory_Optic"){
+            await db.insert(schema.opticsTags).values({label: tagText}).onConflictDoNothing()
+        }
         
         setText("")
     }
 
     function deleteTag(tag:string){
-        if(gunData !== undefined){
-        const tags: string[] = gunData.tags
-        tags.splice(tags.indexOf(tag), 1)
-        setGunData({...gunData, tags: tags})
-        }
-        if(ammoData !== undefined){
-            const tags: string[] = ammoData.tags
-        tags.splice(tags.indexOf(tag), 1)
-        setAmmoData({...ammoData, tags: tags})
-        }
+            const tags: string[] = itemData.tags
+            tags.splice(tags.indexOf(tag), 1)
+            setItemData({...itemData, tags: tags})
     }
 
     function addTagFromList(tag:string){
         console.log(tag)
-        if(ammoData !== undefined){
-            if(currentAmmo !== null){
-                if(currentAmmo.tags !== null && currentAmmo.tags !== undefined && currentAmmo.tags.length !== 0){
-                    if(currentAmmo.tags.includes(tag)){
-                        return
-                    }
-                }
-            }
-            saveNewTag(tag)
-        }
-        if(gunData !== undefined){
-            if(currentGun !== null){
-                if(currentGun.tags !== null && currentGun.tags !== undefined && currentGun.tags.length !== 0){
-                    if(currentGun.tags.includes(tag)){
+        if(itemData !== undefined){
+            if(currentItem !== null){
+                if(currentItem.tags !== null && currentItem.tags !== undefined && currentItem.tags.length !== 0){
+                    if(currentItem.tags.includes(tag)){
                         return
                     }
                 }
@@ -132,11 +116,11 @@ export default function NewChipArea({data, gunData, setGunData, ammoData, setAmm
     }
 
     async function deleteTagFromList(){
-        if(gunData !== undefined){
+        if(itemType === "Gun"){
             await db.delete(schema.gunTags).where(eq(schema.gunTags.label, currentTag))
             toggleTagDeleteDialogVisible(false)
         }
-        if(ammoData !== undefined){
+        if(itemType === "Ammo"){
             await db.delete(schema.ammoTags).where(eq(schema.ammoTags.label, currentTag))
             toggleTagDeleteDialogVisible(false)
         }
@@ -146,11 +130,8 @@ export default function NewChipArea({data, gunData, setGunData, ammoData, setAmm
         <View >
         <TouchableNativeFeedback onPress={()=>setViewTagModal(true)} >
             <View style={{ flexDirection: "row", flexWrap: "wrap", marginBottom: 10, marginTop: 10}}>
-                {gunData !== undefined && gunData && gunData.tags && gunData.tags.length !== 0 ?
-                gunData.tags.map((tag, index) =>{
-                    return  <View key={`${tag}_${index}`} style={{padding: 5}}><Chip >{tag}</Chip></View>
-                }) : ammoData !== undefined && ammoData && ammoData.tags && ammoData.tags.length !== 0 ?
-                ammoData.tags.map((tag, index) =>{
+                {itemData !== undefined && itemData && itemData.tags && itemData.tags.length !== 0 ?
+                itemData.tags.map((tag, index) =>{
                     return  <View key={`${tag}_${index}`} style={{padding: 5}}><Chip >{tag}</Chip></View>
                 }) : <Chip>{newTags[language]}</Chip>}
             </View>
@@ -164,16 +145,17 @@ export default function NewChipArea({data, gunData, setGunData, ammoData, setAmm
             <Text style={{width: "100%"}}>{tagModal.existingTags[language]}</Text>
             <View style={{height: 100, width: "100%"}}>
                 <ScrollView contentContainerStyle={{width: "100%", display: "flex", flexDirection: "row", flexWrap: "wrap", justifyContent: "flex-start"}}>
-                {Array.from(new Set(gunData !== undefined ? 
+                {Array.from(new Set(itemType === "Gun" ? 
                     gunTags.map((tag, index) => 
                         <View key={`${tag.label}_${index}`} style={{padding: 5}}>
                             <Chip onPress={()=>addTagFromList(tag.label)} onClose={()=>handleDeleteTagFromList(tag.label)}>{tag.label}</Chip>
                         </View>) 
-                    : 
+                    : itemType === "Ammo" ?
                     ammoTags.map((tag, index) => 
                         <View key={`${tag.label}_${index}`} style={{padding: 5}}>
                             <Chip onPress={()=>addTagFromList(tag.label)} onClose={()=>handleDeleteTagFromList(tag.label)}>{tag.label}</Chip>
                         </View>)
+                        : null
                 ))}
                 </ScrollView>
                 </View>
@@ -193,10 +175,7 @@ export default function NewChipArea({data, gunData, setGunData, ammoData, setAmm
             <Text style={{width: "100%"}}>{tagModal.selectedTags[language]}</Text>
             <View style={{height: 100, width: "100%"}}>
                 <ScrollView contentContainerStyle={{width: "100%", display: "flex", flexDirection: "row", flexWrap: "wrap", justifyContent: "flex-start"}}>
-                {gunData !== undefined && gunData?.tags?.map((tag, index) =>{
-                    return <View key={`${tag}_${index}`} style={{padding: 5}}><Chip onClose={()=>deleteTag(tag)}>{tag}</Chip></View>
-                })}
-                {ammoData !== undefined && ammoData?.tags?.map((tag, index) =>{
+                {itemData !== undefined && itemData?.tags?.map((tag, index) =>{
                     return <View key={`${tag}_${index}`} style={{padding: 5}}><Chip onClose={()=>deleteTag(tag)}>{tag}</Chip></View>
                 })}
                 </ScrollView>

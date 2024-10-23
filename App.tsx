@@ -13,21 +13,15 @@ import AmmoCollection from './components/AmmoCollection';
 import { StatusBar } from 'expo-status-bar';
 import { AmmoType, GunType, StackParamList } from './interfaces';
 import * as SecureStore from "expo-secure-store"
-import { alarm, getIcon } from './utils';
-import { useAmmoStore } from './stores/useAmmoStore';
+import { alarm, getIcon } from './utils'
 import { useTagStore } from './stores/useTagStore';
-import { useGunStore } from './stores/useGunStore';
+import { useItemStore } from './stores/useItemStore';
 import { DefaultTheme } from '@react-navigation/native';
 import { CardStyleInterpolators, createStackNavigator } from '@react-navigation/stack';
-import NewAmmo from './components/NewAmmo';
-import NewGun from './components/NewGun';
-import Gun from './components/Gun';
-import Ammo from './components/Ammo';
+import Item from "./components/Item"
 import QuickStock from './components/QuickStock';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import QuickShot from './components/QuickShot';
-import EditGun from './components/EditGun';
-import EditAmmo from './components/EditAmmo';
 import * as SplashScreen from 'expo-splash-screen';
 import * as LocalAuthentication from 'expo-local-authentication';
 import { Alert, Dimensions } from 'react-native';
@@ -42,12 +36,16 @@ import BottomSheet, { BottomSheetHandleProps, BottomSheetView } from '@gorhom/bo
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import BottomBar from './components/BottomBar';
 import { defaultBottomBarHeight, defaultBottomBarTextHeight, defaultViewPadding } from './configs';
+import AccessoryCollection_optics from './components/AccessoryCollection_optics';
+import EditItem from './components/EditItem';
+import NewItem from './components/NewItem';
+import AccessoryCollection_magazines from './components/AccessoryCollection_magazines';
 
 SplashScreen.preventAutoHideAsync();
 
 export default function App() {
   const { success, error } = useMigrations(db, migrations);
-  console.log(error)
+  console.log(`migration error: ${error}`)
   useDrizzleStudio(expo)
 
   // ref
@@ -78,8 +76,8 @@ export default function App() {
     setCaliberDisplayNameList,
     caliberDisplayNameList
   } = usePreferenceStore();
-  const { mainMenuOpen } = useViewStore()
-  const { setAmmoCollection } = useAmmoStore()
+
+  const { mainMenuOpen, hideBottomSheet } = useViewStore()
 
   const { setAmmoTags, setTags } = useTagStore()
 
@@ -98,7 +96,7 @@ export default function App() {
     } catch(e){
       alarm("Legacy Gun Key Error", e)
     }
-    console.log(keys)
+    console.log(`legacy gun keys: ${keys}`)
     if(keys.length === 0){
       return
     }
@@ -111,7 +109,7 @@ export default function App() {
     } catch(e){
       alarm("Legacy Gun DB Error", e)
     }
-    console.log(guns)
+    console.log(`legacy guns: ${guns}`)
     if(guns.length !== 0){
       await Promise.all(guns.map(async gun =>{
         if(gun !== null){
@@ -141,7 +139,7 @@ export default function App() {
     } catch(e){
       alarm("Legacy Ammo Key Error", e)
     }
-    console.log(keys)
+    console.log(`legacy ammo keys: ${keys}`)
     if(keys.length === 0){
       return
     }
@@ -178,7 +176,7 @@ export default function App() {
           await checkLegacyGunData()
           console.log("checking legacy ammo data")
           await checkLegacyAmmoData()
-          console.log(success)
+          console.log(`legacy success: ${success}`)
           if(success){
             setAppIsReady(true)
           }
@@ -216,7 +214,7 @@ export default function App() {
         }
       } catch (e) {
         console.log("catch: got so far")
-        console.log(e);
+        console.log(`got so far error: ${e}`);
         alarm("Initialisation error", e)
       } 
     }
@@ -361,40 +359,34 @@ export default function App() {
                 component={AmmoCollection}
                 options={{headerShown: false, cardStyleInterpolator: CardStyleInterpolators.forFadeFromCenter}} 
               />
-    
+
               <Stack.Screen
-                name="NewAmmo"
-                component={NewAmmo}
+                name="AccessoryCollection_Optics"
+                component={AccessoryCollection_optics}
+                options={{headerShown: false, cardStyleInterpolator: CardStyleInterpolators.forFadeFromCenter}} 
+              />
+
+              <Stack.Screen
+                name="AccessoryCollection_Magazines"
+                component={AccessoryCollection_magazines}
+                options={{headerShown: false, cardStyleInterpolator: CardStyleInterpolators.forFadeFromCenter}} 
+              />
+
+              <Stack.Screen
+                name="NewItem"
+                component={NewItem}
                 options={{headerShown: false, cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS}} 
               />
 
               <Stack.Screen
-                name="NewGun"
-                component={NewGun}
-                options={{headerShown: false, cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS}} 
-              />
-
-              <Stack.Screen
-                name="Gun"
-                component={Gun}
+                name="Item"
+                component={Item}
                 options={{headerShown: false, cardStyleInterpolator: CardStyleInterpolators.forScaleFromCenterAndroid}} 
               />
 
-              <Stack.Screen
-              name="Ammo"
-              component={Ammo}
-              options={{headerShown: false, cardStyleInterpolator: CardStyleInterpolators.forScaleFromCenterAndroid}} 
-            />
-
             <Stack.Screen
-              name="EditGun"
-              component={EditGun}
-              options={{headerShown: false, cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS}} 
-            />
-
-            <Stack.Screen
-              name="EditAmmo"
-              component={EditAmmo}
+              name="EditItem"
+              component={EditItem}
               options={{headerShown: false, cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS}} 
             />
 
@@ -417,7 +409,7 @@ export default function App() {
             />
 
           </Stack.Navigator>
-          {mainMenuOpen ? null : <BottomSheet
+          {mainMenuOpen ? null : hideBottomSheet ? null : <BottomSheet
         ref={bottomSheetRef}
         onChange={handleSheetChanges}
             snapPoints={[
@@ -425,6 +417,7 @@ export default function App() {
               (defaultBottomBarHeight*3)+(defaultBottomBarTextHeight*2) + (defaultViewPadding*1)
             ]}
             handleComponent={null}
+            backgroundStyle={{backgroundColor: theme.colors.background}}
       >
         <BottomSheetView 
        

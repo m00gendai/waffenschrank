@@ -1,0 +1,69 @@
+
+# Creating a new Collection
+
+## Schema
+
+1. Create database schema in ``./db/schema.tsx``
+2. Create a new schema for corresponding tags in ``./db/schema.tsx``
+3. Run ``npx drizzle-kit generate``
+
+## Interface
+
+1. Create interface for Collection Item in ``./interfaces.ts``
+2. Create union type for Collection Item Interface and DbId interface
+3. Add Collection Type to ``CollectionItems`` Type
+4. Add Collection Type with id to ``CollectionItemsWithId`` Type
+5. Add Collection Type to ``ItemTypes``
+6. Add Collection Screen to ``StackParamList``
+6. Add Collection to Screen Names
+
+## Template
+
+1. Create empty template in ``./lib/examples.ts``
+2. Create template in ``./lib``
+
+## Preference Store
+
+1. Create filter variable and state function in ``./stores/usePreferenceStore.ts``
+
+## Text Templates
+
+1. Create edit title variable in ``./lib/textTemplates.ts``
+2. Create new title variable
+3. Create delete alert
+4. Update ``tabBarLabels``
+5. Update ``modalTexts``
+
+## Utils
+
+1. Update function ``getSchema()`` in ``./utils.ts``
+2. Update function ``setCardTitle()``
+3. Update function ``setCardSubtitle()``
+4. Update function ``getDeleteDialogTitle()``
+5. Update function ``getNewItemTitle()``
+6. Update function ``setSnackbarTextSave()``
+7. Update function ``setTextAreaLabel()``
+8. Update function ``returnCompareObject()``
+9. Update function ``getItemTemplate()``
+10. Update function ``getItemTemplateRemarks()``
+11. Update function ``getEntryTitle()``
+12. Create validation function
+
+## Collection Component
+
+1. Create Component in ``./components``
+
+## Filter Menu
+
+1. Update ``handleFilterPress()`` in ``./components/FilterMenu.tsx``
+2. Update Switch
+3. Update Component
+
+## Bottom tabBarLabels
+
+1. Update ``RootStackParamList`` in ``./components/BottomBar.tsx``
+2. Add Bottom Sheet Link Item
+
+## App
+
+1. Add new Stack Screen in ``./App.tsx``

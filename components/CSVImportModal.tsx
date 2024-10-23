@@ -3,18 +3,13 @@ import { useViewStore } from "../stores/useViewStore"
 import { usePreferenceStore } from "../stores/usePreferenceStore"
 import { View, ScrollView, Dimensions, Platform } from "react-native"
 import { defaultViewPadding } from "../configs"
-import { AMMO_DATABASE, A_KEY_DATABASE, GUN_DATABASE, KEY_DATABASE } from "../configs_DB"
 import { mainMenu_ammunitionDatabase, mainMenu_gunDatabase } from "../lib/Text/mainMenu_ammunitionDatabase"
 import { ammoDataTemplate } from "../lib/ammoDataTemplate"
 import { Picker } from "@react-native-picker/picker"
 import { useImportExportStore } from "../stores/useImportExportStore"
-import { AmmoType, GunType } from "../interfaces"
+import { AmmoType, CollectionItems, GunType } from "../interfaces"
 import { exampleAmmoEmpty, exampleGunEmpty } from "../lib/examples"
 import { v4 as uuidv4 } from 'uuid';
-import * as SecureStore from "expo-secure-store"
-import { useGunStore } from "../stores/useGunStore"
-import { useAmmoStore } from "../stores/useAmmoStore"
-import AsyncStorage from "@react-native-async-storage/async-storage"
 import { gunDataTemplate } from "../lib/gunDataTemplate"
 import ModalContainer from "./ModalContainer"
 import { useState } from "react"
@@ -27,8 +22,6 @@ export default function CSVImportModal(){
     const { setDbModalVisible, importCSVVisible, toggleImportCSVVisible } = useViewStore()
     const { language, theme } = usePreferenceStore()
     const { CSVHeader, CSVBody, importProgress, setImportProgress, setImportSize, mapCSVAmmo, setMapCSVAmmo, mapCSVGun, setMapCSVGun, dbCollectionType, setDbCollectionType } = useImportExportStore()
-    const { setGunCollection } = useGunStore()
-    const { setAmmoCollection } = useAmmoStore()
 
     const [hasHeaders, setHasHeaders] = useState<boolean>(true)
 
@@ -51,8 +44,8 @@ export default function CSVImportModal(){
 
         const itemsToBeMapped:string[][] = hasHeaders ? [...CSVBody] : [[...CSVHeader], ...CSVBody]
 
-        const objects: (AmmoType | GunType)[] = itemsToBeMapped.map((items, index)=>{
-            const mapped:AmmoType | GunType = dbCollectionType === "import_custom_gun_csv" ? {...exampleGunEmpty} : {...exampleAmmoEmpty}
+        const objects: (CollectionItems)[] = itemsToBeMapped.map((items, index)=>{
+            const mapped:CollectionItems = dbCollectionType === "import_custom_gun_csv" ? {...exampleGunEmpty} : {...exampleAmmoEmpty}
 
             for(const entry of Object.entries(indexMapCSV)){
                 if(entry[0] === "id"){

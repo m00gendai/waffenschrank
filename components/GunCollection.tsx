@@ -7,9 +7,9 @@ import { PREFERENCES } from "../configs_DB"
 import { GunType, MenuVisibility, SortingTypes } from '../interfaces';
 import { getIcon, getSortAlternateValue } from '../utils';
 import { useViewStore } from '../stores/useViewStore';
-import { useGunStore } from '../stores/useGunStore';
+import { useItemStore } from "../stores/useItemStore"
 import { usePreferenceStore } from '../stores/usePreferenceStore';
-import GunCard from './GunCard';
+import ItemCard from "./ItemCard"
 import { search, sorting, tooltips } from '../lib/textTemplates';
 import Animated, { useAnimatedStyle, useSharedValue, withRepeat, withTiming } from 'react-native-reanimated';
 import * as schema from "../db/schema"
@@ -19,15 +19,13 @@ import { eq, lt, gte, ne, and, or, like, asc, desc, exists, isNull, sql, inArray
 import FilterMenu from './FilterMenu';
 
 export default function GunCollection({navigation, route}){
-
-
   const [menuVisibility, setMenuVisibility] = useState<MenuVisibility>({sortBy: false, filterBy: false});
 
   const [searchBannerVisible, toggleSearchBannerVisible] = useState<boolean>(false)
   const [searchQuery, setSearchQuery] = useState<string>("")
   const { displayAsGrid, toggleDisplayAsGrid, sortBy, setSortBy, language, setSortGunIcon, sortGunIcon, sortGunsAscending, toggleSortGunsAscending, theme, gunFilterOn } = usePreferenceStore()
-  const { mainMenuOpen } = useViewStore()
-  const { setCurrentGun } = useGunStore()
+  const { mainMenuOpen, hideBottomSheet, setHideBottomSheet, toggleHideBottomSheet } = useViewStore()
+  const { setCurrentItem } = useItemStore()
 
   const { data: gunData } = useLiveQuery(
     db.select()
@@ -130,9 +128,14 @@ export default function GunCollection({navigation, route}){
     };
   });
 
+  useEffect(()=>{
+    setCurrentItem(null)
+  },[])
+
   function handleFAB(){
-    setCurrentGun(null)
-    navigation.navigate("NewGun")
+    setCurrentItem(null)
+    setHideBottomSheet(true)
+    navigation.navigate("NewItem", {itemType: "Gun"})
   }
 
   return(
@@ -151,7 +154,7 @@ export default function GunCollection({navigation, route}){
             anchorPosition='bottom'
             style={{width: Dimensions.get("window").width/1.5}}
           >
-            <FilterMenu collection='gunCollection'/>
+            <FilterMenu collection='GunCollection'/>
           </Menu>
           <Appbar.Action icon={displayAsGrid ? "view-grid" : "format-list-bulleted-type"} onPress={handleDisplaySwitch} />
           <Menu
@@ -185,7 +188,7 @@ export default function GunCollection({navigation, route}){
            /*@ts-expect-error*/
            data={gunData.filter(gun => gunFilterOn ? tagData.filter(tag => tag.active).every(tag => gun.tags?.includes(tag.label)) : gun)} 
           /*@ts-expect-error*/
-          renderItem={({item, index}) => <GunCard gun={item} />}                     
+          renderItem={({item, index}) => <ItemCard item={item} itemType="Gun" />}                     
           keyExtractor={gun=>gun.id} 
           ListFooterComponent={<View style={{width: "100%", height: 100}}></View>}
           ListEmptyComponent={null}
@@ -201,7 +204,7 @@ export default function GunCollection({navigation, route}){
            /*@ts-expect-error*/
            data={gunData.filter(gun => gunFilterOn ? tagData.filter(tag => tag.active).every(tag => gun.tags?.includes(tag.label)) : gun)} 
           /*@ts-expect-error*/
-          renderItem={({item, index}) => <GunCard gun={item} />}                     
+          renderItem={({item, index}) => <ItemCard item={item} itemType="Gun" />}                     
           keyExtractor={gun=>gun.id} 
           ListFooterComponent={<View style={{width: "100%", height: 100}}></View>}
           ListEmptyComponent={null}
@@ -216,7 +219,7 @@ export default function GunCollection({navigation, route}){
           /*@ts-expect-error*/
           data={gunData.filter(gun => gunFilterOn ? tagData.filter(tag => tag.active).every(tag => gun.tags?.includes(tag.label)) : gun)} 
           /*@ts-expect-error*/
-          renderItem={({item, index}) => <GunCard gun={item} />}      
+          renderItem={({item, index}) => <ItemCard item={item} itemType="Gun" />}      
           keyExtractor={gun=>gun.id} 
           ListFooterComponent={<View style={{width: "100%", height: 100}}></View>}
           ListEmptyComponent={null}

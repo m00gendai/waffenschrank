@@ -7,10 +7,10 @@ import { PREFERENCES } from "../configs_DB"
 import { AmmoType, MenuVisibility, SortingTypes } from '../interfaces';
 import { getIcon } from '../utils';
 import { useViewStore } from '../stores/useViewStore';
-import { useAmmoStore } from '../stores/useAmmoStore';
+import { useItemStore } from '../stores/useItemStore';
 import { usePreferenceStore } from '../stores/usePreferenceStore';
 import { search, sorting, tooltips } from '../lib/textTemplates';
-import AmmoCard from './AmmoCard';
+import ItemCard from './ItemCard';
 import Animated, { useAnimatedStyle, useSharedValue, withRepeat, withTiming } from 'react-native-reanimated';
 import * as schema from "../db/schema"
 import { drizzle, useLiveQuery } from "drizzle-orm/expo-sqlite"
@@ -26,8 +26,8 @@ export default function AmmoCollection({navigation, route}){
   const [searchBannerVisible, toggleSearchBannerVisible] = useState<boolean>(false)
   const [searchQuery, setSearchQuery] = useState<string>("")
   const { displayAmmoAsGrid, toggleDisplayAmmoAsGrid, sortAmmoBy, setSortAmmoBy, language, sortAmmoIcon, setSortAmmoIcon, sortAmmoAscending, toggleSortAmmoAscending, ammoFilterOn } = usePreferenceStore()
-  const { mainMenuOpen, } = useViewStore()
-  const { setCurrentAmmo } = useAmmoStore()
+  const { mainMenuOpen, setHideBottomSheet, hideBottomSheet} = useViewStore()
+  const { setCurrentItem, currentItem } = useItemStore()
 
 
   const { data: ammoData } = useLiveQuery(
@@ -66,8 +66,6 @@ export default function AmmoCollection({navigation, route}){
     db.select()
     .from(schema.ammoTags)
   )
-console.log(ammoData)
-  console.log(tagData)
   
   async function handleSortBy(type:SortingTypes){
     setSortAmmoIcon(getIcon(type))
@@ -134,8 +132,13 @@ console.log(ammoData)
   });
 
   function handleFAB(){
-    setCurrentAmmo(null)
-    navigation.navigate("NewAmmo")
+    setCurrentItem(null)
+    setHideBottomSheet(true)
+    handleNavigation()
+  }
+
+  function handleNavigation(){
+    navigation.navigate("NewItem", { itemType: "Ammo" });
   }
 
   return(
@@ -154,7 +157,7 @@ console.log(ammoData)
             anchorPosition='bottom'
             style={{width: Dimensions.get("window").width/1.5}}
           >
-            <FilterMenu collection='ammoCollection'/>
+            <FilterMenu collection='AmmoCollection'/>
           </Menu>
             <Appbar.Action icon={displayAmmoAsGrid ? "view-grid" : "format-list-bulleted-type"} onPress={handleDisplaySwitch} />
             <Menu
@@ -182,7 +185,7 @@ console.log(ammoData)
            /*@ts-expect-error*/
           data={ammoData.filter(ammo => ammoFilterOn ? tagData.filter(tag => tag.active).every(tag => ammo.tags?.includes(tag.label)) : ammo)} 
            /*@ts-expect-error*/
-          renderItem={({item, index}) => <AmmoCard ammo={item} />}                     
+          renderItem={({item, index}) => <ItemCard item={item} itemType="Ammo" />}                     
           keyExtractor={ammo=>ammo.id} 
           ListFooterComponent={<View style={{width: "100%", height: 100}}></View>}
           ListEmptyComponent={null}
@@ -197,7 +200,7 @@ console.log(ammoData)
            /*@ts-expect-error*/
            data={ammoData.filter(ammo => ammoFilterOn ? tagData.filter(tag => tag.active).every(tag => ammo.tags?.includes(tag.label)) : ammo)} 
            /*@ts-expect-error*/
-          renderItem={({item, index}) => <AmmoCard ammo={item} />}        
+          renderItem={({item, index}) => <ItemCard item={item} itemType="Ammo" />}        
           keyExtractor={gun=>gun.id} 
           ListFooterComponent={<View style={{width: "100%", height: 100}}></View>}
           ListEmptyComponent={null}
