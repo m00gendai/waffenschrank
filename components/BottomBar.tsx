@@ -13,6 +13,7 @@ type RootStackParamList = {
   AmmoCollection: undefined;
   AccessoryCollection_optics: undefined
   AccessoryCollection_magazines: undefined
+  AccessoryCollection_misc: undefined
   // Add other routes here if needed
 };
 
@@ -60,7 +61,7 @@ export default function BottomBar(){
         
         <View style={{width: "100%", height: defaultBottomBarTextHeight, flexDirection: "row", justifyContent: "center", alignItems: "center"}}>
           <Divider style={{width: "100%"}}/>
-          <Text style={{position: "absolute", backgroundColor: theme.colors.background, paddingLeft: defaultViewPadding, paddingRight: defaultViewPadding}}>{bottomSheetDividerLabels[language]}</Text>
+          <Text style={{position: "absolute", backgroundColor: theme.colors.background, paddingLeft: defaultViewPadding, paddingRight: defaultViewPadding}}>{bottomSheetDividerLabels.accessories[language]}</Text>
         </View>
 
         <View style={{width: "100%", height: defaultBottomBarHeight, flexDirection: "row", justifyContent: "flex-start", alignItems: "center", flexWrap: "wrap", marginTop: defaultViewPadding, marginBottom: defaultViewPadding}}>
@@ -73,10 +74,10 @@ export default function BottomBar(){
               <Icon source="magazine-rifle" size={24} color={currentCollectionScreen === "AccessoryCollection_Magazines" ? theme.colors.primary : theme.colors.secondary} />
               <Text style={{ color: currentCollectionScreen === "AccessoryCollection_Magazines" ? theme.colors.primary : theme.colors.secondary, marginTop: 4 }}>{tabBarLabels.magazineCollection[language]}</Text>
             </TouchableOpacity>
-          {/*<TouchableOpacity onPress={()=>handleNavigation("AmmoCollection")} style={{width: "33%", alignItems: 'center' }}>
-              <Icon source="crosshairs" size={24} color={screen === "AmmoCollection" ? theme.colors.primary : theme.colors.secondary} />
-              <Text style={{ color: screen === "AmmoCollection" ? theme.colors.primary : theme.colors.secondary, marginTop: 4 }}>{tabBarLabels.scopesCollection[language]}</Text>
-            </TouchableOpacity>*/}
+          <TouchableOpacity onPress={()=>handleNavigation("AccessoryCollection_Misc")} style={{width: "33%", alignItems: 'center' }}>
+              <Icon source="shape" size={24} color={currentCollectionScreen === "AccessoryCollection_Misc" ? theme.colors.primary : theme.colors.secondary} />
+              <Text style={{ color: currentCollectionScreen === "AccessoryCollection_Misc" ? theme.colors.primary : theme.colors.secondary, marginTop: 4 }}>{tabBarLabels.miscCollection[language]}</Text>
+            </TouchableOpacity>
 
         </View>
       {/*<View style={{width: "100%", height: defaultBottomBarHeight, flexDirection: "row", justifyContent: "flex-start", alignItems: "center", flexWrap: "wrap", marginTop: defaultViewPadding, marginBottom: defaultViewPadding}}>

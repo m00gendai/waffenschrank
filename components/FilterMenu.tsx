@@ -14,7 +14,7 @@ interface Props{
 
 export default function FilterMenu({collection}:Props){
 
-    const { gunFilterOn, toggleGunFilterOn, ammoFilterOn, toggleAmmoFilterOn, opticsFilterOn, toggleOpticsFilterOn, magazinesFilterOn, toggleMagazinesFilterOn } = usePreferenceStore()
+    const { gunFilterOn, toggleGunFilterOn, ammoFilterOn, toggleAmmoFilterOn, opticsFilterOn, toggleOpticsFilterOn, magazinesFilterOn, toggleMagazinesFilterOn, accMiscFilterOn, toggleAccMiscFilterOn } = usePreferenceStore()
 
     const { data: gunTags } = useLiveQuery(
         db.select()
@@ -36,6 +36,11 @@ export default function FilterMenu({collection}:Props){
       .from(schema.magazineTags)
     )
 
+    const { data: accMiscTags } = useLiveQuery(
+      db.select()
+      .from(schema.accMiscTags)
+    )
+
     async function handleFilterPress(tag){
         
         collection === "GunCollection" ? 
@@ -50,6 +55,9 @@ export default function FilterMenu({collection}:Props){
           : collection === "AccessoryCollection_Magazines" ?
           /*@ts-expect-error*/
           await db.update(schema.magazineTags).set({active: not(schema.magazineTags.active)}).where((eq(schema.magazineTags.label, tag.label)))
+          : collection === "AccessoryCollection_Misc" ?
+          /*@ts-expect-error*/
+          await db.update(schema.accMiscTags).set({active: not(schema.accMiscTags.active)}).where((eq(schema.accMiscTags.label, tag.label)))
           : null
     }
 
@@ -59,7 +67,7 @@ export default function FilterMenu({collection}:Props){
                 <Text>Filter:</Text>
                 <Switch 
                   value={collection==="GunCollection" ? gunFilterOn : collection ==="AmmoCollection" ? ammoFilterOn : collection === "AccessoryCollection_Optics" ? opticsFilterOn : magazinesFilterOn} 
-                  onValueChange={()=>collection==="GunCollection" ? toggleGunFilterOn() : collection === "AmmoCollection" ? toggleAmmoFilterOn() : collection === "AccessoryCollection_Optics" ? toggleOpticsFilterOn() : toggleMagazinesFilterOn()} />
+                  onValueChange={()=>collection==="GunCollection" ? toggleGunFilterOn() : collection === "AmmoCollection" ? toggleAmmoFilterOn() : collection === "AccessoryCollection_Optics" ? toggleOpticsFilterOn() : collection === "AccessoryCollection_Misc" ? toggleAccMiscFilterOn() : toggleMagazinesFilterOn()} />
               </View>
               <View>
               {
@@ -81,7 +89,11 @@ export default function FilterMenu({collection}:Props){
                   magazineTags.map((tag, index)=>{
                   return <Checkbox.Item mode="android" key={`filter_${tag.label}_${index}`} label={tag.label} status={tag.active ? "checked" : "unchecked"} onPress={()=>handleFilterPress(tag)} />
                 })
-              : null
+              : collection === "AccessoryCollection_Misc" ?
+                accMiscTags.map((tag, index)=>{
+              return <Checkbox.Item mode="android" key={`filter_${tag.label}_${index}`} label={tag.label} status={tag.active ? "checked" : "unchecked"} onPress={()=>handleFilterPress(tag)} />
+            })
+          : null
             }
               </View>
             </View>

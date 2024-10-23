@@ -1,4 +1,3 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useEffect, useRef, useState } from 'react';
 import { Dimensions, FlatList, TouchableOpacity, View } from 'react-native';
 import { Appbar, FAB, Menu, Switch, Text, Tooltip, Searchbar, Button, Icon } from 'react-native-paper';
@@ -7,9 +6,9 @@ import { PREFERENCES } from "../configs_DB"
 import { GunType, MenuVisibility, SortingTypes } from '../interfaces';
 import { getIcon, getSortAlternateValue } from '../utils';
 import { useViewStore } from '../stores/useViewStore';
-import { useItemStore } from "../stores/useItemStore"
+import { useItemStore } from '../stores/useItemStore';
 import { usePreferenceStore } from '../stores/usePreferenceStore';
-import ItemCard from "./ItemCard"
+import ItemCard from './ItemCard';
 import { search, sorting, tooltips } from '../lib/textTemplates';
 import Animated, { useAnimatedStyle, useSharedValue, withRepeat, withTiming } from 'react-native-reanimated';
 import * as schema from "../db/schema"
@@ -17,43 +16,46 @@ import { drizzle, useLiveQuery } from "drizzle-orm/expo-sqlite"
 import {db} from "../db/client"
 import { eq, lt, gte, ne, and, or, like, asc, desc, exists, isNull, sql, inArray } from 'drizzle-orm';
 import FilterMenu from './FilterMenu';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-export default function GunCollection({navigation, route}){
+export default function AccessoryCollection_misc({navigation, route}){
+
+
   const [menuVisibility, setMenuVisibility] = useState<MenuVisibility>({sortBy: false, filterBy: false});
 
   const [searchBannerVisible, toggleSearchBannerVisible] = useState<boolean>(false)
   const [searchQuery, setSearchQuery] = useState<string>("")
-  const { displayAsGrid, toggleDisplayAsGrid, sortBy, setSortBy, language, setSortGunIcon, sortGunIcon, sortGunsAscending, toggleSortGunsAscending, theme, gunFilterOn } = usePreferenceStore()
-  const { mainMenuOpen, hideBottomSheet, setHideBottomSheet, toggleHideBottomSheet } = useViewStore()
+  const { displayAsGrid, toggleDisplayAsGrid, sortBy, setSortBy, language, setSortGunIcon, sortGunIcon, sortGunsAscending, toggleSortGunsAscending, theme, accMiscFilterOn } = usePreferenceStore()
+  const { mainMenuOpen, setHideBottomSheet } = useViewStore()
   const { setCurrentItem } = useItemStore()
 
-  const { data: gunData } = useLiveQuery(
+  const { data: miscData } = useLiveQuery(
     db.select()
-    .from(schema.gunCollection)
+    .from(schema.accMiscCollection)
     .where(
       and(
         or(
-          like(schema.gunCollection.model, `%${searchQuery}%`),
-          like(schema.gunCollection.manufacturer, `%${searchQuery}%`)
+          like(schema.accMiscCollection.designation, `%${searchQuery}%`),
+          like(schema.accMiscCollection.manufacturer, `%${searchQuery}%`)
         ),
       )
     )
     .orderBy(
       sortGunsAscending ?
         sortBy === "alphabetical" ?
-          asc((sql`COALESCE(NULLIF(${schema.gunCollection.manufacturer}, ""), ${schema.gunCollection.model})`))
+          asc((sql`COALESCE(NULLIF(${schema.accMiscCollection.manufacturer}, ""), ${schema.accMiscCollection.designation})`))
           : (sql`
             CASE
-              WHEN NULLIF(${schema.gunCollection[sortBy]}, "") IS NULL THEN NULL
-              ELSE strftime('%s', ${schema.gunCollection[sortBy]})
+              WHEN NULLIF(${schema.accMiscCollection[sortBy]}, "") IS NULL THEN NULL
+              ELSE strftime('%s', ${schema.accMiscCollection[sortBy]})
             END ASC NULLS LAST`)
         :
         sortBy === "alphabetical" ?
-          desc((sql`COALESCE(NULLIF(${schema.gunCollection.manufacturer}, ""), ${schema.gunCollection.model})`))
+          desc((sql`COALESCE(NULLIF(${schema.accMiscCollection.manufacturer}, ""), ${schema.accMiscCollection.designation})`))
           : (sql`
             CASE
-                WHEN NULLIF(${schema.gunCollection[sortBy]}, "") IS NULL THEN NULL
-                ELSE strftime('%s', ${schema.gunCollection[sortBy]})
+                WHEN NULLIF(${schema.accMiscCollection[sortBy]}, "") IS NULL THEN NULL
+                ELSE strftime('%s', ${schema.accMiscCollection[sortBy]})
               END DESC NULLS LAST`)
     ),
     [searchQuery, sortGunsAscending, sortBy]
@@ -61,8 +63,10 @@ export default function GunCollection({navigation, route}){
 
   const { data: tagData } = useLiveQuery(
     db.select()
-    .from(schema.gunTags)
+    .from(schema.accMiscTags)
   )
+
+
 
   async function handleSortBy(type: SortingTypes){
     setSortGunIcon(getIcon(type))
@@ -126,14 +130,10 @@ export default function GunCollection({navigation, route}){
     };
   });
 
-  useEffect(()=>{
-    setCurrentItem(null)
-  },[])
-
   function handleFAB(){
     setCurrentItem(null)
     setHideBottomSheet(true)
-    navigation.navigate("NewItem", {itemType: "Gun"})
+      navigation.navigate("NewItem", {itemType: "Accessory_Misc"})
   }
 
   return(
@@ -152,7 +152,7 @@ export default function GunCollection({navigation, route}){
             anchorPosition='bottom'
             style={{width: Dimensions.get("window").width/1.5}}
           >
-            <FilterMenu collection='GunCollection'/>
+            <FilterMenu collection='AccessoryCollection_Magazines'/>
           </Menu>
           <Appbar.Action icon={displayAsGrid ? "view-grid" : "format-list-bulleted-type"} onPress={handleDisplaySwitch} />
           <Menu
@@ -184,9 +184,9 @@ export default function GunCollection({navigation, route}){
           key={`gunCollectionGrid4`} 
           style={{height: "100%", width: "100%", paddingTop: defaultViewPadding, paddingLeft: defaultViewPadding, paddingRight: defaultViewPadding, paddingBottom: 50}} 
            /*@ts-expect-error*/
-           data={gunData.filter(gun => gunFilterOn ? tagData.filter(tag => tag.active).every(tag => gun.tags?.includes(tag.label)) : gun)} 
-          /*@ts-expect-error*/
-          renderItem={({item, index}) => <ItemCard item={item} itemType="Gun" />}                     
+           data={miscData.filter(gun => accMiscFilterOn ? tagData.filter(tag => tag.active).every(tag => gun.tags?.includes(tag.label)) : gun)} 
+           /*@ts-expect-error*/
+          renderItem={({item, index}) => <ItemCard item={item} itemType="Accessory_Misc" />}                     
           keyExtractor={gun=>gun.id} 
           ListFooterComponent={<View style={{width: "100%", height: 100}}></View>}
           ListEmptyComponent={null}
@@ -200,9 +200,9 @@ export default function GunCollection({navigation, route}){
           key={`gunCollectionGrid2`} 
           style={{height: "100%", width: "100%", paddingTop: defaultViewPadding, paddingLeft: defaultViewPadding, paddingRight: defaultViewPadding, paddingBottom: 50}} 
            /*@ts-expect-error*/
-           data={gunData.filter(gun => gunFilterOn ? tagData.filter(tag => tag.active).every(tag => gun.tags?.includes(tag.label)) : gun)} 
-          /*@ts-expect-error*/
-          renderItem={({item, index}) => <ItemCard item={item} itemType="Gun" />}                     
+           data={miscData.filter(gun => accMiscFilterOn ? tagData.filter(tag => tag.active).every(tag => gun.tags?.includes(tag.label)) : gun)} 
+           /*@ts-expect-error*/
+          renderItem={({item, index}) => <ItemCard item={item} itemType="Accessory_Misc" />}                     
           keyExtractor={gun=>gun.id} 
           ListFooterComponent={<View style={{width: "100%", height: 100}}></View>}
           ListEmptyComponent={null}
@@ -215,16 +215,16 @@ export default function GunCollection({navigation, route}){
           key={`gunCollectionList`} 
           style={{height: "100%", width: "100%", paddingTop: defaultViewPadding, paddingLeft: defaultViewPadding, paddingRight: defaultViewPadding, paddingBottom: 50}} 
           /*@ts-expect-error*/
-          data={gunData.filter(gun => gunFilterOn ? tagData.filter(tag => tag.active).every(tag => gun.tags?.includes(tag.label)) : gun)} 
+          data={miscData.filter(gun => accMiscFilterOn ? tagData.filter(tag => tag.active).every(tag => gun.tags?.includes(tag.label)) : gun)} 
           /*@ts-expect-error*/
-          renderItem={({item, index}) => <ItemCard item={item} itemType="Gun" />}      
+          renderItem={({item, index}) => <ItemCard item={item} itemType="Accessory_Misc" />}      
           keyExtractor={gun=>gun.id} 
           ListFooterComponent={<View style={{width: "100%", height: 100}}></View>}
           ListEmptyComponent={null}
         />
       }
      
-      <Animated.View style={[{position: "absolute", bottom: defaultBottomBarHeight+defaultViewPadding, right: 0, margin: 16, width: 56, height: 56, backgroundColor: "transparent", display: "flex", justifyContent: "center", alignItems: "center"}, gunData.length === 0 ? pulsate : null]}>
+      <Animated.View style={[{position: "absolute", bottom: defaultBottomBarHeight+defaultViewPadding, right: 0, margin: 16, width: 56, height: 56, backgroundColor: "transparent", display: "flex", justifyContent: "center", alignItems: "center"}, miscData.length === 0 ? pulsate : null]}>
         <FAB
           icon="plus"
           onPress={()=>handleFAB()}

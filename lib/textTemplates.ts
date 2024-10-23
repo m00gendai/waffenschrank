@@ -314,6 +314,23 @@ export const newAccessory_magazinesTitle:SimpleTranslation = {
     ch: "Nov magazin",
 }
 
+export const editAccessory_miscTitle:SimpleTranslation = {
+    de: "Zubehör bearbeiten",
+    en: "Edit magazine",
+    fr: "Éditer le magazine",
+    it: "Modifica rivista",
+    ch: "Elavurar il magasin",
+}
+
+export const newAccessory_miscTitle:SimpleTranslation = {
+    de: "Neues Zubehör",
+    en: "New Magazine",
+    fr: "Nouveau magazine",
+    it: "Nuova rivista",
+    ch: "Nov magazin",
+}
+
+
 
 export const unsavedChangesAlert:Alert = {
     title: {
@@ -484,6 +501,37 @@ export const accessory_magazinesDeleteAlert:Alert = {
         fr: "Le chargeur est définitivement effacé. Voulez-vous vraiment continuer?",
         it: "La rivista verrà cancellata in modo irrevocabile. Continuiamo davvero?",
         ch: "Il magazin vegn stizzà irrevocablamain. Propi cuntinuar?",
+    },
+    yes: {
+        de: "Ja",
+        en: "Yes",
+        fr: "Oui",
+        it: "Sì",
+        ch: "Gea",
+    },
+    no: {
+        de: "Nein",
+        en: "No",
+        fr: "Non",
+        it: "No",
+        ch: "Na",
+    }
+}
+
+export const accessory_miscDeleteAlert:Alert = {
+    title: {
+        de: "wirklich löschen?",
+        en: "will be deleted",
+        fr: "vraiment supprimer?",
+        it: "davvero eliminare?",
+        ch: "propi stizzar?",
+    },
+    subtitle: {
+        de: "Das Zubehör wird unwiderruflich gelöscht. Wirklich fortfahren?",
+        en: "The accessory will be irrevocably deleted. Really continue?",
+        fr: "L'accessoire est définitivement supprimé. Voulez-vous vraiment continuer?",
+        it: "L'accessorio verrà cancellato in modo irrevocabile. Continuare davvero?",
+        ch: "L'accessori vegn stizzà irrevocablamain. Propi cuntinuar?",
     },
     yes: {
         de: "Ja",
@@ -934,8 +982,8 @@ export const tabBarLabels: TabBarLabels = {
         ch: "Surdina dal tun",
     },
     miscCollection: {
-        de: "Miscellaneous",
-        en: "Ammunition",
+        de: "Diverses",
+        en: "Miscellaneous",
         fr: "Divers",
         it: "Varie",
         ch: "Diverses",
@@ -1445,8 +1493,8 @@ export const bottomSheetDividerLabels:BottomSheetDividerLabels = {
     accessories: {
         de: "Zubehör",
         en: "Accessories",
-        fr: "coups",
-        it: "colpi",
-        ch: "culps"
+        fr: "Accessoires",
+        it: "Accessori",
+        ch: "Accessoris"
     }
 }

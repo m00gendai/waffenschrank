@@ -54,6 +54,8 @@ interface PreferenceStore {
     toggleOpticsFilterOn: () => void
     magazinesFilterOn: boolean
     toggleMagazinesFilterOn: () => void
+    accMiscFilterOn: boolean
+    toggleAccMiscFilterOn: () => void
   }
 
   export const usePreferenceStore = create<PreferenceStore>((set) => ({
@@ -105,5 +107,7 @@ interface PreferenceStore {
     opticsFilterOn: false,
     toggleOpticsFilterOn: () => set((state) => ({opticsFilterOn: !state.opticsFilterOn})),
     magazinesFilterOn: false,
-    toggleMagazinesFilterOn: () => set((state) => ({magazinesFilterOn: !state.magazinesFilterOn}))
+    toggleMagazinesFilterOn: () => set((state) => ({magazinesFilterOn: !state.magazinesFilterOn})),
+    accMiscFilterOn: false,
+    toggleAccMiscFilterOn: () => set((state) => ({accMiscFilterOn: !state.accMiscFilterOn}))
   }))

@@ -1,14 +1,14 @@
-import { AccessoryType_Magazine, AccessoryType_Optic, AmmoType, CollectionItems, GunType, ItemTypes, SortingTypes } from "./interfaces";
+import { AccessoryType_Magazine, AccessoryType_Misc, AccessoryType_Optic, AmmoType, CollectionItems, GunType, ItemTypes, SortingTypes } from "./interfaces";
 import { gunDataTemplate, gunRemarks } from "./lib/gunDataTemplate";
-import { ammoDeleteAlert, gunDeleteAlert, newAccessory_magazinesTitle, newAccessory_opticsTitle, newAmmoTitle, newGunTitle, toastMessages, validationErros } from "./lib//textTemplates";
+import { ammoDeleteAlert, gunDeleteAlert, newAccessory_magazinesTitle, newAccessory_miscTitle, newAccessory_opticsTitle, newAmmoTitle, newGunTitle, toastMessages, validationErros } from "./lib//textTemplates";
 import { ammoDataTemplate, ammoRemarks } from "./lib/ammoDataTemplate";
 import { requiredFieldsAmmo, requiredFieldsGun } from "./configs";
 import * as ImagePicker from "expo-image-picker"
 import { ImageResult, manipulateAsync } from 'expo-image-manipulator';
 import { Alert, Image } from "react-native"
 import * as schema from "./db/schema"
-import { exampleAccessoryEmpty_Optic, exampleAmmoEmpty, exampleGunEmpty, exampleAccessoryEmpty_Magazine } from "./lib/examples";
-import { accessoryDataTemplate_optics, accessoryRemarks_optics, accessoryRemarks_magazines, accessoryDataTemplate_magazines } from "./lib/accessoryDataTemplate";
+import { exampleAccessoryEmpty_Optic, exampleAmmoEmpty, exampleGunEmpty, exampleAccessoryEmpty_Magazine, exampleAccessoryEmpty_Misc } from "./lib/examples";
+import { accessoryDataTemplate_optics, accessoryRemarks_optics, accessoryRemarks_magazines, accessoryDataTemplate_magazines, accessoryRemarks_misc, accessoryDataTemplate_misc } from "./lib/accessoryDataTemplate";
 
 const nonSetValue: number = 999999999999999
 
@@ -68,6 +68,8 @@ export function getSchema(schemaQuery: ItemTypes){
             return schema.opticsCollection
         case "Accessory_Magazine":
             return schema.magazineCollection
+        case "Accessory_Misc":
+            return schema.accMiscCollection
     }
 }
 
@@ -86,6 +88,10 @@ export function setCardTitle(item: CollectionItems, itemType: ItemTypes){
     }
     if(itemType === "Accessory_Magazine"){
         const definition = item as AccessoryType_Magazine
+        return `${definition.manufacturer && definition.manufacturer.length !== 0 ? `${definition.manufacturer}` : ""}${definition.manufacturer && definition.manufacturer.length !== 0 ? ` ` : ""}${definition.designation}`
+    }
+    if(itemType === "Accessory_Misc"){
+        const definition = item as AccessoryType_Misc
         return `${definition.manufacturer && definition.manufacturer.length !== 0 ? `${definition.manufacturer}` : ""}${definition.manufacturer && definition.manufacturer.length !== 0 ? ` ` : ""}${definition.designation}`
     }
 }
@@ -107,6 +113,10 @@ export function setCardSubtitle(item: CollectionItems, itemType: ItemTypes, shor
         const definition = item as AccessoryType_Magazine
         return definition.stock ? definition.stock : " "
     }
+    if(itemType === "Accessory_Misc"){
+        const definition = item as AccessoryType_Misc
+        return definition.stock ? definition.stock : " "
+    }
 }
 
 export function getDeleteDialogTitle(item: CollectionItems, itemType: ItemTypes, language: string){
@@ -126,6 +136,10 @@ export function getDeleteDialogTitle(item: CollectionItems, itemType: ItemTypes,
         const definition = item as AccessoryType_Magazine
         `${definition.designation === null ? "" : definition.designation === undefined ? "" : definition.designation} ${ammoDeleteAlert.title[language]}`
     }
+    if(itemType === "Accessory_Misc"){
+        const definition = item as AccessoryType_Misc
+        `${definition.designation === null ? "" : definition.designation === undefined ? "" : definition.designation} ${ammoDeleteAlert.title[language]}`
+    }
 }
 
 export function getNewItemTitle(itemType: ItemTypes, language: string){
@@ -140,6 +154,9 @@ export function getNewItemTitle(itemType: ItemTypes, language: string){
     }
     if(itemType === "Accessory_Magazine"){
         return newAccessory_magazinesTitle[language]
+    }
+    if(itemType === "Accessory_Misc"){
+        return newAccessory_miscTitle[language]
     }
 }
 
@@ -160,6 +177,10 @@ export function setSnackbarTextSave(itemType: ItemTypes, value: CollectionItems,
         const definition = value as AccessoryType_Magazine
         return `${definition.manufacturer ? definition.manufacturer : ""} ${definition.designation} ${toastMessages.saved[language]}`
     }
+    if(itemType === "Accessory_Misc"){
+        const definition = value as AccessoryType_Misc
+        return `${definition.manufacturer ? definition.manufacturer : ""} ${definition.designation} ${toastMessages.saved[language]}`
+    }
 }
 
 export function setTextAreaLabel(itemType: ItemTypes, language: string){
@@ -174,6 +195,9 @@ export function setTextAreaLabel(itemType: ItemTypes, language: string){
     }
     if(itemType === "Accessory_Magazine"){
         return accessoryRemarks_magazines[language]
+    }
+    if(itemType === "Accessory_Misc"){
+        return accessoryRemarks_misc[language]
     }
 }
 
@@ -190,6 +214,9 @@ export function returnCompareObject(itemType: ItemTypes){
     if(itemType === "Accessory_Magazine"){
         return exampleAccessoryEmpty_Magazine
     }
+    if(itemType === "Accessory_Misc"){
+        return exampleAccessoryEmpty_Misc
+    }
 }
 
 export function getItemTemplate(itemType: ItemTypes){
@@ -205,6 +232,9 @@ export function getItemTemplate(itemType: ItemTypes){
     if(itemType === "Accessory_Magazine"){
         return accessoryDataTemplate_magazines
     }
+    if(itemType === "Accessory_Misc"){
+        return accessoryDataTemplate_misc
+    }
 }
 
 export function getItemTemplateRemarks(itemType: ItemTypes){
@@ -219,6 +249,9 @@ export function getItemTemplateRemarks(itemType: ItemTypes){
     }
     if(itemType === "Accessory_Magazine"){
         return accessoryRemarks_magazines
+    }
+    if(itemType === "Accessory_Misc"){
+        return accessoryRemarks_misc
     }
 }
 
@@ -237,6 +270,10 @@ export function getEntryTitle(itemType: ItemTypes, item: CollectionItems){
     }
     if(itemType === "Accessory_Magazine"){
         const definition = item as AccessoryType_Magazine
+        return `${definition.manufacturer !== undefined? definition.manufacturer : ""} ${definition.designation}`
+    }
+    if(itemType === "Accessory_Misc"){
+        const definition = item as AccessoryType_Misc
         return `${definition.manufacturer !== undefined? definition.manufacturer : ""} ${definition.designation}`
     }
 }

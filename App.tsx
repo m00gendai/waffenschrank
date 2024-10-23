@@ -40,6 +40,7 @@ import AccessoryCollection_optics from './components/AccessoryCollection_optics'
 import EditItem from './components/EditItem';
 import NewItem from './components/NewItem';
 import AccessoryCollection_magazines from './components/AccessoryCollection_magazines';
+import AccessoryCollection_misc from './components/AccessoryCollection_misc';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -369,6 +370,12 @@ export default function App() {
               <Stack.Screen
                 name="AccessoryCollection_Magazines"
                 component={AccessoryCollection_magazines}
+                options={{headerShown: false, cardStyleInterpolator: CardStyleInterpolators.forFadeFromCenter}} 
+              />
+
+              <Stack.Screen
+                name="AccessoryCollection_Misc"
+                component={AccessoryCollection_misc}
                 options={{headerShown: false, cardStyleInterpolator: CardStyleInterpolators.forFadeFromCenter}} 
               />
 

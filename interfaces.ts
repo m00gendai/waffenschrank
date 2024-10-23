@@ -106,9 +106,26 @@ export interface AccessoryType_Magazine{
 
 export type AccessoryType_MagazineWithDbId = AccessoryType_Magazine & DbId
 
+export interface AccessoryType_Misc{
+  id: string
+  createdAt: number
+  lastModifiedAt: number
+  images: string[]
+  tags: string[]
+  manufacturer?: string
+  designation: string
+  acquisitionDate?: string
+  paidPrice?: string
+  boughtFrom?: string
+  marketValue?: string
+  stock?: number
+  remarks? : string | null
+}
 
-export type CollectionItems = GunType | AmmoType | AccessoryType_Optic | AccessoryType_Magazine | null
-export type CollectionItemsWithId = GunTypeWithDbId | AmmoTypeWithDbId | AccessoryType_OpticWithDbId | AccessoryType_MagazineWithDbId
+export type AccessoryType_MiscWithDbId = AccessoryType_Misc & DbId
+
+export type CollectionItems = GunType | AmmoType | AccessoryType_Optic | AccessoryType_Magazine | AccessoryType_Misc | null
+export type CollectionItemsWithId = GunTypeWithDbId | AmmoTypeWithDbId | AccessoryType_OpticWithDbId | AccessoryType_MagazineWithDbId | AccessoryType_MiscWithDbId
 
 export interface MenuVisibility{
   sortBy: boolean
@@ -212,7 +229,7 @@ export type DBOperations = "save_arsenal_gun_db" |
                            "share_arsenal_ammo_csv"
 
 
-export type ItemTypes = "Gun" | "Ammo" | "Accessory_Optic" | "Accessory_Magazine"
+export type ItemTypes = "Gun" | "Ammo" | "Accessory_Optic" | "Accessory_Magazine" | "Accessory_Misc"
 
 export type StackParamList = {
   Home: undefined
@@ -221,6 +238,7 @@ export type StackParamList = {
   AmmoCollection: undefined
   AccessoryCollection_Optics: undefined
   AccessoryCollection_Magazines: undefined
+  AccessoryCollection_Misc: undefined
   NewGun: undefined
   NewAmmo: undefined
   NewAccessory: undefined
@@ -235,4 +253,4 @@ export type StackParamList = {
   QuickShot: undefined
 }
 
-export type ScreenNames = "GunCollection" | "AmmoCollection" | "AccessoryCollection_Optics" | "AccessoryCollection_Magazines"
+export type ScreenNames = "GunCollection" | "AmmoCollection" | "AccessoryCollection_Optics" | "AccessoryCollection_Magazines" | "AccessoryCollection_Misc"

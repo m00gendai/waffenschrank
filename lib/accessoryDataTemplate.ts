@@ -190,3 +190,71 @@ export const accessoryDataTemplate_optics:{name:string, de:string, en:string, fr
         ch: "Remartgar",
     }
     
+
+    export const accessoryDataTemplate_misc:{name:string, de:string, en:string, fr:string, it: string, ch: string}[] = [
+        {
+                name: "manufacturer",
+                de: "Hersteller",
+                en: "Manufacturer",
+                fr: "Fabricant",
+                it: "Produttore",
+                ch: "Producent",
+        },
+        {   
+                name: "designation",
+                de: "Bezeichnung",
+                en: "Designation",
+                fr: "Désignation",
+                it: "Denominazione",
+                ch: "Designaziun",
+        },
+    {
+        name: "acquisitionDate",
+        de: "Erwerbsdatum",
+        en: "Last change of stock",
+        fr: "Dernier changement de quantité",
+        it: "Ultima variazione di quantità",
+        ch: "Ultima midada da la quantitad",
+    },
+    {
+        name: "paidPrice",
+        de: "Preis",
+        en: "Critical stock",
+        fr: "Quantité critique",
+        it: "Scorta critica",
+        ch: "Quantitad critica",
+    },
+    {
+        name: "boughtFrom",
+        de: "Gekauft von",
+        en: "Critical stock",
+        fr: "Quantité critique",
+        it: "Scorta critica",
+        ch: "Quantitad critica",
+    },
+    {
+        name: "marketValue",
+        de: "Wert",
+        en: "Critical stock",
+        fr: "Quantité critique",
+        it: "Scorta critica",
+        ch: "Quantitad critica",
+    },
+    {
+        name: "stock",
+        de: "Bestand",
+        en: "Critical stock",
+        fr: "Quantité critique",
+        it: "Scorta critica",
+        ch: "Quantitad critica",
+    },
+    ]
+    
+    export const accessoryRemarks_misc:{name:string, de:string, en:string, fr:string, it: string, ch:string} = {
+        name: "remarks",
+        de: "Bemerkungen",
+        en: "Remarks",
+        fr: "Remarques",
+        it: "Osservazioni",
+        ch: "Remartgar",
+    }

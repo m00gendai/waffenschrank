@@ -1,4 +1,4 @@
-import { AccessoryType_Optic, AmmoType, GunType, AccessoryType_Magazine } from "../interfaces";
+import { AccessoryType_Optic, AmmoType, GunType, AccessoryType_Magazine, AccessoryType_Misc } from "../interfaces";
 
 export const exampleGun:GunType = {
     "acquisitionDate": "11.6.2024", 
@@ -137,6 +137,22 @@ export const exampleAccessoryEmpty_Magazine:AccessoryType_Magazine = {
     "designation": "",
     "platform": "",
     "capacity": 0,
+    "acquisitionDate": "",
+    "paidPrice": "",
+    "boughtFrom": "",
+    "marketValue": "",
+    "stock": 0,
+    "remarks": ""
+}
+
+export const exampleAccessoryEmpty_Misc:AccessoryType_Misc = {
+    "id": "",
+    "createdAt": 0,
+    "lastModifiedAt":0,
+    "images": [],
+    "tags": [],
+    "manufacturer": "",
+    "designation": "",
     "acquisitionDate": "",
     "paidPrice": "",
     "boughtFrom": "",
