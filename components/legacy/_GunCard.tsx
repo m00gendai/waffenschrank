@@ -3,15 +3,11 @@ import { GunType, StackParamList } from '../interfaces';
 import { Button, Card, Dialog, Icon, IconButton, Modal, Portal, Text } from 'react-native-paper';
 import { usePreferenceStore } from '../stores/usePreferenceStore';
 import { defaultGridGap, defaultViewPadding } from '../configs';
-import { useViewStore } from '../stores/useViewStore';
-import { useGunStore } from '../stores/useGunStore';
+import { useItemStore } from '../stores/useItemStore';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { checkDate } from '../utils';
 import { useState } from 'react';
-import { GUN_DATABASE, KEY_DATABASE } from '../configs_DB';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import * as SecureStore from "expo-secure-store"
 import { gunDeleteAlert, longPressActions } from '../lib/textTemplates';
 import * as FileSystem from 'expo-file-system';
 import { db } from "../db/client"
@@ -25,8 +21,7 @@ interface Props{
 export default function GunCard({gun}:Props){
 
     const { ammoDbImport, displayAsGrid, setDisplayAsGrid, toggleDisplayAsGrid, sortAmmoBy, setSortAmmoBy, language, theme, generalSettings } = usePreferenceStore()
-    const { mainMenuOpen, setMainMenuOpen, newGunOpen, setNewGunOpen, editGunOpen, setEditGunOpen, seeGunOpen, setSeeGunOpen } = useViewStore()
-    const { gunCollection, setGunCollection, currentGun, setCurrentGun } = useGunStore()  
+    const { currentItem, setCurrentItem } = useItemStore()  
     const navigation = useNavigation<NativeStackNavigationProp<StackParamList>>()
 
     const [longVisible, setLongVisible] = useState<boolean>(false)
