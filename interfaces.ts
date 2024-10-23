@@ -31,7 +31,6 @@ interface DbId{
 }
 
 export type GunTypeWithDbId = GunType & DbId
-export type AmmoTypeWithDbId = AmmoType & DbId
 
 export interface GunTypeStatus{
   exFullAuto: boolean
@@ -61,6 +60,55 @@ export interface AmmoType{
   images: string[]
   remarks?: string
 }
+
+export type AmmoTypeWithDbId = AmmoType & DbId
+
+export interface AccessoryType_Optic{
+  id: string
+  createdAt: number
+  lastModifiedAt: number
+  images: string[]
+  tags: string[]
+  manufacturer?: string
+  designation: string
+  type?: string
+  lastBatteryChange?: number
+  reticle?: string
+  clicksVert?: number
+  clicksHor?: number
+  acquisitionDate?: string
+  paidPrice?: string
+  boughtFrom?: string
+  marketValue?: string
+  currentlyMountedOn?: string
+  remarks? : string | null
+}
+
+export type AccessoryType_OpticWithDbId = AccessoryType_Optic & DbId
+
+export interface AccessoryType_Magazine{
+  id: string
+  createdAt: number
+  lastModifiedAt: number
+  images: string[]
+  tags: string[]
+  manufacturer?: string
+  designation: string
+  platform?: string
+  capacity?: number
+  acquisitionDate?: string
+  paidPrice?: string
+  boughtFrom?: string
+  marketValue?: string
+  stock?: number
+  remarks? : string | null
+}
+
+export type AccessoryType_MagazineWithDbId = AccessoryType_Magazine & DbId
+
+
+export type CollectionItems = GunType | AmmoType | AccessoryType_Optic | AccessoryType_Magazine | null
+export type CollectionItemsWithId = GunTypeWithDbId | AmmoTypeWithDbId | AccessoryType_OpticWithDbId | AccessoryType_MagazineWithDbId
 
 export interface MenuVisibility{
   sortBy: boolean
@@ -164,17 +212,27 @@ export type DBOperations = "save_arsenal_gun_db" |
                            "share_arsenal_ammo_csv"
 
 
+export type ItemTypes = "Gun" | "Ammo" | "Accessory_Optic" | "Accessory_Magazine"
+
 export type StackParamList = {
   Home: undefined
   MainMenu: undefined
   GunCollection: undefined
   AmmoCollection: undefined
+  AccessoryCollection_Optics: undefined
+  AccessoryCollection_Magazines: undefined
   NewGun: undefined
   NewAmmo: undefined
+  NewAccessory: undefined
   Gun: undefined
   Ammo: undefined
+  Item: {itemType: ItemTypes}
+  EditItem: {itemType: ItemTypes}
+  NewItem: {itemType: ItemTypes}
   EditGun: undefined
   EditAmmo: undefined
   QuickStock: undefined
   QuickShot: undefined
 }
+
+export type ScreenNames = "GunCollection" | "AmmoCollection" | "AccessoryCollection_Optics" | "AccessoryCollection_Magazines"
