@@ -52,6 +52,45 @@ export const ammoCollection = sqliteTable("ammo", {
     remarks: text("remarks"),
 })
 
+export const opticsCollection = sqliteTable("opticsCollection", {
+    db_id: integer("id").primaryKey().notNull(),
+    id: text("uuid").notNull(),
+    createdAt: integer("createdAt").notNull(),
+    lastModifiedAt: integer("lastModifiedAt"),
+    images: text("images", {mode: "json"}),
+    tags: text("tags", {mode: "json"}),
+    manufacturer: text("manufacturer"),
+    designation: text("designation").notNull(),
+    type: text("type"),
+    lastBatteryChangeAt: integer("lastBatteryChangeAt"),
+    reticle: text("reticle"),
+    clicksVert: integer("clicksVert"),
+    clicksHor: integer("clicksHor"),
+    acquisitionDate: text("acquisitionDate"),
+    paidPrice: text("paidPrice"),
+    boughtFrom: text("boughtFrom"),
+    marketValue: text("marketValue"),
+    currentlyMountedOn: text("gun_id").references(()=>gunCollection.id)
+})
+
+export const magazineCollection = sqliteTable("magazineCollection", {
+    db_id: integer("id").primaryKey().notNull(),
+    id: text("uuid").notNull(),
+    createdAt: integer("createdAt").notNull(),
+    lastModifiedAt: integer("lastModifiedAt"),
+    images: text("images", {mode: "json"}),
+    tags: text("tags", {mode: "json"}),
+    manufacturer: text("manufacturer"),
+    designation: text("designation").notNull(),
+    platform: text("platform"),
+    capacity: integer("capacity"),
+    stock: integer("stock"),
+    acquisitionDate: text("acquisitionDate"),
+    paidPrice: text("paidPrice"),
+    boughtFrom: text("boughtFrom"),
+    marketValue: text("marketValue"),
+})
+
 export const gunTags = sqliteTable("gunTags", {
     db_id: integer('id').primaryKey().notNull(),
     label: text("label").notNull().unique("gunTag_label"),
@@ -62,6 +101,20 @@ export const gunTags = sqliteTable("gunTags", {
 export const ammoTags = sqliteTable("ammoTags", {
     db_id: integer('id').primaryKey().notNull(),
     label: text("label").notNull().unique("ammoTag_label"),
+    color: text("color"),
+    active: integer("active", {mode: "boolean"}).default(true),
+})
+
+export const opticsTags = sqliteTable("opticsTags", {
+    db_id: integer('id').primaryKey().notNull(),
+    label: text("label").notNull().unique("opticsTag_label"),
+    color: text("color"),
+    active: integer("active", {mode: "boolean"}).default(true),
+})
+
+export const magazineTags = sqliteTable("magazineTags", {
+    db_id: integer('id').primaryKey().notNull(),
+    label: text("label").notNull().unique("magazineTag_label"),
     color: text("color"),
     active: integer("active", {mode: "boolean"}).default(true),
 })
