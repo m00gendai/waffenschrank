@@ -1,14 +1,14 @@
-import { AccessoryType_Magazine, AccessoryType_Misc, AccessoryType_Optic, AmmoType, CollectionItems, GunType, ItemTypes, SortingTypes } from "./interfaces";
+import { AccessoryType_Magazine, AccessoryType_Misc, AccessoryType_Optic, AccessoryType_Silencer, AmmoType, CollectionItems, GunType, ItemTypes, SortingTypes } from "./interfaces";
 import { gunDataTemplate, gunRemarks } from "./lib/gunDataTemplate";
-import { ammoDeleteAlert, gunDeleteAlert, newAccessory_magazinesTitle, newAccessory_miscTitle, newAccessory_opticsTitle, newAmmoTitle, newGunTitle, toastMessages, validationErros } from "./lib//textTemplates";
+import { accessory_magazinesDeleteAlert, accessory_miscDeleteAlert, accessory_opticsDeleteAlert, accessory_silencersDeleteAlert, ammoDeleteAlert, gunDeleteAlert, newAccessory_magazinesTitle, newAccessory_miscTitle, newAccessory_opticsTitle, newAccessory_silencersTitle, newAmmoTitle, newGunTitle, toastMessages, validationErros } from "./lib//textTemplates";
 import { ammoDataTemplate, ammoRemarks } from "./lib/ammoDataTemplate";
 import { requiredFieldsAmmo, requiredFieldsGun } from "./configs";
 import * as ImagePicker from "expo-image-picker"
 import { ImageResult, manipulateAsync } from 'expo-image-manipulator';
 import { Alert, Image } from "react-native"
 import * as schema from "./db/schema"
-import { exampleAccessoryEmpty_Optic, exampleAmmoEmpty, exampleGunEmpty, exampleAccessoryEmpty_Magazine, exampleAccessoryEmpty_Misc } from "./lib/examples";
-import { accessoryDataTemplate_optics, accessoryRemarks_optics, accessoryRemarks_magazines, accessoryDataTemplate_magazines, accessoryRemarks_misc, accessoryDataTemplate_misc } from "./lib/accessoryDataTemplate";
+import { exampleAccessoryEmpty_Optic, exampleAmmoEmpty, exampleGunEmpty, exampleAccessoryEmpty_Magazine, exampleAccessoryEmpty_Misc, exampleAccessoryEmpty_Silencer } from "./lib/examples";
+import { accessoryDataTemplate_optics, accessoryRemarks_optics, accessoryRemarks_magazines, accessoryDataTemplate_magazines, accessoryRemarks_misc, accessoryDataTemplate_misc, accessoryRemarks_silencers, accessoryDataTemplate_silencers } from "./lib/accessoryDataTemplate";
 
 const nonSetValue: number = 999999999999999
 
@@ -70,6 +70,8 @@ export function getSchema(schemaQuery: ItemTypes){
             return schema.magazineCollection
         case "Accessory_Misc":
             return schema.accMiscCollection
+        case "Accessory_Silencer":
+            return schema.silencerCollection
     }
 }
 
@@ -92,6 +94,10 @@ export function setCardTitle(item: CollectionItems, itemType: ItemTypes){
     }
     if(itemType === "Accessory_Misc"){
         const definition = item as AccessoryType_Misc
+        return `${definition.manufacturer && definition.manufacturer.length !== 0 ? `${definition.manufacturer}` : ""}${definition.manufacturer && definition.manufacturer.length !== 0 ? ` ` : ""}${definition.designation}`
+    }
+    if(itemType === "Accessory_Silencer"){
+        const definition = item as AccessoryType_Silencer
         return `${definition.manufacturer && definition.manufacturer.length !== 0 ? `${definition.manufacturer}` : ""}${definition.manufacturer && definition.manufacturer.length !== 0 ? ` ` : ""}${definition.designation}`
     }
 }
@@ -117,28 +123,36 @@ export function setCardSubtitle(item: CollectionItems, itemType: ItemTypes, shor
         const definition = item as AccessoryType_Misc
         return definition.stock ? definition.stock : " "
     }
+    if(itemType === "Accessory_Silencer"){
+        const definition = item as AccessoryType_Silencer
+        return definition.caliber && definition.caliber.length !== 0 ? definition.caliber : " "
+    }
 }
 
 export function getDeleteDialogTitle(item: CollectionItems, itemType: ItemTypes, language: string){
     if(itemType === "Gun"){
         const definition = item as GunType
-        `${definition.model === null ? "" : definition.model === undefined ? "" : definition.model} ${gunDeleteAlert.title[language]}`
+        return `${definition.model === null ? "" : definition.model === undefined ? "" : definition.model} ${gunDeleteAlert.title[language]}`
     }
     if(itemType === "Ammo"){
         const definition = item as AmmoType
-        `${definition.designation === null ? "" : definition.designation === undefined ? "" : definition.designation} ${ammoDeleteAlert.title[language]}`
+        return `${definition.designation === null ? "" : definition.designation === undefined ? "" : definition.designation} ${ammoDeleteAlert.title[language]}`
     }
     if(itemType === "Accessory_Optic"){
         const definition = item as AccessoryType_Optic
-        `${definition.designation === null ? "" : definition.designation === undefined ? "" : definition.designation} ${ammoDeleteAlert.title[language]}`
+        return `${definition.designation === null ? "" : definition.designation === undefined ? "" : definition.designation} ${accessory_opticsDeleteAlert.title[language]}`
     }
     if(itemType === "Accessory_Magazine"){
         const definition = item as AccessoryType_Magazine
-        `${definition.designation === null ? "" : definition.designation === undefined ? "" : definition.designation} ${ammoDeleteAlert.title[language]}`
+        return `${definition.designation === null ? "" : definition.designation === undefined ? "" : definition.designation} ${accessory_magazinesDeleteAlert.title[language]}`
     }
     if(itemType === "Accessory_Misc"){
         const definition = item as AccessoryType_Misc
-        `${definition.designation === null ? "" : definition.designation === undefined ? "" : definition.designation} ${ammoDeleteAlert.title[language]}`
+        return `${definition.designation === null ? "" : definition.designation === undefined ? "" : definition.designation} ${accessory_miscDeleteAlert.title[language]}`
+    }
+    if(itemType === "Accessory_Silencer"){
+        const definition = item as AccessoryType_Silencer
+        return `${definition.designation === null ? "" : definition.designation === undefined ? "" : definition.designation} ${accessory_silencersDeleteAlert.title[language]}`
     }
 }
 
@@ -157,6 +171,9 @@ export function getNewItemTitle(itemType: ItemTypes, language: string){
     }
     if(itemType === "Accessory_Misc"){
         return newAccessory_miscTitle[language]
+    }
+    if(itemType === "Accessory_Silencer"){
+        return newAccessory_silencersTitle[language]
     }
 }
 
@@ -181,6 +198,10 @@ export function setSnackbarTextSave(itemType: ItemTypes, value: CollectionItems,
         const definition = value as AccessoryType_Misc
         return `${definition.manufacturer ? definition.manufacturer : ""} ${definition.designation} ${toastMessages.saved[language]}`
     }
+    if(itemType === "Accessory_Silencer"){
+        const definition = value as AccessoryType_Silencer
+        return `${definition.manufacturer ? definition.manufacturer : ""} ${definition.designation} ${toastMessages.saved[language]}`
+    }
 }
 
 export function setTextAreaLabel(itemType: ItemTypes, language: string){
@@ -198,6 +219,9 @@ export function setTextAreaLabel(itemType: ItemTypes, language: string){
     }
     if(itemType === "Accessory_Misc"){
         return accessoryRemarks_misc[language]
+    }
+    if(itemType === "Accessory_Silencer"){
+        return accessoryRemarks_silencers[language]
     }
 }
 
@@ -217,6 +241,9 @@ export function returnCompareObject(itemType: ItemTypes){
     if(itemType === "Accessory_Misc"){
         return exampleAccessoryEmpty_Misc
     }
+    if(itemType === "Accessory_Silencer"){
+        return exampleAccessoryEmpty_Silencer
+    }
 }
 
 export function getItemTemplate(itemType: ItemTypes){
@@ -235,6 +262,9 @@ export function getItemTemplate(itemType: ItemTypes){
     if(itemType === "Accessory_Misc"){
         return accessoryDataTemplate_misc
     }
+    if(itemType === "Accessory_Silencer"){
+        return accessoryDataTemplate_silencers
+    }
 }
 
 export function getItemTemplateRemarks(itemType: ItemTypes){
@@ -252,6 +282,9 @@ export function getItemTemplateRemarks(itemType: ItemTypes){
     }
     if(itemType === "Accessory_Misc"){
         return accessoryRemarks_misc
+    }
+    if(itemType === "Accessory_Silencer"){
+        return accessoryRemarks_silencers
     }
 }
 
@@ -274,6 +307,10 @@ export function getEntryTitle(itemType: ItemTypes, item: CollectionItems){
     }
     if(itemType === "Accessory_Misc"){
         const definition = item as AccessoryType_Misc
+        return `${definition.manufacturer !== undefined? definition.manufacturer : ""} ${definition.designation}`
+    }
+    if(itemType === "Accessory_Silencer"){
+        const definition = item as AccessoryType_Silencer
         return `${definition.manufacturer !== undefined? definition.manufacturer : ""} ${definition.designation}`
     }
 }
