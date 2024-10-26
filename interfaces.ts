@@ -124,8 +124,29 @@ export interface AccessoryType_Misc{
 
 export type AccessoryType_MiscWithDbId = AccessoryType_Misc & DbId
 
-export type CollectionItems = GunType | AmmoType | AccessoryType_Optic | AccessoryType_Magazine | AccessoryType_Misc | null
-export type CollectionItemsWithId = GunTypeWithDbId | AmmoTypeWithDbId | AccessoryType_OpticWithDbId | AccessoryType_MagazineWithDbId | AccessoryType_MiscWithDbId
+export interface AccessoryType_Silencer{
+  id: string
+  createdAt: number
+  lastModifiedAt: number
+  images: string[]
+  tags: string[]
+  manufacturer?: string
+  designation: string
+  acquisitionDate?: string
+  paidPrice?: string
+  boughtFrom?: string
+  marketValue?: string
+  remarks? : string | null
+  mountingType?: string
+  caliber?: string[]
+  decibel?: string
+  currentlyMountedOn?: string
+}
+
+export type AccessoryType_SilencerWithDbId = AccessoryType_Silencer & DbId
+
+export type CollectionItems = GunType | AmmoType | AccessoryType_Optic | AccessoryType_Magazine | AccessoryType_Misc | AccessoryType_Silencer | null
+export type CollectionItemsWithId = GunTypeWithDbId | AmmoTypeWithDbId | AccessoryType_OpticWithDbId | AccessoryType_MagazineWithDbId | AccessoryType_MiscWithDbId | AccessoryType_SilencerWithDbId
 
 export interface MenuVisibility{
   sortBy: boolean
@@ -229,7 +250,7 @@ export type DBOperations = "save_arsenal_gun_db" |
                            "share_arsenal_ammo_csv"
 
 
-export type ItemTypes = "Gun" | "Ammo" | "Accessory_Optic" | "Accessory_Magazine" | "Accessory_Misc"
+export type ItemTypes = "Gun" | "Ammo" | "Accessory_Optic" | "Accessory_Magazine" | "Accessory_Misc" | "Accessory_Silencer"
 
 export type StackParamList = {
   Home: undefined
@@ -239,6 +260,7 @@ export type StackParamList = {
   AccessoryCollection_Optics: undefined
   AccessoryCollection_Magazines: undefined
   AccessoryCollection_Misc: undefined
+  AccessoryCollection_Silencers: undefined
   NewGun: undefined
   NewAmmo: undefined
   NewAccessory: undefined
@@ -253,4 +275,4 @@ export type StackParamList = {
   QuickShot: undefined
 }
 
-export type ScreenNames = "GunCollection" | "AmmoCollection" | "AccessoryCollection_Optics" | "AccessoryCollection_Magazines" | "AccessoryCollection_Misc"
+export type ScreenNames = "GunCollection" | "AmmoCollection" | "AccessoryCollection_Optics" | "AccessoryCollection_Magazines" | "AccessoryCollection_Misc" | "AccessoryCollection_Silencers"
