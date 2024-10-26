@@ -53,6 +53,16 @@
 
 1. Create Component in ``./components``
 
+## Item Card
+
+1. Update ``handleCardPress()`` in ``./components/ItemCard.tsx``
+
+## Item
+
+1. Update ``deleteItem()`` in ``./components/Item.tsx``
+2. Update ``handleBackAction()``
+3. Update ``handleEditAction()``
+
 ## Filter Menu
 
 1. Update ``handleFilterPress()`` in ``./components/FilterMenu.tsx``
