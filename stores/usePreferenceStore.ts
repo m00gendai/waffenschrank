@@ -56,6 +56,8 @@ interface PreferenceStore {
     toggleMagazinesFilterOn: () => void
     accMiscFilterOn: boolean
     toggleAccMiscFilterOn: () => void
+    silencersFilterOn: boolean
+    toggleSilencersFilterOn: () => void
   }
 
   export const usePreferenceStore = create<PreferenceStore>((set) => ({
@@ -109,5 +111,7 @@ interface PreferenceStore {
     magazinesFilterOn: false,
     toggleMagazinesFilterOn: () => set((state) => ({magazinesFilterOn: !state.magazinesFilterOn})),
     accMiscFilterOn: false,
-    toggleAccMiscFilterOn: () => set((state) => ({accMiscFilterOn: !state.accMiscFilterOn}))
+    toggleAccMiscFilterOn: () => set((state) => ({accMiscFilterOn: !state.accMiscFilterOn})),
+    silencersFilterOn: false,
+    toggleSilencersFilterOn: () => set((state) => ({silencersFilterOn: !state.silencersFilterOn}))
   }))
