@@ -17,7 +17,7 @@ import * as Sharing from 'expo-sharing';
 import * as FileSystem from 'expo-file-system';
 import { db } from "../db/client"
 import { eq, lt, gte, ne, and, or, like, asc, desc, exists, isNull, sql } from 'drizzle-orm';
-import { GunType } from '../interfaces';
+import { GunType, ItemTypes } from '../interfaces';
 
 export default function Item({navigation, route}){
 
@@ -79,6 +79,21 @@ export default function Item({navigation, route}){
         if(itemType === "Gun"){
             navigation.navigate("GunCollection")
         }
+        if(itemType === "Ammo"){
+            navigation.navigate("AmmoCollection")
+        }
+        if(itemType === "Accessory_Optic"){
+            navigation.navigate("AccessoryCollection_Optics")
+        }
+        if(itemType === "Accessory_Magazine"){
+            navigation.navigate("AccessoryCollection_Magazines")
+        }
+        if(itemType === "Accessory_Silencer"){
+            navigation.navigate("AccessoryCollection_Silencers")
+        }
+        if(itemType === "Accessory_Misc"){
+            navigation.navigate("AccessoryCollection_Misc")
+        }
     }
 
     function handleIosPrint(){
@@ -103,19 +118,26 @@ export default function Item({navigation, route}){
 
     function handleBackAction(){    
         setHideBottomSheet(false)
-if (itemType === "Gun") {
-    navigation.navigate("GunCollection")
-    
-} 
-if (itemType === "Ammo"){
-    navigation.navigate("AmmoCollection")
-   
-}
-if (itemType === "Accessory_Optic") {
-    navigation.navigate("AccessoryCollection_Optics")
-   
-} 
-
+        if (itemType === "Gun") {
+            navigation.navigate("GunCollection")
+            
+        } 
+        if (itemType === "Ammo"){
+            navigation.navigate("AmmoCollection")
+        
+        }
+        if(itemType === "Accessory_Optic"){
+            navigation.navigate("AccessoryCollection_Optics")
+        }
+        if(itemType === "Accessory_Magazine"){
+            navigation.navigate("AccessoryCollection_Magazines")
+        }
+        if(itemType === "Accessory_Silencer"){
+            navigation.navigate("AccessoryCollection_Silencers")
+        }
+        if(itemType === "Accessory_Misc"){
+            navigation.navigate("AccessoryCollection_Misc")
+        }
     }
 
 
@@ -139,6 +161,15 @@ useEffect(() => {
         if(itemType === "Accessory_Optic"){
             navigation.navigate("EditItem", {itemType: "Accessory_Optic"})
         }
+        if(itemType === "Accessory_Magazine"){
+            navigation.navigate("EditItem", {itemType: "Accessory_Magazine"})
+        }
+        if(itemType === "Accessory_Silencer"){
+            navigation.navigate("EditItem", {itemType: "Accessory_Silencer"})
+        }
+        if(itemType === "Accessory_Misc"){
+            navigation.navigate("EditItem", {itemType: "Accessory_Misc"})
+        }
     }
 
     function checkColor(color:string){
@@ -158,9 +189,6 @@ useEffect(() => {
         return outputArray
     }
 
-
-
-    console.log(`currentItem: ${currentItem}`)
 
     return(
         <View style={{flex: 1}}>
