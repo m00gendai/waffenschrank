@@ -27,8 +27,6 @@ interface Props{
 
 export default function NewText({itemType, data, itemData, setItemData, label}: Props){
 
-console.log(itemData)
-
     const [input, setInput] = useState<string>(itemData ? Array.isArray(itemData[data]) ? itemData[data].join("\n") : itemData[data] : "")
     const [showDateTime, setShowDateTime] = useState<boolean>(false)
     const [date, setDate] = useState<(string | number | Date | dayjs.Dayjs)>(dayjs());
@@ -84,7 +82,6 @@ console.log(itemData)
     }
 
     function updateDate(input){
-        console.log(input)
         setInput(new Date(input).toLocaleDateString("de-CH", dateTimeOptions))
         setDate(input)
     }
@@ -148,6 +145,16 @@ console.log(itemData)
                 setActiveCaliber([name])
             }
         }
+        if(itemType === "Accessory_Silencer"){
+            if(activeCaliber.includes(name)){
+                const index: number = activeCaliber.indexOf(name)
+                const newActiveCaliber: string[] = Array.isArray(activeCaliber) ? activeCaliber.toSpliced(index, 1) : []
+                setActiveCaliber(newActiveCaliber)
+            }
+            if(!activeCaliber.includes(name)){
+                activeCaliber.length !== 0 ? Array.isArray(activeCaliber) ? setActiveCaliber([...activeCaliber, name]) : setActiveCaliber([activeCaliber, name]) : setActiveCaliber([name])
+            }
+        }
     }
 
     function handleCaliberSelectConfirm(){
@@ -156,6 +163,9 @@ console.log(itemData)
         }
         if(itemType === "Ammo"){
             updateItemData(activeCaliber.toString())
+        }
+        if(itemType === "Accessory_Silencer"){
+            updateItemData(activeCaliber)
         }
         setShowModalCaliber(false)
     }
@@ -250,38 +260,29 @@ function handleInputPress(){
     ]
 
     function getTextfieldValue(input:string){
-        console.log(input)
         if(input === undefined){
-            console.log("return undefined")
             return ""
         }
         if(input === null){
-            console.log("return null")
             return ""
         }
         if(input === ""){
-            console.log("return empty")
             return ""
         }
         if(data === "cleanInterval" && itemData !== undefined && itemData !== null && itemData[data] !== undefined && itemData[data] !== null){
             if(cleanIntervals[input] !== undefined){
-                console.log("return cleaninterval")
                 return cleanIntervals[input][language]
             } else {
-                console.log("return cleaninterval empty")
                 return ""
             }
         } 
         if(data === "currentlyMountedOn" && itemData !== undefined && itemData !== null && itemData[data] !== undefined && itemData[data] !== null){
             if(baseGun[0] === undefined){
-                console.log("return currentlymountedon empty")
                 return ""
             }
-            console.log("return currentlymountedon")
-            return `${baseGun[0].manufacturer} ${baseGun[0].model}`
+            return `${baseGun[0].manufacturer} ${baseGun[0].model} ${baseGun[0].serial}`
             
         } 
-        console.log("return input")
         return input.toString()
     }
 
@@ -500,8 +501,8 @@ function handleInputPress(){
 
             {/* MOUNTED ON */}
             <ModalContainer
-                title={"Currently Mounted on"}
-                subtitle={"Select base"}
+                title={modalTexts.mountedOn.title[language]}
+                subtitle={modalTexts.mountedOn.text[language]}
                 visible={showMountedModal}
                 setVisible={setShowMountedModal}
                 content={<View style={{width: "100%", display: "flex", padding: defaultViewPadding}}>
@@ -510,7 +511,7 @@ function handleInputPress(){
                             <RadioButton.Item key={`mountedOn_none}`} label={`-`} value={"-"} />
                             {gunData.map((gun, index)=>{
                                 return (
-                                    <RadioButton.Item key={`mountedOn_${index}`} label={`${gun.manufacturer}${gun.model}`} value={gun.id} />
+                                    <RadioButton.Item key={`mountedOn_${index}`} label={`${gun.manufacturer} ${gun.model}\n${gun.serial}`} value={gun.id} />
                                 )
                             })}
                         </RadioButton.Group>
