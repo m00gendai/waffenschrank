@@ -1,6 +1,6 @@
-import { Dimensions, Pressable, TouchableNativeFeedback, View } from 'react-native';
+import { Dimensions, Pressable, ScrollView, TouchableNativeFeedback, View } from 'react-native';
 import { AmmoType, CollectionItems, GunType, ItemTypes, StackParamList } from '../interfaces';
-import { Badge, Button, Card, Dialog, Icon, IconButton, Menu, Modal, Portal, Text, TouchableRipple } from 'react-native-paper';
+import { Badge, Button, Card, Dialog, Icon, IconButton, Menu, Modal, Portal, RadioButton, Text, TouchableRipple } from 'react-native-paper';
 import { usePreferenceStore } from '../stores/usePreferenceStore';
 import { dateLocales, defaultGridGap, defaultViewPadding } from '../configs';
 import { useItemStore } from '../stores/useItemStore';
@@ -9,12 +9,13 @@ import { useViewStore } from '../stores/useViewStore';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { checkDate, getDeleteDialogTitle, getSchema, setCardSubtitle, setCardTitle } from '../utils';
 import { useState } from 'react';
-import { gunDeleteAlert, longPressActions } from '../lib/textTemplates';
+import { gunDeleteAlert, longPressActions, modalTexts } from '../lib/textTemplates';
 import { drizzle, useLiveQuery } from "drizzle-orm/expo-sqlite"
 import * as schema from "../db/schema"
 import * as FileSystem from 'expo-file-system';
 import { db } from "../db/client"
 import { eq, lt, gte, ne, and, or, like, asc, desc, exists, isNull, sql } from 'drizzle-orm';
+import ModalContainer from './ModalContainer';
 
 interface Props{
     item: CollectionItems
@@ -32,11 +33,20 @@ export default function ItemCard({item, itemType}:Props){
     const [longVisible, setLongVisible] = useState<boolean>(false)
     const [dialogVisible, toggleDialogVisible] = useState<boolean>(false)
     const [cardButtonMenu, toggleCardButtonMenu] = useState<boolean>(false)
+    const [showMountedModal, setShowMountedModal] = useState<boolean>(false)
+    const [mountedOn, setMountedOn] = useState<string>(null)
+    const [mountType, setMountType] = useState<ItemTypes>(null)
 
     const databaseEntry = getSchema(itemType)
 
     const { data : AccessoryData_Optic } = useLiveQuery(
         db.select().from(schema.opticsCollection).where(eq(schema.opticsCollection.currentlyMountedOn, item.id))
+    )
+    const { data : AccessoryData_Silencer } = useLiveQuery(
+        db.select().from(schema.silencerCollection).where(eq(schema.silencerCollection.currentlyMountedOn, item.id))
+    )
+    const { data : gunData } = useLiveQuery(
+        db.select().from(schema.gunCollection)
     )
 
     function getShortCaliberName(item){
@@ -62,6 +72,15 @@ export default function ItemCard({item, itemType}:Props){
             case "Accessory_Optic":
                 navigation.navigate("Item", {itemType: "Accessory_Optic"});
               break;
+            case "Accessory_Magazine":
+                navigation.navigate("Item", {itemType: "Accessory_Magazine"});
+              break;
+            case "Accessory_Silencer":
+                navigation.navigate("Item", {itemType: "Accessory_Silencer"});
+              break;
+            case "Accessory_Misc":
+                navigation.navigate("Item", {itemType: "Accessory_Misc"});
+              break;
             default:
               console.error("Unknown item type");
           }
@@ -79,15 +98,20 @@ export default function ItemCard({item, itemType}:Props){
     }  
 
       function meloveyoulongtime(){
-        console.log("TWO DOLLA")
         setLongVisible(true)
         setCurrentItem(item)
       }
 
       function handleClone(){
         setLongVisible(false)
+        toggleCardButtonMenu(false)
         navigation.navigate("NewItem", {itemType: itemType})
-        
+        setHideBottomSheet(true)
+      }
+
+      function handleMenuDelete(){
+        toggleDialogVisible(true)
+        toggleCardButtonMenu(!cardButtonMenu)
       }
 
       async function deleteItem(){
@@ -101,8 +125,41 @@ export default function ItemCard({item, itemType}:Props){
     }
 
     async function markBatteryChanged(){
-        console.log(item)
         await db.update(schema.opticsCollection).set({ lastBatteryChange: new Date().getTime() }).where(eq(schema.opticsCollection.id, item.id));
+    }
+
+    function handleMountOn(item: ItemTypes){
+        setShowMountedModal(true)
+        toggleCardButtonMenu(false)
+        setMountType(item)
+    }
+
+    async function handleMountedOnConfirm(){
+        if(mountType === "Accessory_Optic"){
+            await db.update(schema.opticsCollection).set({currentlyMountedOn: mountedOn}).where(eq(schema.opticsCollection.id, item.id));
+        }
+        if(mountType === "Accessory_Silencer"){
+            await db.update(schema.silencerCollection).set({currentlyMountedOn: mountedOn}).where(eq(schema.silencerCollection.id, item.id));
+        }
+        setShowMountedModal(false)
+    }
+
+    function handleMountedOnCancel(){
+        setShowMountedModal(false)
+    }
+
+    function handleSetMountedOn(value){
+        setMountedOn(value)
+    }
+
+    function handleQuickShot(){
+        toggleCardButtonMenu(false)
+        navigation.navigate("QuickShot")
+    }
+
+    function handleQuickStock(){
+        toggleCardButtonMenu(false)
+        handleStockButtonPress(item as AmmoType)
     }
 
     return(
@@ -134,26 +191,60 @@ export default function ItemCard({item, itemType}:Props){
                 subtitleNumberOfLines={2}
             />
             {displayAsGrid ? 
-            <>
+            <Menu
+            visible={cardButtonMenu}
+            onDismiss={()=>toggleCardButtonMenu(!cardButtonMenu)}
+            anchor={<View>
                 <Card.Cover 
                     source={item.images && item.images.length != 0 ? { uri: `${FileSystem.documentDirectory}${item.images[0].split("/").pop()}`} : require(`../assets//775788_several different realistic rifles and pistols on _xl-1024-v1-0.png`)} 
                     style={{
                         height: 100
                     }}
                 /> 
-                <IconButton 
-                    mode="contained" 
-                    icon={"bullet"} 
-                    onPress={()=>handleCardButtonPress()} 
+                {itemType === "Ammo" ?
+                 <TouchableRipple onPress={() => handleCardButtonPress()} style={{borderRadius: 0, position: "absolute", right: 1, bottom: 1}}>
+                    <Badge
+                        style={{
+                            backgroundColor: item.currentStock !== null && item.currentStock !== undefined && item.criticalStock ? Number(item.currentStock.toString()) <= Number(item.criticalStock.toString()) ? theme.colors.errorContainer : theme.colors.surfaceVariant : theme.colors.surfaceVariant,
+                            color: item.currentStock !== null && item.currentStock !== undefined && item.criticalStock ? Number(item.currentStock.toString()) <= Number(item.criticalStock.toString()) ? theme.colors.onErrorContainer : theme.colors.primary : theme.colors.primary,
+                            aspectRatio: "1/1",
+                            fontSize: 10,
+                            margin: 6,
+                            elevation: 4,
+                        }}
+                        size={40}
+                    >
+                        {item.currentStock !== null && item.currentStock !== undefined && item.currentStock.toString() !== "" ? new Intl.NumberFormat(dateLocales[language]).format(item.currentStock) : "- - -" }
+                    </Badge>
+                </TouchableRipple> : null}
+                        {itemType ==="Ammo" ? null : <IconButton 
+                            mode="contained" 
+                            icon={"dots-vertical"} 
+                            iconColor={theme.colors.onPrimary}
+                            onPress={()=>handleCardButtonPress()} 
+                            style={{
+                                position: "absolute", 
+                                bottom: 1, 
+                                right: 1,
+                                backgroundColor: theme.colors.primary
+                            }} 
+                            />}
+                    
+            </View>}
+                    anchorPosition='bottom'
                     style={{
-                        position: "absolute", 
-                        bottom: 1, 
-                        right: 1,
-                        backgroundColor: theme.colors.primary
-                    }} 
-                    iconColor={theme.colors.onPrimary}
-                />
-            </>
+                        marginTop: 16
+                    }}
+                >
+                    {itemType === "Gun" ? <Menu.Item onPress={() => handleQuickShot()} title="QuickShot" /> : null} 
+                    {itemType === "Gun" ? <Menu.Item onPress={() => markAsCleaned()} title={longPressActions.markCleaned[language]} /> : null}
+                    {itemType === "Ammo" ? <Menu.Item onPress={()=> handleQuickStock()} title="QuickStock" /> : null}
+                    {itemType === "Accessory_Optic" ? <Menu.Item onPress={() => markBatteryChanged()} title={longPressActions.batteryChange[language]} /> : null}
+                    {itemType === "Accessory_Optic" ? <Menu.Item onPress={() => handleMountOn("Accessory_Optic")} title={longPressActions.mountOn[language]} /> : null}
+                    {itemType === "Accessory_Silencer" ? <Menu.Item onPress={() => handleMountOn("Accessory_Silencer")} title={longPressActions.mountOn[language]} /> : null}
+                    <Menu.Item onPress={() => handleClone()} title={longPressActions.clone[language]} />
+                    <Menu.Item onPress={() => handleMenuDelete()} title={longPressActions.delete[language]} titleStyle={{color: theme.colors.error}}/>
+                </Menu>
             : 
             null}
             {displayAsGrid ? 
@@ -172,19 +263,53 @@ export default function ItemCard({item, itemType}:Props){
                     flexDirection: "row"
                 }}
             >
-                {generalSettings.displayImagesInListViewGun ? <Card.Cover 
-                    source={item.images && item.images.length != 0 ? { uri: `${FileSystem.documentDirectory}${item.images[0].split("/").pop()}` } : require(`../assets//775788_several different realistic rifles and pistols on _xl-1024-v1-0.png`)} 
-                    style={{
-                        height: itemType === "Gun" && AccessoryData_Optic.length !== 0 ? "65%" : "75%",
-                        aspectRatio: "4/3"
-                    }}
-                /> : null}
+                {generalSettings.displayImagesInListViewGun ? 
+                    <View>
+                        <Card.Cover 
+                            source={item.images && item.images.length != 0 ? { uri: `${FileSystem.documentDirectory}${item.images[0].split("/").pop()}` } : require(`../assets//775788_several different realistic rifles and pistols on _xl-1024-v1-0.png`)} 
+                            style={{
+                                height: "75%",
+                                aspectRatio: "4/3"
+                            }}
+                        />
+                        {itemType === "Gun" ? 
+                        <View style={{width: "100%", height: 20, position: "absolute", left: 0, bottom: 1, display: "flex", flexDirection: "row", justifyContent: "center", alignItems: "center"}}>
+                            {AccessoryData_Optic.length !== 0 ? 
+                                <IconButton 
+                                    size={16}
+                                    mode="contained" 
+                                    icon={"toslink"} 
+                                    onPress={()=>console.log("")} 
+                                    style={{
+                                        backgroundColor: theme.colors.primary,
+                                        width: 20,
+                                        height: 20,
+                                    }} 
+                                    iconColor={theme.colors.onPrimary}
+                                /> : null
+                            }
+                            {AccessoryData_Silencer.length !== 0 ? 
+                                <IconButton 
+                                    size={16}
+                                    mode="contained" 
+                                    icon={"volume-off"} 
+                                    onPress={()=>console.log("")} 
+                                    style={{
+                                        backgroundColor: theme.colors.primary,
+                                        width: 20,
+                                        height: 20,
+                                    }} 
+                                    iconColor={theme.colors.onPrimary}
+                                /> : null
+                            }
+                        </View> : null}
+                    </View> : null}
                 <Menu
-          visible={cardButtonMenu}
-          onDismiss={()=>toggleCardButtonMenu(!cardButtonMenu)}
-            anchor={
+                    visible={cardButtonMenu}
+                    onDismiss={()=>toggleCardButtonMenu(!cardButtonMenu)}
+                    anchor={
                 itemType === "Ammo" ?
-                 <TouchableRipple onPress={() => handleStockButtonPress(item as AmmoType)} style={{borderRadius: 0}}>
+                 <TouchableRipple onPress={() => handleCardButtonPress()} style={{borderRadius: 0}}>
                     <Badge
                         style={{
                             backgroundColor: item.currentStock !== null && item.currentStock !== undefined && item.criticalStock ? Number(item.currentStock.toString()) <= Number(item.criticalStock.toString()) ? theme.colors.errorContainer : theme.colors.surfaceVariant : theme.colors.surfaceVariant,
@@ -215,34 +340,16 @@ export default function ItemCard({item, itemType}:Props){
                 anchorPosition='bottom'
             style={{marginTop: 16}}>
                 {itemType === "Gun" ? <Menu.Item onPress={() => navigation.navigate("QuickShot")} title="QuickShot" /> : null} 
-                {itemType === "Gun" ? <Menu.Item onPress={() => markAsCleaned()} title="Mark as cleaned" /> : null}
-                {itemType === "Accessory_Optic" ? <Menu.Item onPress={() => markBatteryChanged()} title="Mark Battery Change" /> : null}
+                {itemType === "Gun" ? <Menu.Item onPress={() => markAsCleaned()} title={longPressActions.markCleaned[language]} /> : null}
+                {itemType === "Ammo" ? <Menu.Item onPress={()=> handleQuickStock()} title="QuickStock" /> : null}
+                {itemType === "Accessory_Optic" ? <Menu.Item onPress={() => markBatteryChanged()} title={longPressActions.batteryChange[language]} /> : null}
+                {itemType === "Accessory_Optic" ? <Menu.Item onPress={() => handleMountOn("Accessory_Optic")} title={longPressActions.mountOn[language]} /> : null}
+                {itemType === "Accessory_Silencer" ? <Menu.Item onPress={() => handleMountOn("Accessory_Silencer")} title={longPressActions.mountOn[language]} /> : null}
+                <Menu.Item onPress={() => handleClone()} title={longPressActions.clone[language]} />
+                <Menu.Item onPress={() => handleMenuDelete()} title={longPressActions.delete[language]} titleStyle={{color: theme.colors.error}}/>
               </Menu>
                  
             </View>}
-            {itemType === "Gun" && AccessoryData_Optic.length !== 0 ? 
-            <View style={{width: "100%", height: 10, display: "flex", flexDirection: "row", justifyContent: "center", alignItems: "center"}}>
-                <Icon
-                    source={"toslink"}
-                    size={10}
-                />
-                <Icon
-                    source={"toslink"}
-                    size={10}
-                />
-                <Icon
-                    source={"toslink"}
-                    size={10}
-                />
-                <Icon
-                    source={"toslink"}
-                    size={10}
-                />
-                <Icon
-                    source={"toslink"}
-                    size={10}
-                />
-            </View> : null}
         </Card>
         </TouchableNativeFeedback>
 
@@ -277,7 +384,30 @@ export default function ItemCard({item, itemType}:Props){
                                 <Button onPress={()=>toggleDialogVisible(!dialogVisible)} icon="cancel" buttonColor={theme.colors.secondary} textColor={theme.colors.onSecondary}>{gunDeleteAlert.no[language]}</Button>
                             </Dialog.Actions>
                         </Dialog>
-                    </Portal>      
+                    </Portal>   
+
+        {/* MOUNTED ON */}
+            <ModalContainer
+                title={modalTexts.mountedOn.title[language]}
+                subtitle={modalTexts.mountedOn.text[language]}
+                visible={showMountedModal}
+                setVisible={setShowMountedModal}
+                content={<View style={{width: "100%", display: "flex", padding: defaultViewPadding}}>
+                    <ScrollView>
+                        <RadioButton.Group onValueChange={value => handleSetMountedOn(value)} value={mountedOn}>
+                            <RadioButton.Item key={`mountedOn_none}`} label={`-`} value={"-"} />
+                            {gunData.map((gun, index)=>{
+                                return (
+                                    <RadioButton.Item key={`mountedOn_${index}`} label={`${gun.manufacturer} ${gun.model}\n${gun.serial}`} value={gun.id} status={gun.id === item.currentlyMountedOn ? "checked" : "unchecked"}/>
+                                )
+                            })}
+                        </RadioButton.Group>
+                    </ScrollView>
+                </View>}
+                buttonACK={<IconButton icon="check" onPress={() => handleMountedOnConfirm()} style={{width: 50, backgroundColor: theme.colors.primary}} iconColor={theme.colors.onPrimary}/>}
+                buttonCNL={<IconButton icon="cancel" onPress={() => handleMountedOnCancel()} style={{width: 50, backgroundColor: theme.colors.secondaryContainer}} iconColor={theme.colors.onSecondaryContainer} />}
+                buttonDEL={null}
+            />   
 
         </>
     )
