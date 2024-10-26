@@ -74,7 +74,8 @@ export const opticsCollection = sqliteTable("opticsCollection", {
     paidPrice: text("paidPrice"),
     boughtFrom: text("boughtFrom"),
     marketValue: text("marketValue"),
-    currentlyMountedOn: text("gun_id").references(()=>gunCollection.id)
+    currentlyMountedOn: text("gun_id").references(()=>gunCollection.id),
+    remarks: text("remarks"),
 })
 
 export const magazineCollection = sqliteTable("magazineCollection", {
@@ -96,6 +97,7 @@ export const magazineCollection = sqliteTable("magazineCollection", {
     paidPrice: text("paidPrice"),
     boughtFrom: text("boughtFrom"),
     marketValue: text("marketValue"),
+    remarks: text("remarks"),
 })
 
 export const accMiscCollection = sqliteTable("accMiscCollection", {
@@ -112,6 +114,27 @@ export const accMiscCollection = sqliteTable("accMiscCollection", {
     paidPrice: text("paidPrice"),
     boughtFrom: text("boughtFrom"),
     marketValue: text("marketValue"),
+    remarks: text("remarks"),
+})
+
+export const silencerCollection = sqliteTable("silencerCollection", {
+    db_id: integer("id").primaryKey().notNull(),
+    id: text("uuid").notNull(),
+    createdAt: integer("createdAt").notNull(),
+    lastModifiedAt: integer("lastModifiedAt"),
+    images: text("images", {mode: "json"}),
+    tags: text("tags", {mode: "json"}),
+    manufacturer: text("manufacturer"),
+    designation: text("designation").notNull(),
+    mountingType: text("mountingType"),
+    caliber: text("caliber", {mode: "json"}),
+    decibel: text("decibel"),
+    acquisitionDate: text("acquisitionDate"),
+    paidPrice: text("paidPrice"),
+    boughtFrom: text("boughtFrom"),
+    marketValue: text("marketValue"),
+    currentlyMountedOn: text("gun_id").references(()=>gunCollection.id),
+    remarks: text("remarks"),
 })
 
 export const gunTags = sqliteTable("gunTags", {
@@ -145,6 +168,14 @@ export const magazineTags = sqliteTable("magazineTags", {
 export const accMiscTags = sqliteTable("accMiscTags", {
     db_id: integer('id').primaryKey().notNull(),
     label: text("label").notNull().unique("accMiscTag_label"),
+    color: text("color"),
+    active: integer("active", {mode: "boolean"}).default(true),
+})
+
+
+export const silencerTags = sqliteTable("silencerTags", {
+    db_id: integer('id').primaryKey().notNull(),
+    label: text("label").notNull().unique("silencerTag_label"),
     color: text("color"),
     active: integer("active", {mode: "boolean"}).default(true),
 })
