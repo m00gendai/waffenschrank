@@ -14,7 +14,7 @@ interface Props{
 
 export default function FilterMenu({collection}:Props){
 
-    const { gunFilterOn, toggleGunFilterOn, ammoFilterOn, toggleAmmoFilterOn, opticsFilterOn, toggleOpticsFilterOn, magazinesFilterOn, toggleMagazinesFilterOn, accMiscFilterOn, toggleAccMiscFilterOn } = usePreferenceStore()
+    const { gunFilterOn, toggleGunFilterOn, ammoFilterOn, toggleAmmoFilterOn, opticsFilterOn, toggleOpticsFilterOn, magazinesFilterOn, toggleMagazinesFilterOn, accMiscFilterOn, toggleAccMiscFilterOn, silencersFilterOn, toggleSilencersFilterOn } = usePreferenceStore()
 
     const { data: gunTags } = useLiveQuery(
         db.select()
@@ -41,6 +41,12 @@ export default function FilterMenu({collection}:Props){
       .from(schema.accMiscTags)
     )
 
+
+    const { data: silencerTags } = useLiveQuery(
+      db.select()
+      .from(schema.silencerTags)
+    )
+
     async function handleFilterPress(tag){
         
         collection === "GunCollection" ? 
@@ -58,6 +64,9 @@ export default function FilterMenu({collection}:Props){
           : collection === "AccessoryCollection_Misc" ?
           /*@ts-expect-error*/
           await db.update(schema.accMiscTags).set({active: not(schema.accMiscTags.active)}).where((eq(schema.accMiscTags.label, tag.label)))
+          : collection === "AccessoryCollection_Silencers" ?
+          /*@ts-expect-error*/
+          await db.update(schema.silencerTags).set({active: not(schema.silencerTags.active)}).where((eq(schema.silencerTags.label, tag.label)))
           : null
     }
 
@@ -66,34 +75,52 @@ export default function FilterMenu({collection}:Props){
               <View style={{display: "flex", flexDirection: "row", justifyContent: "flex-start", alignItems: "center"}}>
                 <Text>Filter:</Text>
                 <Switch 
-                  value={collection==="GunCollection" ? gunFilterOn : collection ==="AmmoCollection" ? ammoFilterOn : collection === "AccessoryCollection_Optics" ? opticsFilterOn : magazinesFilterOn} 
-                  onValueChange={()=>collection==="GunCollection" ? toggleGunFilterOn() : collection === "AmmoCollection" ? toggleAmmoFilterOn() : collection === "AccessoryCollection_Optics" ? toggleOpticsFilterOn() : collection === "AccessoryCollection_Misc" ? toggleAccMiscFilterOn() : toggleMagazinesFilterOn()} />
+                  value={
+                    collection==="GunCollection" ? gunFilterOn : 
+                    collection ==="AmmoCollection" ? ammoFilterOn : 
+                    collection === "AccessoryCollection_Optics" ? opticsFilterOn : 
+                    collection === "AccessoryCollection_Magazines" ? magazinesFilterOn : 
+                    collection === "AccessoryCollection_Misc" ? accMiscFilterOn : 
+                    collection === "AccessoryCollection_Silencers" ? silencersFilterOn : 
+                    null} 
+                  onValueChange={()=>
+                    collection==="GunCollection" ? toggleGunFilterOn() : 
+                    collection === "AmmoCollection" ? toggleAmmoFilterOn() : 
+                    collection === "AccessoryCollection_Optics" ? toggleOpticsFilterOn() : 
+                    collection === "AccessoryCollection_Misc" ? toggleAccMiscFilterOn() : 
+                    collection === "AccessoryCollection_Magazines" ? toggleMagazinesFilterOn() :
+                    collection === "AccessoryCollection_Silencers" ? toggleSilencersFilterOn() :
+                    null} />
               </View>
               <View>
               {
                 collection === "GunCollection" ? 
                   gunTags.map((tag, index)=>{
-                  return <Checkbox.Item mode="android" key={`filter_${tag.label}_${index}`} label={tag.label} status={tag.active ? "checked" : "unchecked"} onPress={()=>handleFilterPress(tag)} />
+                    return <Checkbox.Item mode="android" key={`filter_${tag.label}_${index}`} label={tag.label} status={tag.active ? "checked" : "unchecked"} onPress={()=>handleFilterPress(tag)} />
                 })
               :
                 collection === "AmmoCollection" ?
                   ammoTags.map((tag, index)=>{
-                  return <Checkbox.Item mode="android" key={`filter_${tag.label}_${index}`} label={tag.label} status={tag.active ? "checked" : "unchecked"} onPress={()=>handleFilterPress(tag)} />
+                    return <Checkbox.Item mode="android" key={`filter_${tag.label}_${index}`} label={tag.label} status={tag.active ? "checked" : "unchecked"} onPress={()=>handleFilterPress(tag)} />
                 })
               : 
                 collection === "AccessoryCollection_Optics" ?
                   opticsTags.map((tag, index)=>{
-                  return <Checkbox.Item mode="android" key={`filter_${tag.label}_${index}`} label={tag.label} status={tag.active ? "checked" : "unchecked"} onPress={()=>handleFilterPress(tag)} />
+                    return <Checkbox.Item mode="android" key={`filter_${tag.label}_${index}`} label={tag.label} status={tag.active ? "checked" : "unchecked"} onPress={()=>handleFilterPress(tag)} />
                 })
               : collection === "AccessoryCollection_Magazines" ?
                   magazineTags.map((tag, index)=>{
-                  return <Checkbox.Item mode="android" key={`filter_${tag.label}_${index}`} label={tag.label} status={tag.active ? "checked" : "unchecked"} onPress={()=>handleFilterPress(tag)} />
+                    return <Checkbox.Item mode="android" key={`filter_${tag.label}_${index}`} label={tag.label} status={tag.active ? "checked" : "unchecked"} onPress={()=>handleFilterPress(tag)} />
                 })
               : collection === "AccessoryCollection_Misc" ?
                 accMiscTags.map((tag, index)=>{
-              return <Checkbox.Item mode="android" key={`filter_${tag.label}_${index}`} label={tag.label} status={tag.active ? "checked" : "unchecked"} onPress={()=>handleFilterPress(tag)} />
-            })
-          : null
+                  return <Checkbox.Item mode="android" key={`filter_${tag.label}_${index}`} label={tag.label} status={tag.active ? "checked" : "unchecked"} onPress={()=>handleFilterPress(tag)} />
+                })
+              : collection === "AccessoryCollection_Silencers" ?
+                silencerTags.map((tag, index)=>{
+                  return <Checkbox.Item mode="android" key={`filter_${tag.label}_${index}`} label={tag.label} status={tag.active ? "checked" : "unchecked"} onPress={()=>handleFilterPress(tag)} />
+                })
+              : null
             }
               </View>
             </View>
