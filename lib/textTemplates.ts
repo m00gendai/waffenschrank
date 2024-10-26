@@ -117,6 +117,7 @@ interface ModalText{
     colorPicker: ModalTextItems
     caliberPicker: ModalTextItems
     cleanInterval: ModalTextItems
+    mountedOn: ModalTextItems
 }
 
 interface ModalTextItems{
@@ -157,6 +158,9 @@ interface aboutThanksPersons{
 interface LongPressActions{
     clone: SimpleTranslation
     delete: SimpleTranslation
+    batteryChange: SimpleTranslation
+    markCleaned: SimpleTranslation
+    mountOn: SimpleTranslation
 }
 
 interface iosWarning{
@@ -330,6 +334,21 @@ export const newAccessory_miscTitle:SimpleTranslation = {
     ch: "Nov magazin",
 }
 
+export const editAccessory_silencersTitle:SimpleTranslation = {
+    de: "Schalldämpfer bearbeiten",
+    en: "Edit silencer",
+    fr: "Modifier le silencieux",
+    it: "Modifica silenziatore",
+    ch: "Elavurar paraplievgias dal tun",
+}
+
+export const newAccessory_silencersTitle:SimpleTranslation = {
+    de: "Neuer Schalldämpfer",
+    en: "New silencer",
+    fr: "Nouveau silencieux",
+    it: "Nouveau silencieux",
+    ch: "Nov parasol",
+}
 
 
 export const unsavedChangesAlert:Alert = {
@@ -532,6 +551,37 @@ export const accessory_miscDeleteAlert:Alert = {
         fr: "L'accessoire est définitivement supprimé. Voulez-vous vraiment continuer?",
         it: "L'accessorio verrà cancellato in modo irrevocabile. Continuare davvero?",
         ch: "L'accessori vegn stizzà irrevocablamain. Propi cuntinuar?",
+    },
+    yes: {
+        de: "Ja",
+        en: "Yes",
+        fr: "Oui",
+        it: "Sì",
+        ch: "Gea",
+    },
+    no: {
+        de: "Nein",
+        en: "No",
+        fr: "Non",
+        it: "No",
+        ch: "Na",
+    }
+}
+
+export const accessory_silencersDeleteAlert:Alert = {
+    title: {
+        de: "wirklich löschen?",
+        en: "will be deleted",
+        fr: "vraiment supprimer?",
+        it: "davvero eliminare?",
+        ch: "propi stizzar?",
+    },
+    subtitle: {
+        de: "Der Schalldämpfer wird unwiderruflich gelöscht. Wirklich fortfahren?",
+        en: "The silencer will be irrevocably deleted. Really continue?",
+        fr: "Le silencieux s'éteint irrévocablement. Voulez-vous vraiment continuer?",
+        it: "Il silenziatore si spegne irrevocabilmente. Continuare davvero?",
+        ch: "Il plidader dal tun vegn stizzà irrevocablamain. Propi cuntinuar?",
     },
     yes: {
         de: "Ja",
@@ -1361,6 +1411,22 @@ export const modalTexts: ModalText = {
             ch: `Tscherni in interval da temp, cur che l'arma stuess puspè vegnir nettegiada.\n\nDies vegn quintà vi da la valur da "l'ultima nettegiada", premess che quella saja messa.\n\nBenenen surpassament da l'interval cumpara il num da l'arma en la survista cotschna.`,
         }
     },
+    mountedOn: {
+        title: {
+            de: "Derzeit montiert auf",
+            en: "Currently mounted on",
+            fr: "Attualmente montato su",
+            it: "Attualmente montato su",
+            ch: "Actualmain montà sin",
+        },
+        text: {
+            de: "Wähle die Waffe, auf die das aktuelle Zubehör montiert werden soll.\n\nDieses wird dann in der Waffenübersicht mit Symbolen angezeigt.",
+            en: "Choose the weapon on which the current accessory should be mounted.\n\nThis will then be displayed with icons in the Weapons Overview.",
+            fr: "Sélectionnez l'arme sur laquelle vous souhaitez monter l'accessoire courant.\n\nCeci s'affiche ensuite dans la vue d'ensemble des armes avec des icônes.",
+            it: "Seleziona l'arma su cui montare l'accessorio corrente.\n\nQuesto apparirà nel riepilogo delle armi con icone",
+            ch: "Tscherner l'arma, sin la quala duai vegnir montada l'accessori actual.\n\nQuest vegn alura mussà en la survista da las armas cun simbols."
+        },
+    }
 }
 
 export const caliberPickerStrings:CaliberPickerStrings = {
@@ -1447,6 +1513,27 @@ export const longPressActions:LongPressActions = {
         fr: "Supprimer",
         it: "Cancellare",
         ch: "Stizzar",
+    },
+    batteryChange: {
+        de: "Batterie gewechselt",
+        en: "Changed battery",
+        fr: "Batterie changée",
+        it: "Sostituzione della batteria",
+        ch: "Midà battaria"
+    },
+    markCleaned: {
+        de: "Gereinigt",
+        en: "Cleaned",
+        fr: "Nettoyé",
+        it: "Ripulito",
+        ch: "Nettegià"
+    },
+    mountOn: {
+        de: "Auf Waffe montieren",
+        en: "Mount on gun",
+        fr: "Monté sur arme",
+        it: "Monta sull'arma",
+        ch: "Montar sin arma"
     }
 }
 
