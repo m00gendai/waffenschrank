@@ -41,6 +41,7 @@ import EditItem from './components/EditItem';
 import NewItem from './components/NewItem';
 import AccessoryCollection_magazines from './components/AccessoryCollection_magazines';
 import AccessoryCollection_misc from './components/AccessoryCollection_misc';
+import AccessoryCollection_silencers from './components/AccessoryCollection_silencers';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -376,6 +377,12 @@ export default function App() {
               <Stack.Screen
                 name="AccessoryCollection_Misc"
                 component={AccessoryCollection_misc}
+                options={{headerShown: false, cardStyleInterpolator: CardStyleInterpolators.forFadeFromCenter}} 
+              />
+
+              <Stack.Screen
+                name="AccessoryCollection_Silencers"
+                component={AccessoryCollection_silencers}
                 options={{headerShown: false, cardStyleInterpolator: CardStyleInterpolators.forFadeFromCenter}} 
               />
 
