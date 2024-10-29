@@ -1,4 +1,4 @@
-import { AccessoryType_Magazine, AccessoryType_Misc, AccessoryType_Optic, AccessoryType_Silencer, AmmoType, CollectionItems, GunType, ItemTypes, SortingTypes } from "./interfaces";
+import { AccessoryType_Magazine, AccessoryType_Misc, AccessoryType_Optic, AccessoryType_Silencer, AmmoType, CollectionItems, GunType, ItemTypes, SortingTypes_All } from "./interfaces";
 import { gunDataTemplate, gunRemarks } from "./lib/gunDataTemplate";
 import { accessory_magazinesDeleteAlert, accessory_miscDeleteAlert, accessory_opticsDeleteAlert, accessory_silencersDeleteAlert, ammoDeleteAlert, gunDeleteAlert, newAccessory_magazinesTitle, newAccessory_miscTitle, newAccessory_opticsTitle, newAccessory_silencersTitle, newAmmoTitle, newGunTitle, toastMessages, validationErros } from "./lib//textTemplates";
 import { ammoDataTemplate, ammoRemarks } from "./lib/ammoDataTemplate";
@@ -12,7 +12,7 @@ import { accessoryDataTemplate_optics, accessoryRemarks_optics, accessoryRemarks
 
 const nonSetValue: number = 999999999999999
 
-export function getSortAlternateValue(sortBy:SortingTypes){
+export function getSortAlternateValue(sortBy:SortingTypes_All){
     switch(sortBy){
         case "alphabetical":
             return ""
@@ -35,7 +35,7 @@ export function getSortAlternateValue(sortBy:SortingTypes){
     }
 }
 
-export function getIcon(type:SortingTypes){
+export function getIcon(type:SortingTypes_All){
     switch(type){
         case "alphabetical":
             return "alphabetical-variant"
