@@ -4,8 +4,9 @@
 ## Schema
 
 1. Create database schema in ``./db/schema.tsx``
-2. Create a new schema for corresponding tags in ``./db/schema.tsx``
-3. Run ``npx drizzle-kit generate``
+2. Create a new schema for corresponding tags
+3. Update settings schema (in regards to sorting and sort order)
+4. Run ``npx drizzle-kit generate``
 
 ## Interface
 
