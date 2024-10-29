@@ -4,7 +4,7 @@ import { Dimensions, FlatList, TouchableOpacity, View } from 'react-native';
 import { Appbar, FAB, Menu, Switch, Text, Tooltip, Searchbar, Button, Icon } from 'react-native-paper';
 import { defaultBottomBarHeight, defaultGridGap, defaultSearchBarHeight, defaultViewPadding } from '../configs';
 import { PREFERENCES } from "../configs_DB"
-import { GunType, MenuVisibility, SortingTypes } from '../interfaces';
+import { GunType, MenuVisibility, SortingTypes_Gun } from '../interfaces';
 import { getIcon, getSortAlternateValue } from '../utils';
 import { useViewStore } from '../stores/useViewStore';
 import { useItemStore } from "../stores/useItemStore"
@@ -19,52 +19,55 @@ import { eq, lt, gte, ne, and, or, like, asc, desc, exists, isNull, sql, inArray
 import FilterMenu from './FilterMenu';
 
 export default function GunCollection({navigation, route}){
+
   const [menuVisibility, setMenuVisibility] = useState<MenuVisibility>({sortBy: false, filterBy: false});
 
   const [searchBannerVisible, toggleSearchBannerVisible] = useState<boolean>(false)
   const [searchQuery, setSearchQuery] = useState<string>("")
-  const { displayAsGrid, toggleDisplayAsGrid, sortBy, setSortBy, language, setSortGunIcon, sortGunIcon, sortGunsAscending, toggleSortGunsAscending, theme, gunFilterOn } = usePreferenceStore()
+  const { displayAsGrid, toggleDisplayAsGrid, language, sortBy_Gun, setSortBy_Gun, setSortGunIcon, sortGunIcon, sortGunsAscending, toggleSortGunsAscending, theme, gunFilterOn } = usePreferenceStore()
   const { mainMenuOpen, hideBottomSheet, setHideBottomSheet, toggleHideBottomSheet } = useViewStore()
   const { setCurrentItem } = useItemStore()
+  const [sortBy, setSortBy] = useState("lastModifiedAt")
 
   const { data: gunData } = useLiveQuery(
     db.select()
-    .from(schema.gunCollection)
-    .where(
-      and(
-        or(
-          like(schema.gunCollection.model, `%${searchQuery}%`),
-          like(schema.gunCollection.manufacturer, `%${searchQuery}%`)
-        ),
+      .from(schema.gunCollection)
+      .where(
+        and(
+          or(
+            like(schema.gunCollection.model, `%${searchQuery}%`),
+            like(schema.gunCollection.manufacturer, `%${searchQuery}%`)
+          ),
+        )
       )
-    )
-    .orderBy(
-      sortGunsAscending ?
-        sortBy === "alphabetical" ?
-          asc((sql`COALESCE(NULLIF(${schema.gunCollection.manufacturer}, ""), ${schema.gunCollection.model})`))
-          : (sql`
-            CASE
-              WHEN NULLIF(${schema.gunCollection[sortBy]}, "") IS NULL THEN NULL
-              ELSE strftime('%s', ${schema.gunCollection[sortBy]})
-            END ASC NULLS LAST`)
-        :
-        sortBy === "alphabetical" ?
-          desc((sql`COALESCE(NULLIF(${schema.gunCollection.manufacturer}, ""), ${schema.gunCollection.model})`))
-          : (sql`
-            CASE
-                WHEN NULLIF(${schema.gunCollection[sortBy]}, "") IS NULL THEN NULL
-                ELSE strftime('%s', ${schema.gunCollection[sortBy]})
-              END DESC NULLS LAST`)
-    ),
+      .orderBy(
+        sortGunsAscending
+          ? sortBy === "alphabetical"
+            ? asc(sql`COALESCE(NULLIF(${schema.gunCollection.manufacturer}, ""), ${schema.gunCollection.model})`)
+            : asc(
+                sql`CASE
+                WHEN NULLIF(${schema.gunCollection[sortBy]}, "") IS NULL THEN 1
+                ELSE 0
+              END, ${schema.gunCollection[sortBy]}`
+              )
+          : sortBy === "alphabetical"
+          ? desc(sql`COALESCE(NULLIF(${schema.gunCollection.manufacturer}, ""), ${schema.gunCollection.model})`)
+          : desc(
+              sql`CASE
+              WHEN NULLIF(${schema.gunCollection[sortBy]}, IS NULL THEN 1
+              ELSE 0
+            END, ${schema.gunCollection[sortBy]}`
+            )
+      ),
     [searchQuery, sortGunsAscending, sortBy]
-  )
+  );
 
   const { data: tagData } = useLiveQuery(
     db.select()
     .from(schema.gunTags)
   )
 
-  async function handleSortBy(type: SortingTypes){
+  async function handleSortBy(type: SortingTypes_Gun){
     setSortGunIcon(getIcon(type))
     setSortBy(type)
     const preferences:string = await AsyncStorage.getItem(PREFERENCES)
