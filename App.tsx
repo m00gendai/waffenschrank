@@ -61,27 +61,17 @@ export default function App() {
   const [appIsReady, setAppIsReady] = useState<boolean>(false);
 
   const { 
-    ammoDbImport, 
-    dbImport,
-    switchLanguage, 
-    theme, 
-    switchTheme, 
-    setGeneralSettings, 
-    setDisplayAsGrid, 
-    setDisplayAmmoAsGrid, 
-    setSortBy, 
-    setSortAmmoBy, 
-    setSortAmmoIcon, 
-    setSortGunIcon, 
-    setSortGunsAscending, 
-    setSortAmmoAscending, 
     setCaliberDisplayNameList,
-    caliberDisplayNameList
+    language, 
+    switchLanguage,
+    theme,
+    switchTheme
+
   } = usePreferenceStore();
 
   const { mainMenuOpen, hideBottomSheet } = useViewStore()
 
-  const { setAmmoTags, setTags } = useTagStore()
+  const [settingsData, setSettingsData] = useState([])
 
   async function getKeys(data: "guns" | "ammo"){
     const keys:string = await AsyncStorage.getItem(data === "guns" ? KEY_DATABASE : A_KEY_DATABASE)
@@ -164,16 +154,17 @@ export default function App() {
       await AsyncStorage.removeItem(A_KEY_DATABASE)
     }
   }
-
   
   useEffect(() => {
     async function prepare() {
       try {
+        if(success){
+        const settings = await db.select().from(schema.settings)
+        setSettingsData(settings)
         console.log("try: so hard")
-        const preferences:string = await AsyncStorage.getItem(PREFERENCES)
-        const isPreferences = preferences === null ? null : JSON.parse(preferences)
-        console.log("isPreferences null")
-        if(isPreferences === null){
+        console.log(settings[0])
+        if(settings.length === 0){
+           await db.insert(schema.settings).values({sortBy_Guns: "alphabetical"})
           console.log("checking legacy gun data")
           await checkLegacyGunData()
           console.log("checking legacy ammo data")
@@ -183,27 +174,25 @@ export default function App() {
             setAppIsReady(true)
           }
           return
-        }
-        console.log("isPreferences.generalSettings null")
-        if(isPreferences.generalSettings === null || isPreferences.generalSettings === undefined){ 
+        } else {
+           switchTheme(settings[0].theme.name)
+            switchLanguage(settings[0].language)
           if(success){
-            await checkLegacyGunData()
-          await checkLegacyAmmoData()
             setAppIsReady(true)
+            return
           }
-          return
+         
         }
-        console.log("isPreferences.generalsettings.loginGuard null || false")
-        if(isPreferences.generalSettings.loginGuard !== null && isPreferences.generalSettings.loginGuard !== undefined && isPreferences.generalSettings.loginGuard === true){
+        if(settings[0].generalSettings_loginGuard === true){
           const authSuccess = await LocalAuthentication.authenticateAsync()
           if(authSuccess.success){
             await checkLegacyGunData()
-          await checkLegacyAmmoData()
+            await checkLegacyAmmoData()
           if(success){
             setAppIsReady(true)
           }
           } else{
-            throw new Error(`Local Authentification failed: ${JSON.stringify(authSuccess)} | ${isPreferences.generalSettings.loginGuard}`);
+            throw new Error(`Local Authentification failed: ${JSON.stringify(authSuccess)} | ${settings[0].generalSettings_loginGuard}`);
           }
         } else {
           console.log("false")
@@ -214,7 +203,7 @@ export default function App() {
           }
           return
         }
-      } catch (e) {
+      } }catch (e) {
         console.log("catch: got so far")
         console.log(`got so far error: ${e}`);
         alarm("Initialisation error", e)
@@ -229,97 +218,10 @@ export default function App() {
       
     }
   }, [appIsReady]);
-  
-  useEffect(()=>{
-    async function getPreferences(){
-      let preferences:string
-      try{
-        preferences = await AsyncStorage.getItem(PREFERENCES)
-      } catch(e){
-        alarm("Preference DB Error", e)
-      }
-      let isPreferences
-      try{
-       isPreferences = preferences === null ? null : JSON.parse(preferences)
-      } catch(e){
-        alarm("Preference Parse Error", e)
-      }
-      
-      /* GENERAL SETTINGS AND PREFERENCES */
-      try{
-      switchLanguage(isPreferences === null ? "de" : isPreferences.language === undefined ? "de" : isPreferences.language)
-      switchTheme(isPreferences === null ? "default" : isPreferences.theme === undefined ? "default" : isPreferences.theme)
-      setGeneralSettings(isPreferences === null ? {
-        displayImagesInListViewAmmo: true, 
-        displayImagesInListViewGun: true,
-        resizeImages: true,
-      } : isPreferences.generalSettings === undefined ? {
-        displayImagesInListViewAmmo: true, 
-        displayImagesInListViewGun: true,
-        resizeImages: true,
-      } : isPreferences.generalSettings)
-      let shortCalibers:{name: string, displayName?: string}[] = []
-      if(isPreferences !== null){
-        if(isPreferences.generalSettings !== undefined){
-          if(isPreferences.generalSettings.caliberDisplayName !== undefined){
-            calibers.map(variant =>{
-              variant.variants.map(caliber =>{
-                if(caliber.displayName !== undefined){
-                  shortCalibers.push(caliber)
-                }
-              })
-            })
-          }
-        }
-      }
-      setCaliberDisplayNameList(shortCalibers)
-    } catch(e){
-      alarm("General Preferences Error", e)
-    }
-
-      /* AMMO PREFERENCES */
-      try{
-      const ammo_tagList: string = await AsyncStorage.getItem(A_TAGS)
-      const isAmmoTagList:{label: string, status: boolean}[] = ammo_tagList === null ? null : JSON.parse(ammo_tagList)
-      setDisplayAmmoAsGrid(isPreferences === null ? true : isPreferences.displayAmmoAsGrid === null ? true : isPreferences.displayAmmoAsGrid)
-      setSortAmmoBy(isPreferences === null ? "alphabetical" : isPreferences.sortAmmoBy === undefined ? "alphabetical" : isPreferences.sortAmmoBy)
-      setSortAmmoIcon(getIcon((isPreferences === null ? "alphabetical" : isPreferences.sortAmmoBy === null ? "alphabetical" : isPreferences.sortAmmoBy)))
-      setSortAmmoAscending(isPreferences === null ? true : isPreferences.sortOrderAmmo === null ? true : isPreferences.sortOrderAmmo)
-      if(isAmmoTagList !== null && isAmmoTagList !== undefined){
-        Object.values(isAmmoTagList).map(tag =>{
-          setAmmoTags(tag)
-        }) 
-      }
-    } catch(e){
-      alarm("Ammo Preferences Error", e)
-    }
-      /* GUN PREFERENCE */
-      try{
-      const gun_tagList: string = await AsyncStorage.getItem(TAGS) 
-      const isGunTagList:{label: string, status: boolean}[] = gun_tagList === null ? null : JSON.parse(gun_tagList)
-      setDisplayAsGrid(isPreferences === null ? true : isPreferences.displayAsGrid === null ? true : isPreferences.displayAsGrid)
-      setSortBy(isPreferences === null ? "alphabetical" : isPreferences.sortBy === undefined ? "alphabetical" : isPreferences.sortBy)
-      setSortGunIcon(getIcon((isPreferences === null ? "alphabetical" : isPreferences.sortBy === null ? "alphabetical" : isPreferences.sortBy)))
-      setSortGunsAscending(isPreferences === null ? true : isPreferences.sortOrderGuns === null ? true : isPreferences.sortOrderGuns)
-      if(isGunTagList !== null && isGunTagList !== undefined){
-        Object.values(isGunTagList).map(tag =>{
-          setTags(tag)
-        }) 
-      }
-    } catch(e){
-      alarm("Gun Preferences Error", e)
-    }
-    }
-    getPreferences()
-  },[])
-
- 
-
-
+  console.log(theme)
   const currentTheme = {...theme, roundness : 5}
 
   const Stack = createStackNavigator<StackParamList>()
-
 
   const navTheme = {
     ...DefaultTheme,
