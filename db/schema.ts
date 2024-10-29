@@ -1,4 +1,5 @@
 import { sqliteTable, integer, text } from 'drizzle-orm/sqlite-core';
+import { colorThemes } from "../lib/colorThemes"
 
 export const gunCollection = sqliteTable('guns', {
     db_id: integer('id').primaryKey().notNull(),
@@ -185,4 +186,32 @@ export const gunReminders = sqliteTable("gunReminder",{
     id: text("uuid").notNull(),
     label: text("label").notNull(),
     gun_id: text('gun_id').references(() => gunCollection.id),
+})
+
+export const settings = sqliteTable("settings", {
+    db_id: integer('id').primaryKey().notNull(),
+    generalSettings_loginGuard: integer("generalSettings_loginGuard", {mode: "boolean"}).default(false),
+    generalSettings_hideEmptyFields: integer("generalSettings_hideEmptyFields", {mode: "boolean"}).default(false),
+    generalSettings_resizeImages: integer("generalSettings_resizeImages", {mode: "boolean"}).default(true),
+    generalSettings_caliberDisplayName: integer("generalSettings_caliberDisplayName", {mode: "boolean"}).default(false),
+    language: text("language").default("de"),
+    theme: text("theme", {mode: "json"}).default({theme: {name: "default", colors: colorThemes.default}}),
+    sortBy_Guns: text("sortBy_Guns").default("alphabetical"),
+    sortBy_Ammo: text("sortBy_Ammo").default("alphabetical"),
+    sortBy_Accessory_Optic: text("sortBy_Accessory_Optic").default("alphabetical"),
+    sortBy_Accessory_Silencer: text("sortBy_Accessory_Silencer").default("alphabetical"),
+    sortBy_Accessory_Magazine: text("sortBy_Accessory_Magazine").default("alphabetical"),
+    sortBy_Accessory_Misc: text("sortBy_Accessory_Misc").default("alphabetical"),
+    sortOrder_Guns: text("sortOrder_Guns", {enum: ["asc", "desc"]}).default("asc"),
+    sortOrder_Ammo: text("sortOrder_Ammo", {enum: ["asc", "desc"]}).default("asc"),
+    sortOrder_Accessory_Optic: text("sortOrder_Accessory_Optic", {enum: ["asc", "desc"]}).default("asc"),
+    sortOrder_Accessory_Silencer: text("sortOrder_Accessory_Silencer", {enum: ["asc", "desc"]}).default("asc"),
+    sortOrder_Accessory_Magazine: text("sortOrder_Accessory_Magazine", {enum: ["asc", "desc"]}).default("asc"),
+    sortOrder_Accessory_Misc: text("sortOrder_Accessory_Misc", {enum: ["asc", "desc"]}).default("asc"),
+    displayMode_Guns: text("displayMode_Guns",{enum: ["grid", "list", "compactList"]}).default("grid"),
+    displayMode_Ammo: text("displayMode_Ammo",{enum: ["grid", "list", "compactList"]}).default("grid"),
+    displayMode_Accessory_Optic: text("displayMode_Accessory_Optic",{enum: ["grid", "list", "compactList"]}).default("grid"),
+    displayMode_Accessory_Silencer: text("displayMode_Accessory_Silencer",{enum: ["grid", "list", "compactList"]}).default("grid"),
+    displayMode_Accessory_Magazine: text("displayMode_Accessory_Magazine",{enum: ["grid", "list", "compactList"]}).default("grid"),
+    displayMode_Accessory_Misc: text("displayMode_Accessory_Misc",{enum: ["grid", "list", "compactList"]}).default("grid"),
 })
