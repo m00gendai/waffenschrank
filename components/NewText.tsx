@@ -27,10 +27,10 @@ interface Props{
 
 export default function NewText({itemType, data, itemData, setItemData, label}: Props){
 
-    const [input, setInput] = useState<string>(itemData ? Array.isArray(itemData[data]) ? itemData[data].join("\n") : itemData[data] : "")
+    const [input, setInput] = useState<string | number>(itemData ? Array.isArray(itemData[data]) ? itemData[data].join("\n") : itemData[data] : "")
     const [showDateTime, setShowDateTime] = useState<boolean>(false)
     const [date, setDate] = useState<(string | number | Date | dayjs.Dayjs)>(dayjs());
-    const [initialDate, setInitialDate] = useState<string>(itemData ? itemData[data] : "")
+    const [initialDate, setInitialDate] = useState<string | number>(itemData ? itemData[data] : "")
     const [showModal, setShowModal] = useState(false);
     const [showModalCaliber, setShowModalCaliber] = useState<boolean>(false)
     const [showCleanModal, setShowCleanModal] = useState<boolean>(false)
@@ -68,21 +68,21 @@ export default function NewText({itemType, data, itemData, setItemData, label}: 
     const { data: baseGun } = useLiveQuery(db.select().from(schema.gunCollection).where(eq(schema.gunCollection.id, mountedOn)),
     [mountedOn])
 
-    function updateItemData(input:string | string[]){
+    function updateItemData(input:string | string[] | number){
         if(charCount < MAX_CHAR_COUNT){
-            setCharCount(input !== undefined ? input.length : 0)
+            setCharCount(input !== undefined ? input.toString().length : 0)
             setInput(Array.isArray(input) ? input.join("\n") : input)
-            setItemData({...itemData, [data]: Array.isArray(input) ? input : input.trim()})
+            setItemData({...itemData, [data]: Array.isArray(input) ? input : typeof input === "string" ? input.trim() :input})
         }
         if(charCount >= MAX_CHAR_COUNT && isBackspace){
-            setCharCount(input !== undefined ? input.length : 0)
+            setCharCount(input !== undefined ? input.toString().length : 0)
             setInput(Array.isArray(input) ? input.join("\n") : input)
-            setItemData({...itemData, [data]: Array.isArray(input) ? input : input.trim()})
+            setItemData({...itemData, [data]: Array.isArray(input) ? input : typeof input === "string" ? input.trim() :input})
         }
     }
 
     function updateDate(input){
-        setInput(new Date(input).toLocaleDateString("de-CH", dateTimeOptions))
+        setInput(new Date(input).getTime())
         setDate(input)
     }
 
@@ -259,7 +259,7 @@ function handleInputPress(){
         "criticalStock"
     ]
 
-    function getTextfieldValue(input:string){
+    function getTextfieldValue(input:string | number){
         if(input === undefined){
             return ""
         }
