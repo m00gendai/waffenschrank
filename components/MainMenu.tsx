@@ -13,10 +13,8 @@ import * as FileSystem from 'expo-file-system';
 import * as DocumentPicker from 'expo-document-picker';
 import { AmmoType, DBOperations, GunType, GunTypeStatus, Languages } from "../interfaces"
 import * as SecureStore from "expo-secure-store"
-import { useGunStore } from "../stores/useGunStore"
 import { SafeAreaView } from "react-native-safe-area-context"
 import { printAmmoCollection, printAmmoGallery, printGunCollection, printGunCollectionArt5, printGunGallery } from "../functions/printToPDF"
-import { useAmmoStore } from "../stores/useAmmoStore"
 import { useTagStore } from "../stores/useTagStore"
 import * as Application from 'expo-application';
 import { manipulateAsync } from "expo-image-manipulator"
@@ -37,6 +35,10 @@ import { useLiveQuery } from "drizzle-orm/expo-sqlite"
 
 export default function MainMenu({navigation}){
 
+    const { data: settingsData } = useLiveQuery(
+        db.select().from(schema.settings)
+    )
+
     const { data: gunCollection } = useLiveQuery(
         db.select().from(schema.gunCollection)
     )
@@ -46,7 +48,7 @@ export default function MainMenu({navigation}){
     )
 
     const { setMainMenuOpen, toastVisible, setToastVisible, dbModalVisible, setDbModalVisible, imageResizeVisible, toggleImageResizeVisible, loginGuardVisible, toggleLoginGuardVisible, importCSVVisible, toggleImportCSVVisible, importModalVisible, toggleImportModalVisible } = useViewStore()
-    const { language, switchLanguage, theme, switchTheme, setDbImport, setAmmoDbImport, generalSettings, setGeneralSettings, caliberDisplayNameList } = usePreferenceStore()
+    const { language, switchLanguage, theme, switchTheme, caliberDisplayNameList } = usePreferenceStore()
 
     const { overWriteAmmoTags, overWriteTags} = useTagStore()
     const { setCSVHeader, setCSVBody, importProgress, setImportProgress, resetImportProgress, importSize, setImportSize, resetImportSize, setDbCollectionType } = useImportExportStore()
@@ -71,16 +73,12 @@ export default function MainMenu({navigation}){
     async function handleThemeSwitch(color:string){
         switchTheme(color)
         SystemUI.setBackgroundColorAsync(colorThemes[color].background)
-        const preferences:string = await AsyncStorage.getItem(PREFERENCES)
-        const newPreferences:{[key:string] : string} = preferences == null ? {"theme": color} : {...JSON.parse(preferences), "theme":color} 
-        await AsyncStorage.setItem(PREFERENCES, JSON.stringify(newPreferences))
+        await db.update(schema.settings).set({theme: {name: color, colors: colorThemes[color]}})
     }
 
     async function handleLanguageSwitch(lng:Languages){
         switchLanguage(lng)
-        const preferences:string = await AsyncStorage.getItem(PREFERENCES)
-        const newPreferences:{[key:string] : string} = preferences == null ? {"language": lng} : {...JSON.parse(preferences), "language":lng} 
-        await AsyncStorage.setItem(PREFERENCES, JSON.stringify(newPreferences))
+        await db.update(schema.settings).set({language: lng})
     }
 
     function dbSaveSuccess(){
@@ -92,7 +90,6 @@ export default function MainMenu({navigation}){
 
     function dbImportSuccess(size: number, data: DBOperations){
         setDbModalVisible()
-        data === "import_arsenal_gun_db" ? setDbImport(new Date()) : data === "import_arsenal_gun_csv" ? setDbImport(new Date()) : setAmmoDbImport(new Date())
         setSnackbarText(`${size} ${toastMessages.dbImportSuccess[language]}`)
         onToggleSnackBar()
     }
@@ -1099,34 +1096,28 @@ export default function MainMenu({navigation}){
                                 <List.Accordion left={props => <><List.Icon {...props} icon="cog-outline" /><List.Icon {...props} icon="tune" /></>} title={preferenceTitles.generalSettings[language]} titleStyle={{fontWeight: "700", color: theme.colors.onBackground}}>
                                     <View style={{ marginLeft: 5, marginRight: 5, padding: defaultViewPadding, backgroundColor: theme.colors.secondaryContainer, borderColor: theme.colors.primary, borderLeftWidth: 5}}>
                                         <View style={{display: "flex", flexDirection: "row", justifyContent: "flex-start", flexWrap: "wrap", gap: 5}}>
-                                            <View style={{display: "flex", flexWrap: "nowrap", justifyContent: "space-between", alignItems: "center", flexDirection: "row", width: "100%"}}>
+                                            {/*<View style={{display: "flex", flexWrap: "nowrap", justifyContent: "space-between", alignItems: "center", flexDirection: "row", width: "100%"}}>
                                                 <Text style={{flex: 7}}>{generalSettingsLabels.displayImagesInListViewGun[language]}</Text>
-                                                <Switch style={{flex: 3}} value={generalSettings.displayImagesInListViewGun} onValueChange={()=>handleSwitches("displayImagesInListViewGun")} />
-                                            </View>
-                                            <Divider style={{width: "100%", borderWidth: 0.5, borderColor: theme.colors.onSecondary}} />
-                                            <View style={{display: "flex", flexWrap: "nowrap", justifyContent: "space-between", alignItems: "center", flexDirection: "row", width: "100%"}}>
-                                                <Text style={{flex: 7}}>{generalSettingsLabels.displayImagesInListViewAmmo[language]}</Text>
-                                                <Switch style={{flex: 3}} value={generalSettings.displayImagesInListViewAmmo} onValueChange={()=>handleSwitches("displayImagesInListViewAmmo")} />
-                                            </View>
-                                            <Divider style={{width: "100%", borderWidth: 0.5, borderColor: theme.colors.onSecondary}} />
+                                                <Switch style={{flex: 3}} value={settingsData[0]..displayImagesInListViewGun} onValueChange={()=>handleSwitches("displayImagesInListViewGun")} />
+                                        </View>*/}
                                             <View style={{display: "flex", flexWrap: "nowrap", justifyContent: "space-between", alignItems: "center", flexDirection: "row", width: "100%"}}>
                                                 <Text style={{flex: 7}}>{generalSettingsLabels.emptyFields[language]}</Text>
-                                                <Switch style={{flex: 3}} value={generalSettings.emptyFields} onValueChange={()=>handleSwitches("emptyFields")} />
+                                                <Switch style={{flex: 3}} value={settingsData[0]?.generalSettings_hideEmptyFields || false} onValueChange={()=>handleSwitches("emptyFields")} />
                                             </View>
                                             <Divider style={{width: "100%", borderWidth: 0.5, borderColor: theme.colors.onSecondary}} />
                                             <View style={{display: "flex", flexWrap: "nowrap", justifyContent: "space-between", alignItems: "center", flexDirection: "row", width: "100%"}}>
                                                 <Text style={{flex: 7}}>{generalSettingsLabels.caliberDisplayName[language]}</Text>
-                                                <Switch style={{flex: 3}} value={generalSettings.caliberDisplayName} onValueChange={()=>handleSwitches("caliberDisplayName")} />
+                                                <Switch style={{flex: 3}} value={settingsData[0]?.generalSettings_caliberDisplayName || false} onValueChange={()=>handleSwitches("caliberDisplayName")} />
                                             </View>
                                             <Divider style={{width: "100%", borderWidth: 0.5, borderColor: theme.colors.onSecondary}} />
                                             <View style={{display: "flex", flexWrap: "nowrap", justifyContent: "space-between", alignItems: "center", flexDirection: "row", width: "100%"}}>
                                                 <Text style={{flex: 7}}>{generalSettingsLabels.resizeImages[language]}</Text>
-                                                <Switch style={{flex: 3}} value={generalSettings.resizeImages} onValueChange={()=>generalSettings.resizeImages ? handleSwitchesAlert("resizeImages") : handleSwitches("resizeImages")} />
+                                                <Switch style={{flex: 3}} value={settingsData[0]?.generalSettings_resizeImages || true} onValueChange={()=>settingsData[0].generalSettings_resizeImages ? handleSwitchesAlert("resizeImages") : handleSwitches("resizeImages")} />
                                             </View>
                                             <Divider style={{width: "100%", borderWidth: 0.5, borderColor: theme.colors.onSecondary}} />
                                             <View style={{display: "flex", flexWrap: "nowrap", justifyContent: "space-between", alignItems: "center", flexDirection: "row", width: "100%"}}>
                                                 <Text style={{flex: 7}}>{generalSettingsLabels.loginGuard[language]}</Text>
-                                                <Switch style={{flex: 3}} value={generalSettings.loginGuard} onValueChange={()=>handleSwitchesAlert("loginGuard")} />
+                                                <Switch style={{flex: 3}} value={settingsData[0]?.generalSettings_loginGuard || false} onValueChange={()=>handleSwitchesAlert("loginGuard")} />
                                             </View>
                                         </View>
                                     </View>
