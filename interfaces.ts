@@ -222,15 +222,44 @@ export interface CommonStyles {
   tagContainerGap: string
 }
 
-export type SortingTypes =  "alphabetical" | 
-                            "createdAt" | 
-                            "lastModifiedAt" | 
-                            "caliber" | 
-                            "paidPrice" | 
-                            "marketValue" | 
-                            "acquisitionDate" | 
-                            "lastCleanedAt" |
-                            "lastShotAt"
+export type SortingTypes_Gun =   "alphabetical" | 
+                                "createdAt" | 
+                                "lastModifiedAt" | 
+                                "caliber" | 
+                                "paidPrice" | 
+                                "marketValue" | 
+                                "acquisitionDate" | 
+                                "lastCleanedAt" |
+                                "lastShotAt"
+
+export type SortingTypes_Ammo = "alphabetical" | 
+                                "createdAt" | 
+                                "lastModifiedAt" | 
+                                "caliber" | 
+                                "currentStock" 
+
+export type SortingTypes_Accessory_Optic =  "alphabetical" | 
+                                            "createdAt" | 
+                                            "lastModifiedAt" | 
+                                            "lastBatteryChangeAt"
+                                            
+export type SortingTypes_Accessory_Silencer = "alphabetical" | 
+                                              "createdAt" | 
+                                              "lastModifiedAt" | 
+                                              "caliber" |
+                                              "decibel"
+                                              
+export type SortingTypes_Accessory_Magazine = "alphabetical" |
+                                              "createdAt" |
+                                              "lastModifiedAt" |
+                                              "capacity" |
+                                              "platform"
+
+export type SortingTypes_Accessory_Misc = "alphabetical" |
+                                          "createdAt" |
+                                          "lastModifiedAt"
+
+export type SortingTypes_All = SortingTypes_Gun | SortingTypes_Ammo | SortingTypes_Accessory_Optic | SortingTypes_Accessory_Silencer | SortingTypes_Accessory_Magazine | SortingTypes_Accessory_Misc
                             
 export type Languages = "de" | "en" | "fr" | "it" | "ch"
 export type CaliberArray = {id: string, amount: string }
