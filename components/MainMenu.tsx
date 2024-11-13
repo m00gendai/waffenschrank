@@ -720,12 +720,9 @@ export default function MainMenu({navigation}){
     }
 
     async function handleSwitches(setting: string){
-        const newSettings = {...generalSettings, [setting]: !generalSettings[setting]}
-            setGeneralSettings(newSettings)
-            console.log(newSettings)
-            const preferences:string = await AsyncStorage.getItem(PREFERENCES)
-            const newPreferences:{[key:string] : string} = preferences == null ? {"generalSettings": newSettings} : {...JSON.parse(preferences), "generalSettings": newSettings} 
-            await AsyncStorage.setItem(PREFERENCES, JSON.stringify(newPreferences))
+        const settings = await db.select().from(schema.settings)
+        const currentSettingStatus: boolean = settings[0][`generalSettings_${setting}`]
+        await db.update(schema.settings).set({[`generalSettings_${setting}`]: !currentSettingStatus})
         }
         
     async function importCSV(data: DBOperations){
@@ -1102,7 +1099,7 @@ export default function MainMenu({navigation}){
                                         </View>*/}
                                             <View style={{display: "flex", flexWrap: "nowrap", justifyContent: "space-between", alignItems: "center", flexDirection: "row", width: "100%"}}>
                                                 <Text style={{flex: 7}}>{generalSettingsLabels.emptyFields[language]}</Text>
-                                                <Switch style={{flex: 3}} value={settingsData[0]?.generalSettings_hideEmptyFields || false} onValueChange={()=>handleSwitches("emptyFields")} />
+                                                <Switch style={{flex: 3}} value={settingsData[0]?.generalSettings_hideEmptyFields || false} onValueChange={()=>handleSwitches("hideEmptyFields")} />
                                             </View>
                                             <Divider style={{width: "100%", borderWidth: 0.5, borderColor: theme.colors.onSecondary}} />
                                             <View style={{display: "flex", flexWrap: "nowrap", justifyContent: "space-between", alignItems: "center", flexDirection: "row", width: "100%"}}>
