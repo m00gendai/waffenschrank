@@ -449,3 +449,20 @@ export function alarm(title: string, error:string){
       },
     ])
   }
+
+  export function getDisplayMode(type: ItemTypes){
+    switch(type){
+        case "Gun":
+            return "Guns"
+        case "Ammo":
+            return "Ammo"
+        case "Accessory_Optic":
+            return "Accessory_Optic"
+        case "Accessory_Magazine":
+            return "Accessory_Magazine"
+        case "Accessory_Misc":
+            return "Accessory_Misc"
+        case "Accessory_Silencer":
+            return "Accessory_Silencer"
+    }
+  }
