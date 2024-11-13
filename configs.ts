@@ -39,3 +39,5 @@ export const requiredFieldsGun:string[] = ["model"]
 export const requiredFieldsAmmo:string[] = ["designation"]
 
 export const statusEntries: string[] = ["fullAuto", "exFullAuto", "highCapacityMagazine", "short", "laucnher", "decepticon", "blooptoob", "grandfather"]
+
+export const displayStyles: string[] = ["grid", "list", "compactList"]
