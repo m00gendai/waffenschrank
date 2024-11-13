@@ -3,7 +3,7 @@ import { Dimensions, FlatList, TouchableOpacity, View } from 'react-native';
 import { Appbar, FAB, Menu, Switch, Text, Tooltip, Searchbar, Button, Icon } from 'react-native-paper';
 import { defaultBottomBarHeight, defaultGridGap, defaultSearchBarHeight, defaultViewPadding } from '../configs';
 import { PREFERENCES } from "../configs_DB"
-import { GunType, MenuVisibility, SortingTypes_Accessory_Misc, SortingTypes_Accessory_Silencer } from '../interfaces';
+import { GunType, MenuVisibility, SortingTypes_Accessory_Silencer } from '../interfaces';
 import { getIcon, getSortAlternateValue } from '../utils';
 import { useViewStore } from '../stores/useViewStore';
 import { useItemStore } from '../stores/useItemStore';
