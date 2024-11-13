@@ -7,7 +7,7 @@ import { useItemStore } from '../stores/useItemStore';
 import { useNavigation } from '@react-navigation/native';
 import { useViewStore } from '../stores/useViewStore';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { checkDate, getDeleteDialogTitle, getSchema, setCardSubtitle, setCardTitle } from '../utils';
+import { checkDate, getDeleteDialogTitle, getDisplayMode, getSchema, setCardSubtitle, setCardTitle } from '../utils';
 import { useState } from 'react';
 import { gunDeleteAlert, longPressActions, modalTexts } from '../lib/textTemplates';
 import { drizzle, useLiveQuery } from "drizzle-orm/expo-sqlite"
@@ -24,7 +24,11 @@ interface Props{
 
 export default function ItemCard({item, itemType}:Props){
 
-    const { displayAsGrid, language, theme, generalSettings, caliberDisplayNameList } = usePreferenceStore()
+    const { data: settingsData } = useLiveQuery(
+        db.select().from(schema.settings)
+      )
+
+    const { language, theme, caliberDisplayNameList } = usePreferenceStore()
     const { currentItem, setCurrentItem } = useItemStore()  
     const { setHideBottomSheet } = useViewStore()
 
@@ -49,9 +53,11 @@ export default function ItemCard({item, itemType}:Props){
         db.select().from(schema.gunCollection)
     )
 
+   
+
     function getShortCaliberName(item){
         if(itemType === "Ammo"){
-            if(!generalSettings.caliberDisplayName){
+            if(!settingsData[0]?.generalSettings_caliberDisplayName){
                 return item.caliber
             }
             const match = caliberDisplayNameList.find(obj => obj.name === item.caliber)
@@ -171,16 +177,16 @@ export default function ItemCard({item, itemType}:Props){
               >
         <Card 
             style={{
-                width: (Dimensions.get("window").width / (displayAsGrid ? Dimensions.get("window").width > Dimensions.get("window").height ? 4 : 2 : 1)) - (defaultGridGap + (displayAsGrid ? defaultViewPadding/2 : defaultViewPadding)),
+                width: (Dimensions.get("window").width / (settingsData[0]?.[`displayMode_${getDisplayMode(itemType)}`] === "grid" ? Dimensions.get("window").width > Dimensions.get("window").height ? 4 : 2 : 1)) - (defaultGridGap + (settingsData[0]?.[`displayMode_${getDisplayMode(itemType)}`] === "grid" ? defaultViewPadding/2 : defaultViewPadding)),
             }}
         >
             <Card.Title
                 titleStyle={{
-                width: displayAsGrid ? "100%" : generalSettings.displayImagesInListViewGun ? "55%" : "80%",
+                width: settingsData[0]?.[`displayMode_${getDisplayMode(itemType)}`] === "grid" ? "100%" : "80%",
                 color: checkDate(item) ? theme.colors.error : theme.colors.onSurfaceVariant
                 }}
                 subtitleStyle={{
-                width: displayAsGrid ? "100%" : generalSettings.displayImagesInListViewGun ? "55%" : "80%",
+                width: settingsData[0]?.[`displayMode_${getDisplayMode(itemType)}`] === "grid" ? "100%" : "80%",
                 color: theme.colors.onSurfaceVariant
                 }}
                 title={setCardTitle(item, itemType)}
@@ -190,7 +196,7 @@ export default function ItemCard({item, itemType}:Props){
                 titleNumberOfLines={2} 
                 subtitleNumberOfLines={2}
             />
-            {displayAsGrid ? 
+            {settingsData[0]?.[`displayMode_${getDisplayMode(itemType)}`] === "grid" ? 
             <Menu
             visible={cardButtonMenu}
             onDismiss={()=>toggleCardButtonMenu(!cardButtonMenu)}
@@ -247,7 +253,7 @@ export default function ItemCard({item, itemType}:Props){
                 </Menu>
             : 
             null}
-            {displayAsGrid ? 
+            {settingsData[0]?.[`displayMode_${getDisplayMode(itemType)}`] === "grid" ? 
             null 
             :
             <View 
@@ -263,7 +269,6 @@ export default function ItemCard({item, itemType}:Props){
                     flexDirection: "row"
                 }}
             >
-                {generalSettings.displayImagesInListViewGun ? 
                     <View>
                         <Card.Cover 
                             source={item.images && item.images.length != 0 ? { uri: `${FileSystem.documentDirectory}${item.images[0].split("/").pop()}` } : require(`../assets//775788_several different realistic rifles and pistols on _xl-1024-v1-0.png`)} 
@@ -303,7 +308,7 @@ export default function ItemCard({item, itemType}:Props){
                                 /> : null
                             }
                         </View> : null}
-                    </View> : null}
+                    </View>
                 <Menu
                     visible={cardButtonMenu}
                     onDismiss={()=>toggleCardButtonMenu(!cardButtonMenu)}

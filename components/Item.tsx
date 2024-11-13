@@ -18,6 +18,8 @@ import * as FileSystem from 'expo-file-system';
 import { db } from "../db/client"
 import { eq, lt, gte, ne, and, or, like, asc, desc, exists, isNull, sql } from 'drizzle-orm';
 import { GunType, ItemTypes } from '../interfaces';
+import * as schema from "../db/schema"
+import { useLiveQuery } from "drizzle-orm/expo-sqlite"
 
 export default function Item({navigation, route}){
 
@@ -29,7 +31,7 @@ export default function Item({navigation, route}){
     const [dialogVisible, toggleDialogVisible] = useState<boolean>(false)
 
     const { lightBoxOpen, setLightBoxOpen, setHideBottomSheet } = useViewStore()
-    const { language, theme, generalSettings, caliberDisplayNameList } = usePreferenceStore()
+    const { language, theme, caliberDisplayNameList } = usePreferenceStore()
     const { currentItem, setCurrentItem } = useItemStore()
 
     const [iosWarning, toggleiosWarning] = useState<boolean>(false)
@@ -40,6 +42,10 @@ export default function Item({navigation, route}){
         setLightBoxOpen()
         setLightBoxIndex(index)
     }
+
+    const {data: settingsData} = useLiveQuery(
+        db.select().from(schema.settings)
+    )
 
     const styles = StyleSheet.create({
         container: {
@@ -104,7 +110,7 @@ export default function Item({navigation, route}){
         toggleiosWarning(false)
         try{
             if(itemType === "Gun"){
-                printSingleGun(currentItem as GunType, language, generalSettings.caliberDisplayName, caliberDisplayNameList)
+                printSingleGun(currentItem as GunType, language, settingsData[0]?.generalSettings_caliberDisplayName, caliberDisplayNameList)
             }
             
         }catch(e){
@@ -250,7 +256,7 @@ useEffect(() => {
                             })}
                         </View>
                         {template.map((item, index)=>{
-                            if(!generalSettings.emptyFields){
+                            if(!settingsData[0]?.generalSettings_hideEmptyFields){
                                 return(
                                     <View key={`${item.name}`} style={{flex: 1, flexDirection: "column"}} >
                                         <Text style={{width: "100%", fontSize: 12,}}>{`${item[language]}:`}</Text>
@@ -258,7 +264,7 @@ useEffect(() => {
                                         <Text style={{width: "100%", fontSize: 18, marginBottom: 5, paddingBottom: 5, borderBottomColor: theme.colors.primary, borderBottomWidth: 0.2}}>
                                             {currentItem[item.name] 
                                                 ? item.name === "caliber" 
-                                                    ? generalSettings.caliberDisplayName 
+                                                    ? settingsData[0]?.generalSettings_caliberDisplayName 
                                                         ? getShortCaliberName(currentItem.caliber).join("\n") 
                                                         : currentItem.caliber.join("\n")
                                                     : currentItem[item.name]
@@ -296,7 +302,7 @@ useEffect(() => {
                                     <Text style={{width: "100%", fontSize: 18, marginBottom: 5, paddingBottom: 5, borderBottomColor: theme.colors.primary, borderBottomWidth: 0.2}}>
                                        {currentItem[item.name] 
                                         ? item.name === "caliber" 
-                                            ? generalSettings.caliberDisplayName 
+                                            ? settingsData[0]?.generalSettings_caliberDisplayName 
                                                 ? getShortCaliberName(currentItem.caliber).join("\n") 
                                                 : currentItem.caliber.join("\n")
                                             : currentItem[item.name]
