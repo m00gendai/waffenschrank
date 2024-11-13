@@ -71,8 +71,6 @@ export default function App() {
 
   const { mainMenuOpen, hideBottomSheet } = useViewStore()
 
-  const [settingsData, setSettingsData] = useState([])
-
   async function getKeys(data: "guns" | "ammo"){
     const keys:string = await AsyncStorage.getItem(data === "guns" ? KEY_DATABASE : A_KEY_DATABASE)
     if(keys == null){
@@ -159,51 +157,38 @@ export default function App() {
     async function prepare() {
       try {
         if(success){
-        const settings = await db.select().from(schema.settings)
-        setSettingsData(settings)
-        console.log("try: so hard")
-        console.log(settings[0])
-        if(settings.length === 0){
-           await db.insert(schema.settings).values({sortBy_Guns: "alphabetical"})
-          console.log("checking legacy gun data")
-          await checkLegacyGunData()
-          console.log("checking legacy ammo data")
-          await checkLegacyAmmoData()
-          console.log(`legacy success: ${success}`)
-          if(success){
-            setAppIsReady(true)
-          }
-          return
-        } else {
-           switchTheme(settings[0].theme.name)
-            switchLanguage(settings[0].language)
-          if(success){
-            setAppIsReady(true)
-            return
-          }
-         
-        }
-        if(settings[0].generalSettings_loginGuard === true){
-          const authSuccess = await LocalAuthentication.authenticateAsync()
-          if(authSuccess.success){
+          const settings = await db.select().from(schema.settings)
+          console.log("try: so hard")
+
+          if(settings.length === 0){
+            await db.insert(schema.settings).values({sortBy_Guns: "alphabetical"})
+            console.log("checking legacy gun data")
             await checkLegacyGunData()
+            console.log("checking legacy ammo data")
             await checkLegacyAmmoData()
-          if(success){
-            setAppIsReady(true)
+            console.log(`legacy success: ${success}`)
+            // TODO: Legacy settings
+            if(success){
+              setAppIsReady(true)
+            }
+            return
+          } else {
+            if(settings[0].generalSettings_loginGuard === true){
+              console.log("Du kommst hier net rein")
+              const authSuccess = await LocalAuthentication.authenticateAsync()
+              if(authSuccess.success){
+                setAppIsReady(true)
+              } else{
+                throw new Error(`Local Authentification failed: ${JSON.stringify(authSuccess)} | ${settings[0].generalSettings_loginGuard}`);
+              }
+            } else {
+              if(success){
+                setAppIsReady(true)
+              }
+            }
           }
-          } else{
-            throw new Error(`Local Authentification failed: ${JSON.stringify(authSuccess)} | ${settings[0].generalSettings_loginGuard}`);
-          }
-        } else {
-          console.log("false")
-          await checkLegacyGunData()
-          await checkLegacyAmmoData()
-          if(success){
-            setAppIsReady(true)
-          }
-          return
         }
-      } }catch (e) {
+      } catch (e) {
         console.log("catch: got so far")
         console.log(`got so far error: ${e}`);
         alarm("Initialisation error", e)
@@ -218,7 +203,7 @@ export default function App() {
       
     }
   }, [appIsReady]);
-  console.log(theme)
+
   const currentTheme = {...theme, roundness : 5}
 
   const Stack = createStackNavigator<StackParamList>()
