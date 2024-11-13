@@ -171,7 +171,7 @@ export default function AccessoryCollection_silencers({navigation, route}){
             <Menu.Item onPress={() => handleSortBy("lastShotAt")} title={`${sorting.lastShot[language]}`} leadingIcon={getIcon("lastShotAt")}/>
             <Menu.Item onPress={() => handleSortBy("lastCleanedAt")} title={`${sorting.lastCleaned[language]}`} leadingIcon={getIcon("lastCleanedAt")}/>
           </Menu>
-          <Appbar.Action icon={settingsData[0]?.sortOrder_Accessory_Silencer ? "arrow-up" : "arrow-down"} onPress={() => handleSortOrder()} />
+          <Appbar.Action icon={settingsData[0]?.sortOrder_Accessory_Silencer === "asc" ? "arrow-up" : "arrow-down"} onPress={() => handleSortOrder()} />
         </View>
       </Appbar>
       <Animated.View style={[{paddingLeft: defaultViewPadding, paddingRight: defaultViewPadding}, animatedStyle]}>{searchBannerVisible ? <Searchbar placeholder={search[language]} onChangeText={setSearchQuery} value={searchQuery} /> : null}</Animated.View>

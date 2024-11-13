@@ -3,7 +3,7 @@ import { Dimensions, FlatList, TouchableOpacity, View } from 'react-native';
 import { Appbar, FAB, Menu, Switch, Text, Tooltip, Searchbar, Button, Icon } from 'react-native-paper';
 import { defaultBottomBarHeight, defaultGridGap, defaultSearchBarHeight, defaultViewPadding } from '../configs';
 import { PREFERENCES } from "../configs_DB"
-import { GunType, MenuVisibility, SortingTypes } from '../interfaces';
+import { GunType, MenuVisibility, SortingTypes_Accessory_Misc } from '../interfaces';
 import { getIcon, getSortAlternateValue } from '../utils';
 import { useViewStore } from '../stores/useViewStore';
 import { useItemStore } from '../stores/useItemStore';
@@ -25,9 +25,14 @@ export default function AccessoryCollection_misc({navigation, route}){
 
   const [searchBannerVisible, toggleSearchBannerVisible] = useState<boolean>(false)
   const [searchQuery, setSearchQuery] = useState<string>("")
-  const { displayAsGrid, toggleDisplayAsGrid, sortBy, setSortBy, language, setSortGunIcon, sortGunIcon, sortGunsAscending, toggleSortGunsAscending, theme, accMiscFilterOn } = usePreferenceStore()
+  const { language, theme, accMiscFilterOn } = usePreferenceStore()
   const { mainMenuOpen, setHideBottomSheet } = useViewStore()
   const { setCurrentItem } = useItemStore()
+  const [sortBy, setSortBy] = useState<SortingTypes_Accessory_Misc>("alphabetical")
+
+  const { data: settingsData } = useLiveQuery(
+    db.select().from(schema.settings)
+  )
 
   const { data: miscData } = useLiveQuery(
     db.select()
@@ -41,7 +46,7 @@ export default function AccessoryCollection_misc({navigation, route}){
       )
     )
     .orderBy(
-      sortGunsAscending ?
+      settingsData[0]?.sortOrder_Accessory_Misc === "asc" ?
         sortBy === "alphabetical" ?
           asc((sql`COALESCE(NULLIF(${schema.accMiscCollection.manufacturer}, ""), ${schema.accMiscCollection.designation})`))
           : (sql`
@@ -58,7 +63,7 @@ export default function AccessoryCollection_misc({navigation, route}){
                 ELSE strftime('%s', ${schema.accMiscCollection[sortBy]})
               END DESC NULLS LAST`)
     ),
-    [searchQuery, sortGunsAscending, sortBy]
+    [searchQuery, settingsData[0]?.sortOrder_Accessory_Misc, sortBy]
   )
 
   const { data: tagData } = useLiveQuery(
@@ -66,14 +71,9 @@ export default function AccessoryCollection_misc({navigation, route}){
     .from(schema.accMiscTags)
   )
 
-
-
-  async function handleSortBy(type: SortingTypes){
-    setSortGunIcon(getIcon(type))
+  async function handleSortBy(type: SortingTypes_Accessory_Misc){
     setSortBy(type)
-    const preferences:string = await AsyncStorage.getItem(PREFERENCES)
-    const newPreferences:{[key:string] : string} = preferences == null ? {"sortBy": type} : {...JSON.parse(preferences), "sortBy":type} 
-    await AsyncStorage.setItem(PREFERENCES, JSON.stringify(newPreferences))
+    await db.update(schema.settings).set({sortBy_Accessory_Misc: type})
   }
 
   function handleMenu(category: string, status: boolean){
@@ -81,17 +81,15 @@ export default function AccessoryCollection_misc({navigation, route}){
   }
 
   async function handleSortOrder(){
-    toggleSortGunsAscending()
-    const preferences:string = await AsyncStorage.getItem(PREFERENCES)
-    const newPreferences:{[key:string] : string} = preferences == null ? {"sortOrderGuns": !sortGunsAscending} : {...JSON.parse(preferences), "sortOrderGuns": !sortGunsAscending} 
-    await AsyncStorage.setItem(PREFERENCES, JSON.stringify(newPreferences))
+    const settings = await db.select().from(schema.settings)
+    const sortOrder = settings[0]?.sortOrder_Accessory_Misc || "asc"
+    await db.update(schema.settings).set({sortOrder_Accessory_Misc: sortOrder === "asc" ? "desc" : "asc"})
   }
         
   async function handleDisplaySwitch(){
-    toggleDisplayAsGrid()
-    const preferences:string = await AsyncStorage.getItem(PREFERENCES)
-    const newPreferences:{[key:string] : string} = preferences == null ? {"displayAsGrid": !displayAsGrid} : {...JSON.parse(preferences), "displayAsGrid": !displayAsGrid} 
-    await AsyncStorage.setItem(PREFERENCES, JSON.stringify(newPreferences))
+    const settings = await db.select().from(schema.settings)
+    const displayStyle = settings[0]?.displayMode_Accessory_Misc || "grid"
+    await db.update(schema.settings).set({displayMode_Accessory_Misc: displayStyle === "grid" ? "list" : "grid"})
   } 
 
   function handleSearch(){
@@ -154,11 +152,11 @@ export default function AccessoryCollection_misc({navigation, route}){
           >
             <FilterMenu collection='AccessoryCollection_Magazines'/>
           </Menu>
-          <Appbar.Action icon={displayAsGrid ? "view-grid" : "format-list-bulleted-type"} onPress={handleDisplaySwitch} />
+          <Appbar.Action icon={settingsData[0]?.displayMode_Accessory_Misc === "grid" ? "view-grid" : "format-list-bulleted-type"} onPress={handleDisplaySwitch} />
           <Menu
             visible={menuVisibility.sortBy}
             onDismiss={()=>handleMenu("sortBy", false)}
-            anchor={<Appbar.Action icon={sortGunIcon} onPress={() => handleMenu("sortBy", true)} />}
+            anchor={<Appbar.Action icon={getIcon(sortBy)} onPress={() => handleMenu("sortBy", true)} />}
             anchorPosition='bottom'
           >
             <Menu.Item onPress={() => handleSortBy("alphabetical")} title={`${sorting.alphabetic[language]}`} leadingIcon={getIcon("alphabetical")}/>
@@ -170,11 +168,11 @@ export default function AccessoryCollection_misc({navigation, route}){
             <Menu.Item onPress={() => handleSortBy("lastShotAt")} title={`${sorting.lastShot[language]}`} leadingIcon={getIcon("lastShotAt")}/>
             <Menu.Item onPress={() => handleSortBy("lastCleanedAt")} title={`${sorting.lastCleaned[language]}`} leadingIcon={getIcon("lastCleanedAt")}/>
           </Menu>
-          <Appbar.Action icon={sortGunsAscending ? "arrow-up" : "arrow-down"} onPress={() => handleSortOrder()} />
+          <Appbar.Action icon={settingsData[0]?.sortOrder_Accessory_Misc === "asc"  ? "arrow-up" : "arrow-down"} onPress={() => handleSortOrder()} />
         </View>
       </Appbar>
       <Animated.View style={[{paddingLeft: defaultViewPadding, paddingRight: defaultViewPadding}, animatedStyle]}>{searchBannerVisible ? <Searchbar placeholder={search[language]} onChangeText={setSearchQuery} value={searchQuery} /> : null}</Animated.View>
-      {displayAsGrid ? 
+      {settingsData[0]?.displayMode_Accessory_Misc === "grid" ? 
         Dimensions.get("window").width > Dimensions.get("window").height ?
         <FlatList 
           numColumns={4} 
