@@ -26,7 +26,7 @@ type BottomBarNavigationProp = StackNavigationProp<RootStackParamList>;
 export default function BottomBar(){
       
 
-  const { displayAsGrid, toggleDisplayAsGrid, sortBy, setSortBy, language, setSortGunIcon, sortGunIcon, sortGunsAscending, toggleSortGunsAscending, theme } = usePreferenceStore()
+  const { language, theme } = usePreferenceStore()
   const navigation = useNavigation<BottomBarNavigationProp>()
   const { currentCollectionScreen, setCurrentCollectionScreen } = useViewStore()
 
@@ -39,7 +39,6 @@ export default function BottomBar(){
   return(
     <View style={{width: "100%", backgroundColor: theme.colors.surface, flexDirection: "column", justifyContent: "center", alignItems: "flex-start"}}>
       <View style={{width: "100%", height: defaultBottomBarHeight, flexDirection: "row", justifyContent: "space-around", alignItems: "center", borderTopColor: theme.colors.primary, borderTopWidth: 2, paddingTop: 2}}>
-        
         <View style={{width: "100%", position: "absolute", left: 0, top: 0}}>
           <View style={{alignSelf: "center"}}>
             <Icon
