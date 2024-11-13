@@ -4,7 +4,7 @@ import { Dimensions, FlatList, View } from 'react-native';
 import { Appbar, FAB, Menu, Switch, Text, Tooltip, Searchbar } from 'react-native-paper';
 import { defaultBottomBarHeight, defaultGridGap, defaultSearchBarHeight, defaultViewPadding } from '../configs';
 import { PREFERENCES } from "../configs_DB"
-import { AmmoType, MenuVisibility, SortingTypes } from '../interfaces';
+import { AmmoType, MenuVisibility, SortingTypes_Ammo } from '../interfaces';
 import { getIcon } from '../utils';
 import { useViewStore } from '../stores/useViewStore';
 import { useItemStore } from '../stores/useItemStore';
@@ -25,10 +25,14 @@ export default function AmmoCollection({navigation, route}){
 
   const [searchBannerVisible, toggleSearchBannerVisible] = useState<boolean>(false)
   const [searchQuery, setSearchQuery] = useState<string>("")
-  const { displayAmmoAsGrid, toggleDisplayAmmoAsGrid, sortAmmoBy, setSortAmmoBy, language, sortAmmoIcon, setSortAmmoIcon, sortAmmoAscending, toggleSortAmmoAscending, ammoFilterOn } = usePreferenceStore()
+  const { language, ammoFilterOn } = usePreferenceStore()
   const { mainMenuOpen, setHideBottomSheet, hideBottomSheet} = useViewStore()
   const { setCurrentItem, currentItem } = useItemStore()
+  const [sortBy, setSortBy] = useState<SortingTypes_Ammo>("lastModifiedAt")
 
+  const { data: settingsData } = useLiveQuery(
+    db.select().from(schema.settings)
+  )
 
   const { data: ammoData } = useLiveQuery(
     db.select()
@@ -42,24 +46,24 @@ export default function AmmoCollection({navigation, route}){
       )
     )
     .orderBy(
-      sortAmmoAscending ?
-        sortAmmoBy === "alphabetical" ?
+      settingsData[0]?.sortOrder_Ammo === "asc"
+       ? sortBy === "alphabetical" ?
           asc((sql`COALESCE(NULLIF(${schema.ammoCollection.manufacturer}, ""), ${schema.ammoCollection.designation})`))
           : (sql`
             CASE
-              WHEN NULLIF(${schema.ammoCollection[sortAmmoBy]}, "") IS NULL THEN NULL
-              ELSE strftime('%s', ${schema.ammoCollection[sortAmmoBy]})
+              WHEN NULLIF(${schema.ammoCollection[sortBy]}, "") IS NULL THEN NULL
+              ELSE strftime('%s', ${schema.ammoCollection[sortBy]})
             END ASC NULLS LAST`)
         :
-        sortAmmoBy === "alphabetical" ?
+        sortBy === "alphabetical" ?
           desc((sql`COALESCE(NULLIF(${schema.ammoCollection.manufacturer}, ""), ${schema.ammoCollection.designation})`))
           : (sql`
             CASE
-                WHEN NULLIF(${schema.ammoCollection[sortAmmoBy]}, "") IS NULL THEN NULL
-                ELSE strftime('%s', ${schema.ammoCollection[sortAmmoBy]})
+                WHEN NULLIF(${schema.ammoCollection[sortBy]}, "") IS NULL THEN NULL
+                ELSE strftime('%s', ${schema.ammoCollection[sortBy]})
               END DESC NULLS LAST`)
     ),
-    [searchQuery, sortAmmoAscending, sortAmmoBy]
+    [searchQuery, settingsData[0]?.sortOrder_Ammo, sortBy]
   )
 
   const { data: tagData } = useLiveQuery(
@@ -67,12 +71,9 @@ export default function AmmoCollection({navigation, route}){
     .from(schema.ammoTags)
   )
   
-  async function handleSortBy(type:SortingTypes){
-    setSortAmmoIcon(getIcon(type))
-    setSortAmmoBy(type)
-    const preferences:string = await AsyncStorage.getItem(PREFERENCES)
-    const newPreferences:{[key:string] : string} = preferences == null ? {"sortAmmoBy": type} : {...JSON.parse(preferences), "sortAmmoBy":type} 
-    await AsyncStorage.setItem(PREFERENCES, JSON.stringify(newPreferences))
+  async function handleSortBy(type:SortingTypes_Ammo){
+    setSortBy(type)
+    await db.update(schema.settings).set({sortBy_Ammo: type})
   }
 
   function handleMenu(category: string, status: boolean){
@@ -80,17 +81,15 @@ export default function AmmoCollection({navigation, route}){
   }
 
   async function handleSortOrder(){
-    toggleSortAmmoAscending()
-    const preferences:string = await AsyncStorage.getItem(PREFERENCES)
-    const newPreferences:{[key:string] : string} = preferences == null ? {"sortOrderAmmo": !sortAmmoAscending} : {...JSON.parse(preferences), "sortOrderAmmo": !sortAmmoAscending} 
-    await AsyncStorage.setItem(PREFERENCES, JSON.stringify(newPreferences))
+    const settings = await db.select().from(schema.settings)
+    const sortOrder = settings[0]?.sortOrder_Ammo || "asc"
+    await db.update(schema.settings).set({sortOrder_Ammo: sortOrder === "asc" ? "desc" : "asc"})
   }
         
   async function handleDisplaySwitch(){
-    toggleDisplayAmmoAsGrid()
-    const preferences:string = await AsyncStorage.getItem(PREFERENCES)
-    const newPreferences:{[key:string] : string} = preferences == null ? {"displayAmmoAsGrid": !displayAmmoAsGrid} : {...JSON.parse(preferences), "displayAmmoAsGrid": !displayAmmoAsGrid} 
-    await AsyncStorage.setItem(PREFERENCES, JSON.stringify(newPreferences))
+    const settings = await db.select().from(schema.settings)
+    const displayStyle = settings[0]?.displayMode_Ammo || "grid"
+    await db.update(schema.settings).set({displayMode_Ammo: displayStyle === "grid" ? "list" : "grid"})
   } 
 
   function handleSearch(){
@@ -159,22 +158,22 @@ export default function AmmoCollection({navigation, route}){
           >
             <FilterMenu collection='AmmoCollection'/>
           </Menu>
-            <Appbar.Action icon={displayAmmoAsGrid ? "view-grid" : "format-list-bulleted-type"} onPress={handleDisplaySwitch} />
+            <Appbar.Action icon={settingsData[0]?.displayMode_Ammo === "grid" ? "view-grid" : "format-list-bulleted-type"} onPress={handleDisplaySwitch} />
             <Menu
               visible={menuVisibility.sortBy}
               onDismiss={()=>handleMenu("sortBy", false)}
-              anchor={<Appbar.Action icon={sortAmmoIcon} onPress={() => handleMenu("sortBy", true)} />}
+              anchor={<Appbar.Action icon={getIcon(sortBy)} onPress={() => handleMenu("sortBy", true)} />}
               anchorPosition='bottom'
             >
               <Menu.Item onPress={() => handleSortBy("alphabetical")} title={`${sorting.alphabetic[language]}`} leadingIcon={getIcon("alphabetical")}/>
               <Menu.Item onPress={() => handleSortBy("createdAt")} title={`${sorting.lastAdded[language]}`} leadingIcon={getIcon("createdAt")}/>
               <Menu.Item onPress={() => handleSortBy("lastModifiedAt")} title={`${sorting.lastModified[language]}`} leadingIcon={getIcon("lastModifiedAt")}/>
             </Menu>
-          <Appbar.Action icon={sortAmmoAscending ? "arrow-up" : "arrow-down"} onPress={() => handleSortOrder()} />
+          <Appbar.Action icon={settingsData[0]?.sortOrder_Ammo === "asc"  ? "arrow-up" : "arrow-down"} onPress={() => handleSortOrder()} />
         </View>
       </Appbar>
       <Animated.View style={[{paddingLeft: defaultViewPadding, paddingRight: defaultViewPadding}, animatedStyle]}>{searchBannerVisible ? <Searchbar placeholder={search[language]} onChangeText={setSearchQuery} value={searchQuery} /> : null}</Animated.View>
-      {displayAmmoAsGrid ? 
+      {settingsData[0]?.displayMode_Ammo === "grid" ? 
         <FlatList 
           numColumns={2} 
           initialNumToRender={10} 
