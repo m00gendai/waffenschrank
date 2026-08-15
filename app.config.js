@@ -47,6 +47,7 @@ export default {
       "expo-asset",
       "expo-local-authentication",
       "expo-web-browser",
+      "expo-sharing",
       [
         "./plugins/withAndroidMainActivityAttributes",
         {
