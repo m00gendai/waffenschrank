@@ -49,6 +49,7 @@ export default {
       "expo-web-browser",
       "expo-sharing",
       "expo-font",
+      "expo-status-bar",
       [
         "./plugins/withAndroidMainActivityAttributes",
         {
