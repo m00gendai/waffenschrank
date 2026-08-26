@@ -46,6 +46,10 @@ export const emptyBarrelObject:PartType_Barrel= {
     sold_sellPrice: null,
     sold_buyerPermit: null,
     sold_remarks: null,
+    de_wbkColor: null,
+    de_wbkNumber: null,
+    de_wbkRunningNumber: null,
+    de_nwrId: null,
 }
 
 export const partDataTemplate_Barrel:TemplateItem[] = Object.keys(emptyBarrelObject)

@@ -156,6 +156,10 @@ export interface AccessoryType_Silencer{
   sold_sellPrice: string | null,
   sold_buyerPermit: string | null,
   sold_remarks: string | null,
+  de_wbkColor: string | null,
+  de_wbkNumber: string | null,
+  de_wbkRunningNumber: string | null,
+  de_nwrId: string | null,
 }
 
 export interface AccessoryType_Optic{
@@ -391,6 +395,10 @@ export interface PartType_ConversionKit{
   sold_sellPrice: string | null,
   sold_buyerPermit: string | null,
   sold_remarks: string | null,
+  de_wbkColor: string | null,
+  de_wbkNumber: string | null,
+  de_wbkRunningNumber: string | null,
+  de_nwrId: string | null,
 }
 
 export interface PartType_Barrel{
@@ -430,6 +438,10 @@ export interface PartType_Barrel{
   sold_sellPrice: string | null,
   sold_buyerPermit: string | null,
   sold_remarks: string | null,
+  de_wbkColor: string | null,
+  de_wbkNumber: string | null,
+  de_wbkRunningNumber: string | null,
+  de_nwrId: string | null,
 }
 
 export interface LiteratureType_Book{
