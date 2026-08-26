@@ -3,7 +3,7 @@ import sortGunCollection from "./sorters/sortGunCollection";
 import { PreferredUnits, SorterSettings } from "stores/usePreferenceStore";
 import sortAmmoCollection from "./sorters/sortAmmoCollection";
 import * as schema from "db/schema"
-import { or, like, sql } from 'drizzle-orm';
+import { or, like, sql, and } from 'drizzle-orm';
 import { emptyGunObject, gunDataTemplate, gunRemarks } from "lib/DataTemplates/gunDataTemplate";
 import { ammoDataTemplate, ammoRemarks, emptyAmmoObject } from "lib/DataTemplates/ammoDataTemplate";
 import { cardActionsAccessory_LightLaser, cardActionsAccessory_Magazine, cardActionsAccessory_Misc, cardActionsAccessory_Optic, cardActionsAccessory_Scope, cardActionsAccessory_Silencer, cardActionsAmmo, cardActionsGun, cardActionsLiterature_Book, cardActionsPart_Barrel, cardActionsPart_ConversionKit, cardActionsReloading_Bullet, cardActionsReloading_Case, cardActionsReloading_Die, cardActionsReloading_Powder, cardActionsReloading_Primer, checkboxFields_ch, checkboxFields_us, printers_ch, printers_others, printers_us, requiredFieldsAccessory_LightLaser, requiredFieldsAccessory_Magazine, requiredFieldsAccessory_Misc, requiredFieldsAccessory_Optic, requiredFieldsAccessory_Scope, requiredFieldsAccessory_Silencer, requiredFieldsAmmo, requiredFieldsGun, requiredFieldsLiterature_Book, requiredFieldsPart_Barrel, requiredFieldsPart_ConversionKit, requiredFieldsReloading_Bullet, requiredFieldsReloading_Case, requiredFieldsReloading_Die, requiredFieldsReloading_Powder, requiredFieldsReloading_Primer, sortingOptionsAccessory_LightLaser, sortingOptionsAccessory_Magazine, sortingOptionsAccessory_Misc, sortingOptionsAccessory_Optic, sortingOptionsAccessory_Scope, sortingOptionsAccessory_Silencer, sortingOptionsAmmo, sortingOptionsGun, sortingOptionsLiterature_Book, sortingOptionsPart_Barrel, sortingOptionsPart_ConversionKit, sortingOptionsReloading_Bullet, sortingOptionsReloading_Case, sortingOptionsReloading_Die, sortingOptionsReloading_Powder, sortingOptionsReloading_Primer } from "configs/configs";
@@ -209,71 +209,178 @@ export function determineSortingFunction(collection:CollectionType, sortBy: Sort
 }
 
 export function determineSearchQueryFields(collection:CollectionType, searchQuery:string){
+    const searchWords = searchQuery
+        .trim()
+        .split(/\s+/)
+        .filter((word) => word.length > 0);
+
     switch(collection){
         
         case "gunCollection":{
-            return or(like(sql`COALESCE(${schema[collection].model}, '')`, `%${searchQuery}%`),
-                 like(sql`COALESCE(${schema[collection].manufacturer}, '')`, `%${searchQuery}%`))
+            return and(
+                ...searchWords.map((word) =>
+                    or(
+                        like(sql`COALESCE(${schema[collection].model}, '')`, `%${word}%`),
+                        like(sql`COALESCE(${schema[collection].manufacturer}, '')`, `%${word}%`)
+                    )
+                )
+            )
         }
         case "ammoCollection":{
-            return  or(like(sql`COALESCE(${schema[collection].designation}, '')`, `%${searchQuery}%`),
-                like(sql`COALESCE(${schema[collection].manufacturer}, '')`, `%${searchQuery}%`))
+            return and(
+                ...searchWords.map((word) =>
+                    or(
+                        like(sql`COALESCE(${schema[collection].designation}, '')`, `%${word}%`),
+                        like(sql`COALESCE(${schema[collection].manufacturer}, '')`, `%${word}%`),
+                        like(sql`COALESCE(${schema[collection].caliber}, '')`, `%${word}%`),
+                    )
+                )
+            )
         }
         case "accessoryCollection_Silencer":{
-            return or(like(sql`COALESCE(${schema[collection].model}, '')`, `%${searchQuery}%`),
-                 like(sql`COALESCE(${schema[collection].manufacturer}, '')`, `%${searchQuery}%`))
+            return and(
+                ...searchWords.map((word) =>
+                    or(
+                        like(sql`COALESCE(${schema[collection].model}, '')`, `%${word}%`),
+                        like(sql`COALESCE(${schema[collection].manufacturer}, '')`, `%${word}%`)
+                    )
+                )
+            )
         }
         case "accessoryCollection_Optic":{
-            return or(like(sql`COALESCE(${schema[collection].model}, '')`, `%${searchQuery}%`),
-                 like(sql`COALESCE(${schema[collection].manufacturer}, '')`, `%${searchQuery}%`))
+            return and(
+                ...searchWords.map((word) =>
+                    or(
+                        like(sql`COALESCE(${schema[collection].model}, '')`, `%${word}%`),
+                        like(sql`COALESCE(${schema[collection].manufacturer}, '')`, `%${word}%`)
+                    )
+                )
+            )
         }
         case "accessoryCollection_Scope":{
-            return or(like(sql`COALESCE(${schema[collection].model}, '')`, `%${searchQuery}%`),
-                 like(sql`COALESCE(${schema[collection].manufacturer}, '')`, `%${searchQuery}%`))
+            return and(
+                ...searchWords.map((word) =>
+                    or(
+                        like(sql`COALESCE(${schema[collection].model}, '')`, `%${word}%`),
+                        like(sql`COALESCE(${schema[collection].manufacturer}, '')`, `%${word}%`)
+                    )
+                )
+            )
         }
         case "accessoryCollection_LightLaser":{
-            return or(like(sql`COALESCE(${schema[collection].model}, '')`, `%${searchQuery}%`),
-                 like(sql`COALESCE(${schema[collection].manufacturer}, '')`, `%${searchQuery}%`))
+            return and(
+                ...searchWords.map((word) =>
+                    or(
+                        like(sql`COALESCE(${schema[collection].model}, '')`, `%${word}%`),
+                        like(sql`COALESCE(${schema[collection].manufacturer}, '')`, `%${word}%`)
+                    )
+                )
+            )
         }
         case "accessoryCollection_Magazine":{
-            return or(like(sql`COALESCE(${schema[collection].model}, '')`, `%${searchQuery}%`),
-                 like(sql`COALESCE(${schema[collection].manufacturer}, '')`, `%${searchQuery}%`))
+            return and(
+                ...searchWords.map((word) =>
+                    or(
+                        like(sql`COALESCE(${schema[collection].model}, '')`, `%${word}%`),
+                        like(sql`COALESCE(${schema[collection].manufacturer}, '')`, `%${word}%`)
+                    )
+                )
+            )
         }
         case "accessoryCollection_Misc":{
-            return or(like(sql`COALESCE(${schema[collection].model}, '')`, `%${searchQuery}%`),
-                 like(sql`COALESCE(${schema[collection].manufacturer}, '')`, `%${searchQuery}%`))
+            return and(
+                ...searchWords.map((word) =>
+                    or(
+                        like(sql`COALESCE(${schema[collection].model}, '')`, `%${word}%`),
+                        like(sql`COALESCE(${schema[collection].manufacturer}, '')`, `%${word}%`)
+                    )
+                )
+            )
         }
         case "partCollection_ConversionKit":{
-            return or(like(sql`COALESCE(${schema[collection].model}, '')`, `%${searchQuery}%`),
-                 like(sql`COALESCE(${schema[collection].manufacturer}, '')`, `%${searchQuery}%`))
+            return and(
+                ...searchWords.map((word) =>
+                    or(
+                        like(sql`COALESCE(${schema[collection].model}, '')`, `%${word}%`),
+                        like(sql`COALESCE(${schema[collection].manufacturer}, '')`, `%${word}%`)
+                    )
+                )
+            )
         }
         case "partCollection_Barrel":{
-            return or(like(sql`COALESCE(${schema[collection].model}, '')`, `%${searchQuery}%`),
-                 like(sql`COALESCE(${schema[collection].manufacturer}, '')`, `%${searchQuery}%`))
+            return and(
+                ...searchWords.map((word) =>
+                    or(
+                        like(sql`COALESCE(${schema[collection].model}, '')`, `%${word}%`),
+                        like(sql`COALESCE(${schema[collection].manufacturer}, '')`, `%${word}%`),
+                        like(sql`COALESCE(${schema[collection].caliber}, '')`, `%${word}%`)
+                    )
+                )
+            )
         }
         case "literatureCollection_Book":{
-            return or(like(sql`COALESCE(${schema[collection].title}, '')`, `%${searchQuery}%`),
-                 like(sql`COALESCE(${schema[collection].subtitle}, '')`, `%${searchQuery}%`))
+            return and(
+                ...searchWords.map((word) =>
+                    or(
+                        like(sql`COALESCE(${schema[collection].title}, '')`, `%${word}%`),
+                        like(sql`COALESCE(${schema[collection].subtitle}, '')`, `%${word}%`),
+                        like(sql`COALESCE(${schema[collection].series}, '')`, `%${word}%`)
+                    )
+                )
+            )
         }
         case "reloadingCollection_Die":{
-            return or(like(sql`COALESCE(${schema[collection].model}, '')`, `%${searchQuery}%`),
-                 like(sql`COALESCE(${schema[collection].manufacturer}, '')`, `%${searchQuery}%`))
+            return and(
+                ...searchWords.map((word) =>
+                    or(
+                        like(sql`COALESCE(${schema[collection].model}, '')`, `%${word}%`),
+                        like(sql`COALESCE(${schema[collection].manufacturer}, '')`, `%${word}%`),
+                        like(sql`COALESCE(${schema[collection].caliber}, '')`, `%${word}%`)
+                    )
+                )
+            )
         }
         case "reloadingCollection_Bullet":{
-            return or(like(sql`COALESCE(${schema[collection].model}, '')`, `%${searchQuery}%`),
-                 like(sql`COALESCE(${schema[collection].manufacturer}, '')`, `%${searchQuery}%`))
+            return and(
+                ...searchWords.map((word) =>
+                    or(
+                        like(sql`COALESCE(${schema[collection].model}, '')`, `%${word}%`),
+                        like(sql`COALESCE(${schema[collection].manufacturer}, '')`, `%${word}%`),
+                        like(sql`COALESCE(${schema[collection].caliber}, '')`, `%${word}%`)
+                    )
+                )
+            )
         }
         case "reloadingCollection_Case":{
-            return or(like(sql`COALESCE(${schema[collection].model}, '')`, `%${searchQuery}%`),
-                 like(sql`COALESCE(${schema[collection].manufacturer}, '')`, `%${searchQuery}%`))
+            return and(
+                ...searchWords.map((word) =>
+                    or(
+                        like(sql`COALESCE(${schema[collection].model}, '')`, `%${word}%`),
+                        like(sql`COALESCE(${schema[collection].manufacturer}, '')`, `%${word}%`),
+                        like(sql`COALESCE(${schema[collection].caliber}, '')`, `%${word}%`)
+                    )
+                )
+            )
         }
         case "reloadingCollection_Primer":{
-            return or(like(sql`COALESCE(${schema[collection].model}, '')`, `%${searchQuery}%`),
-                 like(sql`COALESCE(${schema[collection].manufacturer}, '')`, `%${searchQuery}%`))
+            return and(
+                ...searchWords.map((word) =>
+                    or(
+                        like(sql`COALESCE(${schema[collection].model}, '')`, `%${word}%`),
+                        like(sql`COALESCE(${schema[collection].manufacturer}, '')`, `%${word}%`)
+                    )
+                )
+            )
         }
         case "reloadingCollection_Powder":{
-            return or(like(sql`COALESCE(${schema[collection].designation}, '')`, `%${searchQuery}%`),
-                 like(sql`COALESCE(${schema[collection].manufacturer}, '')`, `%${searchQuery}%`))
+            return and(
+                ...searchWords.map((word) =>
+                    or(
+                        like(sql`COALESCE(${schema[collection].designation}, '')`, `%${word}%`),
+                        like(sql`COALESCE(${schema[collection].manufacturer}, '')`, `%${word}%`)
+                    )
+                )
+            )
         }
     }
 }
