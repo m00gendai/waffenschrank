@@ -1,7 +1,7 @@
 export interface GunTypeDetails{
   id: string
   manufacturer: string | null
-  model: string
+  model: string | null
   manufacturingDate: string | null
   originCountry: string | null
   caliber: string[] | null
@@ -15,12 +15,12 @@ export interface GunTypeDetails{
   createdAt: number
   lastModifiedAt: number
   status?: GunTypeStatus
-  shotCount: string
+  shotCount: string | null
   tags: string[]
   lastShotAt_unix: number | null
   lastCleanedAt_unix: number | null
-  paidPrice: string
-  marketValue: string
+  paidPrice: string | null
+  marketValue: string | null
   cleanInterval: null | string
   cleanInterval_CustomTime: null | string
   cleanInterval_ShotCount: null | string
@@ -124,30 +124,30 @@ export interface AccessoryType_Silencer{
   lastModifiedAt: number
   images: string[]
   tags: string []
-  manufacturer: string
-  model: string
-  manufacturingDate: string
-  originCountry: string
+  manufacturer: string | null
+  model: string | null
+  manufacturingDate: string | null
+  originCountry: string | null
   caliber: string[]
-  thread: string
-  serial: string
-  material: string
-  decibelRating: string
-  permit: string
+  thread: string | null
+  serial: string | null
+  material: string | null
+  decibelRating: string | null
+  permit: string | null
   acquisitionDate_unix: number | null
-  paidPrice: string
-  boughtFrom: string
-  marketValue: string
-  shotCount: string
+  paidPrice: string | null
+  boughtFrom: string | null
+  marketValue: string | null
+  shotCount: string | null
   lastShotAt_unix: number | null
   lastCleanedAt_unix: number | null
   cleanInterval: null | string
   cleanInterval_CustomTime: null | string
   cleanInterval_ShotCount: null | string
   cleanIntervalDisplay: null | string
-  mainColor: string
-  remarks: string
-  currentlyMountedOn: string
+  mainColor: string | null
+  remarks: string | null
+  currentlyMountedOn: string | null
   customInventoryDesignation: null | string
   qrCode: null | string
   sold_isSold: boolean,
@@ -168,25 +168,25 @@ export interface AccessoryType_Optic{
   lastModifiedAt: number
   images: string[]
   tags: string []
-  manufacturer: string
-  model: string
-  manufacturingDate: string
-  originCountry: string
-  serial: string
-  reticle: string
-  reticleColor: string
-  glassDimensions: string,
-  footprint: string
-  zoom: string
-  unit: string
-  clicksToUnitElevation: string
-  clicksToUnitWindage: string
-  material: string
+  manufacturer: string | null
+  model: string | null
+  manufacturingDate: string | null
+  originCountry: string | null
+  serial: string | null
+  reticle: string | null
+  reticleColor: string | null
+  glassDimensions: string | null
+  footprint: string | null
+  zoom: string | null
+  unit: string | null
+  clicksToUnitElevation: string | null
+  clicksToUnitWindage: string | null
+  material: string | null
   acquisitionDate_unix: number | null
-  paidPrice: string
-  boughtFrom: string
-  marketValue: string
-  shotCount: string
+  paidPrice: string | null
+  boughtFrom: string | null
+  marketValue: string | null
+  shotCount: string | null
   lastShotAt_unix: number | null
   lastCleanedAt_unix: number | null
   cleanInterval: null | string
@@ -195,9 +195,9 @@ export interface AccessoryType_Optic{
   cleanIntervalDisplay: null | string
   batteryType: string| null
   batteryLastChangedAt_unix: number | null
-  mainColor: string
-  remarks: string
-  currentlyMountedOn: string
+  mainColor: string | null
+  remarks: string | null
+  currentlyMountedOn: string  | null
   customInventoryDesignation: null | string
   qrCode: null | string
   sold_isSold: boolean,
@@ -214,25 +214,25 @@ export interface AccessoryType_Scope{
   lastModifiedAt: number
   images: string[]
   tags: string []
-  manufacturer: string
-  model: string
-  manufacturingDate: string
-  originCountry: string
-  serial: string
-  reticle: string
-  reticleColor: string
-  glassDimensions: string
-  focalPlane: string
-  zoom: string
-  unit: string
-  clicksToUnitElevation: string
-  clicksToUnitWindage: string
-  material: string
+  manufacturer: string | null
+  model: string | null
+  manufacturingDate: string | null
+  originCountry: string | null
+  serial: string | null
+  reticle: string | null
+  reticleColor: string | null
+  glassDimensions: string | null
+  focalPlane: string | null
+  zoom: string | null
+  unit: string | null
+  clicksToUnitElevation: string | null
+  clicksToUnitWindage: string | null
+  material: string | null
   acquisitionDate_unix: number | null
-  paidPrice: string
-  boughtFrom: string
-  marketValue: string
-  shotCount: string
+  paidPrice: string | null
+  boughtFrom: string | null
+  marketValue: string | null
+  shotCount: string | null
   lastShotAt_unix: number | null
   lastCleanedAt_unix: number | null
   cleanInterval: null | string
@@ -241,9 +241,9 @@ export interface AccessoryType_Scope{
   cleanIntervalDisplay: null | string
   batteryType: string | null
   batteryLastChangedAt_unix: number | null
-  mainColor: string
-  remarks: string
-  currentlyMountedOn: string
+  mainColor: string | null
+  remarks: string | null
+  currentlyMountedOn: string | null
   customInventoryDesignation: null | string
   qrCode: null | string
   sold_isSold: boolean,
@@ -260,27 +260,27 @@ export interface AccessoryType_LightLaser{
   lastModifiedAt: number
   images: string[]
   tags: string[]             
-  manufacturer: string
-  model: string
-  manufacturingDate: string
-  originCountry: string
-  serial: string
-  permit: string
-  lumen: string
-  candela: string
-  wavelength: string
-  laserPower: string
+  manufacturer: string | null
+  model: string | null
+  manufacturingDate: string | null
+  originCountry: string | null
+  serial: string | null
+  permit: string | null
+  lumen: string | null
+  candela: string | null
+  wavelength: string | null
+  laserPower: string | null
   acquisitionDate_unix: number | null
-  paidPrice: string
-  boughtFrom: string
-  marketValue: string
-  shotCount: string
+  paidPrice: string | null
+  boughtFrom: string | null
+  marketValue: string | null
+  shotCount: string | null
   lastShotAt_unix: number | null
   batteryType: string | null
   batteryLastChangedAt_unix: number | null
-  mainColor: string
-  remarks: string
-  currentlyMountedOn: string
+  mainColor: string | null
+  remarks: string | null
+  currentlyMountedOn: string | null
   customInventoryDesignation: null | string
   qrCode: null | string
   sold_isSold: boolean,
@@ -297,31 +297,31 @@ export interface AccessoryType_Magazine{
   lastModifiedAt: number
   images: string[]
   tags: string []
-  manufacturer: string
-  model: string
-  manufacturingDate: string
-  originCountry: string
+  manufacturer: string | null
+  model: string | null
+  manufacturingDate: string | null
+  originCountry: string | null
   caliber: string[]
-  serial: string
-  material: string
-  permit: string
-  capacity: string
-  platform: string
+  serial: string | null
+  material: string | null
+  permit: string | null
+  capacity: string | null
+  platform: string | null
   acquisitionDate_unix: number | null
-  paidPrice: string
-  boughtFrom: string
-  marketValue: string
-  shotCount: string
+  paidPrice: string | null
+  boughtFrom: string | null
+  marketValue: string | null
+  shotCount: string | null
   lastShotAt_unix: number | null
   lastCleanedAt_unix: number | null
   cleanInterval: null | string
   cleanInterval_CustomTime: null | string
   cleanInterval_ShotCount: null | string
   cleanIntervalDisplay: null | string
-  mainColor: string
-  remarks: string
-  currentlyMountedOn: string
-  currentStock: string
+  mainColor: string | null
+  remarks: string | null
+  currentlyMountedOn: string | null
+  currentStock: string | null
   customInventoryDesignation: null | string
   qrCode: null | string
   sold_isSold: boolean,
@@ -338,18 +338,18 @@ export interface AccessoryType_Misc{
   lastModifiedAt: number
   images: string[]
   tags: string []
-  manufacturer: string
-  model: string
-  manufacturingDate: string
-  originCountry: string
+  manufacturer: string | null
+  model: string | null
+  manufacturingDate: string | null
+  originCountry: string | null
   acquisitionDate_unix: number | null
-  paidPrice: string
-  boughtFrom: string
-  marketValue: string
-  mainColor: string
-  remarks: string
-  currentlyMountedOn: string
-  serial: string
+  paidPrice: string | null
+  boughtFrom: string | null
+  marketValue: string | null
+  mainColor: string | null
+  remarks: string | null
+  currentlyMountedOn: string | null
+  serial: string | null
   customInventoryDesignation: null | string
   qrCode: null | string
   sold_isSold: boolean,
@@ -366,27 +366,27 @@ export interface PartType_ConversionKit{
   lastModifiedAt: number
   images: string[]
   tags: string []
-  manufacturer: string
-  model: string
-  manufacturingDate: string
-  originCountry: string
+  manufacturer: string | null
+  model: string | null
+  manufacturingDate: string | null
+  originCountry: string | null
   caliber: string[]
-  serial: string
-  permit: string
+  serial: string | null
+  permit: string | null
   acquisitionDate_unix: number | null
-  paidPrice: string
-  boughtFrom: string
-  marketValue: string
-  shotCount: string
+  paidPrice: string | null
+  boughtFrom: string | null
+  marketValue: string | null
+  shotCount: string | null
   lastShotAt_unix: number | null
   lastCleanedAt_unix: number | null
   cleanInterval: null | string
   cleanInterval_CustomTime: null | string
   cleanInterval_ShotCount: null | string
   cleanIntervalDisplay: null | string
-  mainColor: string
-  remarks: string
-  currentlyMountedOn: string
+  mainColor: string | null
+  remarks: string | null
+  currentlyMountedOn: string | null
   customInventoryDesignation: null | string
   qrCode: null | string
   sold_isSold: boolean,
@@ -407,29 +407,29 @@ export interface PartType_Barrel{
   lastModifiedAt: number
   images: string[]
   tags: string []
-  manufacturer: string
-  model: string
-  manufacturingDate: string
-  originCountry: string
+  manufacturer: string | null
+  model: string | null
+  manufacturingDate: string | null
+  originCountry: string | null
   caliber: string[]
-  thread: string
-  barrelLength: string
-  serial: string
-  permit: string
+  thread: string | null
+  barrelLength: string | null
+  serial: string | null
+  permit: string | null
   acquisitionDate_unix: number | null
-  paidPrice: string
-  boughtFrom: string
-  marketValue: string
-  shotCount: string
+  paidPrice: string | null
+  boughtFrom: string | null
+  marketValue: string | null
+  shotCount: string | null
   lastShotAt_unix: number | null
   lastCleanedAt_unix: number | null
   cleanInterval: null | string
   cleanInterval_CustomTime: null | string
   cleanInterval_ShotCount: null | string
   cleanIntervalDisplay: null | string
-  mainColor: string
-  remarks: string
-  currentlyMountedOn: string
+  mainColor: string | null
+  remarks: string | null
+  currentlyMountedOn: string | null
   customInventoryDesignation: null | string
   qrCode: null | string
   sold_isSold: boolean,
@@ -450,23 +450,23 @@ export interface LiteratureType_Book{
   lastModifiedAt: number
   images: string[]
   tags: string[]
-  language: string
-  title: string
-  subtitle: string
-  isbn: string
-  publishingDate: string
-  author: string
-  publisher: string
-  edition: string
-  series: string
-  volume: string
-  pages: string
-  format: string
+  language: string | null
+  title: string | null
+  subtitle: string | null
+  isbn: string | null
+  publishingDate: string | null
+  author: string | null
+  publisher: string | null
+  edition: string | null
+  series: string | null
+  volume: string | null
+  pages: string | null
+  format: string | null
   acquisitionDate_unix: number | null
-  paidPrice: string
-  boughtFrom: string
-  marketValue: string
-  remarks: string
+  paidPrice: string | null
+  boughtFrom: string | null
+  marketValue: string | null
+  remarks: string | null
   customInventoryDesignation: null | string
   qrCode: null | string
   sold_isSold: boolean,
@@ -483,18 +483,18 @@ export interface ReloadingType_Die{
   lastModifiedAt: number
   images: string[]
   tags: string[]
-  manufacturer: string
-  model: string
+  manufacturer: string | null
+  model: string | null
   caliber: string[]
-  dieSeries: string
-  group: string
-  partNumber: string
-  shellHolder: string
+  dieSeries: string | null
+  group: string | null
+  partNumber: string | null
+  shellHolder: string | null
   acquisitionDate_unix: number | null
-  paidPrice: string
-  boughtFrom: string
-  marketValue: string
-  remarks: string
+  paidPrice: string | null
+  boughtFrom: string | null
+  marketValue: string | null
+  remarks: string | null
   customInventoryDesignation: null | string
   qrCode: null | string
   sold_isSold: boolean,
@@ -511,18 +511,18 @@ export interface ReloadingType_Bullet {
   lastModifiedAt: number
   images: string[],
   tags: string[],
-  manufacturer: string
-  model: string
+  manufacturer: string | null
+  model: string | null
   caliber: string[]
-  bulletWeight: string
-  bulletType: string
-  ballisticCoefficient: string
-  currentStock: string
-  lastTopUpAt_unix: number
-  criticalStock: string
-  remarks: string
-  customInventoryDesignation: string
-  qrCode: string
+  bulletWeight: string | null
+  bulletType: string | null
+  ballisticCoefficient: string | null
+  currentStock: string | null
+  lastTopUpAt_unix: number | null
+  criticalStock: string | null
+  remarks: string | null
+  customInventoryDesignation: string | null
+  qrCode: string | null
   sold_isSold: boolean
   sold_sellDate_unix: number | null,
   sold_buyerName: string | null,
@@ -537,19 +537,19 @@ export interface ReloadingType_Case {
   lastModifiedAt: number
   images: string[],
   tags: string[],
-  manufacturer: string
-  model: string
+  manufacturer: string | null
+  model: string | null
   caliber: string[]
-  headstamp: string
-  primer: string
-  caseLength: string
-  material: string
-  currentStock: string
-  lastTopUpAt_unix: number
-  criticalStock: string
-  remarks: string
-  customInventoryDesignation: string
-  qrCode: string
+  headstamp: string | null
+  primer: string | null
+  caseLength: string | null
+  material: string | null
+  currentStock: string | null
+  lastTopUpAt_unix: number | null
+  criticalStock: string | null
+  remarks: string | null
+  customInventoryDesignation: string | null
+  qrCode: string | null
   sold_isSold: boolean
   sold_sellDate_unix: number | null,
   sold_buyerName: string | null,
@@ -564,15 +564,15 @@ export interface ReloadingType_Primer {
   lastModifiedAt: number
   images: string[],
   tags: string[],
-  manufacturer: string
-  model: string
-  type: string
-  currentStock: string
-  lastTopUpAt_unix: number
-  criticalStock: string
-  remarks: string
-  customInventoryDesignation: string
-  qrCode: string
+  manufacturer: string | null
+  model: string | null
+  type: string | null
+  currentStock: string | null
+  lastTopUpAt_unix: number | null
+  criticalStock: string | null
+  remarks: string | null
+  customInventoryDesignation: string | null
+  qrCode: string | null
   sold_isSold: boolean
   sold_sellDate_unix: number | null,
   sold_buyerName: string | null,
@@ -587,16 +587,16 @@ export interface ReloadingType_Powder {
   lastModifiedAt: number
   images: string[],
   tags: string[],
-  manufacturer: string
-  designation: string
-  texture: string
-  application: string
-  powderWeight: string
-  lastTopUpAt_unix: number
-  criticalPowderWeight: string
-  remarks: string
-  customInventoryDesignation: string
-  qrCode: string
+  manufacturer: string | null
+  designation: string | null
+  texture: string | null
+  application: string | null
+  powderWeight: string | null
+  lastTopUpAt_unix: number | null
+  criticalPowderWeight: string | null
+  remarks: string | null
+  customInventoryDesignation: string | null
+  qrCode: string | null
   sold_isSold: boolean
   sold_sellDate_unix: number | null,
   sold_buyerName: string | null,
