@@ -37,7 +37,7 @@ import { useLiveQuery } from 'drizzle-orm/expo-sqlite';
 
 export default function NewItem({navigation}){
     
-    const { language, theme, generalSettings } = usePreferenceStore()
+    const { language, theme, generalSettings, country } = usePreferenceStore()
     const { currentItem, setCurrentItem, currentCollection, setCurrentCollection } = useItemStore()
     const { setHideBottomSheet, setAlohaSnackbarVisible } = useViewStore()
     const { setAlohaSnackbarText } = useTextStore()
@@ -353,6 +353,14 @@ export default function NewItem({navigation}){
         setSelectedImage(copy)
         setItemData({ ...itemData, images: copy })
     }
+
+    function hasCountryPrefix(name: string): boolean {
+        return name.length > 3 && name[2] === "_"
+    }
+
+    function matchesCountry(name: string, country: string): boolean {
+        return name.slice(0, 2).toLowerCase() === country.toLowerCase();
+    }
     
     return(
         <KeyboardAvoidingView behavior='padding' style={{flex: 1}}>
@@ -459,6 +467,10 @@ export default function NewItem({navigation}){
                     }}>
                         <NewChipArea data={"status"} itemData={itemData} setItemData={setItemData}/>
                             {determineDataTemplate(currentCollection).map(data=>{
+                                const isGenericField = !hasCountryPrefix(data.name)
+                                    const isCurrentCountryField = hasCountryPrefix(data.name) && matchesCountry(data.name, country)
+                                    const shouldShowField = isGenericField || isCurrentCountryField
+                                if(shouldShowField){
                                 return(
                                     <View 
                                         id={data.name}
@@ -486,7 +498,7 @@ export default function NewItem({navigation}){
                                             <NewText_Text data={data.name} itemData={itemData} setItemData={setItemData} label={data[language]} autocompleteData={allAutocompleteData?.filter(d => d.field === data.name) ?? []}/>}
                                     </View>
                                 )
-                            })}
+                            }})}
                             {currentCollection === "gunCollection" ? <NewCheckboxArea itemData={itemData} setItemData={setItemData} /> : null}
                         <NewTextArea data={determineRemarkDataTemplate(currentCollection).name} itemData={itemData} setItemData={setItemData} label={determineRemarkDataTemplate(currentCollection)[language]}/>
                     </View>

@@ -95,10 +95,24 @@ export default function Item_details(){
         return currentItem[dataItem.name]
     }
 
+    function hasCountryPrefix(name: string): boolean {
+        return name.length > 3 && name[2] === "_"
+    }
+
+    function matchesCountry(name: string, country: string): boolean {
+        return name.slice(0, 2).toLowerCase() === country.toLowerCase();
+    }
+
     return(
+
+
         <View>
                         {determineDataTemplate(currentCollection).map((dataItem, index)=>{
-                            if(!generalSettings.emptyFields){
+                                    const isGenericField = !hasCountryPrefix(dataItem.name)
+                                    const isCurrentCountryField = hasCountryPrefix(dataItem.name) && matchesCountry(dataItem.name, country)
+                                    const shouldShowField = isGenericField || isCurrentCountryField
+
+                            if(!generalSettings.emptyFields && shouldShowField){
                                 return(
                                     <View key={`${dataItem.name}`} style={{flex: 1, flexDirection: "column"}} >
 {/* Textfield Label in selected language */}
@@ -124,7 +138,7 @@ export default function Item_details(){
                                         null}
                                     </View>
                                 )
-                            } else if(currentItem[dataItem.name]){
+                            } else if(currentItem[dataItem.name] && shouldShowField){
                             return(
                                 <View key={`${dataItem.name}`} style={{flex: 1, flexDirection: "column"}} >
                                     {/* Textfield Label in selected language */}

@@ -388,6 +388,14 @@ function swapItems(arr: string[], from: number, to: number){
     setItemData({ ...itemData, images: copy })
 }
 
+function hasCountryPrefix(name: string): boolean {
+        return name.length > 3 && name[2] === "_"
+    }
+
+    function matchesCountry(name: string, country: string): boolean {
+        return name.slice(0, 2).toLowerCase() === country.toLowerCase();
+    }
+
     return(
         <KeyboardAvoidingView behavior="padding" style={{flex: 1}}>
             <Appbar style={{width: "100%"}}>
@@ -482,6 +490,10 @@ function swapItems(arr: string[], from: number, to: number){
                     }}>
                         <NewChipArea data={"status"} itemData={itemData} setItemData={setItemData}/>
                             {determineDataTemplate(currentCollection).map(data=>{
+                                const isGenericField = !hasCountryPrefix(data.name)
+                                    const isCurrentCountryField = hasCountryPrefix(data.name) && matchesCountry(data.name, country)
+                                    const shouldShowField = isGenericField || isCurrentCountryField
+                                if(shouldShowField){
                                 return(
                                     <View 
                                         id={data.name}
@@ -511,7 +523,7 @@ function swapItems(arr: string[], from: number, to: number){
                                         <NewText_Text data={data.name} itemData={itemData} setItemData={setItemData} label={data[language]} />}
                                     </View>
                                 )
-                            })}
+                            }})}
                             {currentCollection === "gunCollection" ? <NewCheckboxArea itemData={itemData} setItemData={setItemData}/> : null}
                         <NewTextArea data={determineRemarkDataTemplate(currentCollection).name} itemData={itemData} setItemData={setItemData} label={determineRemarkDataTemplate(currentCollection)[language]}/>
                     </View>
