@@ -77,6 +77,10 @@ interface DataTemplateTranslations {
     batteryType: DataTemplateTranslation
     glassDimensions: DataTemplateTranslation
     focalPlane: DataTemplateTranslation
+    de_wbkColor: DataTemplateTranslation
+    de_wbkNumber: DataTemplateTranslation
+    de_wbkRunningNumber: DataTemplateTranslation
+    de_nwrId: DataTemplateTranslation
 }
 
 interface DataTemplateTranslationRemarks {
@@ -717,6 +721,38 @@ export const dataTemplate_Translations: DataTemplateTranslations = {
         fr: "Plan focal",
         it: "Piano focale",
         ch: "Plan focal"
+    },
+    "de_wbkColor":{
+        name: "de_wbkColor",
+        de: "WBK-Farbe",
+        en: "Weapon Possession License Color",
+        fr: "Couleur de la carte de possession d’armes",
+        it: "Colore della carta di possesso di armi",
+        ch: "Culur da la carta da possess d’armas"
+    },
+    "de_wbkNumber":{
+        name: "de_wbkNumber",
+        de: "WBK Nummer",
+        en: "Weapon Possession License Number",
+        fr: "Numéro de la carte de possession d’armes",
+        it: "Numero della carta di possesso di armi",
+        ch: "Numra da la carta da possess d’armas"
+    },
+    "de_wbkRunningNumber":{
+        name: "de_wbkRunningNumber ",
+        de: "Laufende Nummer",
+        en: "Running Number",
+        fr: "Numéro d’ordre",
+        it: "Numero progressivo",
+        ch: "Numra current"
+    },
+    "de_nwrId":{
+        name: "de_nwrId",
+        de: "NWR-ID",
+        en: "National Weapons Register ID",
+        fr: "ID du Registre national des armes",
+        it: "ID del Registro nazionale delle armi",
+        ch: "ID dal Register naziunal d’armas"
     },
 }
 

@@ -33,6 +33,10 @@ export interface GunTypeDetails{
   sold_sellPrice: string | null,
   sold_buyerPermit: string | null,
   sold_remarks: string | null,
+  de_wbkColor: string | null,
+  de_wbkNumber: string | null,
+  de_wbkRunningNumber: string | null,
+  de_nwrId: string | null,
 }
 
 export interface GunTypeStatus{
