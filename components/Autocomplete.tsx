@@ -26,12 +26,14 @@ export default function Autocomplete({title, data, autocompleteData,inputText, u
 
     const [rerender, setRerender] = useState(0)
     const [visible, setVisible] = useState<boolean>(true)
+    const [hasSelected, setHasSelected] = useState<boolean>(false)
 
     const bottomSheetRef = useRef<BottomSheet>(null);
 
     function handleAutocomplete(text: string){
         updateItemData(text)
         setRerender(rerender => rerender + 1)
+        setHasSelected(true)
     }
 
     function getMatches(){
@@ -43,15 +45,15 @@ export default function Autocomplete({title, data, autocompleteData,inputText, u
     useEffect(() => {
         const hasMatches = getMatches()
         if (charCount >= 2 && isFocus && hasMatches) {
-            setVisible(true);
+            setVisible(true)
         } else {
-            setVisible(false);
+            setVisible(false)
         }
     }, [charCount, isFocus, autocompleteData])
 
     return(
         <Portal>
-            {charCount >= 2 && isFocus && autocompleteData?.length > 0 && visible ? <BottomSheet
+            {charCount >= 2 && isFocus && autocompleteData?.length > 0 && visible && !hasSelected ? <BottomSheet
                 ref={bottomSheetRef}
 
                 snapPoints={[
