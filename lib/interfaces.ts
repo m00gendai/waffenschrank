@@ -864,6 +864,7 @@ export type Languages = | "de"
 
 export type SupportedCountries =  | "ch"
                                   | "us"
+                                  | "de"
                                   | "--"
 
 export interface CountrySelection {

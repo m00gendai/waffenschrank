@@ -46,6 +46,13 @@ export const countrySelection:CountrySelection[] = [
         it: "Svizzera",
         ch: "Svizra"
     }, iso: "ch"},
+    {flag: "🇩🇪", name: {
+        de: "Deutschland",
+        en: "Germany",
+        fr: "Allemagne",
+        it: "Germania",
+        ch: "Germania"
+    }, iso: "de"},
     {flag: "🇺🇸", name: {
         de: "Vereinigte Staaten von Amerika",
         en: "United States of America",
