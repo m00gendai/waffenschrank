@@ -280,16 +280,21 @@ export default function NewText({data, itemData, setItemData, label, multiCalibe
                                 />
                             </View>
                             <ScrollView>
-                            {calibers.map((caliber, index) =>{
-                                if(caliberQuery.length >= 2){
-                                    return caliber.variants.map((variant, index)=>{
-                                        if(variant.name.toLowerCase().replaceAll(".", "").replaceAll(" ", "").includes(caliberQuery.toLowerCase().replaceAll(".", "").replaceAll(" ", ""))){
-                                            return(
+                            {calibers.map((caliber, index) => {
+                                if (caliberQuery.length >= 2) {
+                                    return caliber.variants.map((variant, index) => {
+                                        const normalizedName = variant.name.toLowerCase().replaceAll(".", "")
+                                        const queryWords = caliberQuery.toLowerCase().replaceAll(".", "").split(" ").filter(split => split.length > 0)
+
+                                        const isMatch = queryWords.every(word => normalizedName.includes(word))
+
+                                        if (isMatch) {
+                                            return (
                                                 <List.Item key={`${variant.name}_${index}`} title={variant.name} titleStyle={{color: activeCaliber && activeCaliber.length !== 0 && activeCaliber.includes(variant.name) ? theme.colors.onTertiary : theme.colors.onTertiaryContainer}} onPress={()=>handleCaliberItemSelect(variant.name)} style={{backgroundColor: activeCaliber.includes(variant.name) ? theme.colors.tertiary : "transparent"}}/>
                                             )
                                         }
                                     })
-                                } 
+                                }
                             })}
                             {caliberQuery.length < 1 && activeCaliber.length > 0 ?
                                 activeCaliber.map((variant, index) => {
