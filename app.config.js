@@ -47,6 +47,9 @@ export default {
       "expo-asset",
       "expo-local-authentication",
       "expo-web-browser",
+      "expo-sharing",
+      "expo-font",
+      "expo-status-bar",
       [
         "./plugins/withAndroidMainActivityAttributes",
         {
@@ -61,7 +64,7 @@ export default {
         "expo-build-properties",
         {
           "ios": {
-            "deploymentTarget": "15.5"
+            "deploymentTarget": "16.4"
           }
         }
       ],
