@@ -927,7 +927,7 @@ export function determineCountryCheckboxes(iso:SupportedCountries){
             return checkboxFields_ch
         case "us":
             return checkboxFields_us
-        case "--":
+        default: 
             return []
     }
 }
