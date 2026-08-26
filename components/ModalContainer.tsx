@@ -22,7 +22,7 @@ export default function ModalContainer({visible, setVisible, title, subtitle, co
     
     return(
                 <Portal >
-            <Modal visible={visible} onDismiss={()=>setVisible(false)} style={{position: "absolute"}}>
+            <Modal visible={visible} onDismiss={()=>setVisible(false)}>
                 <View style={{width: "100%", height: "100%", display: "flex", flexDirection: "row", justifyContent: "center", alignItems: "center", alignContent: "center", flexWrap: "wrap", backgroundColor: defaultModalBackdrop}}>
                     <View style={{borderRadius: 25, width: (Dimensions.get("window").width/100)*85, height: (Dimensions.get("window").height/100)*85, display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "flex-start", flexWrap: "wrap", backgroundColor: theme.colors.background}}>
                         <View style={{borderTopLeftRadius: 25, borderTopRightRadius: 25, width: "100%", backgroundColor: theme.colors.background, borderBottomColor: theme.colors.primary, borderBottomWidth: 1, marginBottom: 5}}>
