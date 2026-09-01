@@ -27,7 +27,7 @@ export default function Lists(){
         toggleiosWarning(false)
         if(printer.startsWith("gunCollection")){
             try {
-                await printGunCollection(language, generalSettings.caliberDisplayName, caliberDisplayNameList, printer, preferredUnits)
+                await printGunCollection(language, generalSettings.caliberDisplayName, caliberDisplayNameList, printer, preferredUnits, country)
             }catch(e){
                 console.error(`Print Gun Collection Error: ${e}`)
             }
