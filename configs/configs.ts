@@ -147,6 +147,7 @@ export const ignoreIntervalFieldsForLogger: string[] = ["cleanInterval", "cleanI
 export const mountedOnTriggerFields: string[] = ["currentlyMountedOn"]
 export const codeTriggerFields: string[] = ["qrCode"]
 export const stockTriggerFields: string[] = ["currentStock"]
+export const dropDownTriggerFields: string[] = ["de_wbkColor"]
 
 export const nonFreeTextFields: string[] = [...numberTextFields, ...datePickerTriggerFields, ...legacyDatePickerTriggerFields, ...colorPickerTriggerFields, ...caliberPickerTriggerFields, ...intervalPickerTriggerFields, ...mountedOnTriggerFields, ...codeTriggerFields]
 export const fieldsForAutocomplete: string[] = ["manufacturer", "designation", "model", "title", "subtitle", "author", "originCountry", "boughtFrom", "thread", "material", "zoom", "reticle", "platform", "language", "publisher", "series"]
@@ -216,3 +217,10 @@ export const checkboxFields_us = ["pistol", "rifle", "shotgun", "sbr", "sbs", "a
 export const printers_ch: ListPrinter[] = ["gunCollection", "gunCollectionArt5", "gunCollectionHybrid", "custom"]
 export const printers_us: ListPrinter[] = ["gunCollection", "custom"]
 export const printers_others: ListPrinter[] = ["gunCollection", "custom"]
+
+export const countryExclusiveFields: Record<SupportedCountries, string[]> = {
+    ch: [],
+    de: ["de_wbkColor", "de_wbkNumber", "de_wbkRunningNumber", "de_nwrId"],
+    us: [],
+    "--": []
+}
