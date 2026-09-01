@@ -4,7 +4,7 @@ export interface GunTypeDetails{
   model: string | null
   manufacturingDate: string | null
   originCountry: string | null
-  caliber: string[] | null
+  caliber: string[]
   serial: string | null
   permit: string | null
   acquisitionDate_unix: number | null
@@ -94,7 +94,7 @@ export interface LegacyAmmoType{
 export interface AmmoType{
   id: string
   manufacturer: string | null
-  caliber: string[] | null
+  caliber: string[]
   designation: string
   originCountry: string | null
   createdAt: number,
