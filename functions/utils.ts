@@ -1,5 +1,5 @@
-import { AmmoType, CollectionType, Color, GunType, ItemType, Languages, SortingTypes, weightUnitNames } from "../lib/interfaces";
-import { validationErros } from "../lib/textTemplates";
+import { AmmoType, CollectionType, Color, distUnitNames, GunType, ItemType, Languages, SortingTypes, weightUnitNames } from "../lib/interfaces";
+import { SimpleTranslation, validationErros } from "../lib/textTemplates";
 import { dateTimeOptions, unitFields_Length, unitFields_Weight } from "../configs/configs";
 import * as ImagePicker from "expo-image-picker"
 import { ImageResult, manipulateAsync } from 'expo-image-manipulator';
@@ -53,12 +53,12 @@ export function getDisplaySwitchIcon(type: DisplayVariants){
     }
 }
 
-export function itemDataValidation(collection: CollectionType, value:ItemType, lang:string){
+export function itemDataValidation(collection: CollectionType, value:ItemType, lang:Languages){
     let validationResponse: {field: string, error: string}[] = []
     const requiredFields: string[] = determineRequiredFields(collection)
-    const x:{de: string, en: string, fr: string}[] = determineDataTemplate(collection).filter(item => requiredFields.includes(item.name))
+    const x:SimpleTranslation[] = determineDataTemplate(collection).filter(item => requiredFields.includes(item.name))
     for(const entry of requiredFields){
-       if( !(entry in value) || value[entry].length == 0 ){
+       if( !(entry in value) || (value[entry as keyof ItemType] as any)?.length === 0){
         validationResponse = [...validationResponse, {field: x[0][lang], error: validationErros.requiredFieldEmpty[lang]}]
        }
     }
@@ -66,6 +66,9 @@ export function itemDataValidation(collection: CollectionType, value:ItemType, l
 }
 
 export async function imageHandling(result:ImagePicker.ImagePickerResult, resizeImages:boolean){
+    if(!result.assets){
+        return
+    }
     if(!resizeImages){
         return result.assets[0]
     }
@@ -85,7 +88,7 @@ export async function imageHandling(result:ImagePicker.ImagePickerResult, resize
     return altered
 }
 
-export function getImageSize(base64ImageUri){
+export function getImageSize(base64ImageUri: string){
     return new Promise((resolve, reject) => {
         Image.getSize(base64ImageUri, (width, height) => {
             if (width && height) {
@@ -97,7 +100,7 @@ export function getImageSize(base64ImageUri){
     });
 };
 
-export function sanitizeFileName(fileName) {
+export function sanitizeFileName(fileName: string) {
     // Define the forbidden characters for Windows, macOS, and Linux
     const forbiddenCharacters = /[\\/:*?"<>|]/g;
     
@@ -110,7 +113,7 @@ export function sanitizeFileName(fileName) {
     return sanitized;
 }
 
-function mapIntervals(interval){
+function mapIntervals(interval: string){
     switch(interval){
         case "day_1":
             return 1
@@ -182,18 +185,7 @@ export function alarm(title: string, error:string){
     ])
   }
 
-export function cleanNullValues (obj: GunType | AmmoType){
-    if (!obj) return obj;
-    const cleaned = { ...obj };
-    Object.keys(cleaned).forEach(key => {
-      if (cleaned[key] === null) {
-        cleaned[key] = "";
-      }
-    });
-    return cleaned;
-};
-
-export function intlNumberFormatOptions(input){
+export function intlNumberFormatOptions(input: number){
     return {
         minimumFractionDigits: input % 1 === 0 ? 0 : 2,
         maximumFractionDigits: input % 1 === 0 ? 0 : 2,
@@ -215,7 +207,7 @@ export function generateGradient(item: ItemType, theme:{name: string; colors: Co
 }
 
 export function convertWeightUnitsToMilligram(preferredUnits: PreferredUnits, weightField:string, inputWeight:string){
-    const unit:string = preferredUnits[`${weightField}Unit`]
+    const unit:string = preferredUnits[`${weightField}Unit` as keyof PreferredUnits] as weightUnitNames
     const base = weightUnits.filter(weight => weight.iso === unit)
     const conversion = base[0].base
     const weightInMilligram = Number(inputWeight)*conversion
@@ -230,7 +222,7 @@ export function convertSelectedUnitToMilligram(selectedUnit: weightUnitNames, in
 }
 
 export function convertWeightUnitsToPreferredUnit(preferredUnits: PreferredUnits, weightField:string, inputWeight:string){
-    const unit:string = preferredUnits[`${weightField}Unit`]
+    const unit:string = preferredUnits[`${weightField}Unit` as keyof PreferredUnits] as weightUnitNames
     const base = weightUnits.filter(weight => weight.iso === unit)
     const conversion = base[0].base
     const weightInPreferredUnit = Number(inputWeight)/conversion
@@ -245,7 +237,7 @@ export function convertWeightUnitsToSelectedUnit(selectedUnit: weightUnitNames, 
 }
 
 export function convertLengthUnitsToMillimeter(preferredUnits: PreferredUnits, lengthField:string, inputLength:string){
-    const unit:string = preferredUnits[`${lengthField}Unit`]
+    const unit:string = preferredUnits[`${lengthField}Unit` as keyof PreferredUnits] as distUnitNames
     const base = distUnits.filter(length => length.iso === unit)
     const conversion = base[0].base
     const lengthInMillimeter = Number(inputLength)*conversion
@@ -253,7 +245,7 @@ export function convertLengthUnitsToMillimeter(preferredUnits: PreferredUnits, l
 }
 
 export function convertLengthUnitsToPreferredUnit(preferredUnits: PreferredUnits, lengthField:string, inputLength:string){
-    const unit:string = preferredUnits[`${lengthField}Unit`]
+    const unit:string = preferredUnits[`${lengthField}Unit` as keyof PreferredUnits] as distUnitNames
     const base = distUnits.filter(length => length.iso === unit)
     const conversion = base[0].base
     const lengthInPreferredUnit = Number(inputLength)/conversion
@@ -272,8 +264,8 @@ export function checkConversionFields(item:ItemType, name: string, preferredUnit
 
 
 
-export function parseDate(date: string | number){
-    if(date === null){
+export function parseDate(date: string | number | null | undefined) {
+    if (date === null || date === undefined || date === "") {
         return ""
     }
     const checkDate: Date = typeof date === "number" ? new Date(date) : new Date(Number(date))
