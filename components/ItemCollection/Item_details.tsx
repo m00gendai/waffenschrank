@@ -3,12 +3,13 @@ import { Checkbox, Text, IconButton } from 'react-native-paper';
 import { determineCountryCheckboxes, determineDataTemplate, determineRemarkDataTemplate } from 'functions/determinators';
 import { useItemStore } from "stores/useItemStore";
 import { usePreferenceStore } from "stores/usePreferenceStore";
-import { barrelLengthPrefixFields, bulletWeightPrefixFields, caliberPickerTriggerFields, caseLengthPrefixFields, cleanIntervalOptions, colorPickerTriggerFields, currencyPrefixFields, datePickerTriggerFields, dateTimeOptions, powderWeightPrefixFields } from "configs/configs";
+import { barrelLengthPrefixFields, bulletWeightPrefixFields, caliberPickerTriggerFields, caseLengthPrefixFields, cleanIntervalOptions, colorPickerTriggerFields, currencyPrefixFields, datePickerTriggerFields, dateTimeOptions, dropDownTriggerFields, powderWeightPrefixFields } from "configs/configs";
 import { cleanIntervals, shotLabel } from "lib/textTemplates";
 import { GetColorName } from 'hex-color-to-color-name';
 import { checkDate, convertLengthUnitsToPreferredUnit, convertWeightUnitsToPreferredUnit } from "functions/utils";
 import { checkBoxes } from "lib/DataTemplates/gunDataTemplate";
 import { getShortCaliberName } from "functions/getShortCaliber";
+import { dropDownPickerOptions } from "lib/dropDownPickerOptions";
 
 export default function Item_details(){
 
@@ -90,6 +91,12 @@ export default function Item_details(){
             } catch (e) {
                 return `Invalid Date catch: ${currentItem[dataItem.name]}`
             }
+        }
+        if(dropDownTriggerFields.includes(dataItem.name) && dataItem.name in currentItem && currentItem[dataItem.name]){
+            const targetValues = dropDownPickerOptions[dataItem.name][language]
+            const targetValue = targetValues.filter(value => value.value === currentItem[dataItem.name])[0]
+
+            return targetValue.label
         }
 
         return currentItem[dataItem.name]

@@ -14,7 +14,7 @@ import { generateGradient, imageHandling, itemDataValidation } from 'functions/u
 import { db } from "db/client"
 import * as schema from "db/schema"
 import { eq } from 'drizzle-orm';
-import { caliberPickerTriggerFields, codeTriggerFields, colorPickerTriggerFields, datePickerTriggerFields, defaultViewPadding, fieldsForAutocomplete, intervalPickerTriggerFields, mountedOnTriggerFields, stockTriggerFields } from 'configs/configs';
+import { caliberPickerTriggerFields, codeTriggerFields, colorPickerTriggerFields, datePickerTriggerFields, defaultViewPadding, dropDownTriggerFields, fieldsForAutocomplete, intervalPickerTriggerFields, mountedOnTriggerFields, stockTriggerFields } from 'configs/configs';
 import NewText_DatePicker from 'components/NewText_DatePicker';
 import NewText_ColorPicker from 'components/NewText_ColorPicker';
 import NewText_CaliberPicker from 'components/NewText_CaliberPicker';
@@ -33,6 +33,7 @@ import NewText_CodeScanner from 'components/NewText_CodeScanner';
 import { gunDeleteAlert, imageDeleteAlert, unsavedChangesAlert, validationFailedAlert } from 'lib/Text/text_alerts';
 import { toastMessages } from 'lib/Text/text_toastMessages';
 import NewText_QuickStockPicker from 'components/NewText_QuickStockPicker';
+import NewText_DropDownPicker from 'components/NewText_DropDownPicker';
 
 
 export default function EditGun({navigation}){
@@ -520,6 +521,8 @@ function hasCountryPrefix(name: string): boolean {
                                             <NewText_CodeScanner data={data.name} itemData={itemData} setItemData={setItemData} label={data[language]} /> :
                                         stockTriggerFields.includes(data.name) ?
                                             <NewText_QuickStockPicker data={data.name} itemData={itemData} setItemData={setItemData} label={data[language]} /> :
+                                        dropDownTriggerFields.includes(data.name) ?
+                                            <NewText_DropDownPicker data={data.name} itemData={itemData} setItemData={setItemData} label={data[language]} /> :
                                         <NewText_Text data={data.name} itemData={itemData} setItemData={setItemData} label={data[language]} />}
                                     </View>
                                 )

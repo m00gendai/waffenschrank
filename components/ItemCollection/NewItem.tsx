@@ -14,7 +14,7 @@ import NewChipArea from 'components/NewChipArea';
 import { File, Directory, Paths } from 'expo-file-system';
 import * as schema from "db/schema"
 import { db } from "db/client"
-import { caliberPickerTriggerFields, codeTriggerFields, colorPickerTriggerFields, datePickerTriggerFields, defaultViewPadding, fieldsForAutocomplete, intervalPickerTriggerFields, mountedOnTriggerFields, nonFreeTextFields } from 'configs/configs';
+import { caliberPickerTriggerFields, codeTriggerFields, colorPickerTriggerFields, datePickerTriggerFields, defaultViewPadding, dropDownTriggerFields, fieldsForAutocomplete, intervalPickerTriggerFields, mountedOnTriggerFields, nonFreeTextFields } from 'configs/configs';
 import NewText_DatePicker from 'components/NewText_DatePicker';
 import NewText_ColorPicker from 'components/NewText_ColorPicker';
 import NewText_CaliberPicker from 'components/NewText_CaliberPicker';
@@ -33,6 +33,7 @@ import { imageDeleteAlert, unsavedChangesAlert, validationFailedAlert } from 'li
 import { toastMessages } from 'lib/Text/text_toastMessages';
 import { eq, asc, inArray } from 'drizzle-orm';
 import { useLiveQuery } from 'drizzle-orm/expo-sqlite';
+import NewText_DropDownPicker from 'components/NewText_DropDownPicker';
 
 
 export default function NewItem({navigation}){
@@ -495,6 +496,8 @@ export default function NewItem({navigation}){
                                             <NewText_MountedOnPicker data={data.name} itemData={itemData} setItemData={setItemData} label={data[language]} /> :
                                         codeTriggerFields.includes(data.name) ?
                                             <NewText_CodeScanner data={data.name} itemData={itemData} setItemData={setItemData} label={data[language]} /> :
+                                        dropDownTriggerFields.includes(data.name) ?
+                                            <NewText_DropDownPicker data={data.name} itemData={itemData} setItemData={setItemData} label={data[language]} /> :
                                             <NewText_Text data={data.name} itemData={itemData} setItemData={setItemData} label={data[language]} autocompleteData={allAutocompleteData?.filter(d => d.field === data.name) ?? []}/>}
                                     </View>
                                 )
