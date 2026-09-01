@@ -1,6 +1,7 @@
 import { create } from "zustand"
 import { colorThemes } from "../lib/colorThemes"
 import { Color, Languages, SortingTypesGun, SortingTypesAmmo, SortingTypesAccessory_Silencer, CollectionType, SortingTypes, SortingTypesAccessory_Optic, SortingTypesPart_ConversionKit, SortingTypesAccessory_LightLaser, SortingTypesPart_Barrel, SortingTypesAccessory_Scope, SortingTypesAccessory_Magazine, SortingTypesAccessory_Misc, SortingTypesLiterature_Book, SortingTypesReloading_Die, SortingTypesReloading_Bullet, SortingTypesReloading_Case, SortingTypesReloading_Primer, SortingTypesReloading_Powder, SupportedCountries, weightUnitNames, distUnitNames} from "../lib/interfaces"
+import { Language } from "website/src/types/types_global"
 
 export type DisplayVariants = "grid" | "list" | "compactList"
 
@@ -228,12 +229,12 @@ const initialState:InitialStoreState = {
 
 
 interface StoreFunctions {
-    switchLanguage: (lang: string) => void
+    switchLanguage: (lang: Language) => void
     switchTheme: (name: string) => void,
     switchCountry: (iso: SupportedCountries) => void
     setGeneralSettings: (settings: GeneralSettings) => void
     setPreferredUnits: (units: PreferredUnits) => void
-    setCaliberDisplayNameList: (calibers: {name: string, displayName?: string}[]) => void
+    setCaliberDisplayNameList: (calibers: {name: string}[]) => void
     setDisplaySettings: (settings: DisplaySettings) => void
     setSortBy: (collection: keyof SorterSettings, settings: SorterSettings[keyof SorterSettings]) => void
     setFilterOn: (status: FilterState) => void
@@ -256,7 +257,7 @@ interface StoreFunctions {
     setGeneralSettings: (settings: GeneralSettings) => set((state) => ({generalSettings: settings})),
     setPreferredUnits: (settings: PreferredUnits) => set((state) => ({preferredUnits: settings})),
     setDisplaySettings: (settings: DisplaySettings) => set((state) => ({displaySettings: settings})),
-    setCaliberDisplayNameList: (calibers: {name: string, displayName: string}[])  => set((state) =>({caliberDisplayNameList: calibers})),
+    setCaliberDisplayNameList: (calibers: {name: string}[])  => set((state) =>({caliberDisplayNameList: calibers})),
     setSortBy: (collection, settings) => set((state) => ({
       sortBy: { 
         ...state.sortBy, 
