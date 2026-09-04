@@ -12,19 +12,19 @@ import { PREFERENCES } from 'configs/configs_DB';
 import { modalTexts } from 'lib/Text/text_modals';
 
 interface Props{
-    data: string
-    itemData?: ItemType
-    setItemData?: React.Dispatch<React.SetStateAction<ItemType>>
+    data: keyof ItemType
+    itemData: ItemType
+    setItemData: React.Dispatch<React.SetStateAction<ItemType>>
     label: string
     multiCaliber: boolean
 }
 
-export default function NewText({data, itemData, setItemData, label, multiCaliber}: Props){
+export default function NewText_CaliberPicker({data, itemData, setItemData, label, multiCaliber}: Props){
 
     async function setLastUsedCaliber(name:string[]){
         let isPreferences 
         try{
-            const preferences:string = await AsyncStorage.getItem(PREFERENCES)
+            const preferences:string | null = await AsyncStorage.getItem(PREFERENCES)
             isPreferences = preferences ? JSON.parse(preferences) : null;
         } catch(e){
           throw new Error(`CaliberPicker setLastUsedCaliber getPreferences: ${e}`)
@@ -50,23 +50,23 @@ export default function NewText({data, itemData, setItemData, label, multiCalibe
 
     function determineActiveCaliber(itemData: ItemType ){
         if(!itemData){
-            return [] // if itemData is falsy, return an empty array. This shouldnt really happen but you never know
+            return [] as string[] // if itemData is falsy, return an empty array. This shouldnt really happen but you never know
         }
         if(itemData && !itemData[data]){
-            return [] // if itemData does exist, but caliber property is falsy, return an empty array
+            return [] as string[] // if itemData does exist, but caliber property is falsy, return an empty array
         }
         if(Array.isArray(itemData[data])){
-            return itemData[data] // if itemData does exist and caliber property contains an array of calibers as it should be, return it
+            return itemData[data] as string[] // if itemData does exist and caliber property contains an array of calibers as it should be, return it
         }
-        if(!Array.isArray(itemData[data]) && itemData[data].startsWith("[")){
-            return [itemData[data].slice(1,-1)] // if for whatever reason (legacy/imports) the caliber property is a stringed array, return an array with the [ and ] removed
+        if(!Array.isArray(itemData[data]) && itemData[data]?.toString().startsWith("[")){
+            return [itemData[data].toString().slice(1,-1)] as string[] // if for whatever reason (legacy/imports) the caliber property is a stringed array, return an array with the [ and ] removed
         }
-        return [itemData[data]] // if its JUST a string, return an aray of it
+        return [itemData[data]] as string[] // if its JUST a string, return an aray of it
     }
 
-    const [input, setInput] = useState<string[]>(itemData && itemData[data] ? itemData[data] : [])
+    const [input, setInput] = useState<string[]>(itemData && itemData[data] ? itemData[data] as string[] : [])
     const [showModalCaliber, setShowModalCaliber] = useState<boolean>(false)
-    const [activeCaliber, setActiveCaliber] = useState<string[]>(determineActiveCaliber(itemData))
+    const [activeCaliber, setActiveCaliber] = useState<string[]>(itemData ? determineActiveCaliber(itemData) : [] as string[])
     const [caliberView, setCaliberView] = useState<"search" | "list">("search")
     const [caliberQuery, setCaliberQuery] = useState<string>("")
     const [lastUsed, setLastUsed] = useState<string[]>([])
@@ -81,7 +81,7 @@ export default function NewText({data, itemData, setItemData, label, multiCalibe
         async function getLastUsedCaliber(){
             let isPreferences 
             try{
-                const preferences:string = await AsyncStorage.getItem(PREFERENCES)
+                const preferences:string | null = await AsyncStorage.getItem(PREFERENCES)
                 isPreferences = preferences ? JSON.parse(preferences) : null;
             } catch(e){
             throw new Error(`CaliberPicker setLastUsedCaliber getPreferences: ${e}`)
@@ -145,7 +145,7 @@ export default function NewText({data, itemData, setItemData, label, multiCalibe
     }
 
     function handleCaliberSelectCancel(){
-        setActiveCaliber(itemData && itemData[data] ? itemData[data] : "")
+        setActiveCaliber(itemData && itemData[data] ? itemData[data] as string[] : [] as string[])
         setShowModalCaliber(false)
     }
 
