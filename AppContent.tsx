@@ -126,7 +126,7 @@ const { bottom } = useSafeAreaInsets();
         let isPreferences 
         try{
           console.info("Get Preferences")
-          const preferences:string = await AsyncStorage.getItem(PREFERENCES)
+          const preferences:string | null = await AsyncStorage.getItem(PREFERENCES)
           isPreferences = preferences ? JSON.parse(preferences) : null;
         } catch(e){
           throw new Error(`Init: Get Preferences: ${e}`)
@@ -166,7 +166,7 @@ const { bottom } = useSafeAreaInsets();
           try{
             isPreferences?.hasBeenOnboarded ? setOnboardingVisible(false) : setOnboardingVisible(true)
           } catch(e){
-            alarm("Onboarding Error @onLayoutRootView", e)
+            alarm("Onboarding Error @onLayoutRootView", `${e}`)
           }
           setAppIsReady(true)
           return
@@ -206,7 +206,7 @@ const { bottom } = useSafeAreaInsets();
           try{
             isPreferences?.hasBeenOnboarded ? setOnboardingVisible(false) : setOnboardingVisible(true)
           } catch(e){
-            alarm("Onboarding Error @onLayoutRootView", e)
+            alarm("Onboarding Error @onLayoutRootView", `${e}`)
           }
           setAppIsReady(true)
           return
@@ -252,7 +252,7 @@ const { bottom } = useSafeAreaInsets();
             try{
             isPreferences?.hasBeenOnboarded ? setOnboardingVisible(false) : setOnboardingVisible(true)
           } catch(e){
-            alarm("Onboarding Error @onLayoutRootView", e)
+            alarm("Onboarding Error @onLayoutRootView", `${e}`)
           }
             setAppIsReady(true)
             return
@@ -289,7 +289,7 @@ const { bottom } = useSafeAreaInsets();
             try{
             isPreferences?.hasBeenOnboarded ? setOnboardingVisible(false) : setOnboardingVisible(true)
           } catch(e){
-            alarm("Onboarding Error @onLayoutRootView", e)
+            alarm("Onboarding Error @onLayoutRootView", `${e}`)
           }
             setAppIsReady(true)
             return
@@ -300,7 +300,7 @@ const { bottom } = useSafeAreaInsets();
 
       }catch(e){
         console.error(e)
-        alarm("Initialisation error", e?.message || String(e));
+        alarm("Initialisation error", `${e}`);
       }
     }
 
@@ -322,18 +322,20 @@ const { bottom } = useSafeAreaInsets();
   
   useEffect(()=>{
     async function getPreferences(){
-      let preferences:string
+      let preferences:string | null
       try{
         preferences = await AsyncStorage.getItem(PREFERENCES)
       } catch(e){
-        alarm("Preference DB Error", e)
+        alarm("Preference DB Error", `${e}`)
+        return
       }
 
       let isPreferences
       try{
        isPreferences = preferences === null ? null : JSON.parse(preferences)
       } catch(e){
-        alarm("Preference Parse Error", e)
+        alarm("Preference Parse Error", `${e}`)
+        return
       }
       
       /* GENERAL SETTINGS AND PREFERENCES */
@@ -378,7 +380,7 @@ const { bottom } = useSafeAreaInsets();
         }
         setHasSeenReviewRequest(isPreferences?.hasSeenReviewRequest ?? false)
       }catch(e){
-        alarm("General Preferences Error", e)
+        alarm("General Preferences Error", `${e}`)
       }
     }
 
@@ -435,7 +437,7 @@ const { bottom } = useSafeAreaInsets();
       <NavigationContainer theme={navTheme}>
         <PaperProvider theme={currentTheme}>
           
-          <StatusBar backgroundColor={mainMenuOpen ? theme.colors.primary : theme.colors.background} style={theme.name.includes("dark") ? "light" : "dark"} />
+          <StatusBar style={theme.name.includes("dark") ? "light" : "dark"} />
           <SafeAreaView 
             onLayout={onLayoutRootView}
             style={{

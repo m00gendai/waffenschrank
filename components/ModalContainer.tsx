@@ -6,7 +6,7 @@ import { useState } from "react";
 
 interface Props{
     visible: boolean
-    setVisible: React.Dispatch<React.SetStateAction<boolean>>
+    setVisible: (visible: boolean) => void
     title: string
     subtitle: string
     content: React.ReactNode
