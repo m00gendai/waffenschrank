@@ -739,7 +739,7 @@ export const dataTemplate_Translations: DataTemplateTranslations = {
         ch: "Numra da la carta da possess d’armas"
     },
     "de_wbkRunningNumber":{
-        name: "de_wbkRunningNumber ",
+        name: "de_wbkRunningNumber",
         de: "Laufende Nummer",
         en: "Running Number",
         fr: "Numéro d’ordre",
