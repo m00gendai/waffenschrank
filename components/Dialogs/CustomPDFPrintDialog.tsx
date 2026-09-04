@@ -1,5 +1,5 @@
 import ModalContainer from "components/ModalContainer";
-import { defaultViewPadding, pdfExcludedKeys, screenNameParamsAll } from "configs/configs";
+import { countryExclusiveFields, defaultViewPadding, pdfExcludedKeys, screenNameParamsAll } from "configs/configs";
 import { View } from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
 import { IconButton, Text, Portal, Checkbox } from "react-native-paper";
@@ -9,7 +9,7 @@ import { createQRcodeDialogText } from "lib/Text/textTemplates_generateQRcodes";
 import { printCustomCollection } from "functions/printers/printCustomCollectionToPDF";
 import { Dropdown } from "react-native-paper-dropdown";
 import { useEffect, useState } from "react";
-import { CollectionType } from "lib/interfaces";
+import { CollectionType, SupportedCountries } from "lib/interfaces";
 import { determineEmptyObject, determineTabBarLabel } from "functions/determinators";
 import { dataTemplate_Translations } from "lib/DataTemplates/translations";
 import { modalTexts } from "lib/Text/text_modals";
@@ -18,7 +18,7 @@ import { selectCollection } from "lib/textTemplates";
 export default function customShippingLabelDialog(){
 
     const { customPDFPrintVisible, setCustomPDFPrintVisible } = useViewStore()
-    const { language, theme, generalSettings, caliberDisplayNameList, preferredUnits, sortBy } = usePreferenceStore()
+    const { language, theme, generalSettings, caliberDisplayNameList, preferredUnits, sortBy, country } = usePreferenceStore()
 
     const [selectedScreen, setSelectedScreen] = useState<CollectionType>("gunCollection")
     const [selectedAttributes, setSelectedAttributes] = useState(new Set<string>());
@@ -72,6 +72,15 @@ export default function customShippingLabelDialog(){
         })
     }
 
+    function getExcludedKeys(country: SupportedCountries){
+    
+      const countrySpecificExcludedKeys = Object.entries(countryExclusiveFields).filter(entry =>{
+        return entry[0] !== country
+      })
+        const flatmapped = countrySpecificExcludedKeys.flatMap(entry => entry[1])
+      return [...pdfExcludedKeys, ...flatmapped]
+    }
+
     return (<Portal>
         <ModalContainer
                             title={modalTexts.customPDFPrinter.title[language]}
@@ -92,7 +101,7 @@ export default function customShippingLabelDialog(){
                                     <View style={{width: "100%", paddingTop: defaultViewPadding, paddingBottom: defaultViewPadding}}>
                                         <ScrollView style={{marginBottom: defaultViewPadding*5}}>
                                             {Object.entries(determineEmptyObject(selectedScreen)).map((data, index) =>{
-                                                if(!pdfExcludedKeys.includes(data[0]) && dataTemplate_Translations[data[0]]){
+                                                if(!getExcludedKeys(country).includes(data[0]) && dataTemplate_Translations[data[0]]){
                                                     return (
                                                         <View key={`${data[0]}_${index}`} style={{width: "100%", display: "flex", flexDirection: "row", justifyContent: "flex-start", alignItems: "center"}}>
                                                             <Checkbox.Android

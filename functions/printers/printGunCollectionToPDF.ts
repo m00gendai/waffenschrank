@@ -2,9 +2,9 @@ import * as Print from 'expo-print';
 import { shareAsync } from 'expo-sharing';
 import * as IntentLauncher from 'expo-intent-launcher';
 import * as FileSystem from 'expo-file-system/legacy';
-import { ListPrinter } from 'lib/interfaces';
+import { ListPrinter, SupportedCountries, CollectionType, ItemType, GunType, Languages } from 'lib/interfaces';
 import { checkBoxes, gunDataTemplate } from 'lib/DataTemplates/gunDataTemplate';
-import { checkboxFields_ch, dateLocales, datePickerTriggerFields, pdfCommonStyles, pdfDateOptions } from 'configs/configs';
+import { checkboxFields_ch, countryExclusiveFields, dateLocales, datePickerTriggerFields, pdfCommonStyles, pdfDateOptions } from 'configs/configs';
 import { Platform } from 'react-native';
 import { db } from 'db/client';
 import * as schema from "db/schema"
@@ -16,9 +16,10 @@ import { pdfFooter, pdfTitle_GunCollection, pdfTitle_GunCollectionArt5 } from 'l
 import { getShortCaliberNameFromArray } from 'functions/getShortCaliber';
 import { ne } from 'drizzle-orm';
 
-const art5Keys = checkBoxes.filter(checkBox => checkboxFields_ch.includes(checkBox.name)).map(checkBox => checkBox.name)
+const art5Keys = checkBoxes.filter(checkBox => checkboxFields_ch.includes(checkBox.name)).map(checkBox => checkBox.name) as (keyof GunType)[]
 
-const excludedKeys = [
+function getExcludedKeys(country: SupportedCountries){
+ const defaultExcludedKeys = [
     "images", 
     "createdAt", 
     "lastModifiedAt", 
@@ -45,30 +46,42 @@ const excludedKeys = [
     "qrCode"
   ]
 
-function sortGuns(gunCollection, printer: ListPrinter){
+  const countrySpecificExcludedKeys = Object.entries(countryExclusiveFields).filter(entry =>{
+    return entry[0] !== country
+  })
+
+    const flatmapped = countrySpecificExcludedKeys.flatMap(entry => entry[1])
+
+  return [...defaultExcludedKeys, ...flatmapped]
+}
+
+
+function sortGuns(gunCollection: GunType[], printer: ListPrinter): GunType[]{
   switch(printer){
     case "gunCollection": {
       return gunCollection.sort((a, b) =>{
-          const x = a.manufacturer
-          const y = b.manufacturer
+          const x = a.manufacturer ?? ""
+          const y = b.manufacturer ?? ""
           return x > y ? 1 : x < y ? -1 : 0
         })
     }
     case "gunCollectionHybrid": {
       return gunCollection.sort((a, b) =>{
-          const x = a.manufacturer
-          const y = b.manufacturer
+          const x = a.manufacturer ?? ""
+          const y = b.manufacturer ?? ""
           return x > y ? 1 : x < y ? -1 : 0
         })
     }
     case "gunCollectionArt5": {
       const gunHasArt5Key = gunCollection.filter(gun => {return art5Keys.some(art5 => gun[art5] === true)})
       return gunHasArt5Key.sort((a, b) =>{
-          const x = a.manufacturer
-          const y = b.manufacturer
+          const x = a.manufacturer ?? ""
+          const y = b.manufacturer ?? ""
           return x > y ? 1 : x < y ? -1 : 0
         })
     }
+    default:
+        return gunCollection
   }
 }
 
@@ -80,11 +93,12 @@ function checkForCheckboxes(printer:ListPrinter){
       return true
     case "gunCollectionHybrid":
       return true
+    default: false
   }
 }
 
-function getHeaderFooterLength(printer:ListPrinter){
-  const columnTitles = gunDataTemplate.filter(data => !excludedKeys.includes(data.name))
+function getHeaderFooterLength(printer:ListPrinter, country: SupportedCountries){
+  const columnTitles = gunDataTemplate.filter(data => !getExcludedKeys(country).includes(data.name))
   switch(printer){
     case "gunCollection":
       return columnTitles.length
@@ -103,18 +117,22 @@ function getTitle(printer:ListPrinter){
       return pdfTitle_GunCollectionArt5
     case "gunCollectionHybrid":
       return pdfTitle_GunCollection
+    default: 
+        return pdfTitle_GunCollection
   }
 }
 
-export async function printGunCollection(language: string, shortCaliber: boolean, caliberDisplayNameList: {name:string, displayName?:string}[], printer: ListPrinter, preferredUnits: PreferredUnits){
+export async function printGunCollection(language: Languages, shortCaliber: boolean, caliberDisplayNameList: {name:string, displayName?:string}[], printer: ListPrinter, preferredUnits: PreferredUnits, country: SupportedCountries){
+
+    const excludedKeys = getExcludedKeys(country)
 
   const gunCollection = db.select().from(schema.gunCollection).where(ne(schema.gunCollection.sold_isSold, true )).all()
-  const guns = sortGuns(gunCollection, printer) 
+  const guns: GunType[] = sortGuns(gunCollection, printer) 
 
   const date:Date = new Date()
 
   const generatedDate:string = date.toLocaleDateString(dateLocales[language], pdfDateOptions)
- 
+
   const html = `
     <html>
       <body>
@@ -122,10 +140,10 @@ export async function printGunCollection(language: string, shortCaliber: boolean
           <table>
             <thead>
               <tr>
-                <th colspan=${getHeaderFooterLength(printer)}>${getTitle(printer)[language]}</th>
+                <th colspan=${getHeaderFooterLength(printer, country)}>${getTitle(printer)[language]}</th>
               </tr>
               ${printer === "gunCollectionArt5" || printer === "gunCollectionHybrid" ? `<tr>
-                <td class="legend" colspan=${getHeaderFooterLength(printer)}>${checkBoxes.filter(checkBox => checkboxFields_ch.includes(checkBox.name)).map((box, index) => `${index+1}: ${box[language]}`).join(", ")}<td>
+                <td class="legend" colspan=${getHeaderFooterLength(printer, country)}>${checkBoxes.filter(checkBox => checkboxFields_ch.includes(checkBox.name)).map((box, index) => `${index+1}: ${box[language]}`).join(", ")}</td>
               </tr>` : ""}
               <tr>
                 ${gunDataTemplate.map(data=>{return excludedKeys.includes(data.name) ? "" : `<th>${data[language]}</th>`}).join("")}${checkForCheckboxes(printer) ? checkBoxes.filter(checkBox => checkboxFields_ch.includes(checkBox.name)).map((box, index) => `<th>${index+1}</th>`).join("") : ""}
@@ -143,7 +161,7 @@ export async function printGunCollection(language: string, shortCaliber: boolean
                             getShortCaliberNameFromArray(gun.caliber, caliberDisplayNameList, shortCaliber).join(",<br>") 
                             : 
                             datePickerTriggerFields.includes(data.name) ? 
-                              parseDate(gun[data.name]) 
+                              parseDate(gun[data.name] as number | null) 
                               : 
                               gun[data.name] ? 
                                 checkConversionFields(gun, data.name, preferredUnits)  
@@ -156,7 +174,7 @@ export async function printGunCollection(language: string, shortCaliber: boolean
                           ""
                         )
                     }).join("")}${checkForCheckboxes(printer) ? checkBoxes.filter(checkBox => checkboxFields_ch.includes(checkBox.name)).map(box => {
-                  return gun[box.name] === true ? 
+                  return gun[box.name as keyof GunType] === true ? 
                     `<td class="xcell">X</td>` 
                   : `<td class="hidden"> </td>`}).join("") : ""}
                   </tr>`
@@ -165,8 +183,8 @@ export async function printGunCollection(language: string, shortCaliber: boolean
             
             <tfoot>
               <tr>
-                <td colspan=${getHeaderFooterLength(printer)}>
-                  ${pdfFooter[language].replace("{{{A}}}", Application.applicationName).replace("{{{B}}}", Platform.OS)} ${Application.nativeApplicationVersion}, ${generatedDate}
+                <td colspan=${getHeaderFooterLength(printer, country)}>
+                  ${pdfFooter[language].replace("{{{A}}}", Application.applicationName ?? "Arsenal Gun Collection").replace("{{{B}}}", Platform.OS)} ${Application.nativeApplicationVersion}, ${generatedDate}
                 </td>
               </tr>
             </tfoot>

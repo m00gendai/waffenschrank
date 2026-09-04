@@ -2,7 +2,7 @@ import * as Print from 'expo-print';
 import { shareAsync } from 'expo-sharing';
 import * as IntentLauncher from 'expo-intent-launcher';
 import * as FileSystem from 'expo-file-system/legacy';
-import { CollectionType } from 'lib/interfaces';
+import { CollectionType, Languages } from 'lib/interfaces';
 import { dateLocales, datePickerTriggerFields, pdfCommonStyles, pdfDateOptions } from 'configs/configs';
 import { Platform } from 'react-native';
 import { db } from 'db/client';
@@ -17,7 +17,7 @@ import { getShortCaliberNameFromArray } from 'functions/getShortCaliber';
 import { ne } from 'drizzle-orm';
 
 export async function printCustomCollection(
-  language: string, 
+  language: Languages, 
   shortCaliber: boolean, 
   caliberDisplayNameList: {name:string, displayName?:string}[], 
   collection: CollectionType,
@@ -54,7 +54,7 @@ export async function printCustomCollection(
             </thead>
 
             <tbody>
-              ${(customCollection as any).map(ammo =>{
+              ${(customCollection as any).map((ammo: any) =>{
                 return `
                   <tr>
                     ${determineDataTemplate(collection).map(data=>{
@@ -84,7 +84,7 @@ export async function printCustomCollection(
             <tfoot>
               <tr>
                 <td colspan=${getHeaderFooterLength()}>
-                  ${pdfFooter[language].replace("{{{A}}}", Application.applicationName).replace("{{{B}}}", Platform.OS)} ${Application.nativeApplicationVersion}, ${generatedDate}
+                  ${pdfFooter[language].replace("{{{A}}}", Application.applicationName ?? "Arsenal Gun Collection").replace("{{{B}}}", Platform.OS)} ${Application.nativeApplicationVersion}, ${generatedDate}
                 </td>
               </tr>
             </tfoot>
