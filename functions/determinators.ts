@@ -953,6 +953,18 @@ export function determinePlaceHolderImage(collection: CollectionType){
     }
 }
 
+export function determineCountryImage(county: SupportedCountries){
+    switch(county){
+        case "ch": 
+            return require("../assets/switzerland.png")
+         case "us": 
+            return require("../assets/usa.png")
+         case "de": 
+            return require("../assets/germany.png")
+    }
+}
+        
+
 export function determineCostLoggerSchema(collection: CollectionType){
     switch(collection){
         case "ammoCollection":

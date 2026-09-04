@@ -19,7 +19,7 @@ export default function LanguageSelection(){
     }
 
     return(
-        <View style={{padding: defaultViewPadding, backgroundColor: theme.colors.primary}}>
+        <View style={{padding: defaultViewPadding}}>
             <Text variant="titleMedium" style={{marginBottom: 10, color: theme.colors.onPrimary}}>{preferenceTitles.language[language]}</Text>
             <View style={{display: "flex", flexDirection: "row", gap: 0, flexWrap: "wrap", justifyContent: "center"}}>
                 {languageSelection.map(langSelect =>{
