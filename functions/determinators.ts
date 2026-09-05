@@ -957,10 +957,12 @@ export function determineCountryImage(county: SupportedCountries){
     switch(county){
         case "ch": 
             return require("../assets/switzerland.png")
-         case "us": 
+        case "us": 
             return require("../assets/usa.png")
-         case "de": 
+        case "de": 
             return require("../assets/germany.png")
+        default:
+            return require("../assets/worldmap.png")
     }
 }
         
