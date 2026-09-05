@@ -39,6 +39,9 @@ export default function MainMenu({navigation}){
         navigation.goBack()
     }
 
+    const image = determineCountryImage(country)
+    const { width, height } = Image.resolveAssetSource(image)
+
     return(
         <View style={{height: "100%", width: Dimensions.get("window").width > Dimensions.get("window").height ? "60%" : "100%"}}>
             <View style={{width: "100%", height: "100%"}}>
@@ -59,17 +62,27 @@ export default function MainMenu({navigation}){
                             alignItems: "center",
                         }}
                     >
-                        <Image 
-                            source={determineCountryImage(country)} 
-                            style={{
-                                width: "50%", 
-                                height: "150%", 
-                                resizeMode: "contain", 
-                                backgroundColor: "transparent",
-                                tintColor: theme.colors.primaryContainer,
-                                marginRight: defaultViewPadding
-                            }}
-                        />
+                        <View style={{
+                            height: "100%",
+                            aspectRatio: width > height ? width/height : height/width,
+                            backgroundColor: "transparent", 
+                            flexDirection: "row",
+                            justifyContent: "flex-end",
+                            alignItems: "center",
+                            padding: defaultViewPadding
+                        }}>
+                            <Image 
+                                source={image} 
+                                style={{
+                                    height: "100%", 
+                                    width: "100%",
+                                    objectFit: "contain", 
+                                    backgroundColor: "transparent",
+                                    tintColor: theme.colors.primaryContainer,
+                                    
+                                }}
+                            />
+                        </View>
                     </View>
                     <TouchableNativeFeedback onPress={()=>handleCloseMenu()}>
                         <View style={{width: "100%", height: 50, display: "flex", flexDirection: "row", justifyContent: "flex-start", alignItems: "center", paddingLeft: 20}}>
