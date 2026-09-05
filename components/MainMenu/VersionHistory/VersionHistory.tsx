@@ -14,6 +14,7 @@ export default function VersionHistory(){
     const markdownStyles = {
         strong: { fontWeight: "700" as const },
         bullet_list_icon: { color: theme.colors.onBackground },
+        text: {color: theme.colors.onBackground}
     };
 
     return(
