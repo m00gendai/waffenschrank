@@ -724,7 +724,7 @@ export const dataTemplate_Translations: DataTemplateTranslations = {
     },
     "de_wbkColor":{
         name: "de_wbkColor",
-        de: "WBK-Farbe",
+        de: "WBK Farbe",
         en: "Weapon Possession License Color",
         fr: "Couleur de la carte de possession d’armes",
         it: "Colore della carta di possesso di armi",
