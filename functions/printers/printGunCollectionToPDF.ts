@@ -15,6 +15,7 @@ import { PreferredUnits } from 'stores/usePreferenceStore';
 import { pdfFooter, pdfTitle_GunCollection, pdfTitle_GunCollectionArt5 } from 'lib/Text/text_pdf';
 import { getShortCaliberNameFromArray } from 'functions/getShortCaliber';
 import { ne } from 'drizzle-orm';
+import { dropDownPickerOptions } from 'lib/dropDownPickerOptions';
 
 const art5Keys = checkBoxes.filter(checkBox => checkboxFields_ch.includes(checkBox.name)).map(checkBox => checkBox.name) as (keyof GunType)[]
 
@@ -122,6 +123,13 @@ function getTitle(printer:ListPrinter){
   }
 }
 
+function getDropDownLabel(gun:ItemType, data:string, language:Languages){
+    const targetValues = dropDownPickerOptions[data][language]
+    const targetValue = targetValues.filter(value => value.value === gun[data])[0]
+
+    return targetValue?.label ?? ""
+}
+
 export async function printGunCollection(language: Languages, shortCaliber: boolean, caliberDisplayNameList: {name:string, displayName?:string}[], printer: ListPrinter, preferredUnits: PreferredUnits, country: SupportedCountries){
 
     const excludedKeys = getExcludedKeys(country)
@@ -163,6 +171,9 @@ export async function printGunCollection(language: Languages, shortCaliber: bool
                             datePickerTriggerFields.includes(data.name) ? 
                               parseDate(gun[data.name] as number | null) 
                               : 
+                            Object.keys(dropDownPickerOptions).includes(data.name) ?
+                                getDropDownLabel(gun, data.name, language)
+                                :
                               gun[data.name] ? 
                                 checkConversionFields(gun, data.name, preferredUnits)  
                                 : 

@@ -8,16 +8,17 @@ import { LabelTemplate } from 'lib/shippingLables';
 import { PreferredUnits, SorterSettings } from 'stores/usePreferenceStore';
 import { db } from 'db/client';
 import * as schema from "db/schema"
-import { CollectionType } from 'lib/interfaces';
+import { CollectionType, ItemType, Languages } from 'lib/interfaces';
 import { inArray } from "drizzle-orm";
 import QRCodeSVG from "qrcode-svg";
 import { dataTemplate_Translations } from 'lib/DataTemplates/translations';
 import { determineSortingFunction } from 'functions/determinators';
 import { parseDate } from 'functions/utils';
 import { getShortCaliberNameFromArray } from 'functions/getShortCaliber';
+import { dropDownPickerOptions } from 'lib/dropDownPickerOptions';
 
 export async function printLabelsToPDF(
-  language: string, 
+  language: Languages, 
   shortCaliber: boolean, 
   caliberDisplayNameList: {name:string, displayName?:string}[], 
   preferredUnits: PreferredUnits,
@@ -32,6 +33,22 @@ export async function printLabelsToPDF(
   sortBy: SorterSettings,
   selectedFields: string[]
 ){
+
+    function parseText(item:ItemType, field:string, language:Languages){
+        if(field === "caliber"){
+            return getShortCaliberNameFromArray(item[field], caliberDisplayNameList, shortCaliber)
+        }
+        if(datePickerTriggerFields.includes(field)){
+            parseDate(item[field])
+        } 
+        if(Object.keys(dropDownPickerOptions).includes(field)){
+            const targetValues = dropDownPickerOptions[field][language]
+            const targetValue = targetValues.filter(value => value.value === item[field])[0]
+            return targetValue?.label ?? ""
+        }
+        return item[field]
+    }
+
 try{
   const items = await db.select().from(schema[collection]).where(inArray(schema[collection].id, selectedItems)).orderBy(determineSortingFunction(collection, sortBy))
 
@@ -65,7 +82,7 @@ const pagesHtml = pages.map((pageItems) => {
           <div class="text">
           ${selectedFields.map(field => {
             if(item[field]){
-              return `<p>${dataTemplate_Translations[field][language]}:</p><p><strong>${field === "caliber" ? getShortCaliberNameFromArray(item[field], caliberDisplayNameList, shortCaliber) : datePickerTriggerFields.includes(field) ? parseDate(item[field]) : item[field]}</strong></p>`
+              return `<p>${dataTemplate_Translations[field][language]}:</p><p><strong>${parseText(item, field, language)}</strong></p>`
             }
             }).join("")}
           </div>` : ""}

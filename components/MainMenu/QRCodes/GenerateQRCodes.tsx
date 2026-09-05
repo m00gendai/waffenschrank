@@ -3,10 +3,10 @@ import { Appbar, Button, Checkbox, IconButton, List, RadioButton, Switch, Text }
 import { usePreferenceStore } from "stores/usePreferenceStore"
 import * as schema from "db/schema"
 import { db } from "db/client"
-import { datePickerTriggerFields, defaultViewPadding, excludedKeysForDataTemplates } from "configs/configs"
+import { countryExclusiveFields, datePickerTriggerFields, defaultViewPadding, excludedKeysForDataTemplates } from "configs/configs"
 import { ScrollView } from "react-native-gesture-handler"
 import { dataTemplate_Translations } from "lib/DataTemplates/translations"
-import { CollectionType, ItemType } from "lib/interfaces"
+import { CollectionType, ItemType, SupportedCountries } from "lib/interfaces"
 import { useRoute } from "@react-navigation/native"
 import { LabelTemplate, shippingLabelData_ISO, shippingLabelData_US } from "lib/shippingLables"
 import { useCallback, useState } from "react"
@@ -18,6 +18,7 @@ import CustomShippingLabelDialog from "components/Dialogs/CustomShippingLabelDia
 import { generateQRcodeText, screenTitles } from "lib/Text/textTemplates_generateQRcodes"
 import { parseDate } from "functions/utils"
 import { tabBarLabels } from "lib/Text/text_tabBarLabels"
+import { dropDownPickerOptions } from "lib/dropDownPickerOptions"
 
 interface RouteParams {
   collection: CollectionType,
@@ -29,7 +30,7 @@ export default function GenerateQRCodes({navigation}){
     const route = useRoute()
     const params = route.params as RouteParams
 
-    const { language, theme, generalSettings, caliberDisplayNameList, preferredUnits, sortBy } = usePreferenceStore()
+    const { language, theme, generalSettings, caliberDisplayNameList, preferredUnits, sortBy, country } = usePreferenceStore()
     const { setCustomShippingLabelVisible } = useViewStore()
 
     const customLabels = db.select().from(schema.customShippingLabels).all()
@@ -73,6 +74,17 @@ export default function GenerateQRCodes({navigation}){
             return newSet;
         })
     }, [])
+
+    function getExcludedKeys(country: SupportedCountries){
+
+      const countrySpecificExcludedKeys = Object.entries(countryExclusiveFields).filter(entry =>{
+        return entry[0] !== country
+      })
+    
+        const flatmapped = countrySpecificExcludedKeys.flatMap(entry => entry[1])
+    
+      return [...excludedKeysForDataTemplates, ...flatmapped]
+    }
 
     const handleFieldCheckboxPress = useCallback((item: string) => {
         setSelectedFields(prev => {
@@ -143,6 +155,19 @@ export default function GenerateQRCodes({navigation}){
     function getSelectedItemsFromDatabase(){
         const items = collectionItems.filter(item => selectedGuns.has(item.id)) as ItemType[]
         return items
+    }
+
+    function parseText(field: string){
+        if(datePickerTriggerFields.includes(field)){
+            return parseDate(getSelectedItemsFromDatabase()[0][field])
+        }
+        if(Object.keys(dropDownPickerOptions).includes(field)){
+            const targetValues = dropDownPickerOptions[field][language]
+            const targetValue = targetValues.filter(value => value.value === getSelectedItemsFromDatabase()[0][field])[0]
+              
+            return targetValue?.label ?? ""
+        }
+        return getSelectedItemsFromDatabase()[0][field]
     }
 
     function generatePDF(){
@@ -314,7 +339,7 @@ export default function GenerateQRCodes({navigation}){
             contentIndex === 2 ?
                 <View style={{flex: 1}}>
                     <FlatList
-                        data={Object.keys(determineEmptyObject(params.collection)).filter(item => !excludedKeysForDataTemplates.includes(item) && dataTemplate_Translations[item])}
+                        data={Object.keys(determineEmptyObject(params.collection)).filter(item => !getExcludedKeys(country).includes(item) && dataTemplate_Translations[item])}
                         keyExtractor={(item, index) => `label_${index}`}
                         renderItem={({ item }) => (
                             <Checkbox.Item
@@ -355,7 +380,7 @@ export default function GenerateQRCodes({navigation}){
                                         return( 
                                             <View key={`selectedFields_${field}_${index}`}>
                                                 <Text style={{fontSize: fontSize}}>{`${dataTemplate_Translations[field][language]}:`}</Text>
-                                                <Text style={{fontSize: fontSize, fontWeight: "bold"}} numberOfLines={1} >{`${datePickerTriggerFields.includes(field) ? parseDate(getSelectedItemsFromDatabase()[0][field]) : getSelectedItemsFromDatabase()[0][field]}`}</Text>
+                                                <Text style={{fontSize: fontSize, fontWeight: "bold"}} numberOfLines={1} >{parseText(field)}</Text>
                                             </View>
                                         )
                                     }

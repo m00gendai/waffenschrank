@@ -2,7 +2,7 @@ import * as Print from 'expo-print';
 import { shareAsync } from 'expo-sharing';
 import * as IntentLauncher from 'expo-intent-launcher';
 import * as FileSystem from 'expo-file-system/legacy';
-import { CollectionType, Languages } from 'lib/interfaces';
+import { CollectionType, ItemType, Languages } from 'lib/interfaces';
 import { dateLocales, datePickerTriggerFields, pdfCommonStyles, pdfDateOptions } from 'configs/configs';
 import { Platform } from 'react-native';
 import { db } from 'db/client';
@@ -15,6 +15,7 @@ import { determineDataTemplate, determineSortingFunction, determineSortingOption
 import { pdfFooter } from 'lib/Text/text_pdf';
 import { getShortCaliberNameFromArray } from 'functions/getShortCaliber';
 import { ne } from 'drizzle-orm';
+import { dropDownPickerOptions } from 'lib/dropDownPickerOptions';
 
 export async function printCustomCollection(
   language: Languages, 
@@ -35,6 +36,13 @@ export async function printCustomCollection(
   function getHeaderFooterLength(){
   const columnTitles = customTemplate.filter(data => includedKeys.includes(data.name))
     return columnTitles.length
+  }
+
+  function getDropDownLabel(ammo:ItemType, data:string, language:Languages){
+      const targetValues = dropDownPickerOptions[data][language]
+      const targetValue = targetValues.filter(value => value.value === ammo[data])[0]
+  
+      return targetValue?.label ?? ""
   }
 
   const generatedDate:string = date.toLocaleDateString(dateLocales[language], pdfDateOptions)
@@ -66,6 +74,9 @@ export async function printCustomCollection(
                             datePickerTriggerFields.includes(data.name) ? 
                               parseDate(ammo[data.name]) 
                               : 
+                            Object.keys(dropDownPickerOptions).includes(data.name) ?
+                                getDropDownLabel(ammo, data.name, language)
+                            :
                               ammo[data.name] ? 
                                 checkConversionFields(ammo, data.name, preferredUnits) 
                                 : 
