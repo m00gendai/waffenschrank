@@ -4,7 +4,7 @@ import { usePreferenceStore } from "stores/usePreferenceStore";
 import { useNavigation } from "@react-navigation/native";
 import { StackNavigationProp } from '@react-navigation/stack';
 import { defaultBottomBarHeight, defaultBottomBarTextHeight, defaultViewPadding, screenNameParamsMain } from "configs/configs";
-import { useSharedValue } from "react-native-reanimated";
+import { Easing, useSharedValue } from "react-native-reanimated";
 import Carousel, {
   ICarouselInstance,
   Pagination,
@@ -20,11 +20,13 @@ import { tabBarLabels } from "lib/Text/text_tabBarLabels";
 import BottomBar_ReloadingCollection from "./BottomBar_ReloadingCollection";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { PREFERENCES } from "configs/configs_DB";
+import { determineTabBarLabel } from "functions/determinators";
+import { useBottomSheetTimingConfigs } from "@gorhom/bottom-sheet";
 
 interface Props{
   screen?: string
-  bottomBarRef: React.RefObject<BottomSheetMethods>
-  snapStateRef: React.RefObject<Number>
+  bottomBarRef: React.RefObject<BottomSheetMethods | null>
+  snapStateRef: React.RefObject<Number | null>
   bottomBarIcon: string
 }
 
@@ -71,6 +73,9 @@ export default function BottomBar({screen, bottomBarRef, snapStateRef, bottomBar
     
   const handleToggleBottomSheet = () => {
     // The ref setting are handled by the onChange event of the bottom sheet itself already
+    if (!bottomBarRef.current){
+        return
+    }
     if (snapStateRef.current === 0) {
       bottomBarRef.current.snapToIndex(1); 
       return
@@ -80,6 +85,16 @@ export default function BottomBar({screen, bottomBarRef, snapStateRef, bottomBar
       return
     }
   }
+
+    const animationConfigs = useBottomSheetTimingConfigs({
+          duration: 350,
+          easing: Easing.sin,
+      })
+
+    function handleOnPress(collection: CollectionType){
+        handleNavigation("itemCollection", {collectionType: collection})
+        bottomBarRef.current?.snapToIndex(0, animationConfigs)
+    }
 
   return(
     <View style={{width: "100%", flex: 1, flexDirection: "column", justifyContent: "center", alignItems: "flex-start"}}>
@@ -101,9 +116,9 @@ export default function BottomBar({screen, bottomBarRef, snapStateRef, bottomBar
         
         {screenNameParamsMain.map(screenName =>{
           return(
-            <TouchableOpacity key={screenName} onPress={()=>handleNavigation("itemCollection", {collectionType: screenName})} style={{ alignItems: 'center' }}>
+            <TouchableOpacity key={screenName} onPress={()=>handleOnPress(screenName)} style={{ alignItems: 'center' }}>
               <Icon source={screenName === "gunCollection" ? "pistol" : "ammunition"} size={24} color={screen === screenName ? theme.colors.primary : theme.colors.secondary} />
-              <Text style={{ color: screen === screenName ? theme.colors.primary : theme.colors.secondary, marginTop: 4 }}>{tabBarLabels[screenName][language]}</Text>
+              <Text style={{ color: screen === screenName ? theme.colors.primary : theme.colors.secondary, marginTop: 4 }}>{determineTabBarLabel(screenName)[language]}</Text>
             </TouchableOpacity>
           )
         })}
@@ -137,13 +152,13 @@ export default function BottomBar({screen, bottomBarRef, snapStateRef, bottomBar
               }}
             >
             {index === 0 ? 
-              <BottomBar_AccessoryCollection handleNavigation={handleNavigation} /> :
+              <BottomBar_AccessoryCollection handleNavigation={handleNavigation} bottomBarRef={bottomBarRef} /> :
               index=== 1 ? 
-              <BottomBar_PartCollection handleNavigation={handleNavigation} /> :
+              <BottomBar_PartCollection handleNavigation={handleNavigation} bottomBarRef={bottomBarRef} /> :
               index=== 2 ? 
-              <BottomBar_LiteratureCollection handleNavigation={handleNavigation} /> :
+              <BottomBar_LiteratureCollection handleNavigation={handleNavigation} bottomBarRef={bottomBarRef} /> :
               index=== 3 ? 
-              <BottomBar_ReloadingCollection handleNavigation={handleNavigation} /> :
+              <BottomBar_ReloadingCollection handleNavigation={handleNavigation} bottomBarRef={bottomBarRef} /> :
               null}
             </Card>
           )}

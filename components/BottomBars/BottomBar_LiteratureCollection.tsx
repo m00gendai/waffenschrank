@@ -6,16 +6,30 @@ import { mainCollectionCategories } from "lib/textTemplates";
 import { CollectionType } from "lib/interfaces";
 import { useItemStore } from "stores/useItemStore";
 import { determineAccessoryIcons, determineTabBarLabel } from "functions/determinators";
+import { BottomSheetMethods } from "@gorhom/bottom-sheet/lib/typescript/types";
+import { useBottomSheetTimingConfigs } from "@gorhom/bottom-sheet";
+import { Easing } from "react-native-reanimated";
 
 interface Props{
     handleNavigation:(target: "itemCollection", params:{ collectionType: CollectionType })=>void
+    bottomBarRef: React.RefObject<BottomSheetMethods | null>
 }
 
-export default function BottomBar_LiteratureCollection({handleNavigation}:Props){
+export default function BottomBar_LiteratureCollection({handleNavigation, bottomBarRef}:Props){
 
 
     const { language, theme } = usePreferenceStore()
     const { currentCollection } = useItemStore()
+
+    const animationConfigs = useBottomSheetTimingConfigs({
+        duration: 350,
+        easing: Easing.sin,
+    })
+
+    function handleOnPress(collection: CollectionType){
+        handleNavigation("itemCollection", {collectionType: collection})
+        bottomBarRef.current?.snapToIndex(0, animationConfigs)
+    }
 
     return(
         <View 
@@ -43,7 +57,7 @@ export default function BottomBar_LiteratureCollection({handleNavigation}:Props)
                     <TouchableOpacity 
                     key={`${collection}_${index}`}
                         onPress={()=>
-                            handleNavigation("itemCollection", {collectionType: collection})} 
+                            handleOnPress(collection)}
                         style={{
                             width: "30%", 
                             alignItems: 'center'}}
