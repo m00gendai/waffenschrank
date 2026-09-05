@@ -91,14 +91,11 @@ export default function MainMenu({navigation}){
                     </TouchableNativeFeedback>
 
                     <LanguageSelection />
-                    
-                    
+ 
                 </View>
                 <View style={{padding: 0, display: "flex", height: "100%", flexDirection: "column", flexWrap: "wrap"}}>
                     <View style={{width: "100%", flex: 15}}>
                         <ScrollView>
-                                
-                            
 
                             <DatabaseOperations />
 
@@ -118,7 +115,7 @@ export default function MainMenu({navigation}){
 
                         </ScrollView>
                     </View>
-                    <View style={{width: "100%", flex: 1, padding: 0, marginTop: 10, marginBottom: 10, elevation: 4, backgroundColor: theme.colors.primary}}>
+                    <View style={{width: "100%", flex: 1, padding: 0, marginTop: 10, marginBottom: 100, elevation: 4, backgroundColor: theme.colors.primary}}>
                     </View>
                 </View>
             </View>           
